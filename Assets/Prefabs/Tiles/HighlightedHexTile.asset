@@ -13,16 +13,7 @@ MonoBehaviour:
   m_Name: HighlightedHexTile
   m_EditorClassIdentifier: 
   m_DefaultSprite: {fileID: 0}
-  m_DefaultGameObject: {fileID: 8164428768358615014, guid: 20ae2992555c91940b233625cd72859c, type: 3}
+  m_DefaultGameObject: {fileID: 4870199876836130939, guid: 09e1c741bdff1644ab151c3677c145f3, type: 3}
   m_DefaultColliderType: 1
   m_TilingRules: []
   m_FlatTop: 0
-  costInfo:
-    lowAvoidance: 0
-    mediumAvoidance: 0
-    highAvoidance: 0
-    isWalkable: 1
-    isOccupied: 0
-  useHighlightedSprite: 0
-  DefaultSprite: {fileID: -8888100805585084463, guid: 1ac9b43d7ce89ea428239ed032160a8d, type: 3}
-  HighlightedSprite: {fileID: -8888100805585084463, guid: 4e6a42445bf0ad049a7ee63dfb3bfa93, type: 3}

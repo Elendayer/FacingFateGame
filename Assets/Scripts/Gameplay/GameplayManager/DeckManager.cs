@@ -34,13 +34,13 @@ public class DeckManager : MonoBehaviour
         if (deckDrawButton != null)
             deckDrawButton.onClick.AddListener(DrawTopCard);
 
-        foreach (PlayerScript p in FindObjectsByType<PlayerScript>(0))
+        foreach (PlayerCharacterScript p in FindObjectsByType<PlayerCharacterScript>(0))
         {
             BuildDeckFromIDs(p);
         }
     }
 
-    void BuildDeckFromIDs(PlayerScript p)
+    void BuildDeckFromIDs(PlayerCharacterScript p)
     {
         cardStack.Clear();
 

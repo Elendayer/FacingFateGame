@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyScript : EntityScript
 {
+    [Header("AI")]
     public EnemyAI enemyAI;
 
     private void Start()

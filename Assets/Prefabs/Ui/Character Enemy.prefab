@@ -10,13 +10,14 @@ GameObject:
   m_Component:
   - component: {fileID: 2832468515761090220}
   - component: {fileID: 7822352505822416355}
+  - component: {fileID: 3510526810490553361}
   - component: {fileID: 9001171521745787760}
   - component: {fileID: 3567744316417343318}
   - component: {fileID: 6208202023648593538}
   - component: {fileID: 8935636570208141450}
   - component: {fileID: 4777331206848150532}
   m_Layer: 0
-  m_Name: Character
+  m_Name: Character Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -71,6 +72,33 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3510526810490553361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925646098595141539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e57eefa759930c741a37410dccdc1f45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth:
+    Value: 100
+  CurrentHealth:
+    Value: 100
+  MaxStamina:
+    Value: 10
+  CurrentStamina:
+    Value: 10
+  Block:
+    Value: 0
+  Armour:
+    Value: 0
+  enemyAI:
+    EnemyCardsByID: 
+    EnemyDeck: []
 --- !u!114 &9001171521745787760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84,6 +112,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   refTilemap: {fileID: 0}
+  DefaultTile: {fileID: 0}
+  HighlightedTile: {fileID: 0}
   moveSpeed: 3
   currentCell: {x: 0, y: 0, z: 0}
 --- !u!114 &3567744316417343318
@@ -98,6 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce6f6f866f8993347bdbd7a0baadeb50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  desiredDraggableTargetType: 0
   lineRenderer: {fileID: 8935636570208141450}
   curveResolution: 3
   character: {fileID: 9001171521745787760}

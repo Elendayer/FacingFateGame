@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -24,8 +25,11 @@ public static class TileMapUtilityScript
     #region Pathfinding (A*)
     public static List<Vector3Int> FindPath(Vector3Int start, Vector3Int goal, Tilemap tilemap)
     {
+
         if (tilemap.GetTile<BasemapHexTile>(start) == null || tilemap.GetTile<BasemapHexTile>(goal) == null)
             return null;
+
+        CostInfoScript costInfoScript = tilemap.GetComponent<CostInfoScript>();
 
         var openSet = new PriorityQueue<Vector3Int>();
         var cameFrom = new Dictionary<Vector3Int, Vector3Int>();
@@ -55,8 +59,8 @@ public static class TileMapUtilityScript
                 var tile = tilemap.GetTile<BasemapHexTile>(neighbor);
                 if (tile == null) continue;
 
-                int tileCost = tile.costInfo.cost; // use your BasemapHexTile.cost
-                if (tileCost == int.MaxValue) continue; // blocked
+                int tileCost = costInfoScript.costInfoDict.TryGetValue(neighbor, out var costInfo) ? costInfo.cost : 1;
+                if (tileCost >= 10000) continue; // blocked
 
                 int tentative = gScore[current] + tileCost;
                 if (!gScore.ContainsKey(neighbor) || tentative < gScore[neighbor])

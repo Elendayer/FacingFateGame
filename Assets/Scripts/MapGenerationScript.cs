@@ -1,22 +1,26 @@
+using NUnit.Framework.Interfaces;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class MapGenerationScript : MonoBehaviour
 {
     public HexagonalRuleTile hexagonalTile;
+    public CostInfoScript costInfoScript = null;
 
     public Tilemap tilemap;
     public int SizeX;
     public int SizeY;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void Gen()
     {
         for (int i = 0; i < SizeX; i++)
         {
             for (int j = 0; j < SizeY; j++)
-            { 
-                tilemap.SetTile( new Vector3Int( i-(SizeX/2), j - (SizeY / 2), 0), hexagonalTile);
+            {
+                Vector3Int vector3Int = new Vector3Int(i - (SizeX / 2), j - (SizeY / 2), 0);
+
+                tilemap.SetTile(vector3Int, hexagonalTile);
             }
         }
     }

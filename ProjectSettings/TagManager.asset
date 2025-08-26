@@ -50,5 +50,11 @@ TagManager:
   - name: Arrow
     uniqueID: 589123887
     locked: 0
+  - name: Overlay
+    uniqueID: 3423576063
+    locked: 0
+  - name: Ui
+    uniqueID: 1504294727
+    locked: 0
   m_RenderingLayers:
   - Default

@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 
 public class DraggableCharacter : Draggable
 {
-    public CharacterOnMap character;
+    public EntityOnMap character;
     public Tilemap baseTilemap;
 
     public override void OnEndDrag(PointerEventData eventData)

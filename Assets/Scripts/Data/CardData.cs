@@ -21,6 +21,7 @@ public enum CardElement
     Air,
     Earth,
     Shadow,
+    Poison,
     Light,
     Blood,
     Arcane,

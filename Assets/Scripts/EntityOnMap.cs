@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class CharacterOnMap : MonoBehaviour
+public class EntityOnMap : MonoBehaviour
 {
     [Header("References")]
     public Tilemap refTilemap;            // Overlay tilemap where character appears
@@ -22,12 +22,14 @@ public class CharacterOnMap : MonoBehaviour
     private void Start()
     {
         transform.position = refTilemap.CellToWorld(currentCell);
+        SetOccupied(true);     
     }
     /// <summary>
     /// Move the character to the target cell coordinate using A* pathfinding.
     /// </summary>
     public void MoveTo(Vector3Int targetCell)
     {
+        SetOccupied(false);
         if (moveRoutine != null) StopCoroutine(moveRoutine);
 
         List<Vector3Int> path = TileMapUtilityScript.FindPath(currentCell, targetCell, refTilemap);
@@ -62,9 +64,20 @@ public class CharacterOnMap : MonoBehaviour
         }
 
         moveRoutine = null;
+        SetOccupied(true);
         TileMapUtilityScript.ResetMaphightlight(refTilemap, DefaultTile);
     }
 
+    public void SetOccupied( bool b)
+    {
+        GetCostInfo().isOccupied = b;
+    }
+
+    public CostInfo GetCostInfo()
+    {
+        refTilemap.GetComponent<CostInfoScript>().costInfoDict.TryGetValue(currentCell, out CostInfo costInfo);
+        return costInfo;
+    }
     void Update()
     {
         HandleMouseDrag();
