@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityManager : MonoBehaviour
+public class EntityScript : MonoBehaviour
 {
     [Header("Base Stats")]
     public Stat MaxHealth = new() { Value = 100 };
@@ -19,7 +19,7 @@ public class EntityManager : MonoBehaviour
     public Dictionary<(CardElement, StatAspect), Stat> CardElementStats = new();
     public Dictionary<(CardClass, StatAspect), Stat> CardClassStats = new();
 
-    private void Awake()
+    private void Start()
     {
         // Fill EntityAttributes
         foreach (EntityAttributeEnum attr in Enum.GetValues(typeof(EntityAttributeEnum)))

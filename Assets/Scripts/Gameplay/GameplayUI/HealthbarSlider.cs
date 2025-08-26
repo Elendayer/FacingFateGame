@@ -6,7 +6,7 @@ public class HealthbarSlider : MonoBehaviour
 {
     public Slider slider;
     public TextMeshProUGUI textMeshPro;
-    public EntityManager eM;
+    public EntityScript eM;
 
     int max => eM.MaxHealth.GetFinalValue();
     int current => eM.CurrentHealth.GetFinalValue();

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public static class UtilityScript
@@ -39,7 +38,7 @@ public static class UtilityScript
 }
 public static class CombatUtils
 {
-    public static void ApplyDamage(EntityManager target, int rawDamage)
+    public static void ApplyDamage(EntityScript target, int rawDamage)
     {
         // Step 1: Reduce by Armor
         int reducedDamage = Mathf.Max(0, rawDamage - target.Armour.Value);
@@ -60,7 +59,7 @@ public static class CombatUtils
         }
     }
 
-    public static void ApplyHealing(EntityManager target, int healing)
+    public static void ApplyHealing(EntityScript target, int healing)
     {
         target.CurrentHealth.Value = Mathf.Min(
             target.CurrentHealth.Value + healing,

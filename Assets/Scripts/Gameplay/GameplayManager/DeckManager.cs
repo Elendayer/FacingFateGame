@@ -34,10 +34,13 @@ public class DeckManager : MonoBehaviour
         if (deckDrawButton != null)
             deckDrawButton.onClick.AddListener(DrawTopCard);
 
-        BuildDeckFromIDs();
+        foreach (PlayerScript p in FindObjectsByType<PlayerScript>(0))
+        {
+            BuildDeckFromIDs(p);
+        }
     }
 
-    void BuildDeckFromIDs()
+    void BuildDeckFromIDs(PlayerScript p)
     {
         cardStack.Clear();
 
@@ -46,7 +49,7 @@ public class DeckManager : MonoBehaviour
 
         foreach (int id in deckCardIDs)
         {
-            CardData cardData = CardDatabase.GetCardById(id, PlayerManager.Instance);
+            CardData cardData = CardDatabase.GetCardById(id,p);
             if (cardData == null)
             {
                 Debug.LogWarning($"Card ID '{id}' not found in database.");

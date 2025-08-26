@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 048150964b6f0ee4f94d1f7406508a75, type: 3}
+  m_Name: BaseHexTile
+  m_EditorClassIdentifier: 
+  m_DefaultSprite: {fileID: 0}
+  m_DefaultGameObject: {fileID: 8164428768358615014, guid: f882598307cb4c24989e0e9e956eefa3, type: 3}
+  m_DefaultColliderType: 1
+  m_TilingRules: []
+  m_FlatTop: 0
+  costInfo:
+    lowAvoidance: 0
+    mediumAvoidance: 0
+    highAvoidance: 0
+    isWalkable: 1
+    isOccupied: 0
+  useHighlightedSprite: 0
+  DefaultSprite: {fileID: -8888100805585084463, guid: 1ac9b43d7ce89ea428239ed032160a8d, type: 3}
+  HighlightedSprite: {fileID: -8888100805585084463, guid: 4e6a42445bf0ad049a7ee63dfb3bfa93, type: 3}

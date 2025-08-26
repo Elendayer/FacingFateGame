@@ -48,7 +48,7 @@ public class CardData
 {
     public int cardID = 0;
     public string cardName = string.Empty;
-    public EntityManager Owner;
+    public EntityScript Owner;
 
     public Sprite cardArtwork;
     public string cardDescription;
@@ -97,15 +97,13 @@ public class CardData
 
         return value;
     }
-    private EntityManager Target =>
-        targetSelf ? Owner :
-        (Owner == PlayerManager.Instance ? EnemyManager.Instance : PlayerManager.Instance);
+    public CardTargetType TargetType;
 
-    public Action<EntityManager, CardData> SetCardDescription =
-        (user, data) => Debug.Log($"Not Defined Description of {data.cardName}");
+    public Action<EntityScript, CardData> SetCardDescription =
+        (user, data) => Debug.Log($"Not defined Description of {data.cardName}");
 
-    public Action<EntityManager, EntityManager, CardData> CardEffect =
-        (user, target, data) => Debug.Log($"Not Defined Effect used by {user} at {target} by Card {data.cardName}");
+    public Action<EntityScript, EntityScript, CardData> CardEffect =
+        (user, target, data) => Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
 
     [Header("AI")]
     public Intention Intention = Intention.None;
@@ -113,8 +111,15 @@ public class CardData
     public int priority = 0;
     public int cooldown = 1;
 
-    public void ActivateCard()
+    public void ActivateCard(List<EntityScript> targetEntity)
     {
-        CardEffect?.Invoke(Owner, Target, this);
+        foreach (EntityScript target in targetEntity)
+            CardEffect?.Invoke(Owner, target, this);
     }
+}
+public enum CardTargetType
+{
+    Player,
+    Enemy,
+    Self
 }

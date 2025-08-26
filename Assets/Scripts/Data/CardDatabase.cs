@@ -18,7 +18,7 @@ public static class CardDatabase
         }
     }
 
-    public static CardData GetCardById(int id, EntityManager owner)
+    public static CardData GetCardById(int id, EntityScript owner)
     {
         CardData cd = cardLookup.TryGetValue(id, out var card) ? card : null;
         cd.Owner = owner;
