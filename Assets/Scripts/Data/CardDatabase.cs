@@ -10,7 +10,7 @@ public static class CardDatabase
         if (!cardLookup.ContainsKey(card.cardID))
         {
             cardLookup[card.cardID] = card;
-            Debug.Log($"Registered card: {card.cardName} (ID: {card.cardID})");
+            //Debug.Log($"Registered card: {card.cardName} (ID: {card.cardID})");
         }
         else
         {
@@ -70,7 +70,6 @@ public static class CardDatabase
 
             repeats_u = 2,
             cost_u = 2,
-            duration_u = 2,
 
             SetCardDescription = (User, data) =>
             {

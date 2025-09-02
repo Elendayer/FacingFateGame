@@ -120,7 +120,8 @@ public class CardData
 }
 public enum CardTargetType
 {
-    Player,
+    Allies,
     Enemy,
-    Self
+    Self,
+    Tile
 }

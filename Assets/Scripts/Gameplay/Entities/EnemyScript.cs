@@ -7,11 +7,6 @@ public class EnemyScript : EntityScript
     [Header("AI")]
     public EnemyAI enemyAI;
 
-    private void Start()
-    {
-        enemyAI.Setup(this);
-    }
-
     [System.Serializable]
     public class EnemyAI
     {

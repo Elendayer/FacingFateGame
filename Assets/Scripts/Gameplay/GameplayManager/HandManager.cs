@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,5 +46,9 @@ public class HandManager : MonoBehaviour
         {
             UtilityScript.Discard(cardObject);
         }
+    }
+    public void DiscardAllInHand()
+    {
+     
     }
 }
