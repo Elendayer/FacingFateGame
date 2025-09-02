@@ -19,6 +19,6 @@ public class CoordinateTextScript : MonoBehaviour
         costInfoScript.costInfoDict.TryGetValue(cellPos, out CostInfo costInfo);
         cost = costInfo.cost;
 
-        GetComponent<TextMeshProUGUI>().text = $"{cellPos.x},{cellPos.y} - {cost}";
+        GetComponent<TextMeshProUGUI>().text = $"{cellPos.x},{cellPos.y} : {transform.localToWorldMatrix.GetPosition()} {cost}";
     }
 }
