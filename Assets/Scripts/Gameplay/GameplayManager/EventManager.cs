@@ -18,6 +18,11 @@ public class EventManager : MonoBehaviour
     }
     public void Endturn()
     {
+        GameEvents.TriggerTurnEnd();
+        Invoke(nameof(Startturn), 0.1f);
+    }
+    public void Startturn()
+    {
         GameEvents.TriggerTurnStart();
     }
 }

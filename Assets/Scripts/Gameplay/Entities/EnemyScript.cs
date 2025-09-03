@@ -10,21 +10,6 @@ public class EnemyScript : EntityScript
     [System.Serializable]
     public class EnemyAI
     {
-        public List<int> EnemyCardsByID;
 
-        public List<CardData> EnemyDeck;
-
-        public void Setup(EnemyScript enemyScript)
-        {
-            foreach (int id in EnemyCardsByID)
-            {
-                EnemyDeck.Add(CardDatabase.GetCardById(id, enemyScript));
-            }
-
-            Act();
-        }
-        public void Act()
-        {
-        }
     }
 }

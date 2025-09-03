@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class DeckManager : MonoBehaviour
@@ -17,7 +14,6 @@ public class DeckManager : MonoBehaviour
 
     [Header("Deck Management")]
     public GameObject deckDockPrefab;
-    public GameObject previousDock;
 
     public Dictionary<EntityScript,Transform> DeckManagement = new Dictionary<EntityScript,Transform>();
 
@@ -41,98 +37,80 @@ public class DeckManager : MonoBehaviour
         if (deckDrawButton != null)
             deckDrawButton.onClick.AddListener(DrawTopCard);
 
-        foreach (PlayerCharacterScript p in FindObjectsByType<PlayerCharacterScript>(0))
+        foreach (EntityScript entity in FindObjectsByType<EntityScript>(0))
         {
-            BuildDeckFromIDs(p);
-        }
-        foreach (EnemyScript e in FindObjectsByType<EnemyScript>(0))
-        {
-            BuildDeckFromIDs(e);
+            BuildDeckFromIDs(entity);
         }
     }
 
-    public void SwapDeck(Transform DockDeck)
+    void BuildDeckFromIDs(EntityScript entity)
     {
-        // Cache children
-        List<Transform> DockChildren = new List<Transform>();
-        List<Transform> StackChildren = new List<Transform>();
+        GameObject cardDock = Instantiate(deckDockPrefab, transform);
+        List<GameObject> cardObjs = new();
+        cardDock.name = entity.name + " Deck Dock";
+        DeckManagement.Add(entity, cardDock.transform);
 
-        cardStack.Clear();
-
-        foreach (Transform child in DockDeck)
-            DockChildren.Add(child);
-
-        foreach (Transform child in deckParent)
-            StackChildren.Add(child);
-
-
-        // Move B's children to A
-        foreach (Transform child in StackChildren)
+        foreach (int cardID in entity.deckCardIDs)
         {
-            child.SetParent(previousDock.transform);
+            GameObject cardObj = CreateCard(cardID, cardDock.transform, entity);
+            if (cardObj != null)
+            {
+                cardObjs.Add(cardObj);
+            }
         }
 
-        // Move A's children to B
-        foreach (Transform child in DockChildren)
+        foreach (GameObject child in cardObjs)
         {
-            child.SetParent(deckParent);
-            UtilityScript.ZeroLocalRectTransform(child as RectTransform);
-
+            child.transform.SetParent(cardDock.transform);
+            UtilityScript.ZeroLocalRectTransform(child.transform as RectTransform);
             cardStack.Push(child.gameObject);
         }
 
-        previousDock = DockDeck.gameObject;
+        ShuffleDeck();
     }
 
-    void BuildDeckFromIDs(PlayerCharacterScript p)
+    private GameObject CreateCard(int id, Transform t, EntityScript entityScript)
     {
-        GameObject cardDock = Instantiate(deckDockPrefab, transform);
-        DeckManagement.Add(p, cardDock.transform);
 
-        foreach (int id in p.deckCardIDs)
+        CardData cardData = CreateCardData(id, entityScript);
+
+        if (cardData == null)
         {
-            CardData cardData = CardDatabase.GetCardById(id,p);
-            if (cardData == null)
-            {
-                Debug.LogWarning($"Card ID '{id}' not found in database.");
-                continue;
-            }
-            GameObject cardGO = Instantiate(cardPrefab, parent:cardDock.transform);
-            cardGO.name = cardData.cardName;
-
-            CardScript cardScript = cardGO.GetComponent<CardScript>();
-            if (cardScript != null)
-            {
-                cardScript.SetHidden();
-                cardScript.SetCard(cardData);
-            }
+            Debug.LogWarning($"Card ID '{id}' could not be created.");
+            return null;
         }
+
+        GameObject cardGO = Instantiate(cardPrefab, t);
+        cardGO.name = cardData.cardName;
+
+        CardScript cardScript = cardGO.GetComponent<CardScript>();
+        if (cardScript != null)
+        {
+            cardScript.SetHidden();
+            cardScript.SetCard(cardData);
+        }
+        else
+        {
+            Debug.LogWarning("CardScript component missing on card prefab.");
+            Destroy(cardGO);
+            return null;
+        }
+
+        return cardGO;
     }
 
-    void BuildDeckFromIDs(EnemyScript e)
+    private CardData CreateCardData(int id, EntityScript entity)
     {
-        GameObject cardDock = Instantiate(deckDockPrefab, transform);
-        DeckManagement.Add(e, cardDock.transform);
+        CardData cardData = CardDatabase.GetCardById(id, entity);
 
-        foreach (int id in e.enemyAI.EnemyCardsByID)
+        if (cardData == null)
         {
-            CardData cardData = CardDatabase.GetCardById(id, e);
-            if (cardData == null)
-            {
-                Debug.LogWarning($"Card ID '{id}' not found in database.");
-                continue;
-            }
-            GameObject cardGO = Instantiate(cardPrefab, parent: cardDock.transform);
-            cardGO.name = cardData.cardName;
-
-            CardScript cardScript = cardGO.GetComponent<CardScript>();
-            if (cardScript != null)
-            {
-                cardScript.SetHidden();
-                cardScript.SetCard(cardData);
-            }
+            Debug.LogWarning($"Card ID '{id}' not found in database.");
+            return null;
         }
+        return cardData;
     }
+
     public void DrawTopCard()
     {
         if (cardStack.Count == 0)
@@ -218,17 +196,59 @@ public class DeckManager : MonoBehaviour
         Debug.Log($"Shuffled {cards.Count} discarded cards back into the deck.");
     }
 
-    public void EndTurn( Transform transform)
+    public void MoveOutDeck(EntityScript entity)
     {
+        List<GameObject> cards = new();
+
         foreach (GameObject card in HandManager.Instance.cardsInHand)
         {
-          card.transform.SetParent(deckParent);
+            cards.Add(card);
         }
-        foreach(GameObject card in discardStack)
+        foreach (GameObject card in discardStack)
         {
-            card.transform.SetParent(deckParent);
+            cards.Add(card);
+        }
+        foreach (Transform child in deckParent)
+        {
+            cards.Add(child.gameObject);
         }
 
-        SwapDeck(transform);
+        foreach (GameObject card in cards)
+        {     
+            Transform Dock = DeckManagement[card.GetComponent<CardScript>().cardData.Owner];
+            card.transform.SetParent(Dock);
+        }
+    }
+
+    public void MoveInDeck(EntityScript entity)
+    {
+        Transform Dock = DeckManagement[entity];
+        List<Transform> transforms = new();
+
+        foreach (Transform child in Dock)
+        {
+            transforms.Add(child);
+        }
+
+        foreach (Transform t in transforms)
+        {
+            t.SetParent(deckParent);
+            UtilityScript.ZeroLocalRectTransform(t as RectTransform);
+            cardStack.Push(t.gameObject);
+        }
+    }
+
+    public void EndTurn( EntityScript entity)
+    {
+        MoveOutDeck(entity);
+    }
+    public void StartTurn(EntityScript entity)
+    {
+        MoveInDeck(entity);
+
+        for (int i = 0; i < 5; i++)
+        {
+            DrawTopCard();
+        }
     }
 }

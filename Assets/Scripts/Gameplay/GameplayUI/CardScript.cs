@@ -42,6 +42,7 @@ public class CardScript : MonoBehaviour
             artworkRenderer.sprite = cardData.cardArtwork;
             nameText.text = cardData.cardName;
             descriptionText.text = cardData.cardDescription;
+            Debug.Log($"[Card] {cardData.cardName} -> Owner={cardData.Owner?.name} (inst {cardData.GetHashCode()})");
         }
     }
 

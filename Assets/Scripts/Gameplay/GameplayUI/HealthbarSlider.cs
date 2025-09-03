@@ -11,6 +11,10 @@ public class HealthbarSlider : MonoBehaviour
     int max => eM.MaxHealth.GetFinalValue();
     int current => eM.CurrentHealth.GetFinalValue();
 
+    private void Start()
+    {
+        eM = GetComponentInParent<EntityScript>();
+    }
     // Update is called once per frame
     void Update()
     {

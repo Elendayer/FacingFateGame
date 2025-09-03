@@ -9,5 +9,5 @@ public enum DraggableTargetType
 {
     Character,
     Tile,
-        CardSlot,
+    CardSlot,
 }

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -160,6 +160,22 @@ public static class TileMapUtilityScript
             dict[d] = GetTilesInLine(start, length, d, tilemap);
         return dict;
     }
+    public static List<EntityScript> GetEntitiesOnTiles(List<Vector3Int> tiles, List<EntityScript> entities, Tilemap tilemap)
+    {
+        List<EntityScript> foundEntities = new List<EntityScript>();
+
+        foreach (EntityScript entityScript in entities)
+        {
+            Vector3 worldPos = entityScript.transform.position;
+            Vector3Int cellPos = tilemap.WorldToCell(worldPos);
+            // Check if the cell position is in the list of tiles
+            if (tiles.Contains(cellPos))
+            {
+                foundEntities.Add(entityScript);
+            }
+        }
+        return foundEntities;
+    }
     #endregion
 
     #region Offset <-> Cube (Point-Top)
@@ -220,6 +236,8 @@ public static class TileMapUtilityScript
         }
     }
     #endregion
+
+
 }
 
 #region PriorityQueue Helper

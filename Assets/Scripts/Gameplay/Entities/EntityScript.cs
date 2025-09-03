@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class EntityScript : MonoBehaviour
 {
+    [Header("Deck Settings")]
+    public List<int> deckCardIDs = new List<int>();  // Populate with card IDs
+
     [Header("Base Stats")]
     public Stat MaxHealth = new() { Value = 100 };
     public Stat CurrentHealth = new() { Value = 100 };

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public static class CardDatabase
@@ -17,10 +17,12 @@ public static class CardDatabase
             Debug.LogWarning($"Duplicate card ID detected: {card.cardID}");
         }
     }
-
     public static CardData GetCardById(int id, EntityScript owner)
     {
-        CardData cd = cardLookup.TryGetValue(id, out var card) ? card : null;
+        if (!cardLookup.TryGetValue(id, out var blueprint) || blueprint == null)
+            return null;
+
+        CardData cd = blueprint.Clone();   // <-- frische Instanz mit richtigem Owner
         cd.Owner = owner;
         return cd;
     }
@@ -48,6 +50,13 @@ public static class CardDatabase
 
             cost_u = 1,
             power_u = 10,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Enemy,
+                areaType = CardTargetArea.Single,
+                range = 0
+            },
 
             SetCardDescription = (User, data) =>
             {
@@ -97,7 +106,6 @@ public static class CardDatabase
             power_u = 5,
             duration_u = 2,
 
-            targetSelf = true,
 
             SetCardDescription = (user, data) =>
             {
@@ -121,9 +129,8 @@ public static class CardDatabase
             cost_u = 3,
             power_u = 3,
 
-            targetCardType = CardType.Technique,
+            EffectTargetTypes = new() { CardType.Technique },
 
-            targetSelf = true,
 
             SetCardDescription = (user, data) =>
             {
@@ -147,7 +154,6 @@ public static class CardDatabase
             cost_u = 2,
             duration_u = 1,
 
-            targetSelf = false,
 
             SetCardDescription = (User, data) =>
             {
@@ -172,7 +178,12 @@ public static class CardDatabase
             power_u = 1,
             duration_u = 1,
 
-            targetSelf = true,
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Self,
+                areaType = CardTargetArea.Single,
+                range = 0
+            },
 
             SetCardDescription = (User, data) =>
             {
@@ -191,13 +202,21 @@ public static class CardDatabase
         {
             cardID = 100007,
             cardName = "Fire Bomb",
-            cardType = CardType.Blessing,
+            cardType = CardType.Spell,
             cardClass = CardClass.Knight,
             cardElement = new() { CardElement.Fire },
 
             cost_u = 2,
             power_u = 3,
             duration_u = 6,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Enemy,
+                areaType = CardTargetArea.Sphere,
+                range = 4
+            },
+
 
             SetCardDescription = (User, data) =>
             {
@@ -234,7 +253,6 @@ public static class CardDatabase
 
             power_u = 5,
 
-            targetSelf = false,
 
             CardEffect = (User, target, data) =>
             {
@@ -250,7 +268,6 @@ public static class CardDatabase
 
             power_u = 0,
 
-            targetSelf = false,
 
             CardEffect = (User, target, data) =>
             {

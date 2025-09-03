@@ -27,25 +27,26 @@ public class TurnManager : MonoBehaviour
 
         AddListeners();
     }
-
     public void AddListeners()
     {
         GameEvents.OnTurnStart += OnTurnStart;
+        GameEvents.OnTurnEnd += OnTurnEnd;
     }
-
-    private void OnTurnStart()
-    {
-        CurrentTurnIndex++;
-        CurrentTurnIndex %= TurnOrder.Count;
-
-        DeckManager.Instance.DeckManagement.TryGetValue(TurnOrder[CurrentTurnIndex],out Transform transform);
-        DeckManager.Instance.EndTurn(transform);
-    }
-
     private void SetTurnOrder()
     {
-        EntityScript[] entities =  FindObjectsByType<EntityScript>(0);
+        EntityScript[] entities = FindObjectsByType<EntityScript>(0);
 
         TurnOrder = entities.OrderByDescending(e => UnityEngine.Random.Range(1, 21)).ToList();
+    }
+    private void OnTurnStart()
+    {
+        DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
+    }
+    private void OnTurnEnd()
+    {
+        DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
+
+        CurrentTurnIndex++;
+        CurrentTurnIndex %= TurnOrder.Count;
     }
 }
