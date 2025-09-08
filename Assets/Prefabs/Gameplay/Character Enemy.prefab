@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3510526810490553361}
   - component: {fileID: 9001171521745787760}
   - component: {fileID: 3567744316417343318}
+  - component: {fileID: 2899245957936834516}
   - component: {fileID: 6208202023648593538}
   - component: {fileID: 8935636570208141450}
   - component: {fileID: 4777331206848150532}
@@ -54,6 +55,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e57eefa759930c741a37410dccdc1f45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deckCardIDs: 
   MaxHealth:
     Value: 100
   CurrentHealth:
@@ -66,9 +68,6 @@ MonoBehaviour:
     Value: 0
   Armour:
     Value: 0
-  enemyAI:
-    EnemyCardsByID: 
-    EnemyDeck: []
 --- !u!114 &9001171521745787760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,7 +82,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   refTilemap: {fileID: 0}
   DefaultTile: {fileID: 0}
-  HighlightedTile: {fileID: 0}
   moveSpeed: 3
   currentCell: {x: 0, y: 0, z: 0}
 --- !u!114 &3567744316417343318
@@ -104,6 +102,19 @@ MonoBehaviour:
   character: {fileID: 9001171521745787760}
   baseTilemap: {fileID: 0}
   worldCamera: {fileID: 0}
+--- !u!114 &2899245957936834516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925646098595141539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c08c7261b65d884d9a8dc70f3cbccbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  draggableTargetType: 0
 --- !u!225 &6208202023648593538
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -309,7 +320,8 @@ PrefabInstance:
       value: Entity
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5018158550700208092, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}

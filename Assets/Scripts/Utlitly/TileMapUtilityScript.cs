@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.Jobs;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -97,7 +97,7 @@ public static class TileMapUtilityScript
     #endregion
 
     #region Tile Queries
-    public static List<Vector3Int> GetTilesInRadius(Vector3Int center, int radius, Tilemap tilemap)
+    public static List<Vector3Int> GetTilesInRadius(Vector3Int center, int radius)
     {
         var results = new List<Vector3Int>();
         var cCenter = OffsetToCube_PointTop(center, UseOddROffset);
@@ -109,14 +109,13 @@ public static class TileMapUtilityScript
                 int dz = -dx - dy;
                 var cube = cCenter + new Vector3Int(dx, dy, dz);
                 var off = CubeToOffset_PointTop(cube, UseOddROffset);
-                if (tilemap.GetTile<BasemapHexTile>(off) != null)
                     results.Add(off);
             }
         }
         return results;
     }
 
-    public static List<Vector3Int> GetTilesInRing(Vector3Int center, int distance, Tilemap tilemap)
+    public static List<Vector3Int> GetTilesInRing(Vector3Int center, int distance)
     {
         var results = new List<Vector3Int>();
         if (distance <= 0) return results;
@@ -129,15 +128,37 @@ public static class TileMapUtilityScript
             for (int step = 0; step < distance; step++)
             {
                 var off = CubeToOffset_PointTop(cube, UseOddROffset);
-                if (tilemap.GetTile<BasemapHexTile>(off) != null)
                     results.Add(off);
                 cube += CubeDirs[side];
             }
         }
         return results;
     }
+    public static List<Vector3Int> GetTilesInRing(Vector3Int center, List<int> distances)
+    {
+        var results = new List<Vector3Int>();
 
-    public static List<Vector3Int> GetTilesInLine(Vector3Int start, int length, int directionIndex, Tilemap tilemap)
+        foreach (var distance in distances)
+        {
+            if (distance <= 0) return results;
+
+            var cCenter = OffsetToCube_PointTop(center, UseOddROffset);
+            // start at one cube direction * distance
+            var cube = cCenter + CubeDirs[4] * distance; // arbitrary starting edge
+            for (int side = 0; side < 6; side++)
+            {
+                for (int step = 0; step < distance; step++)
+                {
+                    var off = CubeToOffset_PointTop(cube, UseOddROffset);
+                    results.Add(off);
+                    cube += CubeDirs[side];
+                }
+            }
+        }
+        return results;
+    }
+
+    public static List<Vector3Int> GetTilesInLine(Vector3Int start, int length, int directionIndex)
     {
         var results = new List<Vector3Int>();
         directionIndex = ((directionIndex % 6) + 6) % 6;
@@ -147,35 +168,23 @@ public static class TileMapUtilityScript
         {
             cube += CubeDirs[directionIndex];
             var off = CubeToOffset_PointTop(cube, UseOddROffset);
-            if (tilemap.GetTile<BasemapHexTile>(off) != null)
                 results.Add(off);
         }
         return results;
     }
 
-    public static Dictionary<int, List<Vector3Int>> GetTilesInAllDirections(Vector3Int start, int length, Tilemap tilemap)
+    public static Dictionary<int, List<Vector3Int>> GetTilesInAllDirections(Vector3Int start, int length)
     {
         var dict = new Dictionary<int, List<Vector3Int>>();
         for (int d = 0; d < 6; d++)
-            dict[d] = GetTilesInLine(start, length, d, tilemap);
+            dict[d] = GetTilesInLine(start, length, d);
         return dict;
     }
-    public static List<EntityScript> GetEntitiesOnTiles(List<Vector3Int> tiles, List<EntityScript> entities, Tilemap tilemap)
+    public static List<EntityScript> GetEntitiesOnTiles(List<Vector3Int> tiles, List<EntityScript> entities)
     {
-        List<EntityScript> foundEntities = new List<EntityScript>();
-
-        foreach (EntityScript entityScript in entities)
-        {
-            Vector3 worldPos = entityScript.transform.position;
-            Vector3Int cellPos = tilemap.WorldToCell(worldPos);
-            // Check if the cell position is in the list of tiles
-            if (tiles.Contains(cellPos))
-            {
-                foundEntities.Add(entityScript);
-            }
-        }
-        return foundEntities;
+        return entities.Where(entitity => tiles.Contains(entitity.GetComponent<EntityOnMap>().currentCell)).ToList();
     }
+
     #endregion
 
     #region Offset <-> Cube (Point-Top)
@@ -215,29 +224,86 @@ public static class TileMapUtilityScript
     #endregion
 
     #region Highlight Helpers
-    public static void ResetMaphightlight(Tilemap tilemap, BasemapHexTile defaultTile)
+    public static void ResetMaphightlight(Tilemap tilemap)
     {
-        foreach (var pos in tilemap.cellBounds.allPositionsWithin)
+        if (tilemap == null) return;
+
+        BoundsInt bounds = tilemap.cellBounds;
+
+        foreach (var pos in bounds.allPositionsWithin)
         {
-            var tile = tilemap.GetTile<BasemapHexTile>(pos);
-            if (tile != null)
-                tilemap.SetTile(pos, defaultTile);
+            if (!tilemap.HasTile(pos)) continue;
+
+            GameObject tileObj = tilemap.GetInstantiatedObject(pos);
+            if (tileObj == null) continue;
+
+            // Reset UI Image color
+            UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
+            if (img != null)
+            {
+                img.color = Color.white;
+                continue;
+            }
+        }
+    }
+    public static void ResetMaphightlight(List<Vector3Int> path, Tilemap tilemap)
+    {
+        if (tilemap == null) return;
+
+        foreach (var pos in path)
+        {
+            if (!tilemap.HasTile(pos)) continue;
+            GameObject tileObj = tilemap.GetInstantiatedObject(pos);
+            if (tileObj == null) continue;
+            // Reset UI Image color
+            UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
+            if (img != null)
+            {
+                img.color = Color.white;
+                continue;
+            }
         }
     }
 
-    public static void SetPathHighlight(List<Vector3Int> path, Tilemap tilemap, BasemapHexTile highlightedTile)
+    public static void SetTilesHighlight(List<Vector3Int> path, Tilemap tilemap, HighlightType ht)
     {
-        if (path == null) return;
+        Color color = Color.white;
+
+        switch (ht)
+        {
+            case HighlightType.Path:
+                color = Color.cyan;
+                    break;
+            case HighlightType.Target:
+                color= Color.red;
+                break;
+            case HighlightType.Selected:
+                color = Color.yellow;
+                    break;
+        }
+
         foreach (var pos in path)
         {
-            var tile = tilemap.GetTile<BasemapHexTile>(pos);
-            if (tile != null)
-                tilemap.SetTile(pos, highlightedTile);
+            // Get the prefab instance associated with this tile position
+            GameObject tileObj = tilemap.GetInstantiatedObject(pos);
+            if (tileObj == null) continue;
+
+            // Try Image (UI-based prefab)
+            UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
+            if (img != null)
+            {
+                img.color = color;
+                continue;
+            }
         }
     }
     #endregion
-
-
+    public enum HighlightType
+    {
+        Path,
+        Target,
+        Selected
+    }
 }
 
 #region PriorityQueue Helper

@@ -7,7 +7,7 @@ public class DraggableTarget : MonoBehaviour
 
 public enum DraggableTargetType
 {
-    Character,
-    Tile,
+    CombatCharacter,
+    CombatTile,
     CardSlot,
 }

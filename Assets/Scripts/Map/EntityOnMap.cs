@@ -8,7 +8,6 @@ public class EntityOnMap : MonoBehaviour
     [Header("References")]
     public Tilemap refTilemap;            // Overlay tilemap where character appears
     public  BasemapHexTile DefaultTile;
-    public BasemapHexTile HighlightedTile;
 
     [Header("Movement Settings")]
     public float moveSpeed = 3f;              // Units per second
@@ -36,7 +35,7 @@ public class EntityOnMap : MonoBehaviour
 
         if (path != null && path.Count > 0)
         {
-            TileMapUtilityScript.SetPathHighlight(path, refTilemap, HighlightedTile);
+            TileMapUtilityScript.SetTilesHighlight(path, refTilemap, TileMapUtilityScript.HighlightType.Path);
             moveRoutine = StartCoroutine(FollowPath(path));
         }
         else
@@ -65,7 +64,8 @@ public class EntityOnMap : MonoBehaviour
 
         moveRoutine = null;
         SetOccupied(true);
-        TileMapUtilityScript.ResetMaphightlight(refTilemap, DefaultTile);
+
+        TileMapUtilityScript.ResetMaphightlight(path,refTilemap);
     }
 
     public void SetOccupied( bool b)

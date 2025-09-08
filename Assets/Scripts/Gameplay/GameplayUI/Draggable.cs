@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections.Generic;
+using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
@@ -12,12 +14,15 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     protected CanvasGroup canvasGroup;
     protected Vector2 originalPosition;
 
+    public Tilemap BaseTilemap;
+
     public LineRenderer lineRenderer;
     public int curveResolution = 6; // Number of points in the curve
 
 
     protected virtual void Awake()
     {
+        BaseTilemap = FindObjectsByType<Tilemap>(0).FirstOrDefault(tilemap => tilemap.CompareTag("Basemap"));
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
 

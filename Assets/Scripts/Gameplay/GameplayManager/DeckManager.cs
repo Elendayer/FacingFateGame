@@ -131,7 +131,7 @@ public class DeckManager : MonoBehaviour
         CardScript cs = topCard.GetComponent<CardScript>();
         cs.SetRevealed(); // Hide discarded card
 
-        Debug.Log($"Drew card: {topCard.name}");
+        //Debug.Log($"Drew card: {topCard.name}");
     }
     public void DiscardCardFromHand(GameObject cardobject)
     {

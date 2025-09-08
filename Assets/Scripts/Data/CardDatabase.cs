@@ -53,7 +53,8 @@ public static class CardDatabase
 
             targetingData = new()
             {
-                CardTargetType = CardTargetType.Enemy,
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 areaType = CardTargetArea.Single,
                 range = 0
             },
@@ -180,7 +181,8 @@ public static class CardDatabase
 
             targetingData = new()
             {
-                CardTargetType = CardTargetType.Self,
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
                 areaType = CardTargetArea.Single,
                 range = 0
             },
@@ -194,7 +196,7 @@ public static class CardDatabase
             CardEffect = (User, target, data) =>
             {
                 User.MaxHealth.AddModifier(new StatModifier(data.Power, StatScaling.Flat, gameplayReference.buffedRef, name: "Valiant Blessing"), ModifierMergeStrategy.Increase);
-                CombatUtils.ApplyHealing(target, data.Power);         
+                CombatUtils.ApplyHealing(target, data.Power);
             }
 
         });
@@ -212,9 +214,10 @@ public static class CardDatabase
 
             targetingData = new()
             {
-                CardTargetType = CardTargetType.Enemy,
-                areaType = CardTargetArea.Sphere,
-                range = 4
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.All,
+                areaType = CardTargetArea.Ring,
+                range = 3
             },
 
 

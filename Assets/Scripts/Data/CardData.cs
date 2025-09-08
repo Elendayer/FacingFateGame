@@ -169,17 +169,20 @@ public class CardData
 }
 public enum CardTargetType
 {
-    Allies,
-    Enemy,
-    Self,
+    Entity,
+    CombatTile,
+}
+public enum CardTargetAffiliation
+{
     All,
-    Tile
+    Self,
+    Ally,
+    Enemy,
 }
 public enum CardTargetArea
 {
     Single,
-    Self,
-    Sphere,
+    Radius,
     Ring,
     Line,
     All
@@ -188,6 +191,7 @@ public enum CardTargetArea
 public class TargetArea
 {
     public CardTargetType CardTargetType;
+    public CardTargetAffiliation CardTargetAffiliation;
     public CardTargetArea areaType = CardTargetArea.Single;
     public int range = 0;
 }
