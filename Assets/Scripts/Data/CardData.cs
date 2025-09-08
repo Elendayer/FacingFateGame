@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +21,7 @@ public enum CardElement
     Air,
     Earth,
     Shadow,
+    Poison,
     Light,
     Blood,
     Arcane,
@@ -46,13 +47,16 @@ public enum CardClass
 [System.Serializable]
 public class CardData
 {
+    [Header("Meta")]
     public int cardID = 0;
     public string cardName = string.Empty;
-    public EntityManager Owner;
+    public EntityScript Owner = null;
 
+    [Header("Visuals")]
     public Sprite cardArtwork;
     public string cardDescription;
 
+    [Header("Typing")]
     public CardType cardType;
     public CardClass cardClass;
     public List<CardElement> cardElement;
@@ -77,10 +81,56 @@ public class CardData
     public Stat repeats_s = new();
     public int Repeats => repeats_u + repeats_s.GetFinalValue() + GetValues(StatAspect.Repeats);
 
-    [Header("Targets")]
-    public CardType targetCardType;
+    [Header("Card Target")]
+    public TargetArea targetingData;
+
+    [Header("Card Effect Target")]
+    public List<CardType> EffectTargetTypes;
     public CardScript targetCard;
-    public bool targetSelf = false;
+
+    public CardData Clone()
+    {
+        // Hilfsfunktion: Stat flach kopieren (nur Base-Value, keine Modifiers)
+        Stat CloneStat(Stat s) => new Stat { Value = s != null ? s.Value : 0 };
+
+        return new CardData
+        {
+            // Identity & Meta
+            cardID = cardID,
+            cardName = cardName,
+            Owner = Owner,
+            cardArtwork = cardArtwork,
+            cardDescription = cardDescription,
+
+            // Typisierung
+            cardType = cardType,
+            cardClass = cardClass,
+            cardElement = cardElement != null ? new List<CardElement>(cardElement) : new List<CardElement>(),
+
+            // Werte (u = base, s = eigene Stat-Container pro Instanz)
+            cost_u = cost_u,
+            cost_s = CloneStat(cost_s),
+            power_u = power_u,
+            power_s = CloneStat(power_s),
+            duration_u = duration_u,
+            duration_s = CloneStat(duration_s),
+            repeats_u = repeats_u,
+            repeats_s = CloneStat(repeats_s),
+
+            // Targeting-Flags (keine Ziel-Referenzen übernehmen)
+            targetingData = targetingData,
+
+            // Delegates (zeigen auf dieselben Methoden – gewünscht)
+            SetCardDescription = SetCardDescription,
+            CardEffect = CardEffect,
+
+            // AI
+            Intention = Intention,
+            triggerCondition = triggerCondition,
+            priority = priority,
+            cooldown = cooldown
+        };
+    }
 
     int GetValues(StatAspect aspect)
     {
@@ -97,15 +147,12 @@ public class CardData
 
         return value;
     }
-    private EntityManager Target =>
-        targetSelf ? Owner :
-        (Owner == PlayerManager.Instance ? EnemyManager.Instance : PlayerManager.Instance);
 
-    public Action<EntityManager, CardData> SetCardDescription =
-        (user, data) => Debug.Log($"Not Defined Description of {data.cardName}");
+    public Action<EntityScript, CardData> SetCardDescription =
+        (user, data) => Debug.Log($"Not defined Description of {data.cardName}");
 
-    public Action<EntityManager, EntityManager, CardData> CardEffect =
-        (user, target, data) => Debug.Log($"Not Defined Effect used by {user} at {target} by Card {data.cardName}");
+    public Action<EntityScript, EntityScript, CardData> CardEffect =
+        (user, target, data) => Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
 
     [Header("AI")]
     public Intention Intention = Intention.None;
@@ -113,8 +160,38 @@ public class CardData
     public int priority = 0;
     public int cooldown = 1;
 
-    public void ActivateCard()
+    public void ActivateCard(List<EntityScript> targetEntity,GameObject obj)
     {
-        CardEffect?.Invoke(Owner, Target, this);
+        foreach (EntityScript target in targetEntity)
+            CardEffect?.Invoke(Owner, target, this);
+        HandManager.Instance.DiscardCard(obj);
     }
+}
+public enum CardTargetType
+{
+    Entity,
+    CombatTile,
+}
+public enum CardTargetAffiliation
+{
+    All,
+    Self,
+    Ally,
+    Enemy,
+}
+public enum CardTargetArea
+{
+    Single,
+    Radius,
+    Ring,
+    Line,
+    All
+}
+[System.Serializable]
+public class TargetArea
+{
+    public CardTargetType CardTargetType;
+    public CardTargetAffiliation CardTargetAffiliation;
+    public CardTargetArea areaType = CardTargetArea.Single;
+    public int range = 0;
 }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public static class CardDatabase
@@ -10,17 +10,19 @@ public static class CardDatabase
         if (!cardLookup.ContainsKey(card.cardID))
         {
             cardLookup[card.cardID] = card;
-            Debug.Log($"Registered card: {card.cardName} (ID: {card.cardID})");
+            //Debug.Log($"Registered card: {card.cardName} (ID: {card.cardID})");
         }
         else
         {
             Debug.LogWarning($"Duplicate card ID detected: {card.cardID}");
         }
     }
-
-    public static CardData GetCardById(int id, EntityManager owner)
+    public static CardData GetCardById(int id, EntityScript owner)
     {
-        CardData cd = cardLookup.TryGetValue(id, out var card) ? card : null;
+        if (!cardLookup.TryGetValue(id, out var blueprint) || blueprint == null)
+            return null;
+
+        CardData cd = blueprint.Clone();   // <-- frische Instanz mit richtigem Owner
         cd.Owner = owner;
         return cd;
     }
@@ -49,6 +51,14 @@ public static class CardDatabase
             cost_u = 1,
             power_u = 10,
 
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.Single,
+                range = 0
+            },
+
             SetCardDescription = (User, data) =>
             {
                 data.cardDescription = $"Deal {data.Power} Damage";
@@ -70,7 +80,6 @@ public static class CardDatabase
 
             repeats_u = 2,
             cost_u = 2,
-            duration_u = 2,
 
             SetCardDescription = (User, data) =>
             {
@@ -98,7 +107,6 @@ public static class CardDatabase
             power_u = 5,
             duration_u = 2,
 
-            targetSelf = true,
 
             SetCardDescription = (user, data) =>
             {
@@ -122,9 +130,8 @@ public static class CardDatabase
             cost_u = 3,
             power_u = 3,
 
-            targetCardType = CardType.Technique,
+            EffectTargetTypes = new() { CardType.Technique },
 
-            targetSelf = true,
 
             SetCardDescription = (user, data) =>
             {
@@ -148,7 +155,6 @@ public static class CardDatabase
             cost_u = 2,
             duration_u = 1,
 
-            targetSelf = false,
 
             SetCardDescription = (User, data) =>
             {
@@ -173,7 +179,13 @@ public static class CardDatabase
             power_u = 1,
             duration_u = 1,
 
-            targetSelf = true,
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                areaType = CardTargetArea.Single,
+                range = 0
+            },
 
             SetCardDescription = (User, data) =>
             {
@@ -184,7 +196,7 @@ public static class CardDatabase
             CardEffect = (User, target, data) =>
             {
                 User.MaxHealth.AddModifier(new StatModifier(data.Power, StatScaling.Flat, gameplayReference.buffedRef, name: "Valiant Blessing"), ModifierMergeStrategy.Increase);
-                CombatUtils.ApplyHealing(target, data.Power);         
+                CombatUtils.ApplyHealing(target, data.Power);
             }
 
         });
@@ -192,13 +204,22 @@ public static class CardDatabase
         {
             cardID = 100007,
             cardName = "Fire Bomb",
-            cardType = CardType.Blessing,
+            cardType = CardType.Spell,
             cardClass = CardClass.Knight,
             cardElement = new() { CardElement.Fire },
 
             cost_u = 2,
             power_u = 3,
             duration_u = 6,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.All,
+                areaType = CardTargetArea.Ring,
+                range = 3
+            },
+
 
             SetCardDescription = (User, data) =>
             {
@@ -235,7 +256,6 @@ public static class CardDatabase
 
             power_u = 5,
 
-            targetSelf = false,
 
             CardEffect = (User, target, data) =>
             {
@@ -251,7 +271,6 @@ public static class CardDatabase
 
             power_u = 0,
 
-            targetSelf = false,
 
             CardEffect = (User, target, data) =>
             {

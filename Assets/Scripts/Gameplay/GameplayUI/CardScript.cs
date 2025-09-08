@@ -21,11 +21,11 @@ public class CardScript : MonoBehaviour
 
         if (isLocked)
         {
-            GetComponent<DraggableCardUI>().enabled = false;
+            GetComponent<DraggableCard>().enabled = false;
         }
         else
         {
-            GetComponent<DraggableCardUI>().enabled = true;
+            GetComponent<DraggableCard>().enabled = true;
         }
     }
 
@@ -38,27 +38,28 @@ public class CardScript : MonoBehaviour
     {
         if (cardData != null)
         {
-            cardData.SetCardDescription(PlayerManager.Instance, cardData);
+            cardData.SetCardDescription(cardData.Owner, cardData);
             artworkRenderer.sprite = cardData.cardArtwork;
             nameText.text = cardData.cardName;
             descriptionText.text = cardData.cardDescription;
+            Debug.Log($"[Card] {cardData.cardName} -> Owner={cardData.Owner?.name} (inst {cardData.GetHashCode()})");
         }
     }
 
     public void ResetCard()
     {
-        GetComponent<DraggableCardUI>().enabled = false;
+        GetComponent<DraggableCard>().enabled = false;
     }
 
     internal void SetHidden()
     {
         cardBack.SetActive (true); 
-        GetComponent<DraggableCardUI>().enabled = false ;
+        GetComponent<DraggableCard>().enabled = false ;
     }
 
     internal void SetRevealed()
     {
         cardBack.SetActive(false);
-        GetComponent<DraggableCardUI>().enabled = true;
+        GetComponent<DraggableCard>().enabled = true;
     }
 }

@@ -6,11 +6,15 @@ public class HealthbarSlider : MonoBehaviour
 {
     public Slider slider;
     public TextMeshProUGUI textMeshPro;
-    public EntityManager eM;
+    public EntityScript eM;
 
     int max => eM.MaxHealth.GetFinalValue();
     int current => eM.CurrentHealth.GetFinalValue();
 
+    private void Start()
+    {
+        eM = GetComponentInParent<EntityScript>();
+    }
     // Update is called once per frame
     void Update()
     {

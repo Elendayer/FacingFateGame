@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,11 +7,15 @@ public class DeckManager : MonoBehaviour
     public static DeckManager Instance { get; private set; }
 
     [Header("Deck Configuration")]
-    public List<int> deckCardIDs = new List<int>();  // Populate with card IDs
     public GameObject cardPrefab;                          // Prefab with CardDisplay script
     public Transform deckParent;                           // Parent under the deck
     public Transform discardParent;                        // Parent under the deck
     public Button deckDrawButton;
+
+    [Header("Deck Management")]
+    public GameObject deckDockPrefab;
+
+    public Dictionary<EntityScript,Transform> DeckManagement = new Dictionary<EntityScript,Transform>();
 
     private Stack<GameObject> cardStack = new Stack<GameObject>();
     private Stack<GameObject> discardStack = new Stack<GameObject>();
@@ -34,40 +37,78 @@ public class DeckManager : MonoBehaviour
         if (deckDrawButton != null)
             deckDrawButton.onClick.AddListener(DrawTopCard);
 
-        BuildDeckFromIDs();
+        foreach (EntityScript entity in FindObjectsByType<EntityScript>(0))
+        {
+            BuildDeckFromIDs(entity);
+        }
     }
 
-    void BuildDeckFromIDs()
+    void BuildDeckFromIDs(EntityScript entity)
     {
-        cardStack.Clear();
+        GameObject cardDock = Instantiate(deckDockPrefab, transform);
+        List<GameObject> cardObjs = new();
+        cardDock.name = entity.name + " Deck Dock";
+        DeckManagement.Add(entity, cardDock.transform);
 
-        foreach (Transform child in deckParent)
-            Destroy(child.gameObject); // Clean up existing cards
-
-        foreach (int id in deckCardIDs)
+        foreach (int cardID in entity.deckCardIDs)
         {
-            CardData cardData = CardDatabase.GetCardById(id, PlayerManager.Instance);
-            if (cardData == null)
+            GameObject cardObj = CreateCard(cardID, cardDock.transform, entity);
+            if (cardObj != null)
             {
-                Debug.LogWarning($"Card ID '{id}' not found in database.");
-                continue;
+                cardObjs.Add(cardObj);
             }
-
-            GameObject cardGO = Instantiate(cardPrefab, deckParent);
-            cardGO.name = cardData.cardName;
-
-
-            CardScript cardScript = cardGO.GetComponent<CardScript>();
-            if (cardScript != null)
-            {
-                cardScript.SetHidden();
-                cardScript.SetCard(cardData);
-            }
-
-            cardStack.Push(cardGO);
         }
 
-        Debug.Log($"Deck built with {cardStack.Count} cards.");
+        foreach (GameObject child in cardObjs)
+        {
+            child.transform.SetParent(cardDock.transform);
+            UtilityScript.ZeroLocalRectTransform(child.transform as RectTransform);
+            cardStack.Push(child.gameObject);
+        }
+
+        ShuffleDeck();
+    }
+
+    private GameObject CreateCard(int id, Transform t, EntityScript entityScript)
+    {
+
+        CardData cardData = CreateCardData(id, entityScript);
+
+        if (cardData == null)
+        {
+            Debug.LogWarning($"Card ID '{id}' could not be created.");
+            return null;
+        }
+
+        GameObject cardGO = Instantiate(cardPrefab, t);
+        cardGO.name = cardData.cardName;
+
+        CardScript cardScript = cardGO.GetComponent<CardScript>();
+        if (cardScript != null)
+        {
+            cardScript.SetHidden();
+            cardScript.SetCard(cardData);
+        }
+        else
+        {
+            Debug.LogWarning("CardScript component missing on card prefab.");
+            Destroy(cardGO);
+            return null;
+        }
+
+        return cardGO;
+    }
+
+    private CardData CreateCardData(int id, EntityScript entity)
+    {
+        CardData cardData = CardDatabase.GetCardById(id, entity);
+
+        if (cardData == null)
+        {
+            Debug.LogWarning($"Card ID '{id}' not found in database.");
+            return null;
+        }
+        return cardData;
     }
 
     public void DrawTopCard()
@@ -90,7 +131,7 @@ public class DeckManager : MonoBehaviour
         CardScript cs = topCard.GetComponent<CardScript>();
         cs.SetRevealed(); // Hide discarded card
 
-        Debug.Log($"Drew card: {topCard.name}");
+        //Debug.Log($"Drew card: {topCard.name}");
     }
     public void DiscardCardFromHand(GameObject cardobject)
     {
@@ -153,5 +194,61 @@ public class DeckManager : MonoBehaviour
         }
 
         Debug.Log($"Shuffled {cards.Count} discarded cards back into the deck.");
+    }
+
+    public void MoveOutDeck(EntityScript entity)
+    {
+        List<GameObject> cards = new();
+
+        foreach (GameObject card in HandManager.Instance.cardsInHand)
+        {
+            cards.Add(card);
+        }
+        foreach (GameObject card in discardStack)
+        {
+            cards.Add(card);
+        }
+        foreach (Transform child in deckParent)
+        {
+            cards.Add(child.gameObject);
+        }
+
+        foreach (GameObject card in cards)
+        {     
+            Transform Dock = DeckManagement[card.GetComponent<CardScript>().cardData.Owner];
+            card.transform.SetParent(Dock);
+        }
+    }
+
+    public void MoveInDeck(EntityScript entity)
+    {
+        Transform Dock = DeckManagement[entity];
+        List<Transform> transforms = new();
+
+        foreach (Transform child in Dock)
+        {
+            transforms.Add(child);
+        }
+
+        foreach (Transform t in transforms)
+        {
+            t.SetParent(deckParent);
+            UtilityScript.ZeroLocalRectTransform(t as RectTransform);
+            cardStack.Push(t.gameObject);
+        }
+    }
+
+    public void EndTurn( EntityScript entity)
+    {
+        MoveOutDeck(entity);
+    }
+    public void StartTurn(EntityScript entity)
+    {
+        MoveInDeck(entity);
+
+        for (int i = 0; i < 5; i++)
+        {
+            DrawTopCard();
+        }
     }
 }
