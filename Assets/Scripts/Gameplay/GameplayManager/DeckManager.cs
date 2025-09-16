@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -71,7 +72,6 @@ public class DeckManager : MonoBehaviour
 
     private GameObject CreateCard(int id, Transform t, EntityScript entityScript)
     {
-
         CardData cardData = CreateCardData(id, entityScript);
 
         if (cardData == null)
@@ -214,41 +214,55 @@ public class DeckManager : MonoBehaviour
         }
 
         foreach (GameObject card in cards)
-        {     
-            Transform Dock = DeckManagement[card.GetComponent<CardScript>().cardData.Owner];
+        {
+            EntityScript owner = card.GetComponent<CardScript>().cardData.Owner;
+            Transform Dock = DeckManagement[owner];
+
             card.transform.SetParent(Dock);
         }
     }
 
     public void MoveInDeck(EntityScript entity)
     {
-        Transform Dock = DeckManagement[entity];
-        List<Transform> transforms = new();
+    cardStack.Clear();
+    discardStack.Clear();
+        Transform dock = DeckManagement[entity];
+        Debug.Log($"Moving cards into deck of {entity.name} from {dock.name}");
+        List<CardScript> cards = new();
 
-        foreach (Transform child in Dock)
-        {
-            transforms.Add(child);
-        }
+        cards = dock.GetComponentsInChildren<CardScript>().ToList();
 
-        foreach (Transform t in transforms)
+        foreach (CardScript c in cards)
         {
-            t.SetParent(deckParent);
-            UtilityScript.ZeroLocalRectTransform(t as RectTransform);
-            cardStack.Push(t.gameObject);
+            c.cardData.Owner = entity;
+
+            Debug.Log($"Moving card {c.cardData.cardName} into deck of {entity.name}");
+            RectTransform ct = c.GetComponent<RectTransform>();
+
+            ct.SetParent(deckParent);
+            UtilityScript.ZeroLocalRectTransform(ct);
+
+            cardStack.Push(ct.gameObject);
         }
     }
 
-    public void EndTurn( EntityScript entity)
+    public void EndTurn(EntityScript entity)
     {
-        MoveOutDeck(entity);
+        if (entity.GetType() == typeof(PlayerScript))
+        {
+            MoveOutDeck(entity);
+        }
     }
     public void StartTurn(EntityScript entity)
     {
-        MoveInDeck(entity);
-
-        for (int i = 0; i < 5; i++)
+        if(entity.GetType() == typeof(PlayerScript))
         {
-            DrawTopCard();
+            MoveInDeck(entity);
+
+            for (int i = 0; i < 5; i++)
+            {
+                DrawTopCard();
+            }
         }
     }
 }

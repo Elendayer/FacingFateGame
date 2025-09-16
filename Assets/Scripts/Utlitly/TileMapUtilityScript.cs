@@ -3,8 +3,10 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public static class TileMapUtilityScript
+public static class TilemapUtilityScript
 {
+    static Tilemap BaseTilemap => Object.FindObjectsByType<Tilemap>(0).FirstOrDefault(tilemap => tilemap.CompareTag("Basemap"));
+
     // >>> CONFIG: Point-top offset type (Odd-R by default). Flip if your rows are shifted the other way.
     public static bool UseOddROffset = true; // true = Odd-R, false = Even-R
 
@@ -22,59 +24,62 @@ public static class TileMapUtilityScript
         new Vector3Int(0, -1, +1)
     };
 
-    #region Pathfinding (A*)
-    public static List<Vector3Int> FindPath(Vector3Int start, Vector3Int goal, Tilemap tilemap)
+  
+// Add this method to TilemapUtilityScript
+    public static List<Vector3Int> FindPath(Vector3Int start, Vector3Int goal, bool straightLineOnly = false, bool ignoreCost = false)
     {
-
-        if (tilemap.GetTile<BasemapHexTile>(start) == null || tilemap.GetTile<BasemapHexTile>(goal) == null)
-            return null;
-
-        CostInfoScript costInfoScript = tilemap.GetComponent<CostInfoScript>();
-
         var openSet = new PriorityQueue<Vector3Int>();
+        openSet.Enqueue(start, 0);
+
         var cameFrom = new Dictionary<Vector3Int, Vector3Int>();
         var gScore = new Dictionary<Vector3Int, int> { [start] = 0 };
-        var fScore = new Dictionary<Vector3Int, int> { [start] = Heuristic(start, goal) };
-        var closed = new HashSet<Vector3Int>();
-
-        openSet.Enqueue(start, fScore[start]);
 
         while (openSet.Count > 0)
         {
             var current = openSet.Dequeue();
-            if (closed.Contains(current)) continue;
-
             if (current == goal)
                 return ReconstructPath(cameFrom, current);
 
-            closed.Add(current);
-
-            // Generate neighbors by cube -> offset conversion (handles odd/even automatically via conversion)
             var currentCube = OffsetToCube_PointTop(current, UseOddROffset);
-            for (int i = 0; i < 6; i++)
+            for (int dir = 0; dir < CubeDirs.Length; dir++)
             {
-                var neighborCube = currentCube + CubeDirs[i];
+                var neighborCube = currentCube + CubeDirs[dir];
                 var neighbor = CubeToOffset_PointTop(neighborCube, UseOddROffset);
 
-                var tile = tilemap.GetTile<BasemapHexTile>(neighbor);
-                if (tile == null) continue;
+                // If straightLineOnly, only allow movement in the direction of the line
+                if (straightLineOnly && !IsOnLine(start, goal, neighbor))
+                    continue;
 
-                int tileCost = costInfoScript.costInfoDict.TryGetValue(neighbor, out var costInfo) ? costInfo.cost : 1;
-                if (tileCost >= 10000) continue; // blocked
+                // If ignoreCost, all tiles have cost 1
+                int tentativeGScore = gScore[current] + (ignoreCost ? 1 : 1); // All tiles valued at 1
 
-                int tentative = gScore[current] + tileCost;
-                if (!gScore.ContainsKey(neighbor) || tentative < gScore[neighbor])
+                if (!gScore.ContainsKey(neighbor) || tentativeGScore < gScore[neighbor])
                 {
                     cameFrom[neighbor] = current;
-                    gScore[neighbor] = tentative;
-                    fScore[neighbor] = tentative + Heuristic(neighbor, goal);
-                    openSet.Enqueue(neighbor, fScore[neighbor]);
+                    gScore[neighbor] = tentativeGScore;
+                    int fScore = tentativeGScore + Heuristic(neighbor, goal);
+                    openSet.Enqueue(neighbor, fScore);
                 }
             }
         }
-
-        return null;
+        return new List<Vector3Int>(); // No path found
     }
+
+    // Helper for straightLineOnly
+    private static bool IsOnLine(Vector3Int start, Vector3Int end, Vector3Int point)
+    {
+        var a = OffsetToCube_PointTop(start, UseOddROffset);
+        var b = OffsetToCube_PointTop(end, UseOddROffset);
+        var p = OffsetToCube_PointTop(point, UseOddROffset);
+        int dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
+        int px = p.x - a.x, py = p.y - a.y, pz = p.z - a.z;
+        // Check if point is on the line from a to b (proportional step)
+        int steps = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
+        if (steps == 0) return point == start;
+        float t = steps == 0 ? 0 : (dx != 0 ? (float)px / dx : (dy != 0 ? (float)py / dy : (float)pz / dz));
+        return Mathf.Approximately(px, t * dx) && Mathf.Approximately(py, t * dy) && Mathf.Approximately(pz, t * dz) && t >= 0 && t <= 1;
+    }
+
 
     private static int Heuristic(Vector3Int a, Vector3Int b)
     {
@@ -94,7 +99,6 @@ public static class TileMapUtilityScript
         }
         return path;
     }
-    #endregion
 
     #region Tile Queries
     public static List<Vector3Int> GetTilesInRadius(Vector3Int center, int radius)
@@ -114,7 +118,6 @@ public static class TileMapUtilityScript
         }
         return results;
     }
-
     public static List<Vector3Int> GetTilesInRing(Vector3Int center, int distance)
     {
         var results = new List<Vector3Int>();
@@ -157,28 +160,12 @@ public static class TileMapUtilityScript
         }
         return results;
     }
-
-    public static List<Vector3Int> GetTilesInLine(Vector3Int start, int length, int directionIndex)
+    public static List<Vector3Int> GetTilesInLine(Vector3Int start, Vector3Int end, int length)
     {
-        var results = new List<Vector3Int>();
-        directionIndex = ((directionIndex % 6) + 6) % 6;
-
-        var cube = OffsetToCube_PointTop(start, UseOddROffset);
-        for (int i = 0; i < length; i++)
-        {
-            cube += CubeDirs[directionIndex];
-            var off = CubeToOffset_PointTop(cube, UseOddROffset);
-                results.Add(off);
-        }
+        var results = TilemapUtilityScript.FindPath(start, end, straightLineOnly: true, ignoreCost: true);
+        if (results.Count > length)
+            results = results.Take(length).ToList();
         return results;
-    }
-
-    public static Dictionary<int, List<Vector3Int>> GetTilesInAllDirections(Vector3Int start, int length)
-    {
-        var dict = new Dictionary<int, List<Vector3Int>>();
-        for (int d = 0; d < 6; d++)
-            dict[d] = GetTilesInLine(start, length, d);
-        return dict;
     }
     public static List<EntityScript> GetEntitiesOnTiles(List<Vector3Int> tiles, List<EntityScript> entities)
     {

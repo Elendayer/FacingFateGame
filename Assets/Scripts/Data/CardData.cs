@@ -156,11 +156,11 @@ public class CardData
 
     [Header("AI")]
     public Intention Intention = Intention.None;
-    public gameplayReference triggerCondition;
+    public gameplayRef triggerCondition;
     public int priority = 0;
     public int cooldown = 1;
 
-    public void ActivateCard(List<EntityScript> targetEntity,GameObject obj)
+    public void ActivateCard(List<EntityScript> targetEntity, GameObject obj)
     {
         foreach (EntityScript target in targetEntity)
             CardEffect?.Invoke(Owner, target, this);
@@ -177,14 +177,18 @@ public enum CardTargetAffiliation
     All,
     Self,
     Ally,
+    AllyNeutral,
     Enemy,
+    EnemyNeutral,
+    AllyEnemy,
 }
 public enum CardTargetArea
 {
     Single,
     Radius,
     Ring,
-    Line,
+    LineFree,
+    LineSelf,
     All
 }
 [System.Serializable]

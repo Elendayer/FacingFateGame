@@ -60,23 +60,10 @@ public class Stat
                 }
                 break;
         }
+        modifier.AddListener();
     }
 
     public void RemoveModifier(IStatModifier modifier) => modifiers.Remove(modifier);
-
-    public void TickModifiers()
-    {
-        foreach (var mod in modifiers)
-            mod.OnTurnStart();
-
-        modifiers.RemoveAll(m => m.IsExpired);
-    }
-
-    public void TriggerReferenceEvent(gameplayReference reference)
-    {
-        foreach (var mod in modifiers.Where(m => !m.IsExpired && m.Reference == reference))
-            mod.OnReferenceEventTriggered(reference);
-    }
 
     public int GetFinalValue()
     {
@@ -120,8 +107,8 @@ public class Stat
             .ToList();
     }
 
-    public bool HasReference(gameplayReference reference)
-        => modifiers.Any(m => m.Reference == reference && !m.IsExpired);
+    public bool HasReference(gameplayRef reference)
+        => modifiers.Any(m => m.To_TriggerGameplayRef == reference && !m.IsExpired);
 
     public IStatModifier GetModifierByName(string name)
         => modifiers.FirstOrDefault(m => m.StatName == name && !m.IsExpired);
@@ -142,10 +129,11 @@ public interface IStatModifier
     int BaseValue { get; set; }
     StatScaling StatScaling { get; }
     int Duration { get; set; }
-    gameplayReference Reference { get; }
+    gameplayRef To_TriggerGameplayRef { get; }
     bool IsExpired { get; }
-    void OnTurnStart();
-    void OnReferenceEventTriggered(gameplayReference reference);
+
+    void AddListener();
+    void OnRefEventTriggered(TriggerRef reference);
 }
 
 public class StatModifier : IStatModifier
@@ -170,7 +158,7 @@ public class StatModifier : IStatModifier
 
     public StatScaling StatScaling { get; private set; }
     public int Duration { get; set; }
-    public gameplayReference Reference { get; private set; }
+    public gameplayRef To_TriggerGameplayRef { get; private set; }
     public bool IsExpired => Duration <= 0;
 
     private int? staticValue;
@@ -179,10 +167,27 @@ public class StatModifier : IStatModifier
     public Stat targetStat;
     public int GetRemainingDuration() => Duration;
 
+    public void AddListener() 
+    {
+        GameEvents.OnRefEvent += OnRefEventTriggered;
+    }
+    public void OnRefEventTriggered(TriggerRef trigger)
+    {
+        if (trigger.Reference == To_TriggerGameplayRef)
+        {
+            Debug.Log($"[StatModifier: {StatName}] Triggered by reference: {trigger.Reference}");
+            if (Duration < 9999)
+            {
+                Duration--;
+                Debug.Log($"StatModifier duration: {Duration}");
+            }
+        }
+    }
+
     public StatModifier(
         int value,
         StatScaling scaling,
-        gameplayReference reference = gameplayReference.noRef,
+        gameplayRef reference = gameplayRef.noRef,
         int duration = 99999,
         Stat target = null,
         string name = null)
@@ -190,26 +195,9 @@ public class StatModifier : IStatModifier
         StatName = name;
         staticValue = value;
         StatScaling = scaling;
-        Reference = reference;
+        To_TriggerGameplayRef = reference;
         Duration = duration;
         targetStat = target;
-    }
-
-    public void OnTurnStart()
-    {
-        Debug.Log($"[StatModifier: {StatName}] OnTurnStart");
-
-        if (Duration < 9999)
-        {
-            Duration--;
-            Debug.Log($"StatModifier duration: {Duration}");
-        }
-    }
-
-    public void OnReferenceEventTriggered(gameplayReference reference)
-    {
-        if (reference == Reference)
-            Debug.Log($"[StatModifier: {StatName}] Triggered by reference: {reference}");
     }
 }
 
@@ -219,69 +207,78 @@ public class FunctionModifier : IStatModifier
     public int BaseValue { get; set; }
     public StatScaling StatScaling { get; private set; }
     public int Duration { get; set; }
-    public gameplayReference Reference { get; private set; }
+    public gameplayRef To_TriggerGameplayRef { get; private set; }
     public bool IsExpired => Duration <= 0;
 
-    private Action<FunctionModifier, Stat> onTurnStartAction;
-    private Action<FunctionModifier, Stat, gameplayReference> onReferenceEventAction;
-
-    public Stat targetStat;
-
-    public FunctionModifier(
+    private Action<FunctionModifier, Stat, gameplayRef> OnRefEventAction;
+    public TriggerRef TriggerConditionRef { get; private set; }
+    public Stat TargetStat { get; private set; }
+    public void AddListener()
+    {
+        GameEvents.OnRefEvent += OnRefEventTriggered;
+    }
+    public FunctionModifier
+        (
         string statName,
         int baseValue,
         StatScaling statScaling,
-        gameplayReference reference = gameplayReference.noRef,
+        gameplayRef toTrigger_ref = gameplayRef.noRef,
         int duration = 0,
         Stat target = null,
-        Action<FunctionModifier, Stat> onTurnStart = null,
-        Action<FunctionModifier, Stat, gameplayReference> onReferenceEvent = null)
+        Action<FunctionModifier, Stat, gameplayRef> onRefEventAction = null,
+        TriggerRef triggerConditionRef = new TriggerRef()
+        )
     {
         StatName = statName;
         BaseValue = baseValue;
         StatScaling = statScaling;
-        Reference = reference;
+        To_TriggerGameplayRef = toTrigger_ref;
         Duration = duration;
-        targetStat = target;
-        onTurnStartAction = onTurnStart;
-        onReferenceEventAction = onReferenceEvent;
+        TargetStat = target;
+        this.OnRefEventAction = onRefEventAction;
+        TriggerConditionRef = triggerConditionRef;
     }
 
     public int GetRemainingDuration() => Duration;
 
-    public void OnTurnStart()
+    public void OnRefEventTriggered(TriggerRef trigger)
     {
-        Debug.Log($"[FunctionModifier: {StatName}] OnTurnStart");
-        onTurnStartAction?.Invoke(this, targetStat);
-
-        if (Duration < 9999)
+        if (CheckTrigger(trigger))
         {
-            Duration--;
-            Debug.Log($"FunctionModifier duration: {Duration}");
+            Debug.Log($"[StatModifier: {StatName}] Triggered by reference: {trigger.Reference}");
+            OnRefEventAction?.Invoke(this, TargetStat, To_TriggerGameplayRef);
+
+            if (Duration < 9999)
+            {
+                Duration--;
+                Debug.Log($"FunctionModifier duration: {Duration}");
+            }
         }
     }
 
-    public void OnReferenceEventTriggered(gameplayReference reference)
+    bool CheckTrigger(TriggerRef trigger)
     {
-        if (reference == Reference)
-        {
-            Debug.Log($"[FunctionModifier: {StatName}] Reacted to event: {reference}");
-            onReferenceEventAction?.Invoke(this, targetStat, reference);
-        }
+        Debug.Log($"Checking trigger: {trigger.Reference}, {trigger.UserId}, {trigger.TargetId}");
+
+        // Must always match reference
+        if (trigger.Reference != TriggerConditionRef.Reference)
+            return false;
+
+        // If TargetId is specified, it must match
+        if (TriggerConditionRef.TargetId == 0) { } 
+        else if (trigger.TargetId != TriggerConditionRef.TargetId)
+            return false;
+
+        // If UserId is specified, it must match
+        if (TriggerConditionRef.UserId == 0) { }
+        else if (trigger.UserId != TriggerConditionRef.UserId)
+            return false;
+
+        return true;
     }
 }
 
 // -------------------- Enums --------------------
-
-public enum gameplayReference
-{
-    noRef,
-    burningRef,
-    damagedRef,
-    stunnedRef,
-    blockingRef,
-    buffedRef,
-}
 
 public enum ModifierMergeStrategy
 {
@@ -305,4 +302,17 @@ public enum StatAspect
     Power,
     Duration,
     Repeats
+}
+// -------------------- Referenece Struct --------------------
+public struct TriggerRef
+{
+    public gameplayRef Reference;
+    public int UserId;
+    public int TargetId;
+    public TriggerRef(gameplayRef reference = gameplayRef.noRef, int userId = 0, int targetId = 0)
+    {
+        Reference = reference;
+        UserId = userId;
+        TargetId = targetId;
+    }
 }

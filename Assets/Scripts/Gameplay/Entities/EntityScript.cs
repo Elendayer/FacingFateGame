@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class EntityScript : MonoBehaviour
 {
+    [Header("Main Enity Settings")]
+    public EntityAffiliation entityAffiliation = EntityAffiliation.Neutral;
+
     [Header("Deck Settings")]
     public List<int> deckCardIDs = new List<int>();  // Populate with card IDs
 
@@ -100,45 +103,6 @@ public class EntityScript : MonoBehaviour
         Debug.LogWarning($"{this.name} Stat not found for ({element}, {aspect})");
         return 0;
     }
-    private void OnEnable()
-    {
-        // Subscribe to the event when the slider value changes and triggers the event
-        GameEvents.OnTurnStart += ProcessTurnStart;
-    }
-
-    private void OnDisable()
-    {
-        // Unsubscribe from the event when this object is disabled or destroyed to avoid memory leaks
-        GameEvents.OnTurnStart -= ProcessTurnStart;
-    }
-
-    public void ProcessTurnStart()
-    {
-        MaxHealth.TickModifiers();
-        CurrentHealth.TickModifiers();
-        MaxStamina.TickModifiers();
-        CurrentStamina.TickModifiers();
-
-        Block.TickModifiers();
-        Armour.TickModifiers();
-
-        foreach (KeyValuePair<EntityAttributeEnum, Stat> i in EntityAttributes)
-        {
-            i.Value.TickModifiers(); // Decrements durations and removes expired
-        }
-        foreach (KeyValuePair<(CardType, StatAspect), Stat> i in CardTypeStats)
-        {
-            i.Value.TickModifiers(); // Decrements durations and removes expired
-        }
-        foreach (KeyValuePair<(CardClass, StatAspect), Stat> i in CardClassStats)
-        {
-            i.Value.TickModifiers(); // Decrements durations and removes expired
-        }
-        foreach (KeyValuePair<(CardElement, StatAspect), Stat> i in CardElementStats)
-        {
-            i.Value.TickModifiers(); // Decrements durations and removes expired
-        }
-    }
 }
 
 public enum EntityAttributeEnum
@@ -149,4 +113,11 @@ public enum EntityAttributeEnum
     Foresight,
     Endurance,
     Tenacity
+}
+
+public enum EntityAffiliation
+{
+    Neutral,
+    Player,
+    Enemy
 }

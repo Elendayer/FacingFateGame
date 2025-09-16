@@ -73,25 +73,30 @@ public static class CardDatabase
         RegisterCard(new CardData()
         {
             cardID = 100002,
-            cardName = "Dual Strike",
+            cardName = "Thrust",
             cardType = CardType.Technique,
             cardClass = CardClass.Knight,
             cardElement = new() { CardElement.Physical },
 
-            repeats_u = 2,
             cost_u = 2,
+            power_u = 6,
+
+            targetingData = new()
+            { 
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.LineSelf,
+                range = 3
+            },
 
             SetCardDescription = (User, data) =>
             {
-                data.cardDescription = $"Deal {data.Power + User.GetStatValue(EntityAttributeEnum.Strength)} {data.Repeats} times, uses your Strength";
+                data.cardDescription = $"Deal {data.Power} Damage in a {data.targetingData.range} Tile Line";
             },
 
             CardEffect = (User, target, data) =>
             {
-                for (int i = 0; i < data.Duration; i++)
-                {
-                    CombatUtils.ApplyDamage(target, data.Power);
-                }
+                target.CurrentHealth.Value -= data.Power;
             }
         });
 
@@ -115,7 +120,7 @@ public static class CardDatabase
 
             CardEffect = (user, target, data) =>
             {
-                user.Block.AddModifier(new StatModifier( data.Power,StatScaling.Flat, gameplayReference.blockingRef, data.Duration));
+                user.Block.AddModifier(new StatModifier( data.Power,StatScaling.Flat, gameplayRef.onBlockingRef, data.Duration));
             }
         });
 
@@ -140,7 +145,7 @@ public static class CardDatabase
 
             CardEffect = (user, target, data) =>
             {
-                data.targetCard.cardData.power_s.AddModifier(new StatModifier(data.Power, StatScaling.Flat, gameplayReference.buffedRef, name: "Empower"), ModifierMergeStrategy.RefreshIncrease);
+                data.targetCard.cardData.power_s.AddModifier(new StatModifier(data.Power, StatScaling.Flat, gameplayRef.onBuffedRef, name: "Empower"), ModifierMergeStrategy.RefreshIncrease);
             }
         });
 
@@ -195,7 +200,7 @@ public static class CardDatabase
 
             CardEffect = (User, target, data) =>
             {
-                User.MaxHealth.AddModifier(new StatModifier(data.Power, StatScaling.Flat, gameplayReference.buffedRef, name: "Valiant Blessing"), ModifierMergeStrategy.Increase);
+                User.MaxHealth.AddModifier(new StatModifier(data.Power, StatScaling.Flat, gameplayRef.onBuffedRef, name: "Valiant Blessing"), ModifierMergeStrategy.Increase);
                 CombatUtils.ApplyHealing(target, data.Power);
             }
 
@@ -233,10 +238,11 @@ public static class CardDatabase
                     statName: "burn",
                     baseValue: data.Power,
                     statScaling: StatScaling.Flat,
-                    reference: gameplayReference.burningRef,
+                    toTrigger_ref: gameplayRef.onBurningRef,
                     duration: data.Duration,
                     target: target.CurrentHealth,
-                    onTurnStart: (modifier, stat) =>
+                    triggerConditionRef: new TriggerRef() { Reference = gameplayRef.onTurnStart, TargetId = target.GetInstanceID()},
+                    onRefEventAction: (modifier, stat, toTrigger_Reference) =>
                     {
                         CombatUtils.ApplyDamage(target, modifier.BaseValue);
                     });

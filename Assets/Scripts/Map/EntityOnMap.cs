@@ -31,11 +31,11 @@ public class EntityOnMap : MonoBehaviour
         SetOccupied(false);
         if (moveRoutine != null) StopCoroutine(moveRoutine);
 
-        List<Vector3Int> path = TileMapUtilityScript.FindPath(currentCell, targetCell, refTilemap);
+        List<Vector3Int> path = TilemapUtilityScript.FindPath(currentCell, targetCell);
 
         if (path != null && path.Count > 0)
         {
-            TileMapUtilityScript.SetTilesHighlight(path, refTilemap, TileMapUtilityScript.HighlightType.Path);
+            TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
             moveRoutine = StartCoroutine(FollowPath(path));
         }
         else
@@ -65,7 +65,7 @@ public class EntityOnMap : MonoBehaviour
         moveRoutine = null;
         SetOccupied(true);
 
-        TileMapUtilityScript.ResetMaphightlight(path,refTilemap);
+        TilemapUtilityScript.ResetMaphightlight(path,refTilemap);
     }
 
     public void SetOccupied( bool b)

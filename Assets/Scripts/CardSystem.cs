@@ -31,11 +31,8 @@ public static class CardSystem
         int repeats = Mathf.Max(1, data.Repeats);
         for (int i = 0; i < repeats; i++)
         {
-            var t = data.targetSelf ? user : targetOrNull;
-            if (t != null)
-                data.ActivateCard(new List<EntityScript> { t });
-            else
-                data.ActivateCard(new List<EntityScript>()); // erlaubt Effekte ohne Ziel (falls benötigt)
+                data.ActivateCard(new List<EntityScript> { targetOrNull}, cardUI.gameObject);
+
         }
 
         // Discard

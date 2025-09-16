@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -28,7 +29,7 @@ public class DraggableCard : Draggable
     {
         base.OnEndDrag(eventData);
 
-        TileMapUtilityScript.ResetMaphightlight(BaseTilemap);
+        TilemapUtilityScript.ResetMaphightlight(BaseTilemap);
 
         Vector3Int pos = GetValidDropTarget(eventData);
         Debug.Log($"Drop position: {pos}");
@@ -99,18 +100,22 @@ public class DraggableCard : Draggable
                 targets = FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList();
                 break;
 
-            case CardTargetArea.Line:
-                positions = TileMapUtilityScript.GetTilesInLine(pos, cardScript.cardData.targetingData.range, 0);
-                targets = GetEntitiesFromTiles(positions); 
+            case CardTargetArea.LineFree:
+                positions = TilemapUtilityScript.GetTilesInLine(pos, pos, cardScript.cardData.targetingData.range);
+                targets = GetEntitiesFromTiles(positions);
+                break;
+            case CardTargetArea.LineSelf:
+                positions = TilemapUtilityScript.GetTilesInLine(cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell, pos, cardScript.cardData.targetingData.range);
+                targets = GetEntitiesFromTiles(positions);
                 break;
 
             case CardTargetArea.Radius:
-                positions = TileMapUtilityScript.GetTilesInRadius(pos, cardScript.cardData.targetingData.range);
+                positions = TilemapUtilityScript.GetTilesInRadius(pos, cardScript.cardData.targetingData.range);
                 targets = GetEntitiesFromTiles(positions);
                 break;
 
             case CardTargetArea.Ring:
-                positions = TileMapUtilityScript.GetTilesInRing(pos, cardScript.cardData.targetingData.range);
+                positions = TilemapUtilityScript.GetTilesInRing(pos, cardScript.cardData.targetingData.range);
                 targets = GetEntitiesFromTiles(positions);
                 break;
         }
@@ -137,27 +142,43 @@ public class DraggableCard : Draggable
             return new List<EntityScript>();
         }
 
+        EntityAffiliation ownerAffiliation = owner.entityAffiliation;
+
         return preTargets.Where(target =>
         {
+            EntityAffiliation targetAffiliation = target.entityAffiliation;
+
             switch (targeting.CardTargetType)
             {
                 case CardTargetType.Entity:
                     return targeting.CardTargetAffiliation switch
                     {
-                        CardTargetAffiliation.Ally => IsSameType(target, owner),
-                        CardTargetAffiliation.Enemy => !IsSameType(target, owner),
+                        CardTargetAffiliation.Ally => targetAffiliation == ownerAffiliation && target != owner,
+                        CardTargetAffiliation.Enemy => targetAffiliation != ownerAffiliation && targetAffiliation != EntityAffiliation.Neutral,
                         CardTargetAffiliation.Self => target == owner,
                         CardTargetAffiliation.All => true,
-                        _ => true
+                        CardTargetAffiliation.AllyNeutral =>
+                            (targetAffiliation == ownerAffiliation || targetAffiliation == EntityAffiliation.Neutral) && target != owner,
+                        CardTargetAffiliation.EnemyNeutral =>
+                            (targetAffiliation != ownerAffiliation || targetAffiliation == EntityAffiliation.Neutral) && target != owner,
+                        CardTargetAffiliation.AllyEnemy =>
+                            (targetAffiliation == ownerAffiliation || (targetAffiliation != ownerAffiliation && targetAffiliation != EntityAffiliation.Neutral)) && target != owner,
+                        _ => false
                     };
 
                 case CardTargetType.CombatTile:
                     return targeting.CardTargetAffiliation switch
                     {
-                        CardTargetAffiliation.Ally => IsSameType(target, owner),
-                        CardTargetAffiliation.Enemy => !IsSameType(target, owner),
+                        CardTargetAffiliation.Ally => targetAffiliation == ownerAffiliation && target != owner,
+                        CardTargetAffiliation.Enemy => targetAffiliation != ownerAffiliation && targetAffiliation != EntityAffiliation.Neutral,
                         CardTargetAffiliation.Self => target == owner,
                         CardTargetAffiliation.All => true,
+                        CardTargetAffiliation.AllyNeutral =>
+                            (targetAffiliation == ownerAffiliation || targetAffiliation == EntityAffiliation.Neutral) && target != owner,
+                        CardTargetAffiliation.EnemyNeutral =>
+                            (targetAffiliation != ownerAffiliation || targetAffiliation == EntityAffiliation.Neutral) && target != owner,
+                        CardTargetAffiliation.AllyEnemy =>
+                            (targetAffiliation == ownerAffiliation || (targetAffiliation != ownerAffiliation && targetAffiliation != EntityAffiliation.Neutral)) && target != owner,
                         _ => false
                     };
 
@@ -191,10 +212,10 @@ public class DraggableCard : Draggable
             : new List<Vector3Int>();
 
         // Clear the previous highlights
-        TileMapUtilityScript.ResetMaphightlight(BaseTilemap);
+        TilemapUtilityScript.ResetMaphightlight(BaseTilemap);
 
         // Highlight the new tiles
-       TileMapUtilityScript.SetTilesHighlight(tilesToHighlight, BaseTilemap, TileMapUtilityScript.HighlightType.Target);
+        TilemapUtilityScript.SetTilesHighlight(tilesToHighlight, BaseTilemap, TilemapUtilityScript.HighlightType.Target);
 
         // Update the last highlighted tiles
         if (currentTarget.HasValue)
@@ -202,7 +223,7 @@ public class DraggableCard : Draggable
             //Debug.Log($"Highlighting tiles around {currentTarget.Value}");
             lastHighlightedTile = (Vector3Int)currentTarget;
         }
-        else         
+        else
             lastHighlightedTile = InvalidPosition;
     }
 
@@ -236,13 +257,16 @@ public class DraggableCard : Draggable
         switch (cardScript.cardData.targetingData.areaType)
         {
             case CardTargetArea.Radius:
-                return TileMapUtilityScript.GetTilesInRadius(centerTile, cardScript.cardData.targetingData.range);
+                return TilemapUtilityScript.GetTilesInRadius(centerTile, cardScript.cardData.targetingData.range);
 
-            case CardTargetArea.Line:
-                return TileMapUtilityScript.GetTilesInLine(centerTile, cardScript.cardData.targetingData.range, 0);
+            case CardTargetArea.LineFree:
+                return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, cardScript.cardData.targetingData.range);
+
+            case CardTargetArea.LineSelf:
+                return TilemapUtilityScript.GetTilesInLine(cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell, centerTile, cardScript.cardData.targetingData.range);
 
             case CardTargetArea.Ring:
-                return TileMapUtilityScript.GetTilesInRing(centerTile, cardScript.cardData.targetingData.range);
+                return TilemapUtilityScript.GetTilesInRing(centerTile, cardScript.cardData.targetingData.range);
 
             default:
                 return new List<Vector3Int> { centerTile };

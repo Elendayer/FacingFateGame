@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class TurnManager : MonoBehaviour
 {
@@ -34,16 +34,23 @@ public class TurnManager : MonoBehaviour
     }
     private void SetTurnOrder()
     {
-        EntityScript[] entities = FindObjectsByType<EntityScript>(0);
-
-        TurnOrder = entities.OrderByDescending(e => UnityEngine.Random.Range(1, 21)).ToList();
+        // Find all PlayerCharacter entities
+        TurnOrder = FindObjectsByType<EntityScript>(0)
+            .OrderByDescending(e => UnityEngine.Random.Range(1, 21))
+            .ToList();
     }
+
     private void OnTurnStart()
     {
+
+        GameEvents.TriggerRefEvent(new TriggerRef() { Reference = gameplayRef.onTurnStart,TargetId = TurnOrder[CurrentTurnIndex].GetInstanceID()});
+        Debug.Log($" {gameplayRef.onTurnStart}, TargetId = {TurnOrder[CurrentTurnIndex].GetInstanceID()}");
+
         DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
     }
     private void OnTurnEnd()
     {
+        GameEvents.TriggerRefEvent(new TriggerRef() { Reference = gameplayRef.onTurnEnd, TargetId = TurnOrder[CurrentTurnIndex].GetInstanceID() });
         DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
 
         CurrentTurnIndex++;

@@ -49,6 +49,9 @@ public class HandManager : MonoBehaviour
     }
     public void DiscardAllInHand()
     {
-     
+        while (cardsInHand.Count < 0)
+        {
+            UtilityScript.Discard(cardsInHand[0]);
+        }
     }
 }

@@ -55,6 +55,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e57eefa759930c741a37410dccdc1f45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  entityAffiliation: 2
   deckCardIDs: 
   MaxHealth:
     Value: 100
@@ -97,6 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   desiredDraggableTargetType: 0
+  BaseTilemap: {fileID: 0}
   lineRenderer: {fileID: 8935636570208141450}
   curveResolution: 3
   character: {fileID: 9001171521745787760}

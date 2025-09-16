@@ -700,6 +700,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   draggableTargetType: 0
+--- !u!1 &431135865
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 431135866}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &431135866
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431135865}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.21643952, y: 0, z: 0, w: 0.97629607}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 519420032}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: -25, y: 0, z: 0}
 --- !u!1001 &461453950
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -856,6 +888,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
     - target: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: m_Name
       value: Character Enemy Stacy
@@ -1177,13 +1213,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.3068792, y: -0, z: -0, w: 0.9517485}
-  m_LocalPosition: {x: 0, y: -15.04, z: -20.92}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: -40}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -35.743, y: 0, z: 0}
+  m_Father: {fileID: 431135866}
+  m_LocalEulerAnglesHint: {x: -20, y: 0, z: 0}
 --- !u!1001 &593060580
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1276,6 +1312,10 @@ PrefabInstance:
       propertyPath: desiredDraggableTargetType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
     - target: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_Name
       value: Character Player Carlos
@@ -3134,6 +3174,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+    - target: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: m_Name
       value: Character Enemy Melfin
       objectReference: {fileID: 0}
@@ -3522,6 +3566,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+    - target: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: m_Name
       value: Character Enemy Bob
       objectReference: {fileID: 0}
@@ -3568,7 +3616,7 @@ GameObject:
   - component: {fileID: 1854110843}
   m_Layer: 0
   m_Name: BaseMap
-  m_TagString: Untagged
+  m_TagString: Basemap
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3767,7 +3815,7 @@ TilemapRenderer:
   m_MaxFrameAge: 16
   m_SortOrder: 0
   m_Mode: 1
-  m_DetectChunkCullingBounds: 0
+  m_DetectChunkCullingBounds: 1
   m_MaskInteraction: 0
 --- !u!224 &1854110841
 RectTransform:
@@ -3954,7 +4002,7 @@ CanvasRenderer:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 519420032}
+  - {fileID: 431135866}
   - {fileID: 619394802}
   - {fileID: 1609109232}
   - {fileID: 1123351103}
