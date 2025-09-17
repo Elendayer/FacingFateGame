@@ -197,5 +197,6 @@ public class TargetArea
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;
     public CardTargetArea areaType = CardTargetArea.Single;
-    public int range = 0;
+    public int range = 1; 
+    public int area = 1; 
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public static class UtilityScript
+public static class TransformUtility
 {
     public static void ZeroTransform(Transform t)
     {
@@ -19,6 +19,10 @@ public static class UtilityScript
         t.localRotation = Quaternion.identity;
         t.localScale = Vector3.one;
     }
+
+}
+public static class HandUtility
+{
     public static void Discard(CardScript cs)
     {
         cs.gameObject.transform.SetParent(DeckManager.Instance.discardParent);

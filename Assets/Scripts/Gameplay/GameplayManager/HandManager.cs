@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -44,14 +43,14 @@ public class HandManager : MonoBehaviour
     {
         if (cardsInHand.Contains(cardObject))
         {
-            UtilityScript.Discard(cardObject);
+            HandUtility.Discard(cardObject);
         }
     }
     public void DiscardAllInHand()
     {
         while (cardsInHand.Count < 0)
         {
-            UtilityScript.Discard(cardsInHand[0]);
+            HandUtility.Discard(cardsInHand[0]);
         }
     }
 }

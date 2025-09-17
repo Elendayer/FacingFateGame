@@ -5,7 +5,8 @@ using UnityEngine.Tilemaps;
 
 public static class TilemapUtilityScript
 {
-    static Tilemap BaseTilemap => Object.FindObjectsByType<Tilemap>(0).FirstOrDefault(tilemap => tilemap.CompareTag("Basemap"));
+    public static Vector3Int InvalidPosition = new Vector3Int(9999,9999,9999);
+    public static Tilemap BaseTilemap => Object.FindObjectsByType<Tilemap>(0).FirstOrDefault(tilemap => tilemap.CompareTag("Basemap"));
 
     // >>> CONFIG: Point-top offset type (Odd-R by default). Flip if your rows are shifted the other way.
     public static bool UseOddROffset = true; // true = Odd-R, false = Even-R
@@ -64,6 +65,14 @@ public static class TilemapUtilityScript
         }
         return new List<Vector3Int>(); // No path found
     }
+    public static List<Vector3Int> FindPathToAdjacent(Vector3Int start, Vector3Int target, bool ignoreCost = false)
+    {
+        var path = FindPath(start, target, straightLineOnly: false, ignoreCost: ignoreCost);
+        if (path == null || path.Count <= 1)
+            return null; // already adjacent or unreachable
+
+        return path.Take(path.Count - 1).ToList();
+    }
 
     // Helper for straightLineOnly
     private static bool IsOnLine(Vector3Int start, Vector3Int end, Vector3Int point)
@@ -79,8 +88,6 @@ public static class TilemapUtilityScript
         float t = steps == 0 ? 0 : (dx != 0 ? (float)px / dx : (dy != 0 ? (float)py / dy : (float)pz / dz));
         return Mathf.Approximately(px, t * dx) && Mathf.Approximately(py, t * dy) && Mathf.Approximately(pz, t * dz) && t >= 0 && t <= 1;
     }
-
-
     private static int Heuristic(Vector3Int a, Vector3Int b)
     {
         // Use cube distance; convert from offset -> cube based on configured Odd/Even-R
@@ -173,6 +180,71 @@ public static class TilemapUtilityScript
     }
 
     #endregion
+
+    public static List<Vector3Int> GetReachableTiles(Vector3Int start, int stamina)
+    {
+        List<Vector3Int> reachable = new();
+        Queue<(Vector3Int cell, int costSoFar)> frontier = new();
+        HashSet<Vector3Int> visited = new();
+
+        frontier.Enqueue((start, 0));
+        visited.Add(start);
+
+        var costInfoScript = BaseTilemap.GetComponent<CostInfoScript>();
+
+        while (frontier.Count > 0)
+        {
+            var (current, costSoFar) = frontier.Dequeue();
+
+            // Skip adding the start itself if you only want destinations
+            if (current != start)
+                reachable.Add(current);
+
+            // Expand neighbors in cube space
+            var currentCube = OffsetToCube_PointTop(current, UseOddROffset);
+            foreach (var dir in CubeDirs)
+            {
+                var neighborCube = currentCube + dir;
+                var neighbor = CubeToOffset_PointTop(neighborCube, UseOddROffset);
+
+                if (visited.Contains(neighbor))
+                    continue;
+
+                // default movement cost = 1
+                int tileCost = 1;
+                if (costInfoScript != null &&
+                    costInfoScript.costInfoDict.TryGetValue(neighbor, out CostInfo costInfo))
+                {
+                    if (costInfo.isOccupied) continue; // can’t move here
+                    tileCost = Mathf.Max(1, costInfo.cost);
+                }
+
+                int newCost = costSoFar + tileCost;
+                if (newCost <= stamina)
+                {
+                    frontier.Enqueue((neighbor, newCost));
+                    visited.Add(neighbor);
+                }
+            }
+        }
+
+        return reachable;
+    }
+
+    /// <summary>
+    /// Returns tiles around a target that are within range for a card to reach.
+    /// This respects the card's targetingData.areaType and range.
+    /// </summary>
+    public static List<Vector3Int> GetTilesInRange(Vector3Int targetPos, int range)
+    {
+        switch (range)
+        {
+            case <= 0: return new List<Vector3Int> { targetPos };
+            default:
+                return TilemapUtilityScript.GetTilesInRadius(targetPos, range);
+        }
+    }
+
 
     #region Offset <-> Cube (Point-Top)
     // Odd-R and Even-R conversions per redblobgames
@@ -284,13 +356,13 @@ public static class TilemapUtilityScript
             }
         }
     }
-    #endregion
     public enum HighlightType
     {
         Path,
         Target,
         Selected
     }
+    #endregion
 }
 
 #region PriorityQueue Helper

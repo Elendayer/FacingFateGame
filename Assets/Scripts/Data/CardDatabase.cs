@@ -56,7 +56,8 @@ public static class CardDatabase
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 areaType = CardTargetArea.Single,
-                range = 0
+                range = 1,
+                area = 1,
             },
 
             SetCardDescription = (User, data) =>
@@ -86,7 +87,8 @@ public static class CardDatabase
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 areaType = CardTargetArea.LineSelf,
-                range = 3
+                range = 3,
+                area = 1,
             },
 
             SetCardDescription = (User, data) =>
@@ -221,8 +223,9 @@ public static class CardDatabase
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.All,
-                areaType = CardTargetArea.Ring,
-                range = 3
+                areaType = CardTargetArea.Radius,
+                range = 3,
+                area = 2,
             },
 
 

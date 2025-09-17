@@ -25,7 +25,7 @@ public class EntityScript : MonoBehaviour
     public Dictionary<(CardElement, StatAspect), Stat> CardElementStats = new();
     public Dictionary<(CardClass, StatAspect), Stat> CardClassStats = new();
 
-    private void Start()
+    public virtual void Startup()
     {
         // Fill EntityAttributes
         foreach (EntityAttributeEnum attr in Enum.GetValues(typeof(EntityAttributeEnum)))
@@ -71,7 +71,6 @@ public class EntityScript : MonoBehaviour
         Debug.LogWarning($"{this.name} Stat not found for ({attr})");
         return 0;
     }
-
     public int GetStatValue(CardType type, StatAspect aspect)
     {
         if (CardTypeStats.TryGetValue((type, aspect), out var stat))
@@ -92,7 +91,6 @@ public class EntityScript : MonoBehaviour
         Debug.LogWarning($"{this.name} Stat not found for ({cls}, {aspect})");
         return 0;
     }
-
     public int GetStatValue(CardElement element, StatAspect aspect)
     {
         if (CardElementStats.TryGetValue((element, aspect), out var stat))

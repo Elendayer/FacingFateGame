@@ -29,11 +29,6 @@ public class CardScript : MonoBehaviour
         }
     }
 
-    public void SetCard(CardData data)
-    {
-        cardData = data;
-        ApplyCardDataVisuals();
-    }
     public void ApplyCardDataVisuals()
     {
         if (cardData != null)
@@ -42,7 +37,7 @@ public class CardScript : MonoBehaviour
             artworkRenderer.sprite = cardData.cardArtwork;
             nameText.text = cardData.cardName;
             descriptionText.text = cardData.cardDescription;
-            Debug.Log($"[Card] {cardData.cardName} -> Owner={cardData.Owner?.name} (inst {cardData.GetHashCode()})");
+            //Debug.Log($"[Card] {cardData.cardName} -> Owner={cardData.Owner?.name} (inst {cardData.GetHashCode()})");
         }
     }
 
@@ -61,5 +56,6 @@ public class CardScript : MonoBehaviour
     {
         cardBack.SetActive(false);
         GetComponent<DraggableCard>().enabled = true;
+        ApplyCardDataVisuals();
     }
 }

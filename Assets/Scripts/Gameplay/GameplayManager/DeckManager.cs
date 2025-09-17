@@ -16,7 +16,7 @@ public class DeckManager : MonoBehaviour
     [Header("Deck Management")]
     public GameObject deckDockPrefab;
 
-    public Dictionary<EntityScript,Transform> DeckManagement = new Dictionary<EntityScript,Transform>();
+    public Dictionary<EntityScript, Transform> DeckManagement = new Dictionary<EntityScript, Transform>();
 
     private Stack<GameObject> cardStack = new Stack<GameObject>();
     private Stack<GameObject> discardStack = new Stack<GameObject>();
@@ -32,7 +32,9 @@ public class DeckManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject); // Optional: persist between scenes
-
+    }
+    public void Startup()
+    {
         CardDatabase.RegisterAll();
 
         if (deckDrawButton != null)
@@ -63,7 +65,7 @@ public class DeckManager : MonoBehaviour
         foreach (GameObject child in cardObjs)
         {
             child.transform.SetParent(cardDock.transform);
-            UtilityScript.ZeroLocalRectTransform(child.transform as RectTransform);
+            TransformUtility.ZeroLocalRectTransform(child.transform as RectTransform);
             cardStack.Push(child.gameObject);
         }
 
@@ -87,7 +89,7 @@ public class DeckManager : MonoBehaviour
         if (cardScript != null)
         {
             cardScript.SetHidden();
-            cardScript.SetCard(cardData);
+            cardScript.cardData = cardData;
         }
         else
         {
@@ -120,11 +122,11 @@ public class DeckManager : MonoBehaviour
             return;
         }
         if (HandManager.Instance.handAnchor.childCount > HandManager.Instance.maxHandsize)
-        {       
+        {
             Debug.Log("Hand is full.");
             return;
         }
-        
+
         GameObject topCard = cardStack.Pop();
         HandManager.Instance.AddCard(topCard);
 
@@ -139,8 +141,8 @@ public class DeckManager : MonoBehaviour
 
         CardScript cs = cardobject.GetComponent<CardScript>();
 
-        UtilityScript.Discard(cs);
- 
+        HandUtility.Discard(cs);
+
         discardStack.Push(cardobject);
     }
 
@@ -189,7 +191,7 @@ public class DeckManager : MonoBehaviour
         foreach (GameObject card in cards)
         {
             card.transform.SetParent(deckParent);
-            UtilityScript.ZeroTransform(card.transform);
+            TransformUtility.ZeroTransform(card.transform);
             cardStack.Push(card);
         }
 
@@ -224,8 +226,8 @@ public class DeckManager : MonoBehaviour
 
     public void MoveInDeck(EntityScript entity)
     {
-    cardStack.Clear();
-    discardStack.Clear();
+        cardStack.Clear();
+        discardStack.Clear();
         Transform dock = DeckManagement[entity];
         Debug.Log($"Moving cards into deck of {entity.name} from {dock.name}");
         List<CardScript> cards = new();
@@ -236,11 +238,10 @@ public class DeckManager : MonoBehaviour
         {
             c.cardData.Owner = entity;
 
-            Debug.Log($"Moving card {c.cardData.cardName} into deck of {entity.name}");
             RectTransform ct = c.GetComponent<RectTransform>();
 
             ct.SetParent(deckParent);
-            UtilityScript.ZeroLocalRectTransform(ct);
+            TransformUtility.ZeroLocalRectTransform(ct);
 
             cardStack.Push(ct.gameObject);
         }
@@ -255,7 +256,7 @@ public class DeckManager : MonoBehaviour
     }
     public void StartTurn(EntityScript entity)
     {
-        if(entity.GetType() == typeof(PlayerScript))
+        if (entity.GetType() == typeof(PlayerScript))
         {
             MoveInDeck(entity);
 
@@ -263,6 +264,10 @@ public class DeckManager : MonoBehaviour
             {
                 DrawTopCard();
             }
+        }
+        else
+        {
+            (entity as NonPlayerScript).TakeTurn();
         }
     }
 }

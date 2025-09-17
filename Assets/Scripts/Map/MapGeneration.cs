@@ -2,7 +2,7 @@ using NUnit.Framework.Interfaces;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class MapGenerationScript : MonoBehaviour
+public class MapGeneration : MonoBehaviour
 {
     public HexagonalRuleTile hexagonalTile;
     public CostInfoScript costInfoScript = null;
