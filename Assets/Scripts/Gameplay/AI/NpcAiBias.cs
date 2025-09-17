@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class NpcAiBias : MonoBehaviour
+[Serializable]
+public class NpcAiBias
 {
     public string id;
 
@@ -10,8 +10,12 @@ public class NpcAiBias : MonoBehaviour
     public Dictionary<gameplayRef,int> refBias = new Dictionary<gameplayRef,int>();
     public Dictionary<CardIdentity,int> identityBias = new Dictionary<CardIdentity,int>();
 
-    public int BiasCalc( CardData cardData)
+    public FleeCondition fleeCondition = FleeCondition.none;
+
+    public int BiasCalc(CardData cardData)
     {
+        if (cardData.CardAiBias == null) return 0;
+
         int biasValue = 0;
         if (intentionBias.TryGetValue(cardData.CardAiBias.Intention, out int iValue))
         {
@@ -33,4 +37,12 @@ public class NpcAiBias : MonoBehaviour
         }
         return biasValue;
     }
+}
+
+public enum FleeCondition
+{
+    none,
+    surrounded,
+    lowHealth,
+    preferRanged,
 }

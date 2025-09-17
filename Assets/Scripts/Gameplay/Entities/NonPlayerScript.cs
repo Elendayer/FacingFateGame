@@ -6,6 +6,8 @@ public class NonPlayerScript : EntityScript
 {
     [Header("AI")]
     public NpcAIController npcAIController;
+
+    public string npcAIBiasId = string.Empty;
     public NpcAiBias npcAIBias;
 
     [SerializeField]
@@ -16,6 +18,7 @@ public class NonPlayerScript : EntityScript
         base.Startup();
 
         npcAIController = new NpcAIController(this);
+        npcAIBias = AiBiasDatabase.GetBiasById(npcAIBiasId);
         Debug.Log($"NonPlayerScript Setup complete for {name}");
     }
     public void TakeTurn()

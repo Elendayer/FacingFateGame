@@ -838,6 +838,10 @@ PrefabInstance:
       value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: npcAIBiasId
+      value: StupidFuck
+      objectReference: {fileID: 0}
+    - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -911,7 +915,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: f09c8d8b1a8b6f04db1eca3967806574, type: 2}
     - target: {fileID: 9001171521745787760, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: currentCell.x
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 9001171521745787760, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: currentCell.y
@@ -2445,6 +2449,10 @@ PrefabInstance:
       value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: npcAIBiasId
+      value: StupidFuck
+      objectReference: {fileID: 0}
+    - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: entityAffiliation
       value: 1
       objectReference: {fileID: 0}
@@ -3324,6 +3332,10 @@ PrefabInstance:
       value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: npcAIBiasId
+      value: StupidFuck
+      objectReference: {fileID: 0}
+    - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -3397,7 +3409,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: f09c8d8b1a8b6f04db1eca3967806574, type: 2}
     - target: {fileID: 9001171521745787760, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: currentCell.x
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9001171521745787760, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: currentCell.y
@@ -3729,6 +3741,10 @@ PrefabInstance:
       value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: npcAIBiasId
+      value: StupidFuck
+      objectReference: {fileID: 0}
+    - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -3802,7 +3818,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: f09c8d8b1a8b6f04db1eca3967806574, type: 2}
     - target: {fileID: 9001171521745787760, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: currentCell.x
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 9001171521745787760, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: currentCell.y

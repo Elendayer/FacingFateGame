@@ -24,6 +24,25 @@ public class NpcAIController
 
         Debug.Log($"[NpcAI] {npc.name} starting turn. Stamina: {stamina}, virtualPosition: {virtualPosition}");
 
+        switch (npc.npcAIBias.fleeCondition)
+        { 
+            case FleeCondition.none: break;
+            case FleeCondition.surrounded:
+                if (TargetingUtility.GetEntitiesFromTiles(TilemapUtilityScript.GetTilesInRadius(virtualPosition, 1), allEntities).Count >= 3)
+                {
+                    ScoredCard FakeFleeCard = DetermineFleeTarget(virtualPosition, allEntities, stamina);
+                    plan.Add(new PlannedAction
+                    {
+                        Type = PlannedAction.ActionType.Move,
+                        TargetCell = FakeFleeCard.TargetCell,
+                    });
+                    Debug.Log($"[NpcAI] -> MOVE to {FakeFleeCard.TargetCell} (cost {FakeFleeCard.MovementCost})");
+                    virtualPosition = FakeFleeCard.MovementPath.Last();
+                    stamina -= FakeFleeCard.MovementCost; 
+                }
+                break;
+        }
+
         var hand = GetHandCards();
         if (hand.Count == 0) return plan;
 
@@ -69,6 +88,102 @@ public class NpcAIController
 
         Debug.Log($"[NpcAI] Finished turn plan. Total actions: {plan.Count}");
         return plan;
+    }
+
+    private ScoredCard DetermineFleeTarget(Vector3Int virtualPosition, List<EntityScript> allEntities, int stamina)
+    {
+        ScoredCard bestTarget = null;
+        float bestScore = float.MinValue;
+
+        // Count how many hostiles we want to flee from
+        int hostileCount = allEntities.Count(e => e.entityAffiliation != npc.entityAffiliation);
+        if (hostileCount == 0)
+        {
+            // no enemies, stay in place
+            return new ScoredCard()
+            {
+                TargetCell = virtualPosition,
+                MovementPath = new List<Vector3Int>() { virtualPosition },
+                MovementCost = 0,
+                Score = 0
+            };
+        }
+
+        // Cap flee distance by number of hostiles (but not above stamina)
+        int maxFleeDistance = Mathf.Min(stamina, hostileCount);
+
+        // Generate candidate positions within flee range
+        for (int dx = -maxFleeDistance; dx <= maxFleeDistance; dx++)
+        {
+            for (int dy = -maxFleeDistance; dy <= maxFleeDistance; dy++)
+            {
+                Vector3Int candidate = new Vector3Int(
+                    virtualPosition.x + dx,
+                    virtualPosition.y + dy,
+                    virtualPosition.z
+                );
+
+                // Skip current position
+                if (candidate == virtualPosition)
+                    continue;
+
+                // Skip if tile does not exist on basemap
+                if (!TilemapUtilityScript.BaseTilemap.HasTile(candidate))
+                    continue;
+
+                // Pathfinding
+                var path = GetPathToTile(virtualPosition, candidate);
+                if (path == null) continue;
+
+                int moveCost = path.Count;
+                if (moveCost > stamina || moveCost == 0) continue;
+
+                // Evaluate candidate against hostiles
+                float minEnemyDist = float.MaxValue;
+                foreach (var entity in allEntities)
+                {
+                    if (entity.entityAffiliation != npc.entityAffiliation)
+                    {
+                        float distToEnemy = Vector3Int.Distance(
+                            entity.GetComponent<EntityOnMap>().currentCell,
+                            candidate
+                        );
+                        if (distToEnemy < minEnemyDist)
+                            minEnemyDist = distToEnemy;
+                    }
+                }
+
+                // Score system:
+                // - Prefer being farther from enemies
+                // - Slightly prefer closer paths
+                float score = (minEnemyDist * 2f) - moveCost;
+
+                // Penalize if too close
+                if (minEnemyDist < 2)
+                    score -= 100f;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestTarget = new ScoredCard()
+                    {
+                        TargetCell = candidate,
+                        MovementPath = path,
+                        MovementCost = moveCost,
+                        Score = Mathf.RoundToInt(score)
+                    };
+                }
+            }
+        }
+
+        // Fallback: stay in place
+        return bestTarget ?? new ScoredCard()
+        {
+            TargetCell = virtualPosition,
+            MovementPath = new List<Vector3Int>() { virtualPosition },
+            MovementCost = 0,
+            Score = 0
+        };
     }
 
     // --- Hand retrieval ---
@@ -231,28 +346,25 @@ public class NpcAIController
     // --- Card scoring ---
     private int EvaluateCardScore(CardScript card, List<EntityScript> targets)
     {
-        CardData data = card.cardData;
-        CardAiBias cardBias = data.CardAiBias;
-
         List<EntityScript> vettedEntities = TargetingUtility.VetTargetsEntities(card, npc, targets);
 
         // --- Base throughput (power * repeats) ---
-        int throughput = (data.Power * Mathf.Max(1, data.Repeats))* vettedEntities.Count;
+        int throughput = (card.cardData.Power * Mathf.Max(1, card.cardData.Repeats))* vettedEntities.Count;
 
         // --- Apply CardAiBias throughput overrides ---
-        if (cardBias != null)
+        if (card.cardData.CardAiBias != null)
         {
-            throughput += cardBias.ThroughputOverride(throughput, data.GameplayReferences);
+            throughput += card.cardData.CardAiBias.ThroughputOverride(throughput, card.cardData.GameplayReferences);
         }
 
         // --- Apply NpcAiBias directly to throughput ---
         if (npc.npcAIBias != null)
         {
-            throughput += npc.npcAIBias.BiasCalc(data);
+            throughput += npc.npcAIBias.BiasCalc(card.cardData);
         }
 
         // --- Efficiency: biased throughput / cost ---
-        int efficiency = throughput / Mathf.Max(1, data.Cost);
+        int efficiency = throughput / Mathf.Max(1, card.cardData.Cost);
 
         return efficiency;
     }

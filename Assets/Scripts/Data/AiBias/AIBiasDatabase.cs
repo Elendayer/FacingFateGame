@@ -7,7 +7,7 @@ public class AiBiasDatabase : MonoBehaviour
 
     private static Dictionary<string, NpcAiBias> AILookup = new Dictionary<string, NpcAiBias>();
 
-    public static void RegisterCard(NpcAiBias bias)
+    public static void RegisterBias(NpcAiBias bias)
     {
         if (!AILookup.ContainsKey(bias.id))
         {
@@ -19,9 +19,9 @@ public class AiBiasDatabase : MonoBehaviour
             Debug.LogWarning($"Duplicate card ID detected: {bias.id}");
         }
     }
-    public static NpcAiBias GetCardById(string id)
+    public static NpcAiBias GetBiasById(string id)
     {
-        if (!AILookup.TryGetValue( id, out var AiBias) || AiBias == null)
+        if (!AILookup.TryGetValue(id, out var AiBias) || AiBias == null)
             return null;
 
         return AiBias;
@@ -39,6 +39,15 @@ public class AiBiasDatabase : MonoBehaviour
 
     private static void RegisterAIBias()
     {
-        throw new NotImplementedException();
-    }
+        RegisterBias(new NpcAiBias()
+        {
+            id = "StupidFuck",
+
+            intentionBias = new Dictionary<Intention, int>(),
+            refBias = new Dictionary<gameplayRef, int>(),
+            identityBias = new Dictionary<CardIdentity, int>(),
+
+            fleeCondition = FleeCondition.surrounded
+        });
+    } 
 }

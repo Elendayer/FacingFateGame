@@ -18,6 +18,8 @@ public class StartupManager : MonoBehaviour
     }
     private void HandleStartup()
     {
+        AiBiasDatabase.RegisterAll();
+
         DeckManager.Instance.Startup();
         TurnManager.Instance.Startup();
 
