@@ -1,5 +1,9 @@
 using UnityEngine;
 
+namespace Utility
+{
+
+
 public static class TransformUtility
 {
     public static void ZeroTransform(Transform t)
@@ -69,5 +73,6 @@ public static class CombatUtils
             target.CurrentHealth.Value + healing,
             target.MaxHealth.GetFinalValue()
         );
+    }
     }
 }

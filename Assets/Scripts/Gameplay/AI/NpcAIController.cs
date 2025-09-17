@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Utility;
 
-public class NpcAI
+public class NpcAIController
 {
     private readonly NonPlayerScript npc;
     private readonly EntityOnMap mover;
     private List<EntityScript> allEntities => Object.FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList();
 
-    public NpcAI(NonPlayerScript npc)
+    public NpcAIController(NonPlayerScript npc)
     {
         this.npc = npc;
         mover = npc.GetComponent<EntityOnMap>();
@@ -230,8 +231,29 @@ public class NpcAI
     // --- Card scoring ---
     private int EvaluateCardScore(CardScript card, List<EntityScript> targets)
     {
-        int throughput = card.cardData.Power * Mathf.Max(1, card.cardData.Repeats);
-        int efficiency = throughput / Mathf.Max(1, card.cardData.Cost);
+        CardData data = card.cardData;
+        CardAiBias cardBias = data.CardAiBias;
+
+        List<EntityScript> vettedEntities = TargetingUtility.VetTargetsEntities(card, npc, targets);
+
+        // --- Base throughput (power * repeats) ---
+        int throughput = (data.Power * Mathf.Max(1, data.Repeats))* vettedEntities.Count;
+
+        // --- Apply CardAiBias throughput overrides ---
+        if (cardBias != null)
+        {
+            throughput += cardBias.ThroughputOverride(throughput, data.GameplayReferences);
+        }
+
+        // --- Apply NpcAiBias directly to throughput ---
+        if (npc.npcAIBias != null)
+        {
+            throughput += npc.npcAIBias.BiasCalc(data);
+        }
+
+        // --- Efficiency: biased throughput / cost ---
+        int efficiency = throughput / Mathf.Max(1, data.Cost);
+
         return efficiency;
     }
 

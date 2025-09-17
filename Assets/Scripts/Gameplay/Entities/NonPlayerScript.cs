@@ -5,7 +5,8 @@ using UnityEngine;
 public class NonPlayerScript : EntityScript
 {
     [Header("AI")]
-    public NpcAI enemyAI;
+    public NpcAIController npcAIController;
+    public NpcAiBias npcAIBias;
 
     [SerializeField]
     private List<PlannedAction> plan;
@@ -14,7 +15,7 @@ public class NonPlayerScript : EntityScript
     {
         base.Startup();
 
-        enemyAI = new NpcAI(this);
+        npcAIController = new NpcAIController(this);
         Debug.Log($"NonPlayerScript Setup complete for {name}");
     }
     public void TakeTurn()
@@ -23,7 +24,7 @@ public class NonPlayerScript : EntityScript
 
         Debug.Log("-------------------------------------------------------------------------------------------------------");
 
-        plan = enemyAI.BuildTurnPlan();
+        plan = npcAIController.BuildTurnPlan();
 
         StartCoroutine(ExecutePlan(plan));
     }

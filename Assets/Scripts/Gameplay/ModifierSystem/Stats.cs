@@ -187,7 +187,7 @@ public class StatModifier : IStatModifier
     public StatModifier(
         int value,
         StatScaling scaling,
-        gameplayRef reference = gameplayRef.noRef,
+        gameplayRef reference = gameplayRef.None,
         int duration = 99999,
         Stat target = null,
         string name = null)
@@ -222,7 +222,7 @@ public class FunctionModifier : IStatModifier
         string statName,
         int baseValue,
         StatScaling statScaling,
-        gameplayRef toTrigger_ref = gameplayRef.noRef,
+        gameplayRef toTrigger_ref = gameplayRef.None,
         int duration = 0,
         Stat target = null,
         Action<FunctionModifier, Stat, gameplayRef> onRefEventAction = null,
@@ -309,7 +309,7 @@ public struct TriggerRef
     public gameplayRef Reference;
     public int UserId;
     public int TargetId;
-    public TriggerRef(gameplayRef reference = gameplayRef.noRef, int userId = 0, int targetId = 0)
+    public TriggerRef(gameplayRef reference = gameplayRef.None, int userId = 0, int targetId = 0)
     {
         Reference = reference;
         UserId = userId;

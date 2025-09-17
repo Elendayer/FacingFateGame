@@ -3,6 +3,9 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+namespace Utility
+{
+
 public static class TargetingUtility
 {
     public static List<EntityScript> GetTargetsFromPosition(CardScript card, Vector3Int pos, List<EntityScript> allEntities, EntityScript owner)
@@ -69,7 +72,29 @@ public static class TargetingUtility
             };
         }).ToList();
     }
-    public static bool IsValidTarget(CardScript card, EntityScript owner, EntityScript target)
+        public static List<EntityScript> VetTargetsEntities(EntityScript owner, CardTargetAffiliation targetAffiliation, List<EntityScript> preTargets)
+        {
+            EntityAffiliation ownerAffiliation = owner.entityAffiliation;
+
+            return preTargets.Where(target =>
+            {
+                EntityAffiliation targetAff = target.entityAffiliation;
+
+                return targetAffiliation switch
+                {
+                    CardTargetAffiliation.Ally => targetAff == ownerAffiliation && targetAff != EntityAffiliation.Neutral,
+                    CardTargetAffiliation.Enemy => targetAff != ownerAffiliation && targetAff != EntityAffiliation.Neutral,
+                    CardTargetAffiliation.Self => target == owner,
+                    CardTargetAffiliation.All => true,
+                    CardTargetAffiliation.AllyNeutral => targetAff == ownerAffiliation || targetAff == EntityAffiliation.Neutral,
+                    CardTargetAffiliation.EnemyNeutral => targetAff != ownerAffiliation || targetAff == EntityAffiliation.Neutral,
+                    CardTargetAffiliation.AllyEnemy => targetAff != EntityAffiliation.Neutral,
+                    _ => false
+                };
+            }).ToList();
+        }
+
+        public static bool IsValidTarget(CardScript card, EntityScript owner, EntityScript target)
     {
         var aff = target.entityAffiliation;
         var ownerAff = owner.entityAffiliation;
@@ -179,4 +204,6 @@ public static class TargetingUtility
 
         return TilemapUtilityScript.InvalidPosition;
     }
+}
+
 }

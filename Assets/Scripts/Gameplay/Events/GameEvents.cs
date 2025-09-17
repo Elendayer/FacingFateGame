@@ -21,7 +21,7 @@ public static class GameEvents
 
 public enum gameplayRef
 {
-    noRef,
+    None,
     onBurningRef,
     onDamagedRef,
     onStunnedRef,
