@@ -162,9 +162,27 @@ public class CardData
 
     public void ActivateCard(List<EntityScript> targetEntity, GameObject obj)
     {
+        GenerateTriggerFromCardData();
+
         foreach (EntityScript target in targetEntity)
+        {
             CardEffect?.Invoke(Owner, target, this);
+        }
         HandManager.Instance.DiscardCard(obj);
+    }
+    private void GenerateTriggerFromCardData()
+    {
+        gameplayRef refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{cardClass.GetType().Name}");
+        GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
+
+        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{cardType.GetType().Name}");
+        GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
+
+        foreach (CardElement element in cardElement)
+        {
+            refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{element.GetType().Name}");
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
+        }
     }
 }
 public enum CardTargetType
