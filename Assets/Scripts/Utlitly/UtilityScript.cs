@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public static class UtilityScript
 {
@@ -91,10 +90,7 @@ public static class CombatUtils
 
     public static void ApplyBuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy) 
     {
-        foreach(gameplayRef gameplayRef in mod.To_TriggerGameplayRefs)
-        {
-            GameEvents.TriggerRefEvent(new TriggerRef( new() { gameplayRef }, user.GetInstanceID(), target.GetInstanceID()));
-        }
+        GameEvents.TriggerRefEvent(new TriggerRef( new() { gameplayRef.onBuffedRef }, user.GetInstanceID(), target.GetInstanceID()));
 
         targetStat.AddModifier(mod, ModifierMergeStrategy.RefreshIncrease);
     }

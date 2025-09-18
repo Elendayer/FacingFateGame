@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// If Updated needs to update GameplayReference as well
 public enum CardType
 {
     Skill,
@@ -12,6 +14,7 @@ public enum CardType
     Blessing,
     Curse
 }
+// If Updated needs to update GameplayReference as well
 public enum CardElement
 {
     Non,
@@ -29,6 +32,7 @@ public enum CardElement
     Divine,
     Occult
 }
+// If Updated needs to update GameplayReference as well
 public enum CardClass
 {
     Knight,
