@@ -27,7 +27,7 @@ public class EntityScript : MonoBehaviour
 
     private EntityVisualScript EntityVisual;
 
-    private void Start()
+    public virtual void StartUp()
     {
         EntityVisual = GetComponentInChildren<EntityVisualScript>();
 

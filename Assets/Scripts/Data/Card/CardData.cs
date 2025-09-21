@@ -178,7 +178,7 @@ public class CardData
         refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{cardType.GetType().Name}");
         GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
 
-        foreach (CardElement element in cardElement)
+        foreach (CardIdentity element in cardIdentities)
         {
             refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{element.GetType().Name}");
             GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));

@@ -21,7 +21,7 @@ public class TurnManager : MonoBehaviour
         Instance = this;
     }
 
-    public void Startup()
+    public void StartUp()
     {
         SetTurnOrder();
 

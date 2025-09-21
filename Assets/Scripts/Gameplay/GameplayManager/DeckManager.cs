@@ -34,7 +34,7 @@ public class DeckManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject); // Optional: persist between scenes
     }
-    public void Startup()
+    public void StartUp()
     {
         CardDatabase.RegisterAll();
 

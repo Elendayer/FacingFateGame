@@ -148,7 +148,7 @@ public static class CardDatabase
 
             CardEffect = (user, target, data) =>
             {
-                data.targetCard.cardData.power_s.AddModifier(new StatModifier(data.Power, StatScaling.Flat, new List<gameplayRef>() { gameplayRef.onBuffedRef }, name: "Empower"), ModifierMergeStrategy.RefreshIncrease);
+                //data.targetCard.cardData.power_s.AddModifier(new StatModifier(data.Power, StatScaling.Flat, new List<gameplayRef>() { gameplayRef.onBuffedRef }, name: "Empower"), ModifierMergeStrategy.RefreshIncrease);
             }
         });
 

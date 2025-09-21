@@ -13,9 +13,9 @@ public class NonPlayerScript : EntityScript
     [SerializeField]
     private List<PlannedAction> plan;
 
-    public override void Startup()
+    public override void StartUp()
     {
-        base.Startup();
+        base.StartUp();
 
         npcAIController = new NpcAIController(this);
         npcAIBias = AiBiasDatabase.GetBiasById(npcAIBiasId);

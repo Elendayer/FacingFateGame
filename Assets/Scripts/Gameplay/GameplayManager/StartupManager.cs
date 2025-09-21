@@ -20,12 +20,12 @@ public class StartupManager : MonoBehaviour
     {
         AiBiasDatabase.RegisterAll();
 
-        DeckManager.Instance.Startup();
-        TurnManager.Instance.Startup();
+        DeckManager.Instance.StartUp();
+        TurnManager.Instance.StartUp();
 
         foreach (var entity in GameObject.FindObjectsByType<EntityScript>(0))
         {
-            entity.Startup();
+            entity.StartUp();
         }
     }
 }
