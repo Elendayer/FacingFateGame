@@ -25,8 +25,12 @@ public class EntityScript : MonoBehaviour
     public Dictionary<(CardIdentity, StatAspect), Stat> CardElementStats = new();
     public Dictionary<(CardClass, StatAspect), Stat> CardClassStats = new();
 
-    public virtual void Startup()
+    private EntityVisualScript EntityVisual;
+
+    private void Start()
     {
+        EntityVisual = GetComponentInChildren<EntityVisualScript>();
+
         // Fill EntityAttributes
         foreach (EntityAttributeEnum attr in Enum.GetValues(typeof(EntityAttributeEnum)))
         {
@@ -59,6 +63,7 @@ public class EntityScript : MonoBehaviour
                 CardClassStats.Add((cls, aspect), new Stat());
             }
         }
+        AddListeners();
     }
 
     public int GetStatValue(EntityAttributeEnum attr)
@@ -100,6 +105,34 @@ public class EntityScript : MonoBehaviour
 
         Debug.LogWarning($"{this.name} Stat not found for ({element}, {aspect})");
         return 0;
+    }
+
+    private void AddListeners()
+    {
+        GameEvents.OnRefEvent += TriggerAnimation;
+    }
+    private void TriggerAnimation(TriggerRef triggerRef)
+    {
+        if (triggerRef.TargetId == this.GetInstanceID())
+        {
+            GameObject effectObj;
+            foreach (gameplayRef gRef in triggerRef.References)
+            {
+                switch (gRef)
+                {
+                    default: break;
+                    case gameplayRef.onBurningRef:
+                        effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
+                        Instantiate(effectObj, EntityVisual.transform);
+                        break;
+
+                    case gameplayRef.onDamageRef:
+                        effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
+                        Instantiate(effectObj, EntityVisual.transform);
+                        break;
+                }
+            }
+        }
     }
 }
 

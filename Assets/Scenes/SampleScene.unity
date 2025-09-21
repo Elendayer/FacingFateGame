@@ -2879,6 +2879,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2107cd0f149561740bc4e659db483a8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectAssets:
+  - name: BurnEffect
+    prefab: {fileID: 100000, guid: 55654dc0a2e9e124b914a067ed8bca69, type: 3}
+  - name: DamageEffect
+    prefab: {fileID: 100014, guid: 5332791ebce075d4a9e56f4581e7fb47, type: 3}
 --- !u!4 &1266654712
 Transform:
   m_ObjectHideFlags: 0

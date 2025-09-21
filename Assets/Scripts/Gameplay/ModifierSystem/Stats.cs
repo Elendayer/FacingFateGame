@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -108,7 +108,7 @@ public class Stat
     }
 
     public bool HasReference(gameplayRef reference)
-        => modifiers.Any(m => m.To_TriggerGameplayRef == reference && !m.IsExpired);
+        => modifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
 
     public IStatModifier GetModifierByName(string name)
         => modifiers.FirstOrDefault(m => m.StatName == name && !m.IsExpired);
@@ -129,7 +129,7 @@ public interface IStatModifier
     int BaseValue { get; set; }
     StatScaling StatScaling { get; }
     int Duration { get; set; }
-    gameplayRef To_TriggerGameplayRef { get; }
+    List< gameplayRef> To_TriggerGameplayRefs { get; }
     bool IsExpired { get; }
 
     void AddListener();
@@ -158,7 +158,7 @@ public class StatModifier : IStatModifier
 
     public StatScaling StatScaling { get; private set; }
     public int Duration { get; set; }
-    public gameplayRef To_TriggerGameplayRef { get; private set; }
+    public List<gameplayRef> To_TriggerGameplayRefs { get; private set; }
     public bool IsExpired => Duration <= 0;
 
     private int? staticValue;
@@ -173,9 +173,8 @@ public class StatModifier : IStatModifier
     }
     public void OnRefEventTriggered(TriggerRef trigger)
     {
-        if (trigger.Reference == To_TriggerGameplayRef)
+        if (trigger.References.Any(r => To_TriggerGameplayRefs.Contains(r)))
         {
-            Debug.Log($"[StatModifier: {StatName}] Triggered by reference: {trigger.Reference}");
             if (Duration < 9999)
             {
                 Duration--;
@@ -187,7 +186,7 @@ public class StatModifier : IStatModifier
     public StatModifier(
         int value,
         StatScaling scaling,
-        gameplayRef reference = gameplayRef.None,
+        List<gameplayRef> gReferences = null,
         int duration = 99999,
         Stat target = null,
         string name = null)
@@ -195,7 +194,7 @@ public class StatModifier : IStatModifier
         StatName = name;
         staticValue = value;
         StatScaling = scaling;
-        To_TriggerGameplayRef = reference;
+        To_TriggerGameplayRefs = gReferences;
         Duration = duration;
         targetStat = target;
     }
@@ -207,7 +206,7 @@ public class FunctionModifier : IStatModifier
     public int BaseValue { get; set; }
     public StatScaling StatScaling { get; private set; }
     public int Duration { get; set; }
-    public gameplayRef To_TriggerGameplayRef { get; private set; }
+    public List<gameplayRef> To_TriggerGameplayRefs { get; private set; }
     public bool IsExpired => Duration <= 0;
 
     private Action<FunctionModifier, Stat, gameplayRef> OnRefEventAction;
@@ -222,7 +221,7 @@ public class FunctionModifier : IStatModifier
         string statName,
         int baseValue,
         StatScaling statScaling,
-        gameplayRef toTrigger_ref = gameplayRef.None,
+        List<gameplayRef> to_Trigger_refs = null,
         int duration = 0,
         Stat target = null,
         Action<FunctionModifier, Stat, gameplayRef> onRefEventAction = null,
@@ -232,7 +231,7 @@ public class FunctionModifier : IStatModifier
         StatName = statName;
         BaseValue = baseValue;
         StatScaling = statScaling;
-        To_TriggerGameplayRef = toTrigger_ref;
+        To_TriggerGameplayRefs = to_Trigger_refs;
         Duration = duration;
         TargetStat = target;
         this.OnRefEventAction = onRefEventAction;
@@ -245,8 +244,10 @@ public class FunctionModifier : IStatModifier
     {
         if (CheckTrigger(trigger))
         {
-            Debug.Log($"[StatModifier: {StatName}] Triggered by reference: {trigger.Reference}");
-            OnRefEventAction?.Invoke(this, TargetStat, To_TriggerGameplayRef);
+            foreach(gameplayRef gRef in To_TriggerGameplayRefs)
+            {
+                OnRefEventAction?.Invoke(this, TargetStat, gRef);
+            }
 
             if (Duration < 9999)
             {
@@ -258,14 +259,18 @@ public class FunctionModifier : IStatModifier
 
     bool CheckTrigger(TriggerRef trigger)
     {
-        Debug.Log($"Checking trigger: {trigger.Reference}, {trigger.UserId}, {trigger.TargetId}");
-
-        // Must always match reference
-        if (trigger.Reference != TriggerConditionRef.Reference)
-            return false;
+        foreach (gameplayRef gRef in trigger.References)
+        {
+            Debug.Log($"Checking trigger: {gRef}, {trigger.UserId}, {trigger.TargetId}");
+            {
+                // Must always match reference
+                if (TriggerConditionRef.References.Contains(gRef))
+                return false;
+            }
+        }
 
         // If TargetId is specified, it must match
-        if (TriggerConditionRef.TargetId == 0) { } 
+        if (TriggerConditionRef.TargetId == 0) { }
         else if (trigger.TargetId != TriggerConditionRef.TargetId)
             return false;
 
@@ -306,12 +311,12 @@ public enum StatAspect
 // -------------------- Referenece Struct --------------------
 public struct TriggerRef
 {
-    public gameplayRef Reference;
+    public List<gameplayRef> References;
     public int UserId;
     public int TargetId;
-    public TriggerRef(gameplayRef reference = gameplayRef.None, int userId = 0, int targetId = 0)
+    public TriggerRef(List< gameplayRef> references = null, int userId = 0, int targetId = 0)
     {
-        Reference = reference;
+        References = references;
         UserId = userId;
         TargetId = targetId;
     }

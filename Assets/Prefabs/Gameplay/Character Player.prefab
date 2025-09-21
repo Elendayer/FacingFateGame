@@ -307,10 +307,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Entity
       objectReference: {fileID: 0}
-    - target: {fileID: 4981591260283383754, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300012, guid: 1eaee135ce037439d925cee5e41ce026, type: 3}
+    - target: {fileID: 3601482904747577635, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3601482904747577635, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
