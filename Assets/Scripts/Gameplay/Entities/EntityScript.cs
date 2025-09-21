@@ -22,12 +22,12 @@ public class EntityScript : MonoBehaviour
     public Dictionary<EntityAttributeEnum, Stat> EntityAttributes = new();
 
     public Dictionary<(CardType, StatAspect), Stat> CardTypeStats = new();
-    public Dictionary<(CardElement, StatAspect), Stat> CardElementStats = new();
+    public Dictionary<(CardIdentity, StatAspect), Stat> CardElementStats = new();
     public Dictionary<(CardClass, StatAspect), Stat> CardClassStats = new();
 
     private EntityVisualScript EntityVisual;
 
-    private void Start()
+    public virtual void StartUp()
     {
         EntityVisual = GetComponentInChildren<EntityVisualScript>();
 
@@ -47,7 +47,7 @@ public class EntityScript : MonoBehaviour
         }
 
         // Fill CardElementStats
-        foreach (CardElement element in Enum.GetValues(typeof(CardElement)))
+        foreach (CardIdentity element in Enum.GetValues(typeof(CardIdentity)))
         {
             foreach (StatAspect aspect in Enum.GetValues(typeof(StatAspect)))
             {
@@ -76,7 +76,6 @@ public class EntityScript : MonoBehaviour
         Debug.LogWarning($"{this.name} Stat not found for ({attr})");
         return 0;
     }
-
     public int GetStatValue(CardType type, StatAspect aspect)
     {
         if (CardTypeStats.TryGetValue((type, aspect), out var stat))
@@ -97,8 +96,7 @@ public class EntityScript : MonoBehaviour
         Debug.LogWarning($"{this.name} Stat not found for ({cls}, {aspect})");
         return 0;
     }
-
-    public int GetStatValue(CardElement element, StatAspect aspect)
+    public int GetStatValue(CardIdentity element, StatAspect aspect)
     {
         if (CardElementStats.TryGetValue((element, aspect), out var stat))
         {

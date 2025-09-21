@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class TurnManager : MonoBehaviour
 {
@@ -10,19 +9,20 @@ public class TurnManager : MonoBehaviour
     public List<EntityScript> TurnOrder = new List<EntityScript>();
 
     public int CurrentTurnIndex = 0;
-
-    void Start()
+    private void Awake()
     {
         // Singleton enforcement
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject); // Ensure only one instance exists
-            return;
         }
 
-        Instance = this;
         DontDestroyOnLoad(gameObject); // Optional: persist between scenes
+        Instance = this;
+    }
 
+    public void StartUp()
+    {
         SetTurnOrder();
 
         AddListeners();

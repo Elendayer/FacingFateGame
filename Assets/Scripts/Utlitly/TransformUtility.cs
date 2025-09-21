@@ -1,6 +1,10 @@
 using UnityEngine;
 
-public static class UtilityScript
+namespace Utility
+{
+
+
+public static class TransformUtility
 {
     public static void ZeroTransform(Transform t)
     {
@@ -19,6 +23,10 @@ public static class UtilityScript
         t.localRotation = Quaternion.identity;
         t.localScale = Vector3.one;
     }
+
+}
+public static class HandUtility
+{
     public static void Discard(CardScript cs)
     {
         cs.gameObject.transform.SetParent(DeckManager.Instance.discardParent);
@@ -93,5 +101,6 @@ public static class CombatUtils
         GameEvents.TriggerRefEvent(new TriggerRef( new() { gameplayRef.onBuffedRef }, user.GetInstanceID(), target.GetInstanceID()));
 
         targetStat.AddModifier(mod, ModifierMergeStrategy.RefreshIncrease);
+    }
     }
 }

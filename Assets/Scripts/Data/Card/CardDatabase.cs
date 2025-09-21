@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
+using Utility;
 
 public static class CardDatabase
 {
@@ -46,7 +47,7 @@ public static class CardDatabase
             cardName = "Strike",
             cardType = CardType.Technique,
             cardClass = CardClass.Knight,
-            cardElement = new() { CardElement.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 1,
             power_u = 10,
@@ -56,7 +57,8 @@ public static class CardDatabase
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 areaType = CardTargetArea.Single,
-                range = 0
+                range = 1,
+                area = 1,
             },
 
             SetCardDescription = (User, data) =>
@@ -76,7 +78,7 @@ public static class CardDatabase
             cardName = "Thrust",
             cardType = CardType.Technique,
             cardClass = CardClass.Knight,
-            cardElement = new() { CardElement.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 2,
             power_u = 6,
@@ -86,7 +88,8 @@ public static class CardDatabase
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 areaType = CardTargetArea.LineSelf,
-                range = 3
+                range = 3,
+                area = 1,
             },
 
             SetCardDescription = (User, data) =>
@@ -106,7 +109,7 @@ public static class CardDatabase
             cardName = "Defend",
             cardType = CardType.Skill,
             cardClass = CardClass.Knight,
-            cardElement = new() { CardElement.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 1,
             power_u = 5,
@@ -130,7 +133,7 @@ public static class CardDatabase
             cardName = "Empowering Scream",
             cardType = CardType.Ability,
             cardClass = CardClass.Knight,
-            cardElement = new() { CardElement.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 3,
             power_u = 3,
@@ -145,7 +148,7 @@ public static class CardDatabase
 
             CardEffect = (user, target, data) =>
             {
-                data.targetCard.cardData.power_s.AddModifier(new StatModifier(data.Power, StatScaling.Flat, new List<gameplayRef>() { gameplayRef.onBuffedRef }, name: "Empower"), ModifierMergeStrategy.RefreshIncrease);
+                //data.targetCard.cardData.power_s.AddModifier(new StatModifier(data.Power, StatScaling.Flat, new List<gameplayRef>() { gameplayRef.onBuffedRef }, name: "Empower"), ModifierMergeStrategy.RefreshIncrease);
             }
         });
 
@@ -155,7 +158,7 @@ public static class CardDatabase
             cardName = "Bash",
             cardType = CardType.Technique,
             cardClass = CardClass.Knight,
-            cardElement = new() { CardElement.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 2,
             duration_u = 1,
@@ -178,7 +181,7 @@ public static class CardDatabase
             cardName = "Valiant Blessing",
             cardType = CardType.Blessing,
             cardClass = CardClass.Knight,
-            cardElement = new() { CardElement.Light },
+            cardIdentities = new() { CardIdentity.Light },
 
             cost_u = 2,
             power_u = 1,
@@ -213,7 +216,7 @@ public static class CardDatabase
             cardName = "Fire Bomb",
             cardType = CardType.Spell,
             cardClass = CardClass.Knight,
-            cardElement = new() { CardElement.Fire },
+            cardIdentities = new() { CardIdentity.Fire },
 
             cost_u = 2,
             power_u = 3,
@@ -223,8 +226,9 @@ public static class CardDatabase
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.All,
-                areaType = CardTargetArea.Ring,
-                range = 3
+                areaType = CardTargetArea.Radius,
+                range = 3,
+                area = 2,
             },
 
 
@@ -258,7 +262,7 @@ public static class CardDatabase
         {
             cardID = 120101,
             cardName = "Bite",
-            cardElement = new() { CardElement.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
             cardClass = CardClass.Monster,
 
             power_u = 5,
@@ -273,7 +277,7 @@ public static class CardDatabase
         {
             cardID = 120102,
             cardName = "Claw",
-            cardElement = new() { CardElement.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
             cardClass = CardClass.Monster,
 
             power_u = 0,
