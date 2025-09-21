@@ -1,8 +1,22 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AssetManager : MonoBehaviour
 {
     public static AssetManager Instance { get; private set; }
+
+    [System.Serializable]
+    public struct AssetEntry
+    {
+        public string name;       // Key name you set in the inspector
+        public GameObject prefab; // Prefab you assign
+    }
+
+    [SerializeField] private List<AssetEntry> effectAssets;
+    
+    private Dictionary<string, GameObject> effectAssetDict;
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -13,8 +27,27 @@ public class AssetManager : MonoBehaviour
         {
             Instance = this;
         }
-    }
 
+        // Build dictionary
+        effectAssetDict = new Dictionary<string, GameObject>();
+        foreach (var entry in effectAssets)
+        {
+            if (!string.IsNullOrEmpty(entry.name) && !effectAssetDict.ContainsKey(entry.name))
+            {
+                effectAssetDict.Add(entry.name, entry.prefab);
+            }
+        }
+    }
+    public GameObject GetEffectPrefab(string name)
+    {
+        if (effectAssetDict.TryGetValue(name, out GameObject prefab))
+        {
+            return prefab;
+        }
+
+        Debug.LogError($"Prefab with name '{name}' not found!");
+        return null;
+    }
     public Sprite IntentionImage(Intention intentions)
     {
         switch (intentions)
@@ -38,4 +71,5 @@ public class AssetManager : MonoBehaviour
         }
         return null;
     }
+
 }
