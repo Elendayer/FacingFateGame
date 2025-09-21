@@ -68,7 +68,7 @@ public static class CardDatabase
 
             CardEffect = (User, target, data) =>
             {
-                target.CurrentHealth.Value -= data.Power;
+                CombatUtils.ApplyDamage(User,target, data.Power, true);
             }
         });
 
@@ -99,7 +99,7 @@ public static class CardDatabase
 
             CardEffect = (User, target, data) =>
             {
-                target.CurrentHealth.Value -= data.Power;
+                CombatUtils.ApplyDamage(User, target, data.Power, true);
             }
         });
 
@@ -123,7 +123,7 @@ public static class CardDatabase
 
             CardEffect = (user, target, data) =>
             {
-                user.Block.AddModifier(new StatModifier( data.Power,StatScaling.Flat, new List<gameplayRef>() { gameplayRef.onBlockingRef }, data.Duration));
+                user.Block.AddModifier(new StatModifier( data.Power,StatScaling.Flat, new List<gameplayRef>() { gameplayRef.onBlocking }, data.Duration));
             }
         });
 
@@ -203,7 +203,7 @@ public static class CardDatabase
 
             CardEffect = (User, Target, data) =>
             {
-                var mod = new StatModifier(data.Power, StatScaling.Flat, new List<gameplayRef>() { gameplayRef.onBuffedRef }, name: "Valiant Blessing");
+                var mod = new StatModifier(data.Power, StatScaling.Flat, new List<gameplayRef>() { }, name: "Valiant Blessing");
 
                 CombatUtils.ApplyBuff(User, Target, User.MaxHealth, mod, ModifierMergeStrategy.Increase);
                 CombatUtils.ApplyHealing(User, Target, data.Power);
@@ -244,7 +244,7 @@ public static class CardDatabase
                     statName: "burn",
                     baseValue: data.Power,
                     statScaling: StatScaling.Flat,
-                    to_Trigger_refs : new() { gameplayRef.onBurningRef },
+                    to_Trigger_refs : new() { gameplayRef.onBurning },
                     duration: data.Duration,
                     target: Target.CurrentHealth,
                     triggerConditionRef: new TriggerRef() { References = new() { gameplayRef.onTurnStart }, TargetId = Target.GetInstanceID()},

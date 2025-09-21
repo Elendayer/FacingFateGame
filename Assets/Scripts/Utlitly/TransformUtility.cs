@@ -68,7 +68,7 @@ public static class CombatUtils
             int block = target.Block.Value;
             if (block > 0)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBlockingRef }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
 
                 int blockAbsorb = Mathf.Min(damage, block);
                 target.Block.Value -= blockAbsorb;
@@ -79,7 +79,10 @@ public static class CombatUtils
         // Step 3: Apply to Health
         if (damage > 0)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onDamageRef }, user.GetInstanceID(), target.GetInstanceID()));
+                if (isAttack)
+                {
+                    GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onDamage }, user.GetInstanceID(), target.GetInstanceID()));
+                }
 
             target.CurrentHealth.Value -= damage;
         }
@@ -98,7 +101,7 @@ public static class CombatUtils
 
     public static void ApplyBuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy) 
     {
-        GameEvents.TriggerRefEvent(new TriggerRef( new() { gameplayRef.onBuffedRef }, user.GetInstanceID(), target.GetInstanceID()));
+        GameEvents.TriggerRefEvent(new TriggerRef( new() { gameplayRef.onBuffed }, user.GetInstanceID(), target.GetInstanceID()));
 
         targetStat.AddModifier(mod, ModifierMergeStrategy.RefreshIncrease);
     }

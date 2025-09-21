@@ -22,11 +22,11 @@ public static class GameEvents
 public enum gameplayRef
 {
     None,
-    onBurningRef,
-    onDamageRef,
-    onStunnedRef,
-    onBlockingRef,
-    onBuffedRef,
+    onBurning,
+    onDamage,
+    onStunned,
+    onBlocking,
+    onBuffed,
     onAttack,
     onHeal,
     onDeath,

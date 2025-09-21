@@ -172,15 +172,17 @@ public class CardData
     }
     private void GenerateTriggerFromCardData()
     {
-        gameplayRef refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{cardClass.GetType().Name}");
+        gameplayRef refValue;
+
+        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{cardClass}");
         GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
 
-        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{cardType.GetType().Name}");
+        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{cardType}");
         GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
 
         foreach (CardIdentity element in cardIdentities)
         {
-            refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{element.GetType().Name}");
+            refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{element}");
             GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
         }
     }

@@ -63,6 +63,7 @@ public class EntityScript : MonoBehaviour
                 CardClassStats.Add((cls, aspect), new Stat());
             }
         }
+
         AddListeners();
     }
 
@@ -121,13 +122,15 @@ public class EntityScript : MonoBehaviour
                 switch (gRef)
                 {
                     default: break;
-                    case gameplayRef.onBurningRef:
+                    case gameplayRef.onBurning:
                         effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
+                        Debug.Log("Tried to Add Burn Effect");
                         Instantiate(effectObj, EntityVisual.transform);
                         break;
 
-                    case gameplayRef.onDamageRef:
+                    case gameplayRef.onDamage:
                         effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
+                        Debug.Log("Tried to Add Damage Effect");
                         Instantiate(effectObj, EntityVisual.transform);
                         break;
                 }
