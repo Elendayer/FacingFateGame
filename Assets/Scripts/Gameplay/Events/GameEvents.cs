@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class GameEvents
@@ -14,15 +15,48 @@ public static class GameEvents
     public static void TriggerRoundEnd() => OnRoundEnd?.Invoke();
     public static void TriggerRoundStart() => OnRoundStart?.Invoke();
 
+    // Dictionary: (gameplayRef, Id) -> event
+    private static readonly Dictionary<(gameplayRef, int), Action<TriggerRef>> _refEvents
+        = new();
 
-    public static event Action<TriggerRef> OnRefEvent;
-    public static void TriggerRefEvent(TriggerRef grs) => OnRefEvent?.Invoke(grs);
+    public static void Subscribe(gameplayRef type, int id, Action<TriggerRef> listener)
+    {
+        var key = (type, id);
+
+        if (!_refEvents.ContainsKey(key))
+            _refEvents[key] = delegate { };
+
+        _refEvents[key] += listener;
+    }
+
+    public static void Unsubscribe(gameplayRef type, int id, Action<TriggerRef> listener)
+    {
+        var key = (type, id);
+
+        if (_refEvents.ContainsKey(key))
+            _refEvents[key] -= listener;
+    }
+
+
+    public static void TriggerRefEvent(TriggerRef grs)
+    {
+        if (grs.References == null || grs.References.Count == 0) return;
+
+        foreach (var reference in grs.References)
+        {
+            Debug.Log($"[GameEvents] - {reference}, {grs.AffectedEntityId}");
+
+            // Notify for TargetId
+            if (_refEvents.TryGetValue((reference, grs.AffectedEntityId), out var targetAction))
+                targetAction?.Invoke(grs);
+        }
+    }
 }
 
 public enum gameplayRef
 {
     None,
-    onBurning,
+    onBurn,
     onDamage,
     onStunned,
     onBlocking,
@@ -75,4 +109,5 @@ public enum gameplayRef
     Barbarian,
     Alchemist,
     Monster,
+    onDebuffed,
 }

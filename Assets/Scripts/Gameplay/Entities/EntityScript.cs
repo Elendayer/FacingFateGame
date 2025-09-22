@@ -34,7 +34,7 @@ public class EntityScript : MonoBehaviour
         // Fill EntityAttributes
         foreach (EntityAttributeEnum attr in Enum.GetValues(typeof(EntityAttributeEnum)))
         {
-            EntityAttributes.Add(attr, new Stat() { Value = 2});
+            EntityAttributes.Add(attr, new Stat() { Value = 2 });
         }
 
         // Fill CardTypeStats
@@ -110,30 +110,28 @@ public class EntityScript : MonoBehaviour
 
     private void AddListeners()
     {
-        GameEvents.OnRefEvent += TriggerAnimation;
+        GameEvents.Subscribe(gameplayRef.onBurn, GetInstanceID(), TriggerAnimation);
+        GameEvents.Subscribe(gameplayRef.onDamage, GetInstanceID(), TriggerAnimation);
     }
     private void TriggerAnimation(TriggerRef triggerRef)
     {
-        if (triggerRef.TargetId == this.GetInstanceID())
+        GameObject effectObj;
+        foreach (gameplayRef gRef in triggerRef.References)
         {
-            GameObject effectObj;
-            foreach (gameplayRef gRef in triggerRef.References)
+            switch (gRef)
             {
-                switch (gRef)
-                {
-                    default: break;
-                    case gameplayRef.onBurning:
-                        effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
-                        Debug.Log("Tried to Add Burn Effect");
-                        Instantiate(effectObj, EntityVisual.transform);
-                        break;
+                default: break;
+                case gameplayRef.onBurn:
+                    effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
+                    Debug.Log("Tried to Add Burn Effect");
+                    Instantiate(effectObj, EntityVisual.transform);
+                    break;
 
-                    case gameplayRef.onDamage:
-                        effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
-                        Debug.Log("Tried to Add Damage Effect");
-                        Instantiate(effectObj, EntityVisual.transform);
-                        break;
-                }
+                case gameplayRef.onDamage:
+                    effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
+                    Debug.Log("Tried to Add Damage Effect");
+                    Instantiate(effectObj, EntityVisual.transform);
+                    break;
             }
         }
     }

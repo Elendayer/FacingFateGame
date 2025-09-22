@@ -68,7 +68,7 @@ public static class CardDatabase
 
             CardEffect = (User, target, data) =>
             {
-                CombatUtils.ApplyDamage(User,target, data.Power, true);
+                CombatUtility.ApplyDamage(User,target, data.Power, true);
             }
         });
 
@@ -99,7 +99,7 @@ public static class CardDatabase
 
             CardEffect = (User, target, data) =>
             {
-                CombatUtils.ApplyDamage(User, target, data.Power, true);
+                CombatUtility.ApplyDamage(User, target, data.Power, true);
             }
         });
 
@@ -123,7 +123,7 @@ public static class CardDatabase
 
             CardEffect = (user, target, data) =>
             {
-                user.Block.AddModifier(new StatModifier( data.Power,StatScaling.Flat, new List<gameplayRef>() { gameplayRef.onBlocking }, data.Duration));
+                user.Block.AddModifier(new StatModifier( data.Power,ModifierScaling.Flat, new List<gameplayRef>() { gameplayRef.onBlocking }, data.Duration));
             }
         });
 
@@ -203,10 +203,10 @@ public static class CardDatabase
 
             CardEffect = (User, Target, data) =>
             {
-                var mod = new StatModifier(data.Power, StatScaling.Flat, new List<gameplayRef>() { }, name: "Valiant Blessing");
+                var mod = new StatModifier(data.Power, ModifierScaling.Flat, new List<gameplayRef>() { }, name: "Valiant Blessing");
 
-                CombatUtils.ApplyBuff(User, Target, User.MaxHealth, mod, ModifierMergeStrategy.Increase);
-                CombatUtils.ApplyHealing(User, Target, data.Power);
+                CombatUtility.ApplyBuff(User, Target, User.MaxHealth, mod, ModifierMergeStrategy.Increase);
+                CombatUtility.ApplyHealing(User, Target, data.Power);
             }
 
         });
@@ -234,25 +234,26 @@ public static class CardDatabase
 
             SetCardDescription = (User, data) =>
             {
-                data.cardDescription = $"Ignite dealing {data.Power} for {data.Duration} turns";
+                data.cardDescription = $"Apply Burn dealing {data.Power} for {data.Duration} turns";
             },
 
             CardEffect = (User, Target, data) =>
             {
                 // Create a FunctionModifier that applies damage over time on each turn start
                 var burnModifier = new FunctionModifier(
-                    statName: "burn",
+                    statName: "Burn",
                     baseValue: data.Power,
-                    statScaling: StatScaling.Flat,
-                    to_Trigger_refs : new() { gameplayRef.onBurning },
+                    statScaling: ModifierScaling.Flat,
+                    to_Trigger_refs : new() { gameplayRef.onBurn },
                     duration: data.Duration,
                     target: Target.CurrentHealth,
-                    triggerConditionRef: new TriggerRef() { References = new() { gameplayRef.onTurnStart }, TargetId = Target.GetInstanceID()},
+                    triggerConditionRef: new TriggerRef() { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID()},
                     onRefEventAction: (modifier, stat, toTrigger_Reference) =>
                     {
-                        CombatUtils.ApplyDamage(User, Target, modifier.BaseValue);
+                        GameEvents.TriggerRefEvent(new TriggerRef() { References = new() { gameplayRef.onBurn }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
+                        CombatUtility.ApplyDamage(User, Target, modifier.BaseValue);
                     });
-                CombatUtils.ApplyBuff(User, Target, Target.CurrentHealth, burnModifier, ModifierMergeStrategy.RefreshIncrease);
+                CombatUtility.ApplyModifier(User, Target, Target.CurrentHealth, burnModifier, ModifierMergeStrategy.RefreshIncrease);
             }
         });
     }

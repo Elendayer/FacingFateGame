@@ -51,7 +51,7 @@ public class DeckManager : MonoBehaviour
     {
         GameObject cardDock = Instantiate(deckDockPrefab, transform);
         List<GameObject> cardObjs = new();
-        cardDock.name = entity.name + " Deck Dock";
+        cardDock.name = entity.name + "_Dock";
         DeckManagement.Add(entity, cardDock.transform);
 
         foreach (int cardID in entity.deckCardIDs)
@@ -79,7 +79,7 @@ public class DeckManager : MonoBehaviour
 
         if (cardData == null)
         {
-            Debug.LogWarning($"Card ID '{id}' could not be created.");
+            Debug.LogWarning($"[DeckManager] Card ID '{id}' could not be created.");
             return null;
         }
 
@@ -94,7 +94,7 @@ public class DeckManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("CardScript component missing on card prefab.");
+            Debug.LogWarning("[DeckManager] CardScript component missing on card prefab.");
             Destroy(cardGO);
             return null;
         }
@@ -108,7 +108,7 @@ public class DeckManager : MonoBehaviour
 
         if (cardData == null)
         {
-            Debug.LogWarning($"Card ID '{id}' not found in database.");
+            Debug.LogWarning($"[DeckManager] Card ID '{id}' not found in database.");
             return null;
         }
         return cardData;
@@ -118,13 +118,13 @@ public class DeckManager : MonoBehaviour
     {
         if (cardStack.Count == 0)
         {
-            Debug.Log("Deck is empty.");
+            Debug.Log("[DeckManager] Deck is empty.");
             ShuffleDiscard();
             return;
         }
         if (HandManager.Instance.handAnchor.childCount > HandManager.Instance.maxHandsize)
         {
-            Debug.Log("Hand is full.");
+            Debug.Log("DeckManager] Hand is full.");
             return;
         }
 
@@ -168,14 +168,14 @@ public class DeckManager : MonoBehaviour
             cardStack.Push(card);
         }
 
-        Debug.Log("Deck shuffled.");
+        Debug.Log("[DeckManager] Deck shuffled.");
     }
 
     public void ShuffleDiscard()
     {
         if (discardStack.Count == 0)
         {
-            Debug.Log("Discard pile is empty. Cannot reshuffle.");
+            Debug.Log("[DeckManager] Discard pile is empty. Cannot reshuffle.");
             return;
         }
 
@@ -196,7 +196,7 @@ public class DeckManager : MonoBehaviour
             cardStack.Push(card);
         }
 
-        Debug.Log($"Shuffled {cards.Count} discarded cards back into the deck.");
+        Debug.Log($"[DeckManager] Shuffled {cards.Count} discarded cards back into the deck.");
     }
 
     public void MoveOutDeck(EntityScript entity)
@@ -230,7 +230,7 @@ public class DeckManager : MonoBehaviour
         cardStack.Clear();
         discardStack.Clear();
         Transform dock = DeckManagement[entity];
-        Debug.Log($"Moving cards into deck of {entity.name} from {dock.name}");
+        Debug.Log($"[DeckManager] Moving cards into deck of {entity.name} from {dock.name}");
         List<CardScript> cards = new();
 
         cards = dock.GetComponentsInChildren<CardScript>().ToList();

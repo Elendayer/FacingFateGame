@@ -12,7 +12,7 @@ public class Stat
 
     public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Replace)
     {
-        var existing = modifiers.FirstOrDefault(m => m.StatName == modifier.StatName);
+        var existing = modifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
 
         switch (strategy)
         {
@@ -75,15 +75,15 @@ public class Stat
         {
             if (mod is StatModifier statMod)
             {
-                switch (statMod.StatScaling)
+                switch (statMod.ModifierScaling)
                 {
-                    case StatScaling.Flat:
+                    case ModifierScaling.Flat:
                         baseValue += statMod.BaseValue;
                         break;
-                    case StatScaling.Percent:
+                    case ModifierScaling.Percent:
                         percent += statMod.BaseValue;
                         break;
-                    case StatScaling.Multiplier:
+                    case ModifierScaling.Multiplier:
                         multipliers.Add(statMod.BaseValue);
                         break;
                 }
@@ -98,10 +98,10 @@ public class Stat
         return baseValue;
     }
 
-    public List<int> GetAllValues(StatScaling? filterType = null)
+    public List<int> GetAllValues(ModifierScaling? filterType = null)
     {
         return modifiers
-            .Where(m => !m.IsExpired && m is StatModifier sm && (!filterType.HasValue || sm.StatScaling == filterType.Value))
+            .Where(m => !m.IsExpired && m is StatModifier sm && (!filterType.HasValue || sm.ModifierScaling == filterType.Value))
             .Cast<StatModifier>()
             .Select(m => m.BaseValue)
             .ToList();
@@ -111,11 +111,11 @@ public class Stat
         => modifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
 
     public IStatModifier GetModifierByName(string name)
-        => modifiers.FirstOrDefault(m => m.StatName == name && !m.IsExpired);
+        => modifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);
 
     public void AddOrReplaceModifier(IStatModifier modifier)
     {
-        var existing = modifiers.FirstOrDefault(m => m.StatName == modifier.StatName);
+        var existing = modifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
         if (existing != null) modifiers.Remove(existing);
         modifiers.Add(modifier);
     }
@@ -125,86 +125,116 @@ public class Stat
 
 public interface IStatModifier
 {
-    string StatName { get; }
+    string ModifierName { get; }
     int BaseValue { get; set; }
-    StatScaling StatScaling { get; }
+    ModifierScaling ModifierScaling { get; }
     int Duration { get; set; }
     List< gameplayRef> To_TriggerGameplayRefs { get; }
     bool IsExpired { get; }
-
     void AddListener();
     void OnRefEventTriggered(TriggerRef reference);
 }
 
 public class StatModifier : IStatModifier
 {
-    public string StatName { get; private set; }
+    public string ModifierName { get; private set; }
 
     public int BaseValue
     {
         get
         {
-            if (dynamicValueFunc != null)
-                return dynamicValueFunc.Invoke();
-            return staticValue ?? 0;
+            if (DynamicValueFunc != null)
+                return DynamicValueFunc.Invoke();
+            return StaticValue ?? 0;
         }
         set
         {
-            if (dynamicValueFunc != null)
+            if (DynamicValueFunc != null)
                 throw new InvalidOperationException("Cannot set BaseValue when using dynamicValueFunc.");
-            staticValue = value;
+            StaticValue = value;
         }
     }
 
-    public StatScaling StatScaling { get; private set; }
+    private int? StaticValue;
+    private Func<int> DynamicValueFunc;
+
+    public ModifierScaling ModifierScaling { get; private set; }
     public int Duration { get; set; }
     public List<gameplayRef> To_TriggerGameplayRefs { get; private set; }
     public bool IsExpired => Duration <= 0;
-
-    private int? staticValue;
-    private Func<int> dynamicValueFunc;
-
-    public Stat targetStat;
+    public TriggerRef TriggerConditionRef { get; private set; }
+    public Stat TargetStat;
     public int GetRemainingDuration() => Duration;
 
     public void AddListener() 
     {
-        GameEvents.OnRefEvent += OnRefEventTriggered;
+        foreach (var Reference in TriggerConditionRef.References)
+        {
+            GameEvents.Subscribe(Reference, TriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
+        }
+    }
+    public void OnRemove()
+    {
+        foreach (var Reference in TriggerConditionRef.References)
+        {
+            GameEvents.Unsubscribe(Reference, TriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
+        }
+        TargetStat.RemoveModifier(this);
     }
     public void OnRefEventTriggered(TriggerRef trigger)
     {
-        if (trigger.References.Any(r => To_TriggerGameplayRefs.Contains(r)))
+        if (Duration < 9999)
         {
-            if (Duration < 9999)
-            {
-                Duration--;
-                Debug.Log($"StatModifier duration: {Duration}");
-            }
+            Duration--;
+            Debug.Log($"StatModifier duration: {Duration}");
+        }
+
+        if (IsExpired)
+        {
+            OnRemove();
         }
     }
 
     public StatModifier(
         int value,
-        StatScaling scaling,
+        ModifierScaling scaling,
         List<gameplayRef> gReferences = null,
         int duration = 99999,
         Stat target = null,
         string name = null)
     {
-        StatName = name;
-        staticValue = value;
-        StatScaling = scaling;
+        ModifierName = name;
+        StaticValue = value;
+        ModifierScaling = scaling;
         To_TriggerGameplayRefs = gReferences;
         Duration = duration;
-        targetStat = target;
+        TargetStat = target;
     }
 }
 
 public class FunctionModifier : IStatModifier
 {
-    public string StatName { get; private set; }
-    public int BaseValue { get; set; }
-    public StatScaling StatScaling { get; private set; }
+    public string ModifierName { get; private set; }
+
+    public int BaseValue
+    {
+        get
+        {
+            if (DynamicValueFunc != null)
+                return DynamicValueFunc.Invoke();
+            return StaticValue ?? 0;
+        }
+        set
+        {
+            if (DynamicValueFunc != null)
+                throw new InvalidOperationException("Cannot set BaseValue when using dynamicValueFunc.");
+            StaticValue = value;
+        }
+    }
+    private int? StaticValue;
+    private Func<int> DynamicValueFunc;
+
+    public ModifierScaling ModifierScaling { get; private set; }
     public int Duration { get; set; }
     public List<gameplayRef> To_TriggerGameplayRefs { get; private set; }
     public bool IsExpired => Duration <= 0;
@@ -214,13 +244,16 @@ public class FunctionModifier : IStatModifier
     public Stat TargetStat { get; private set; }
     public void AddListener()
     {
-        GameEvents.OnRefEvent += OnRefEventTriggered;
+        foreach (var Reference in TriggerConditionRef.References)
+        {
+            GameEvents.Subscribe(Reference, TriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
+        }
     }
     public FunctionModifier
         (
         string statName,
         int baseValue,
-        StatScaling statScaling,
+        ModifierScaling statScaling,
         List<gameplayRef> to_Trigger_refs = null,
         int duration = 0,
         Stat target = null,
@@ -228,9 +261,9 @@ public class FunctionModifier : IStatModifier
         TriggerRef triggerConditionRef = new TriggerRef()
         )
     {
-        StatName = statName;
+        ModifierName = statName;
         BaseValue = baseValue;
-        StatScaling = statScaling;
+        ModifierScaling = statScaling;
         To_TriggerGameplayRefs = to_Trigger_refs;
         Duration = duration;
         TargetStat = target;
@@ -242,9 +275,8 @@ public class FunctionModifier : IStatModifier
 
     public void OnRefEventTriggered(TriggerRef trigger)
     {
-        if (CheckTrigger(trigger))
         {
-            foreach(gameplayRef gRef in To_TriggerGameplayRefs)
+            foreach (gameplayRef gRef in To_TriggerGameplayRefs)
             {
                 OnRefEventAction?.Invoke(this, TargetStat, gRef);
             }
@@ -254,70 +286,57 @@ public class FunctionModifier : IStatModifier
                 Duration--;
                 Debug.Log($"FunctionModifier duration: {Duration}");
             }
-        }
-    }
 
-    bool CheckTrigger(TriggerRef trigger)
-    {
-        foreach (gameplayRef gRef in trigger.References)
-        {
-            Debug.Log($"Checking trigger: {gRef}, {trigger.UserId}, {trigger.TargetId}");
+            if (IsExpired)
             {
-                // Must always match reference
-                if (TriggerConditionRef.References.Contains(gRef))
-                return false;
+                OnRemove();
             }
         }
-
-        // If TargetId is specified, it must match
-        if (TriggerConditionRef.TargetId == 0) { }
-        else if (trigger.TargetId != TriggerConditionRef.TargetId)
-            return false;
-
-        // If UserId is specified, it must match
-        if (TriggerConditionRef.UserId == 0) { }
-        else if (trigger.UserId != TriggerConditionRef.UserId)
-            return false;
-
-        return true;
+    }
+    public void OnRemove()
+    {
+        foreach (var Reference in TriggerConditionRef.References)
+        {
+            GameEvents.Unsubscribe(Reference, TriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
+        }
+        TargetStat.RemoveModifier(this);
     }
 }
+    // -------------------- Enums --------------------
 
-// -------------------- Enums --------------------
+    public enum ModifierMergeStrategy
+    {
+        Add,
+        Replace,
+        Increase,
+        RefreshIncrease,
+        RefreshDuration
+    }
 
-public enum ModifierMergeStrategy
-{
-    Add,
-    Replace,
-    Increase,
-    RefreshIncrease,
-    RefreshDuration
-}
+    public enum ModifierScaling
+    {
+        Flat,
+        Percent,
+        Multiplier
+    }
 
-public enum StatScaling
-{
-    Flat,
-    Percent,
-    Multiplier
-}
-
-public enum StatAspect
-{
-    Cost,
-    Power,
-    Duration,
-    Repeats
-}
+    public enum StatAspect
+    {
+        Cost,
+        Power,
+        Duration,
+        Repeats
+    }
 // -------------------- Referenece Struct --------------------
 public struct TriggerRef
 {
     public List<gameplayRef> References;
     public int UserId;
-    public int TargetId;
-    public TriggerRef(List< gameplayRef> references = null, int userId = 0, int targetId = 0)
+    public int AffectedEntityId;
+    public TriggerRef(List<gameplayRef> references = null, int userId = 0, int targetId = 0)
     {
         References = references;
         UserId = userId;
-        TargetId = targetId;
+        AffectedEntityId = targetId;
     }
 }

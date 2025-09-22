@@ -19,7 +19,7 @@ public class NonPlayerScript : EntityScript
 
         npcAIController = new NpcAIController(this);
         npcAIBias = AiBiasDatabase.GetBiasById(npcAIBiasId);
-        Debug.Log($"NonPlayerScript Setup complete for {name}");
+        Debug.Log($"[NonPlayerScript] Setup complete for {name}");
     }
     public void TakeTurn()
     {

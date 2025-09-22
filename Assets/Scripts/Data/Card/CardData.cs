@@ -3,50 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-// If Updated needs to update GameplayReference as well
-public enum CardType
-{
-    Skill,
-    Item,
-    Ability,
-    Technique,
-    Spell,
-    Blessing,
-    Curse
-}
-public enum CardIdentity
-{
-    Non,
-    Physical,
-    Fire,
-    Ice,
-    Air,
-    Earth,
-    Shadow,
-    Poison,
-    Light,
-    Blood,
-    Arcane,
-    Soul,
-    Divine,
-    Occult
-}
-// If Updated needs to update GameplayReference as well
-public enum CardClass
-{
-    Knight,
-    Rogue,
-    Wizard,
-    Cleric,
-    Paladin,
-    Warlock,
-    Ranger,
-    Druid,
-    Barbarian,
-    Alchemist,
-    Monster,
-}
-
 [System.Serializable]
 public class CardData
 {
@@ -257,4 +213,48 @@ public enum Intention
     Debuff,
     BuffDebuff,
     Other,
+}
+
+// If Updated needs to update GameplayReference as well
+public enum CardType
+{
+    Skill,
+    Item,
+    Ability,
+    Technique,
+    Spell,
+    Blessing,
+    Curse
+}
+public enum CardIdentity
+{
+    Non,
+    Physical,
+    Fire,
+    Ice,
+    Air,
+    Earth,
+    Shadow,
+    Poison,
+    Light,
+    Blood,
+    Arcane,
+    Soul,
+    Divine,
+    Occult
+}
+// If Updated needs to update GameplayReference as well
+public enum CardClass
+{
+    Knight,
+    Rogue,
+    Wizard,
+    Cleric,
+    Paladin,
+    Warlock,
+    Ranger,
+    Druid,
+    Barbarian,
+    Alchemist,
+    Monster,
 }

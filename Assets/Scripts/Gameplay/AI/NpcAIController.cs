@@ -49,7 +49,7 @@ public class NpcAIController
         foreach (var card in hand)
         {
             var scoredCard = EvaluateCardForTurn(card, stamina, virtualPosition);
-            Debug.Log($"{scoredCard.Targets.Count} Targets and {scoredCard.Score} Score");
+            Debug.Log($"[NpcAI] {scoredCard.Targets.Count} Targets and {scoredCard.Score} Score");
             if (scoredCard.Score <= 0) continue;
 
             int totalCost = scoredCard.MovementCost + scoredCard.Card.cardData.Cost;
