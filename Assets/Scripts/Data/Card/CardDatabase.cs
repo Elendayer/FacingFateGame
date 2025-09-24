@@ -37,6 +37,7 @@ public static class CardDatabase
     {
         RegisterKnightCards();
         RegisterEnemyCards();
+
     }
 
     private static void RegisterKnightCards()

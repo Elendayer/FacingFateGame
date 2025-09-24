@@ -98,6 +98,8 @@ public enum gameplayRef
     Divine,
     Occult,
 
+    Spearman,
+
     Knight,
     Rogue,
     Wizard,
