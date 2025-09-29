@@ -145,22 +145,6 @@ public static class TargetingUtility
             ? new List<Vector3Int> { targetCell }
             : TilemapUtilityScript.GetTilesInRadius(targetCell, card.cardData.targetingData.range);
 
-        // Remove occupied tiles
-        if (TilemapUtilityScript.BaseTilemap != null)
-        {
-            var costInfoScript = TilemapUtilityScript.BaseTilemap.GetComponent<CostInfoScript>();
-            if (costInfoScript != null)
-            {
-                candidateTiles = candidateTiles
-                    .Where(tile =>
-                    {
-                        costInfoScript.costInfoDict.TryGetValue(tile, out var costInfo);
-                        return costInfo == null || !costInfo.isOccupied;
-                    })
-                    .ToList();
-            }
-        }
-
         return candidateTiles;
     }
     public static List<Vector3Int> GetEffectAreaTiles(CardScript card, Vector3Int centerTile, EntityScript owner)

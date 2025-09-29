@@ -158,7 +158,7 @@ public class CardData
         (user, target, data) => Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
 
     [Header("AI")]
-    public CardAiBias CardAiBias;
+    public CardAiBias CardAiBias = new();
 
     public void ActivateCard(List<EntityScript> targetEntity, GameObject obj)
     {
@@ -226,23 +226,30 @@ public class CardAiBias
 {
     public Intention Intention = Intention.None;
     public gameplayRef triggerCondition = gameplayRef.None;
-
     public CardTargetAffiliation AffiliationBiasOverride = CardTargetAffiliation.None;
-    public int throughputOverrideValue;
-    public Dictionary<gameplayRef, int> throughputBias;
+    public Dictionary<gameplayRef, int> throughputBias = new();
 
+    public int PowerOverrideValue = 0;
     public int cooldown = 1;
 
-    public int ThroughputOverride(int tov, List<gameplayRef> gRefs)
+    public int PowerOverride(List<gameplayRef> gRefs)
     {
-        int OverrideValue = throughputOverrideValue;
-        foreach (gameplayRef gRef in gRefs)
+        int OverrideValue = PowerOverrideValue;
+
+        if (gRefs == null)
         {
-            throughputBias.TryGetValue(gRef, out int value);
-            OverrideValue += value;
+            return OverrideValue;
         }
 
-        return OverrideValue;
+        else
+        {
+            foreach (gameplayRef gRef in gRefs)
+            {
+                throughputBias.TryGetValue(gRef, out int value);
+                OverrideValue += value;
+            }
+            return OverrideValue;
+        }   
     }
 }
 

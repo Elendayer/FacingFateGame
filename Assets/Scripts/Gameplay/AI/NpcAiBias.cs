@@ -14,9 +14,12 @@ public class NpcAiBias
 
     public int BiasCalc(CardData cardData)
     {
+        if (cardData == null) return 0;
+
         if (cardData.CardAiBias == null) return 0;
 
         int biasValue = 0;
+
         if (intentionBias.TryGetValue(cardData.CardAiBias.Intention, out int iValue))
         {
             biasValue += iValue;
@@ -25,7 +28,7 @@ public class NpcAiBias
         {
             if (refBias.TryGetValue(gr, out int rValue))
             {
-                biasValue -= rValue;
+                biasValue += rValue;
             }
         }
         foreach(CardIdentity identity in cardData.cardIdentities)

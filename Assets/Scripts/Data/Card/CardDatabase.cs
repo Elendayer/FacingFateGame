@@ -231,6 +231,9 @@ public static class CardDatabase
                 area = 2,
             },
 
+            CardAiBias = new()
+            {
+            },
 
             SetCardDescription = (User, data) =>
             {
@@ -244,10 +247,10 @@ public static class CardDatabase
                     statName: "burn",
                     baseValue: data.Power,
                     statScaling: StatScaling.Flat,
-                    to_Trigger_refs : new() { gameplayRef.onBurningRef },
+                    to_Trigger_refs: new() { gameplayRef.onBurningRef },
                     duration: data.Duration,
                     target: Target.CurrentHealth,
-                    triggerConditionRef: new TriggerRef() { References = new() { gameplayRef.onTurnStart }, TargetId = Target.GetInstanceID()},
+                    triggerConditionRef: new TriggerRef() { References = new() { gameplayRef.onTurnStart }, TargetId = Target.GetInstanceID() },
                     onRefEventAction: (modifier, stat, toTrigger_Reference) =>
                     {
                         CombatUtils.ApplyDamage(User, Target, modifier.BaseValue);

@@ -45,7 +45,8 @@ namespace Utility
                 if (current == goal)
                 {
                     int totalCost;
-                    var path = ReconstructPath(cameFrom, goal, out totalCost, CostInfoScript, ignoreCost);
+                    var path = ReconstructPath(cameFrom, start, goal, out totalCost, CostInfoScript, ignoreCost);
+
                     pathData = new()
                     {
                         Start = start,
@@ -81,15 +82,6 @@ namespace Utility
             return new(); // No path found
         }
 
-        public static List<Vector3Int> FindPathToAdjacent(Vector3Int start, Vector3Int target, bool ignoreCost = false)
-        {
-            var pathData = FindPath(start, target, straightLineOnly: false, ignoreCost: ignoreCost);
-            if (pathData == null || pathData.Path == null || pathData.Path.Count <= 1)
-                return null; // already adjacent or unreachable
-
-            return pathData.Path.Take(pathData.Path.Count - 1).ToList();
-        }
-
         // Helper for straightLineOnly
         private static bool IsOnLine(Vector3Int start, Vector3Int end, Vector3Int point)
         {
@@ -112,22 +104,34 @@ namespace Utility
             return (Mathf.Abs(ac.x - bc.x) + Mathf.Abs(ac.y - bc.y) + Mathf.Abs(ac.z - bc.z)) / 2;
         }
         private static List<Vector3Int> ReconstructPath(
-            Dictionary<Vector3Int, Vector3Int> cameFrom, 
-            Vector3Int current, 
-            out int totalCost, 
-            CostInfoScript costInfoScript, 
-            bool ignoreCost)
+              Dictionary<Vector3Int, Vector3Int> cameFrom,
+              Vector3Int start,
+              Vector3Int goal,
+              out int totalCost,
+              CostInfoScript costInfoScript,
+              bool ignoreCost)
         {
-            var path = new List<Vector3Int> { current };
+            var path = new List<Vector3Int>();
             totalCost = 0;
+
+            // Start from the goal and walk backwards
+            Vector3Int current = goal;
+
             while (cameFrom.ContainsKey(current))
             {
                 var prev = cameFrom[current];
+
+                if (prev == start)
+                    break; // Stop before adding the start position
+
+                // Add cost for the predecessor (preserves same cost semantics as A*)
                 if (costInfoScript != null && costInfoScript.costInfoDict.TryGetValue(prev, out var costInfo))
+                {
                     totalCost += ignoreCost ? costInfo.costUnobstructed : costInfo.cost;
-                else
-                    totalCost += 1;
+                }
+
                 current = prev;
+
                 path.Insert(0, current);
             }
             return path;
