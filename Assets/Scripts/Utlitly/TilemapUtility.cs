@@ -5,12 +5,11 @@ using UnityEngine.Tilemaps;
 
 namespace Utility
 {
-
-
     public static class TilemapUtilityScript
     {
         public static Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
         public static Tilemap BaseTilemap => Object.FindObjectsByType<Tilemap>(0).FirstOrDefault(tilemap => tilemap.CompareTag("Basemap"));
+        public static CostInfoScript CostInfoScript => BaseTilemap?.GetComponent<CostInfoScript>();
 
         // >>> CONFIG: Point-top offset type (Odd-R by default). Flip if your rows are shifted the other way.
         public static bool UseOddROffset = true; // true = Odd-R, false = Even-R
@@ -31,19 +30,31 @@ namespace Utility
 
 
         // Add this method to TilemapUtilityScript
-        public static List<Vector3Int> FindPath(Vector3Int start, Vector3Int goal, bool straightLineOnly = false, bool ignoreCost = false)
+        public static PathData FindPath(Vector3Int start, Vector3Int goal, bool straightLineOnly = false, bool ignoreCost = false)
         {
             var openSet = new PriorityQueue<Vector3Int>();
             openSet.Enqueue(start, 0);
 
             var cameFrom = new Dictionary<Vector3Int, Vector3Int>();
             var gScore = new Dictionary<Vector3Int, int> { [start] = 0 };
+            PathData pathData = new PathData();
 
             while (openSet.Count > 0)
             {
                 var current = openSet.Dequeue();
                 if (current == goal)
-                    return ReconstructPath(cameFrom, current);
+                {
+                    int totalCost;
+                    var path = ReconstructPath(cameFrom, goal, out totalCost, CostInfoScript, ignoreCost);
+                    pathData = new()
+                    {
+                        Start = start,
+                        End = goal,
+                        Path = path,
+                        PathCost = totalCost,
+                    };
+                    return pathData;
+                }
 
                 var currentCube = OffsetToCube_PointTop(current, UseOddROffset);
                 for (int dir = 0; dir < CubeDirs.Length; dir++)
@@ -56,7 +67,7 @@ namespace Utility
                         continue;
 
                     // If ignoreCost, all tiles have cost 1
-                    int tentativeGScore = gScore[current] + (ignoreCost ? 1 : 1); // All tiles valued at 1
+                    int tentativeGScore = gScore[current] + (ignoreCost ? CostInfoScript.costInfoDict[current].costUnobstructed : CostInfoScript.costInfoDict[current].cost);
 
                     if (!gScore.ContainsKey(neighbor) || tentativeGScore < gScore[neighbor])
                     {
@@ -67,15 +78,16 @@ namespace Utility
                     }
                 }
             }
-            return new List<Vector3Int>(); // No path found
+            return new(); // No path found
         }
+
         public static List<Vector3Int> FindPathToAdjacent(Vector3Int start, Vector3Int target, bool ignoreCost = false)
         {
-            var path = FindPath(start, target, straightLineOnly: false, ignoreCost: ignoreCost);
-            if (path == null || path.Count <= 1)
+            var pathData = FindPath(start, target, straightLineOnly: false, ignoreCost: ignoreCost);
+            if (pathData == null || pathData.Path == null || pathData.Path.Count <= 1)
                 return null; // already adjacent or unreachable
 
-            return path.Take(path.Count - 1).ToList();
+            return pathData.Path.Take(pathData.Path.Count - 1).ToList();
         }
 
         // Helper for straightLineOnly
@@ -99,13 +111,23 @@ namespace Utility
             var bc = OffsetToCube_PointTop(b, UseOddROffset);
             return (Mathf.Abs(ac.x - bc.x) + Mathf.Abs(ac.y - bc.y) + Mathf.Abs(ac.z - bc.z)) / 2;
         }
-
-        private static List<Vector3Int> ReconstructPath(Dictionary<Vector3Int, Vector3Int> cameFrom, Vector3Int current)
+        private static List<Vector3Int> ReconstructPath(
+            Dictionary<Vector3Int, Vector3Int> cameFrom, 
+            Vector3Int current, 
+            out int totalCost, 
+            CostInfoScript costInfoScript, 
+            bool ignoreCost)
         {
             var path = new List<Vector3Int> { current };
+            totalCost = 0;
             while (cameFrom.ContainsKey(current))
             {
-                current = cameFrom[current];
+                var prev = cameFrom[current];
+                if (costInfoScript != null && costInfoScript.costInfoDict.TryGetValue(prev, out var costInfo))
+                    totalCost += ignoreCost ? costInfo.costUnobstructed : costInfo.cost;
+                else
+                    totalCost += 1;
+                current = prev;
                 path.Insert(0, current);
             }
             return path;
@@ -173,10 +195,10 @@ namespace Utility
         }
         public static List<Vector3Int> GetTilesInLine(Vector3Int start, Vector3Int end, int length)
         {
-            var results = TilemapUtilityScript.FindPath(start, end, straightLineOnly: true, ignoreCost: true);
-            if (results.Count > length)
-                results = results.Take(length).ToList();
-            return results;
+            var pathData = TilemapUtilityScript.FindPath(start, end, straightLineOnly: true, ignoreCost: true);
+            if (pathData.Path.Count > length)
+                pathData.Path = pathData.Path.Take(length).ToList();
+            return pathData.Path;
         }
         public static List<Vector3Int> GetTilesInCone(Vector3Int start, Vector3Int direction, int length, int area)
         {
@@ -445,6 +467,14 @@ namespace Utility
             Selected
         }
         #endregion
+    }
+
+    public class PathData
+    {
+        public List<Vector3Int> Path;
+        public Vector3Int Start;
+        public Vector3Int End;
+        public int PathCost;
     }
 
     #region PriorityQueue Helper

@@ -47,7 +47,7 @@ public class AiBiasDatabase : MonoBehaviour
             refBias = new Dictionary<gameplayRef, int>(),
             identityBias = new Dictionary<CardIdentity, int>(),
 
-            fleeCondition = FleeCondition.surrounded
+            ReposiitionCondition = FleeCondition.surrounded
         });
     } 
 }

@@ -10,7 +10,7 @@ public class NpcAiBias
     public Dictionary<gameplayRef,int> refBias = new Dictionary<gameplayRef,int>();
     public Dictionary<CardIdentity,int> identityBias = new Dictionary<CardIdentity,int>();
 
-    public FleeCondition fleeCondition = FleeCondition.none;
+    public FleeCondition ReposiitionCondition;
 
     public int BiasCalc(CardData cardData)
     {
@@ -41,7 +41,6 @@ public class NpcAiBias
 
 public enum FleeCondition
 {
-    none,
     surrounded,
     lowHealth,
     preferRanged,

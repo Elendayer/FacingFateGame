@@ -30,7 +30,7 @@ public class MapGenMaster : MonoBehaviour
                 Vector3Int vector3Int = new Vector3Int(i - (SizeX / 2), j - (SizeY / 2), 0);
 
                 BaseMap.SetTile(vector3Int, MapTile);
-                costInfoScript.costInfoDict.Add(vector3Int, new CostInfo() { isWalkable = true } );
+                costInfoScript.costInfoDict.Add(vector3Int, new CostInfo());
             }
         }
     }
