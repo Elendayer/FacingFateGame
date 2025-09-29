@@ -174,8 +174,12 @@ public static class TargetingUtility
             case CardTargetArea.LineFree:
                 return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, card.cardData.targetingData.area);
             case CardTargetArea.LineSelf:
-                return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.area);
-            default:
+                return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range);
+                    case CardTargetArea.Cone:
+                        return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range, card.cardData.targetingData.area);
+                    case CardTargetArea.All:
+                        return TilemapUtilityScript.GetAllValidTiles();
+                default:
                 return new List<Vector3Int> { centerTile };
         }
     }

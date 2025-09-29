@@ -3210,8 +3210,8 @@ MonoBehaviour:
   costInfoScript: {fileID: 1854110843}
   BaseMap: {fileID: 1854110839}
   OverlayMap: {fileID: 469480539}
-  SizeX: 15
-  SizeY: 10
+  SizeX: 30
+  SizeY: 20
 --- !u!224 &1457707190
 RectTransform:
   m_ObjectHideFlags: 0

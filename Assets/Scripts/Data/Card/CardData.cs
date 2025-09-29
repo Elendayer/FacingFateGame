@@ -208,8 +208,10 @@ public enum CardTargetArea
     Ring,
     LineFree,
     LineSelf,
-    All
+    Cone,
+    All,  
 }
+
 [System.Serializable]
 public class TargetArea
 {

@@ -178,6 +178,67 @@ namespace Utility
                 results = results.Take(length).ToList();
             return results;
         }
+        public static List<Vector3Int> GetTilesInCone(Vector3Int start, Vector3Int direction, int length, int area)
+        {
+            var results = new HashSet<Vector3Int>();
+            var cStart = OffsetToCube_PointTop(start, UseOddROffset);
+            var cEnd = OffsetToCube_PointTop(direction, UseOddROffset);
+            var cDir = new Vector3Int(
+                cEnd.x - cStart.x,
+                cEnd.y - cStart.y,
+                cEnd.z - cStart.z
+            );
+
+            // Normalize cDir to one of the 6 main directions
+            int maxAbs = Mathf.Max(Mathf.Abs(cDir.x), Mathf.Abs(cDir.y), Mathf.Abs(cDir.z));
+            Vector3Int mainDir = maxAbs == 0 ? Vector3Int.zero : new Vector3Int(
+                cDir.x == 0 ? 0 : cDir.x / maxAbs,
+                cDir.y == 0 ? 0 : cDir.y / maxAbs,
+                cDir.z == 0 ? 0 : cDir.z / maxAbs
+            );
+
+            // Find the index of the main direction in CubeDirs
+            int mainDirIdx = -1;
+            for (int i = 0; i < CubeDirs.Length; i++)
+            {
+                if (CubeDirs[i] == mainDir)
+                {
+                    mainDirIdx = i;
+                    break;
+                }
+            }
+            if (mainDirIdx == -1)
+                return results.ToList(); // Invalid direction
+
+            // For each step forward, fill a wider area, including the start tile
+            for (int step = 0; step < length; step++)
+            { 
+                int areaS = area - step;
+
+                var forward = cStart + mainDir * step;
+                for (int w = -areaS; w <= areaS; w++)
+                {
+                    Vector3Int offset = Vector3Int.zero;
+                    if (w < 0)
+                    {
+                        int leftIdx = (mainDirIdx + 5) % 6;
+                        offset = CubeDirs[leftIdx] * -w;
+                    }
+                    else if (w > 0)
+                    {
+                        int rightIdx = (mainDirIdx + 1) % 6;
+                        offset = CubeDirs[rightIdx] * w;
+                    }
+                    var coneTile = CubeToOffset_PointTop(forward + offset, UseOddROffset);
+                    results.Add(coneTile);
+                }
+            }
+            // Always include the starting tile
+            results.Add(start);
+            return results.ToList();
+        }
+
+
         public static List<EntityScript> GetEntitiesOnTiles(List<Vector3Int> tiles, List<EntityScript> entities)
         {
             return entities.Where(entitity => tiles.Contains(entitity.GetComponent<EntityOnMap>().currentCell)).ToList();
@@ -360,6 +421,23 @@ namespace Utility
                 }
             }
         }
+
+        internal static List<Vector3Int> GetAllValidTiles()
+        {
+            var tilemap = BaseTilemap;
+            List<Vector3Int> validTiles = new List<Vector3Int>();
+            if (tilemap == null) return validTiles;
+            BoundsInt bounds = tilemap.cellBounds;
+            foreach (var pos in bounds.allPositionsWithin)
+            {
+                if (tilemap.HasTile(pos))
+                {
+                    validTiles.Add(pos);
+                }
+            }
+            return validTiles;
+        }
+
         public enum HighlightType
         {
             Path,

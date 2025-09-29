@@ -87,9 +87,9 @@ public static class CardDatabase
             { 
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.LineSelf,
+                areaType = CardTargetArea.Cone,
                 range = 3,
-                area = 1,
+                area = 6,
             },
 
             SetCardDescription = (User, data) =>
