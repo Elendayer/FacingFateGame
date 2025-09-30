@@ -42,7 +42,6 @@ public class TurnManager : MonoBehaviour
 
     private void OnTurnStart()
     {
-
         GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex].GetInstanceID()));
 
         Debug.Log($" {gameplayRef.onTurnStart}, TargetId = {TurnOrder[CurrentTurnIndex].GetInstanceID()}");

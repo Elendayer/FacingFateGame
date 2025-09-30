@@ -113,9 +113,12 @@ namespace Utility
         {
             var path = new List<Vector3Int>();
             totalCost = 0;
-
+           
             // Start from the goal and walk backwards
             Vector3Int current = goal;
+
+            path.Add(current);
+            totalCost += ignoreCost ? costInfoScript.costInfoDict[current].costUnobstructed : costInfoScript.costInfoDict[current].cost;
 
             while (cameFrom.ContainsKey(current))
             {
@@ -124,12 +127,9 @@ namespace Utility
                 if (prev == start)
                     break; // Stop before adding the start position
 
-                // Add cost for the predecessor (preserves same cost semantics as A*)
-                if (costInfoScript != null && costInfoScript.costInfoDict.TryGetValue(prev, out var costInfo))
-                {
-                    totalCost += ignoreCost ? costInfo.costUnobstructed : costInfo.cost;
-                }
 
+                    totalCost += ignoreCost ? costInfoScript.costInfoDict[prev] .costUnobstructed : costInfoScript.costInfoDict[prev].cost;
+                
                 current = prev;
 
                 path.Insert(0, current);

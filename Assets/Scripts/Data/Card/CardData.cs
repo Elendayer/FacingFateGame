@@ -162,7 +162,7 @@ public class CardData
 
     public void ActivateCard(List<EntityScript> targetEntity, GameObject obj)
     {
-        GenerateTriggerFromCardData();
+        //GenerateTriggerFromCardData();
 
         foreach (EntityScript target in targetEntity)
         {

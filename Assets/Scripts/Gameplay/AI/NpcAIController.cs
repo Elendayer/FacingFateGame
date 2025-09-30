@@ -1,17 +1,14 @@
-﻿using NUnit.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using Utility;
-using static UnityEngine.Rendering.DebugUI;
 
 public class NpcAIController
 {
     private readonly NonPlayerScript npc;
     private readonly EntityOnMap mover;
     private List<EntityScript> allEntities => Object.FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList();
-
+    public List<CardScript> hand = new();
     public NpcAIController(NonPlayerScript npc)
     {
         this.npc = npc;
@@ -22,32 +19,34 @@ public class NpcAIController
     public List<PlannedAction> BuildTurnPlan()
     {
         List<PlannedAction> plan = new();
-        int stamina = npc.CurrentStamina.Value;
         Vector3Int virtualPosition = mover.currentCell;
 
-        Debug.Log($"[NpcAI] {npc.name} starting turn. Stamina: {stamina}, virtualPosition: {virtualPosition}");
+        Debug.Log($"[NpcAI] {npc.name} starting turn. Stamina: {npc.CurrentStamina.Value}, virtualPosition: {virtualPosition}");
+        hand = GetHandCards();
 
         // Loop until stamina is too low to do anything
-        while (stamina > 0)
+        while (npc.CurrentStamina.Value > 0)
         {
-            var hand = GetHandCards();
             var actionCandidates = new List<ScoredCard>();
 
             // Evaluate hand cards
-            actionCandidates.AddRange(EvaluateHandActions(hand, stamina, virtualPosition));
+            actionCandidates.AddRange(EvaluateHandActions(hand, npc.CurrentStamina.Value, virtualPosition));
 
             // Add flee option if applicable
-            var fleeCandidate = TryGetFleeCandidate(virtualPosition, allEntities, stamina);
+            var fleeCandidate = TryGetFleeCandidate(virtualPosition, allEntities, npc.CurrentStamina.Value);
             if (fleeCandidate != null && fleeCandidate.Score > 0)
                 actionCandidates.Add(fleeCandidate);
 
-            // Add chase/reposition option if applicable
-            var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities, stamina);
-            if (chaseCandidate != null && chaseCandidate.Score > 0)
-                actionCandidates.Add(chaseCandidate);
+            if (actionCandidates.Count == 0)
+            {
+                // Add chase/reposition option if applicable
+                var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities, npc.CurrentStamina.Value);
+                if (chaseCandidate != null && chaseCandidate.Score > 0)
+                    actionCandidates.Add(chaseCandidate);
+            }
 
             Debug.Log($"[NpcAI] Evaluated {actionCandidates.Count} action candidates.");
-            var bestAction = SelectBestActionCandidate(actionCandidates, stamina);
+            var bestAction = SelectBestActionCandidate(actionCandidates, npc.CurrentStamina.Value);
             if (bestAction == null || bestAction.Score <= 0)
             {
                 Debug.Log("[NpcAI] No good actions found.");
@@ -55,24 +54,24 @@ public class NpcAIController
             }
 
             int totalCost = (bestAction.MovementCost) + (bestAction.Card?.cardData.Cost ?? 0);
-            if (totalCost > stamina)
+            if (totalCost > npc.CurrentStamina.Value)
             {
-                Debug.Log($"[NpcAI] Skipping best action: not enough stamina (need {totalCost}, have {stamina})");
+                Debug.Log($"[NpcAI] Skipping best action: not enough stamina (need {totalCost}, have {npc.CurrentStamina.Value})");
                 break;
             }
 
             // Apply move portion (if any)
-            ApplyMoveActionToPlan(plan, bestAction, ref virtualPosition, ref stamina);
+            ApplyMoveActionToPlan(plan, bestAction, ref virtualPosition, ref npc.CurrentStamina.Value);
 
             // Apply card portion (if any)
-            ApplyCardActionToPlan(plan, bestAction, ref stamina);
+            ApplyCardActionToPlan(plan, bestAction, ref npc.CurrentStamina.Value);
 
             // If stamina is now too low to play any card or move, break
             bool canDoAnything = false;
             var nextHand = GetHandCards();
             foreach (var card in nextHand)
             {
-                if (card.cardData != null && card.cardData.Cost <= stamina)
+                if (card.cardData != null && card.cardData.Cost <= npc.CurrentStamina.Value)
                 {
                     canDoAnything = true;
                     break;
@@ -81,10 +80,10 @@ public class NpcAIController
             // Check if can move (flee/chase) with remaining stamina
             if (!canDoAnything)
             {
-                var flee = TryGetFleeCandidate(virtualPosition, allEntities, stamina);
-                var chase = TryGetChaseCandidate(virtualPosition, allEntities, stamina);
-                if ((flee != null && flee.Score > 0 && (flee.MovementCost <= stamina)) ||
-                    (chase != null && chase.Score > 0 && (chase.MovementCost <= stamina)))
+                var flee = TryGetFleeCandidate(virtualPosition, allEntities, npc.CurrentStamina.Value);
+                var chase = TryGetChaseCandidate(virtualPosition, allEntities, npc.CurrentStamina.Value);
+                if ((flee != null && flee.Score > 0 && (flee.MovementCost <= npc.CurrentStamina.Value)) ||
+                    (chase != null && chase.Score > 0 && (chase.MovementCost <= npc.CurrentStamina.Value)))
                 {
                     canDoAnything = true;
                 }
@@ -225,8 +224,8 @@ public class NpcAIController
             plan.Add(new PlannedAction
             {
                 Type = PlannedAction.ActionType.Move,
-                Name = bestAction.pseudoName,
-                TargetCell = bestAction.MovementPath.Last(),
+                Name = bestAction.pseudoName + "_ Move" ,
+                TargetCell = bestAction.TargetCell,
                 Path = bestAction.MovementPath
             });
             Debug.Log($"[NpcAI] -> Move Name {bestAction.pseudoName}, MOVE to {bestAction.TargetCell} (cost {bestAction.MovementCost}) ");
@@ -246,10 +245,12 @@ public class NpcAIController
                 Name = bestAction.Card.name,
                 Card = bestAction.Card,
                 Targets = bestAction.Targets,
-                TargetCell = bestAction.TargetCell
+                TargetCell = bestAction.TargetCell,
+                Path = bestAction.MovementPath
             });
             Debug.Log($"[NpcAI] -> PLAY {bestAction.Card.cardData.cardName} on {string.Join(", ", bestAction.Targets.Select(t => t.name))}");
             stamina -= bestAction.Card.cardData.Cost;
+            hand.Remove(bestAction.Card); // Assume card is played and removed from hand
         }
     }
 
@@ -359,7 +360,7 @@ public class NpcAIController
         if (!DeckManager.Instance.DeckManagement.ContainsKey(npc)) return new List<CardScript>();
 
         Transform dock = DeckManager.Instance.DeckManagement[npc];
-        return dock.GetComponentsInChildren<CardScript>(true).ToList();
+        return dock.GetComponentsInChildren<CardScript>(true).Take(5).ToList();
     }
 
     // --- Card evaluation for the current turn ---

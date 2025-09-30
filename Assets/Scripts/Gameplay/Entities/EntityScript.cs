@@ -110,7 +110,17 @@ public class EntityScript : MonoBehaviour
     private void AddListeners()
     {
         GameEvents.OnRefEvent += TriggerAnimation;
+        GameEvents.OnRefEvent += GameEvents_OnTurnStart;
     }
+
+    private void GameEvents_OnTurnStart(TriggerRef trigger)
+    {
+        if (trigger.TargetId == this.GetInstanceID())
+        {
+            CurrentStamina.Value = MaxStamina.Value;
+        }
+    }
+
     private void TriggerAnimation(TriggerRef triggerRef)
     {
         if (triggerRef.TargetId == this.GetInstanceID())
@@ -133,6 +143,11 @@ public class EntityScript : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        GameEvents.OnRefEvent -= TriggerAnimation;
     }
 }
 
