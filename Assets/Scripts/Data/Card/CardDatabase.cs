@@ -37,7 +37,7 @@ public static class CardDatabase
     {
         RegisterKnightCards();
         RegisterEnemyCards();
-
+        SpearmanCards.RegisterAll();
     }
 
     private static void RegisterKnightCards()

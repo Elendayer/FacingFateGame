@@ -1,23 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Utility;
 
-// Spearman cards are registered here to keep CardDatabase clean per class.
-// Call SpearmanCards.RegisterAll() from CardDatabase.RegisterAll() (or your Startup).
+// Spearman cards in Fire Bomb style (explicit RegisterCard with CardData initializers).
+// Call SpearmanCards.RegisterAll() from CardDatabase.RegisterAll() or your startup.
 public static class SpearmanCards
 {
-    // Type codes according to your schema: Martial Art/Ability/Spell/Curse/Blessing
-    private const int TYPE_MARTIAL_ART = 01;
-    private const int TYPE_ABILITY = 02;
-    private const int TYPE_SPELL = 03; // (unused for Spearman for now)
-    private const int TYPE_CURSE = 04;
-    private const int TYPE_BLESSING = 05;
-
-    // Spearman class prefix (11|TT|II)
-    private const int CLASS_BASE = 110000;
-
-    private static int ComposeId(int typeCode, int index)
-        => CLASS_BASE + typeCode * 100 + index;
-
     public static void RegisterAll()
     {
         RegisterMartialArts();
@@ -26,259 +14,641 @@ public static class SpearmanCards
         RegisterBlessings();
     }
 
-    // ---------------- Martial Arts (TT = 01) ----------------
     private static void RegisterMartialArts()
     {
-        // Helper to reduce repetition and match your card layout pattern
-        CardData MakeMA(
-            string name,
-            int index,
-            int cost,
-            int power,
-            CardTargetType targetType,
-            CardTargetAffiliation targetAff,
-            CardTargetArea areaType,
-            int range,
-            int area = 1,
-            int repeats = 0,
-            List<CardIdentity> ids = null)
+        // 110101 – Tempest of a Hundred Spears (Ring 1, repeats=2)
+        CardDatabase.RegisterCard(new CardData()
         {
-            var data = new CardData
+            cardID = 110101,
+            cardName = "Tempest of a Hundred Spears",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 1,
+            power_u = 3,
+            repeats_u = 2,
+
+            targetingData = new()
             {
-                cardID = ComposeId(TYPE_MARTIAL_ART, index),
-                cardName = name,
-                cardType = CardType.Technique, // Martial Art → Technique
-                cardClass = CardClass.Spearman,
-                cardIdentities = ids ?? new List<CardIdentity> { CardIdentity.Physical }, // Melee = Physical
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.Ring,
+                range = 1,
+                area = 1,
+            },
 
-                cost_u = cost,
-                power_u = power,
-                repeats_u = repeats,
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Twice deal {data.Power} damage to adjacent enemies.";
+            },
 
-                targetingData = new TargetArea
-                {
-                    CardTargetType = targetType,
-                    CardTargetAffiliation = targetAff,
-                    areaType = areaType,
-                    range = range,
-                    area = area,
-                },
+            CardEffect = (User, Target, data) =>
+            {
+                // Resolve twice: each time fetch adjacent enemies and deal data.Power to each.
+                CombatUtility.ApplyDamage(User, Target, data.Power);
+                Debug.Log("Tempest of a Hundred Spears used");
+            }
+        });
 
-                SetCardDescription = (User, d) =>
-                {
-                    d.cardDescription = $"{name}: Cost {d.Cost}, Power {d.Power}.";
-                },
+        // 110102 – Piercing Light (LineSelf 3)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110102,
+            cardName = "Piercing Light",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
 
-                CardEffect = (User, Target, d) =>
-                {
-                    // TODO: fill with real effect logic (damage/slow/knockback/taunt etc.)
-                    // Example for pure damage cards later:
-                    // CombatUtility.ApplyDamage(User, Target, d.Power, true);
-                },
-            };
-            return data;
+            cost_u = 5,
+            power_u = 3,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.LineSelf,
+                range = 3,
+                area = 2,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Deal {data.Power} damage to all enemies in a line (range {data.targetingData.range}).";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+                CombatUtility.ApplyDamage(User, Target, data.Power);
+                // Fetch all enemies along a 3-tile line from User and deal data.Power to each.
+            }
+        });
+
+        // 110103 – Sky-Piercing Leap (LineSelf 2)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110103,
+            cardName = "Sky-Piercing Leap",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 3,
+            power_u = 2,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.LineSelf,
+                range = 2,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Deal {data.Power} damage along a short line (range {data.targetingData.range}).";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+                CombatUtility.ApplyDamage(User, Target, data.Power);
+                // Fetch enemies along a 2-tile line from User; deal data.Power to each. (No movement/knockback.)
+            }
+        });
+
+        // 110104 – Heaven Piercing Spear (Single, Range 1) – Bleed DoT
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110104,
+            cardName = "Heaven Piercing Spear",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
+
+            cost_u = 3,
+            power_u = 10,
+            duration_u = 6,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.Single,
+                range = 1,
+                area = 3,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Apply Bleed dealing {data.Power} for {data.Duration} turns.";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+                // Create a Bleed FunctionModifier like Fire Bomb: tick on onTurnStart for data.Duration; deal data.Power each tick.
+                // Merge strategy should be RefreshIncrease.
+
+                var bleed = new FunctionModifier(
+                    statName: "Bleed",
+                    baseValue: data.Power,
+                    statScaling: ModifierScaling.Flat,
+                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    duration: data.Duration,
+                    target: Target.CurrentHealth,
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    onRefEventAction: (modifier, stat, toTrigger_Reference) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { gameplayRef.onBleed },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
+                        CombatUtility.ApplyDamage(User, Target, modifier.BaseValue);
+                    }
+                    );
+
+                CombatUtility.ApplyModifier(User, Target, Target.CurrentHealth, bleed, ModifierMergeStrategy.RefreshIncrease);
         }
+        });
 
-        // Index & values per sheet (Range taken from your table; Line = LineSelf)
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Tempest of a Hundred Spears", index: 07, cost: 10, power: 3,
-            targetType: CardTargetType.CombatTile, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.Ring, range: 1, area: 1, repeats: 2));
+        // 110105 – Earth-Sundering Sweep (Ring 1)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110105,
+            cardName = "Earth-Sundering Sweep",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Piercing Light", index: 02, cost: 5, power: 3,
-            targetType: CardTargetType.CombatTile, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.LineSelf, range: 3));
+            cost_u = 5,
+            power_u = 5,
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Sky-Piercing Leap", index: 03, cost: 3, power: 2,
-            targetType: CardTargetType.CombatTile, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.LineSelf, range: 2));
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.Ring,
+                range = 1,
+                area = 3,
+            },
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Dragon Fang Thrust", index: 01, cost: 2, power: 10,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.Single, range: 1));
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Deal {data.Power} damage to adjacent enemies.";
+            },
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Heaven Piercing Spear", index: 04, cost: 3, power: 10,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.Single, range: 1,
-            ids: new List<CardIdentity> { CardIdentity.Physical, CardIdentity.Blood })); // Bleed
+            CardEffect = (User, Target, data) =>
+            {
+                CombatUtility.ApplyDamage(User, Target, data.Power);
+                // Fetch all adjacent enemies (ring=1) and deal data.Power to each. No knockback.
+            }
+        });
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Earth-Sundering Sweep", index: 05, cost: 5, power: 5,
-            targetType: CardTargetType.CombatTile, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.Ring, range: 1));
+        // 110106 – Dragon Fang Thrust (Single, Range 1)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110106,
+            cardName = "Dragon Fang Thrust",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Dragon's Tail Sweep", index: 08, cost: 5, power: 3,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.Single, range: 1));
+            cost_u = 2,
+            power_u = 10,
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Earthshatter Pole", index: 09, cost: 10, power: 2,
-            targetType: CardTargetType.CombatTile, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.Ring, range: 1));
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.Single,
+                range = 1,
+                area = 1,
+            },
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Azure Dragon's Roar", index: 10, cost: 3, power: 0,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Self,
-            areaType: CardTargetArea.Single, range: 0));
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Deal {data.Power} damage.";
+            },
 
-        CardDatabase.RegisterCard(MakeMA(
-            name: "Pillar of the Earth", index: 11, cost: 10, power: 4,
-            targetType: CardTargetType.CombatTile, targetAff: CardTargetAffiliation.Enemy,
-            areaType: CardTargetArea.LineSelf, range: 4));
+            CardEffect = (User, Target, data) =>
+            {
+                CombatUtility.ApplyDamage(User, Target, data.Power);
+                // Deal data.Power direct damage to Target.
+            }
+        });
+
+        // 110107 – Dragon's Tail Sweep (Single)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110107,
+            cardName = "Dragon's Tail Sweep",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 5,
+            power_u = 3,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.Single,
+                range = 1,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Deal {data.Power} damage.";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+                CombatUtility.ApplyDamage(User, Target, data.Power);
+                // Single-target damage: deal data.Power to Target. No knockback.
+            }
+        });
+
+        // 110108 – Earthshatter Pole (Ring 1)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110108,
+            cardName = "Earthshatter Pole",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 10,
+            power_u = 2,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.Ring,
+                range = 1,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Deal {data.Power} damage to adjacent enemies.";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+                CombatUtility.ApplyDamage(User, Target, data.Power);
+                // Fetch all adjacent enemies and deal data.Power to each.
+            }
+        });
+
+        // 110109 – Azure Dragon's Roar (Self; until end of turn)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110109,
+            cardName = "Azure Dragon's Roar",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 3,
+            power_u = 0,
+            duration_u = 1,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                areaType = CardTargetArea.Single,
+                range = 0,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Self-buff until end of turn (e.g., Taunt/Damage up).";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+               
+                // Self-buff until end of turn (comment-only as requested). No concrete stat changes yet.
+            }
+        });
+
+        // 110110 – Pillar of the Earth (LineSelf 4)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110110,
+            cardName = "Pillar of the Earth",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 10,
+            power_u = 4,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                areaType = CardTargetArea.LineSelf,
+                range = 4,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Deal {data.Power} damage along a long line (range {data.targetingData.range}).";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+                CombatUtility.ApplyDamage(User, Target, data.Power);
+                // Fetch enemies along a 4-tile line from User; deal data.Power to each.
+            }
+        });
     }
 
-    // ---------------- Abilities (TT = 02) ----------------
     private static void RegisterAbilities()
     {
-        CardData MakeAbility(
-            string name,
-            int index,
-            int cost,
-            int power,
-            CardTargetType targetType,
-            CardTargetAffiliation targetAff,
-            CardTargetArea areaType,
-            int range,
-            int area = 1,
-            List<CardIdentity> ids = null)
+        // 110201 – Extending Heaven's Lance (Self; +range until end of turn)
+        CardDatabase.RegisterCard(new CardData()
         {
-            var data = new CardData
+            cardID = 110201,
+            cardName = "Extending Heaven's Lance",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 2,
+            power_u = 0,
+            duration_u = 1,
+
+            targetingData = new()
             {
-                cardID = ComposeId(TYPE_ABILITY, index),
-                cardName = name,
-                cardType = CardType.Ability,
-                cardClass = CardClass.Spearman,
-                cardIdentities = ids ?? new List<CardIdentity> { CardIdentity.Physical },
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                areaType = CardTargetArea.Single,
+                range = 0,
+                area = 1,
+            },
 
-                cost_u = cost,
-                power_u = power,
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Increase melee range by +1 until end of turn.";
+            },
 
-                targetingData = new TargetArea
-                {
-                    CardTargetType = targetType,
-                    CardTargetAffiliation = targetAff,
-                    areaType = areaType,
-                    range = range,
-                    area = area,
-                },
+            CardEffect = (User, Target, data) =>
+            {
+                // Add temporary +1 melee range to User until end of turn.
+            }
+        });
 
-                SetCardDescription = (User, d) =>
-                {
-                    d.cardDescription = $"{name}: Cost {d.Cost}, Power {d.Power}.";
-                },
+        // 110202 – Iron Wall Reversal (Self; fixed melee counter once)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110202,
+            cardName = "Iron Wall Reversal",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
 
-                CardEffect = (User, Target, d) =>
-                {
-                    // TODO: implement stance/guard/reversal/deflect/taunt specifics later
-                },
-            };
-            return data;
-        }
+            cost_u = 2,
+            power_u = 10,
+            duration_u = 1,
 
-        CardDatabase.RegisterCard(MakeAbility(
-            name: "Extending Heaven's Lance", index: 01, cost: 2, power: 0,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Self,
-            areaType: CardTargetArea.Single, range: 0));
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                areaType = CardTargetArea.Single,
+                range = 0,
+                area = 1,
+            },
 
-        CardDatabase.RegisterCard(MakeAbility(
-            name: "Iron Wall Reversal", index: 02, cost: 2, power: 0,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Self,
-            areaType: CardTargetArea.Single, range: 0));
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"On next melee hit taken this turn, counter for {data.Power}.";
+            },
 
-        CardDatabase.RegisterCard(MakeAbility(
-            name: "Whirling Heaven Ward", index: 03, cost: 2, power: 0,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Self,
-            areaType: CardTargetArea.Single, range: 0));
+            CardEffect = (User, Target, data) =>
+            {
+                
+                // Give User 1 counter charge for this turn; when hit by melee, deal data.Power to attacker.
+            }
+        });
 
-        CardDatabase.RegisterCard(MakeAbility(
-            name: "Unyielding Spear Stance", index: 04, cost: 4, power: 0,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Self,
-            areaType: CardTargetArea.Single, range: 0));
+        // 110203 – Whirling Heaven Ward (Self; deflect ranged once)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110203,
+            cardName = "Whirling Heaven Ward",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
 
-        CardDatabase.RegisterCard(MakeAbility(
-            name: "Sky-Rending Reversal", index: 05, cost: 8, power: 0,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Self,
-            areaType: CardTargetArea.Single, range: 0));
+            cost_u = 2,
+            power_u = 0,
+            duration_u = 1,
 
-        // Phalanx Guard – aura-like, but start as Self target for now
-        CardDatabase.RegisterCard(MakeAbility(
-            name: "Phalanx Guard", index: 06, cost: 5, power: 1,
-            targetType: CardTargetType.Entity, targetAff: CardTargetAffiliation.Self,
-            areaType: CardTargetArea.Single, range: 0));
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                areaType = CardTargetArea.Single,
+                range = 0,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"On next ranged hit this turn, deflect/negate (details TBD).";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+               
+                // Give User 1 ranged-deflect charge for this turn; exact behavior TBD.
+            }
+        });
+
+        // 110204 – Unyielding Spear Stance (Self; Taunt + Armour +10 for 1 turn)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110204,
+            cardName = "Unyielding Spear Stance",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 4,
+            power_u = 10,
+            duration_u = 1,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                areaType = CardTargetArea.Single,
+                range = 0,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Taunt and gain +10 Armour for 1 turn.";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+               
+                // Apply Taunt to User and +10 Armour for 1 turn.
+            }
+        });
+
+        // 110205 – Sky-Rending Reversal (Self; stronger fixed counter)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110205,
+            cardName = "Sky-Rending Reversal",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 8,
+            power_u = 10,
+            duration_u = 1,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                areaType = CardTargetArea.Single,
+                range = 0,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"On next hit this turn, counter for {data.Power}.";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+                
+                // Give User 1 counter charge for this turn; when hit by any attack, deal data.Power to attacker.
+            }
+        });
+
+        // 110206 – Phalanx Guard (Self; defensive placeholder)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 110206,
+            cardName = "Phalanx Guard",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Spearman,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 5,
+            power_u = 1,
+            duration_u = 1,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                areaType = CardTargetArea.Single,
+                range = 0,
+                area = 1,
+            },
+
+            SetCardDescription = (User, data) =>
+            {
+                data.cardDescription = $"Defensive stance this turn (mitigation {data.Power}).";
+            },
+
+            CardEffect = (User, Target, data) =>
+            {
+                // Reduce incoming damage by data.Power for this turn (exact rule TBD).
+            }
+        });
     }
 
-    // ---------------- Curse (TT = 04) ----------------
     private static void RegisterCurses()
     {
-        var data = new CardData()
+        // 110401 – Brittle Courage (Self)
+        CardDatabase.RegisterCard(new CardData()
         {
-            cardID = ComposeId(TYPE_CURSE, 01),
+            cardID = 110401,
             cardName = "Brittle Courage",
             cardType = CardType.Curse,
             cardClass = CardClass.Spearman,
-            cardIdentities = new List<CardIdentity> { CardIdentity.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 0,
-            power_u = 10, // defaulted per your instruction
+            power_u = 10,
 
-            targetingData = new TargetArea
+            targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 areaType = CardTargetArea.Single,
                 range = 0,
+                area = 1,
             },
 
-            SetCardDescription = (User, d) =>
+            SetCardDescription = (User, data) =>
             {
-                d.cardDescription = $"{d.cardName}: Cost {d.Cost}, Power {d.Power}.";
+                data.cardDescription = $"Reduce Armour by 50% (details TBD).";
             },
 
-            CardEffect = (User, Target, d) =>
+            CardEffect = (User, Target, data) =>
             {
-                // TODO: implement 50% less Armour (temporary modifier)
+                // Reduce Target Armour by 50% (duration/stacking TBD).
             }
-        };
-        CardDatabase.RegisterCard(data);
+        });
     }
 
-    // ---------------- Blessing (TT = 05) ----------------
     private static void RegisterBlessings()
     {
-        var data = new CardData()
+        // 110501 – Brilliant Spear (Self)
+        CardDatabase.RegisterCard(new CardData()
         {
-            cardID = ComposeId(TYPE_BLESSING, 01),
+            cardID = 110501,
             cardName = "Brilliant Spear",
             cardType = CardType.Blessing,
             cardClass = CardClass.Spearman,
-            cardIdentities = new List<CardIdentity> { CardIdentity.Physical },
+            cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 0,
-            power_u = 10, // defaulted per your instruction
+            power_u = 10,
 
-            targetingData = new TargetArea
+            targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 areaType = CardTargetArea.Single,
                 range = 0,
+                area = 1,
             },
 
-            SetCardDescription = (User, d) =>
+            SetCardDescription = (User, data) =>
             {
-                d.cardDescription = $"{d.cardName}: Cost {d.Cost}, Power {d.Power}.";
+                data.cardDescription = $"Increase Aggro and attack power while active (details TBD).";
             },
 
-            CardEffect = (User, Target, d) =>
+            CardEffect = (User, Target, data) =>
             {
-                // TODO: implement Aggro up & attack harder
+                // Increase Aggro and attack power while active (exact scaling/duration TBD).
             }
-        };
-        CardDatabase.RegisterCard(data);
+        });
     }
 }

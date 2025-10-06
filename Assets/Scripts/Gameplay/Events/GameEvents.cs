@@ -57,6 +57,9 @@ public enum gameplayRef
 {
     None,
     onBurn,
+    onBleed,
+    OnPoison,
+
     onDamage,
     onStunned,
     onBlocking,
