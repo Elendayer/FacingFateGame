@@ -8,7 +8,7 @@ public class NonPlayerScript : EntityScript
     public NpcAIController npcAIController;
 
     public string npcAIBiasId = string.Empty;
-    public NpcAiBias npcAIBias;
+    public NpcAiBias npcAIBias = new();
 
     [SerializeField]
     private List<PlannedAction> plan;

@@ -1,0 +1,219 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+[System.Serializable]
+public class Stat
+{
+    public int Value => GetFinalValue();
+
+    private readonly List<IStatModifier> statModifiers = new();
+
+    public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
+    {
+        Debug.Log($"[Stat] Adding modifier: {modifier.ModifierName} with strategy: {strategy} for {modifier.BaseValue}");
+        var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
+
+        switch (strategy)
+        {
+            case ModifierMergeStrategy.AddUnique:
+                statModifiers.Add(modifier);
+                break;
+
+            case ModifierMergeStrategy.Override:
+                if (existing != null) statModifiers.Remove(existing);
+                statModifiers.Add(modifier);
+                break;
+
+            case ModifierMergeStrategy.Merge:
+                if (existing is StatModifier existingMod && modifier is StatModifier newMod)
+                {
+                    existingMod.BaseValue += newMod.BaseValue;
+                }
+                else
+                {
+                    statModifiers.Add(modifier);
+                }
+                break;
+
+            case ModifierMergeStrategy.RefreshDurationAndMerge:
+                if (existing is StatModifier existingRefresh && modifier is StatModifier newRefresh)
+                {
+                    existingRefresh.BaseValue += newRefresh.BaseValue;
+                    existingRefresh.Duration = Math.Max(existingRefresh.GetRemainingDuration(), newRefresh.GetRemainingDuration());
+                }
+                else
+                {
+                    statModifiers.Add(modifier);
+                }
+                break;
+
+            case ModifierMergeStrategy.RefreshDurationAndOverride:
+                if (existing is StatModifier existingRefreshDuration && modifier is StatModifier newRefreshDuration)
+                {
+                    existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
+                    existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
+                }
+                else
+                {
+                    statModifiers.Add(modifier);
+                }
+                break;
+
+        }
+        Debug.Log(GetFinalValue());
+        modifier.AddListener();
+    }
+
+    public void RemoveModifier(IStatModifier modifier) => statModifiers.Remove(modifier);
+
+    private int GetFinalValue()
+    {
+        int BaseValue = 0;
+        int percent = 0;
+        List<int> multipliers = new();
+
+        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+        {
+            // Check for conditional modifier and its condition
+            if (mod is ConditionalStatModifier conditional)
+            {
+                if (!conditional.Condition)
+                {
+                    break;
+                }
+            }
+            // Apply modifier based on its scaling type
+            if (mod is StatModifier statMod)
+            {
+                switch (statMod.ModifierScaling)
+                {
+                    case ModifierScaling.Flat:
+                        BaseValue += statMod.BaseValue;
+                        break;
+                    case ModifierScaling.Percent:
+                        percent += statMod.BaseValue;
+                        break;
+                    case ModifierScaling.Multiplier:
+                        multipliers.Add(statMod.BaseValue);
+                        break;
+                }
+            }
+        }
+
+        BaseValue = (BaseValue * (100 + percent)) / 100;
+
+        foreach (var mult in multipliers)
+        {
+            BaseValue = (BaseValue * mult) / 100;
+        }
+
+        return BaseValue;
+    }
+
+    public int BaseValueOverride(int BaseValue)
+    {
+        int percent = 0;
+        List<int> multipliers = new();
+
+        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+        {
+            // Check for conditional modifier and its condition
+            if (mod is ConditionalStatModifier conditional)
+            {
+                if (!conditional.Condition)
+                {
+                    break;
+                }
+            }
+            // Apply modifier based on its scaling type
+            if (mod is StatModifier statMod)
+            {
+                switch (statMod.ModifierScaling)
+                {
+                    case ModifierScaling.Flat:
+                        BaseValue += statMod.BaseValue;
+                        break;
+                    case ModifierScaling.Percent:
+                        percent += statMod.BaseValue;
+                        break;
+                    case ModifierScaling.Multiplier:
+                        multipliers.Add(statMod.BaseValue);
+                        break;
+                }
+            }
+        }
+
+        BaseValue = (BaseValue * (100 + percent)) / 100;
+
+        foreach (var mult in multipliers)
+        {
+            BaseValue = (BaseValue * mult) / 100;
+        }
+
+        return BaseValue;
+    }
+
+    public List<int> GetAllValues(ModifierScaling? filterType = null)
+    {
+        return statModifiers
+            .Where(m => !m.IsExpired && m is StatModifier sm && (!filterType.HasValue || sm.ModifierScaling == filterType.Value))
+            .Cast<StatModifier>()
+            .Select(m => m.BaseValue)
+            .ToList();
+    }
+
+    public bool HasReference(gameplayRef reference)
+        => statModifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+
+    public IStatModifier GetModifierByName(string name)
+        => statModifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);
+
+    public void AddOrReplaceModifier(IStatModifier modifier)
+    {
+        var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
+        if (existing != null) statModifiers.Remove(existing);
+        statModifiers.Add(modifier);
+    }
+}
+    // -------------------- Enums --------------------
+
+    public enum ModifierMergeStrategy
+    {
+        AddUnique,
+        Override,
+        Merge,
+        RefreshDurationAndMerge,
+        RefreshDurationAndOverride
+    }
+
+    public enum ModifierScaling
+    {
+        Flat,
+        Percent,
+        Multiplier
+    }
+
+public enum StatAspect
+{
+    Power,
+    Damage,
+    Healing,
+    Cost,
+    Duration,
+    Repeats
+}
+// -------------------- Referenece Struct --------------------
+public struct TriggerRef
+{
+    public List<gameplayRef> References;
+    public int UserId;
+    public int AffectedEntityId;
+    public TriggerRef(List<gameplayRef> references = null, int userId = 0, int targetId = 0)
+    {
+        References = references ?? new List<gameplayRef>();
+        UserId = userId;
+        AffectedEntityId = targetId;
+    }
+}

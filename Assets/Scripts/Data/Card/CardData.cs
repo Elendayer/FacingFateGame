@@ -23,22 +23,32 @@ public class CardData
     [Header("Cost")]
     public int cost_u = 0;
     public Stat cost_s = new();
-    public int Cost => cost_u + cost_s.GetFinalValue() + GetValues(StatAspect.Cost);
+    public int Cost => cost_u + cost_s.Value + GetValues(StatAspect.Cost);
 
     [Header("Power")]
     public int power_u = 0;
     public Stat power_s = new();
-    public int Power => power_u + power_s.GetFinalValue() + GetValues(StatAspect.Power);
+    public int Power =>  power_u + power_s.Value + GetValues(StatAspect.Power);
+
+    [Header("Damage")]
+    public int damage_u = 0;
+    public Stat damage_s = new();
+    public int Damage => Owner.entityStats.DamageIncrease.BaseValueOverride( damage_u + damage_s.Value + GetValues(StatAspect.Damage));
+
+    [Header("Healing")]
+    public int healing_u = 0;
+    public Stat healing_s = new();
+    public int Healing => Owner.entityStats.HealingIncrease.BaseValueOverride( healing_u + healing_s.Value + GetValues(StatAspect.Healing));
 
     [Header("Duration")]
     public int duration_u = 0;
     public Stat duration_s = new();
-    public int Duration => duration_u + duration_s.GetFinalValue() + GetValues(StatAspect.Duration);
+    public int Duration => duration_u + duration_s.Value + GetValues(StatAspect.Duration);
 
     [Header("Repeats")]
     public int repeats_u = 0;
     public Stat repeats_s = new();
-    public int Repeats => repeats_u + repeats_s.GetFinalValue() + GetValues(StatAspect.Repeats);
+    public int Repeats => repeats_u + repeats_s.Value + GetValues(StatAspect.Repeats);
 
 
     [Header("Card Target")]
@@ -52,9 +62,6 @@ public class CardData
 
     public CardData Clone()
     {
-        // Hilfsfunktion: Stat flach kopieren (nur Base-Value, keine Modifiers)
-        Stat CloneStat(Stat s) => new Stat { Value = s != null ? s.Value : 0 };
-
         return new CardData
         {
             // Identity & Meta
@@ -71,13 +78,9 @@ public class CardData
 
             // Werte (u = base, s = eigene Stat-Container pro Instanz)
             cost_u = cost_u,
-            cost_s = CloneStat(cost_s),
             power_u = power_u,
-            power_s = CloneStat(power_s),
             duration_u = duration_u,
-            duration_s = CloneStat(duration_s),
             repeats_u = repeats_u,
-            repeats_s = CloneStat(repeats_s),
 
             // Targeting-Flags (keine Ziel-Referenzen übernehmen)
             targetingData = targetingData,
@@ -96,12 +99,12 @@ public class CardData
         int value = 0;
 
         value =
-            Owner.GetStatValue(cardType, aspect)
-            + Owner.GetStatValue(cardClass, aspect);
+            Owner.entityStats.GetStatValue(cardType, aspect)
+            + Owner.entityStats.GetStatValue(cardClass, aspect);
 
         foreach (CardIdentity ce in cardIdentities)
         {
-            value += Owner.GetStatValue(ce, aspect);
+            value += Owner.entityStats.GetStatValue(ce, aspect);
         }
 
         return value;
@@ -180,24 +183,38 @@ public class TargetArea
 
 public class CardAiBias
 {
+    // General Intention of the Card
     public Intention Intention = Intention.None;
+
+    // Unique ID for lookup
     public gameplayRef triggerCondition = gameplayRef.None;
 
+    // Override for Friendly Fire Avoidance
     public CardTargetAffiliation AffiliationBiasOverride = CardTargetAffiliation.None;
-    public int throughputOverrideValue;
+
+    // Additional Throughput
+    public int throughputBase = 0;
+    // Divider for Throughput to scale down high values
+    public int throughputScale = 1;
+    // Additional Throughput per gameplayRef
     public Dictionary<gameplayRef, int> throughputBias;
 
     public int cooldown = 1;
 
-    public int ThroughputOverride(int tov, List<gameplayRef> gRefs)
-    {
-        int OverrideValue = throughputOverrideValue;
-        foreach (gameplayRef gRef in gRefs)
-        {
-            throughputBias.TryGetValue(gRef, out int value);
-            OverrideValue += value;
-        }
 
+    public int ThroughputOverride(List<EntityScript> target)
+    {
+        int OverrideValue = throughputScale;
+        foreach (KeyValuePair<gameplayRef, int> gRef in throughputBias)
+        {
+            foreach (EntityScript t in target)
+            {
+                if (t.HasReference(gRef.Key))
+                {
+                    OverrideValue += gRef.Value;
+                }
+            }
+        }
         return OverrideValue;
     }
 }
@@ -212,6 +229,7 @@ public enum Intention
     Buff,
     Debuff,
     BuffDebuff,
+    Summon,
     Other,
 }
 

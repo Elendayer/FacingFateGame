@@ -18,14 +18,14 @@ public static class CardSystem
 
         var data = cardUI.cardData;
         int cost = data.Cost;
-        if (user.CurrentStamina.GetFinalValue() < cost)
+        if (user.entityStats.CurrentStamina.Value < cost)
         {
             reason = "Not enough Stamina";
             return false;
         }
 
         // Kosten bezahlen
-        user.CurrentStamina.Value -= cost;
+       // user.entityStats.CurrentStamina.AddModifier(new ) -= cost;
 
         // Direkte Ausführung (ohne Stack), inkl. Repeats
         int repeats = Mathf.Max(1, data.Repeats);

@@ -19,7 +19,7 @@ public class NpcAIController
     public List<PlannedAction> BuildTurnPlan()
     {
         List<PlannedAction> plan = new();
-        int stamina = npc.CurrentStamina.Value;
+        int stamina = npc.entityStats.CurrentStamina.Value;
         Vector3Int virtualPosition = mover.currentCell; // Simulated NPC position
 
         Debug.Log($"[NpcAI] {npc.name} starting turn. Stamina: {stamina}, virtualPosition: {virtualPosition}");
@@ -132,7 +132,7 @@ public class NpcAIController
                     continue;
 
                 // Pathfinding
-                var path = GetPathToTile(virtualPosition, candidate);
+                var path = TilemapUtilityScript.FindPath(virtualPosition, candidate);
                 if (path == null) continue;
 
                 int moveCost = path.Count;
@@ -241,7 +241,7 @@ public class NpcAIController
 
             foreach (var tile in candidateTiles)
             {
-                var path = GetPathToTile(fromPosition, tile);
+                var path = TilemapUtilityScript.FindPath(fromPosition, tile);
                 if (path == null || path.Count > stamina) continue;
 
                 // Use the last tile as NPC's position to check for targets
@@ -337,31 +337,26 @@ public class NpcAIController
         return Vector3Int.RoundToInt(center);
     }
 
-    // --- Pathfinding ---
-    private List<Vector3Int> GetPathToTile(Vector3Int fromPosition, Vector3Int tile)
-    {
-        return TilemapUtilityScript.FindPath(fromPosition, tile);
-    }
-
     // --- Card scoring ---
     private int EvaluateCardScore(CardScript card, List<EntityScript> targets)
     {
         List<EntityScript> vettedEntities = TargetingUtility.VetTargetsEntities(card, npc, targets);
 
-        // --- Base throughput (power * repeats) ---
-        int throughput = (card.cardData.Power * Mathf.Max(1, card.cardData.Repeats))* vettedEntities.Count;
+        int throughput =
+            (
+            (card.cardData.Power
+            + card.cardData.Damage
+            + card.cardData.Healing
+            + card.cardData.CardAiBias.throughputBase
+            + card.cardData.CardAiBias.ThroughputOverride(targets)
+            + npc.npcAIBias.BiasCalc(card.cardData)
+            )
+            / card.cardData.CardAiBias.throughputScale
+            )
+            * Mathf.Max(1, card.cardData.Duration) 
+            * Mathf.Max(1, card.cardData.Repeats)
+            * vettedEntities.Count;
 
-        // --- Apply CardAiBias throughput overrides ---
-        if (card.cardData.CardAiBias != null)
-        {
-            throughput += card.cardData.CardAiBias.ThroughputOverride(throughput, card.cardData.GameplayReferences);
-        }
-
-        // --- Apply NpcAiBias directly to throughput ---
-        if (npc.npcAIBias != null)
-        {
-            throughput += npc.npcAIBias.BiasCalc(card.cardData);
-        }
 
         // --- Efficiency: biased throughput / cost ---
         int efficiency = throughput / Mathf.Max(1, card.cardData.Cost);

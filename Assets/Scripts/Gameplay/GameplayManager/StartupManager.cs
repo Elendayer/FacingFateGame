@@ -15,6 +15,7 @@ public class StartupManager : MonoBehaviour
         DontDestroyOnLoad(gameObject); // Optional: persist between scenes
 
         Invoke(nameof(HandleStartup), 0.1f);
+        Invoke(nameof(HandlePostStartup), 0.2f);
     }
     private void HandleStartup()
     {
@@ -27,5 +28,10 @@ public class StartupManager : MonoBehaviour
         {
             entity.StartUp();
         }
+    }
+
+    private void HandlePostStartup()
+    {
+        GameEvents.TriggerCombatStart();
     }
 }

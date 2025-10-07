@@ -8,8 +8,8 @@ public class HealthbarSlider : MonoBehaviour
     public TextMeshProUGUI textMeshPro;
     public EntityScript eM;
 
-    int max => eM.MaxHealth.GetFinalValue();
-    int current => eM.CurrentHealth.GetFinalValue();
+    int max => eM.entityStats.MaxHealth.Value;
+    int current => eM.entityStats.CurrentHealth.Value;
 
     private void Start()
     {
