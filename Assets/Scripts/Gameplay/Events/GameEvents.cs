@@ -58,7 +58,7 @@ public enum gameplayRef
     None,
     onBurn,
     onBleed,
-    OnPoison,
+    onPoison,
 
     onDamage,
     onStunned,
@@ -102,6 +102,9 @@ public enum gameplayRef
     Occult,
 
     Spearman,
+    Assassin,
+    Mystic,
+    Physician,
 
     Knight,
     Rogue,

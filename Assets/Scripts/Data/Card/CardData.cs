@@ -228,7 +228,7 @@ public enum CardType
 }
 public enum CardIdentity
 {
-    Non,
+    None,
     Physical,
     Fire,
     Ice,
@@ -241,12 +241,17 @@ public enum CardIdentity
     Arcane,
     Soul,
     Divine,
-    Occult
+    Occult,
+    Ranged,
+    Melee
 }
 // If Updated needs to update GameplayReference as well
 public enum CardClass
 {
     Spearman,
+    Assassin,
+    Mystic,
+    Physician,
     
     Knight,
     Rogue,

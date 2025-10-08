@@ -38,6 +38,9 @@ public static class CardDatabase
         RegisterKnightCards();
         RegisterEnemyCards();
         SpearmanCards.RegisterAll();
+        AssassinCards.RegisterAll();
+        MysticCards.RegisterAll();
+        PhysicianCards.RegisterAll(); 
     }
 
     private static void RegisterKnightCards()
