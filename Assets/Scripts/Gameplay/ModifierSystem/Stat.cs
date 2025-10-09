@@ -62,7 +62,6 @@ public class Stat
                 break;
 
         }
-        Debug.Log(GetFinalValue());
         modifier.AddListener();
     }
 
@@ -212,7 +211,7 @@ public struct TriggerRef
     public int AffectedEntityId;
     public TriggerRef(List<gameplayRef> references = null, int userId = 0, int targetId = 0)
     {
-        References = references ?? new List<gameplayRef>();
+        References = references;
         UserId = userId;
         AffectedEntityId = targetId;
     }

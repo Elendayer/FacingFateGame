@@ -30,7 +30,7 @@ namespace Utility
 
 
         // Add this method to TilemapUtilityScript
-        public static PathData FindPath(Vector3Int start, Vector3Int goal, bool straightLineOnly = false, bool ignoreCost = false)
+        public static PathData FindPath(Vector3Int start, Vector3Int goal, bool ignoreCost = false, bool walkClose = false)
         {
             var openSet = new PriorityQueue<Vector3Int>();
             openSet.Enqueue(start, 0);
@@ -42,10 +42,11 @@ namespace Utility
             while (openSet.Count > 0)
             {
                 var current = openSet.Dequeue();
+
                 if (current == goal)
                 {
                     int totalCost;
-                    var path = ReconstructPath(cameFrom, start, goal, out totalCost, CostInfoScript, ignoreCost);
+                    var path = ReconstructPath(cameFrom, start, goal, out totalCost, CostInfoScript, ignoreCost,  walkClose);
 
                     pathData = new()
                     {
@@ -62,10 +63,6 @@ namespace Utility
                 {
                     var neighborCube = currentCube + CubeDirs[dir];
                     var neighbor = CubeToOffset_PointTop(neighborCube, UseOddROffset);
-
-                    // If straightLineOnly, only allow movement in the direction of the line
-                    if (straightLineOnly && !IsOnLine(start, goal, neighbor))
-                        continue;
 
                     // If ignoreCost, all tiles have cost 1
                     int tentativeGScore = gScore[current] + (ignoreCost ? CostInfoScript.costInfoDict[current].costUnobstructed : CostInfoScript.costInfoDict[current].cost);
@@ -103,13 +100,16 @@ namespace Utility
             var bc = OffsetToCube_PointTop(b, UseOddROffset);
             return (Mathf.Abs(ac.x - bc.x) + Mathf.Abs(ac.y - bc.y) + Mathf.Abs(ac.z - bc.z)) / 2;
         }
-        private static List<Vector3Int> ReconstructPath(
+        private static List<Vector3Int> ReconstructPath
+            (
               Dictionary<Vector3Int, Vector3Int> cameFrom,
               Vector3Int start,
               Vector3Int goal,
               out int totalCost,
               CostInfoScript costInfoScript,
-              bool ignoreCost)
+              bool ignoreCost,
+            bool walkClose
+            )
         {
             var path = new List<Vector3Int>();
             totalCost = 0;
@@ -117,8 +117,11 @@ namespace Utility
             // Start from the goal and walk backwards
             Vector3Int current = goal;
 
+            if (!walkClose)
+            {
             path.Add(current);
             totalCost += ignoreCost ? costInfoScript.costInfoDict[current].costUnobstructed : costInfoScript.costInfoDict[current].cost;
+            }
 
             while (cameFrom.ContainsKey(current))
             {
@@ -197,12 +200,41 @@ namespace Utility
             }
             return results;
         }
-        public static List<Vector3Int> GetTilesInLine(Vector3Int start, Vector3Int end, int length)
+        public static List<Vector3Int> GetTilesInLine(Vector3Int start, Vector3Int end, int maxLength)
         {
-            var pathData = TilemapUtilityScript.FindPath(start, end, straightLineOnly: true, ignoreCost: true);
-            if (pathData.Path.Count > length)
-                pathData.Path = pathData.Path.Take(length).ToList();
-            return pathData.Path;
+            var tiles = new List<Vector3Int>();
+            tiles.Add(start);
+
+            // Convert start/end to cube coordinates
+            Vector3Int startCube = OffsetToCube_PointTop(start, UseOddROffset);
+            Vector3Int endCube = OffsetToCube_PointTop(end, UseOddROffset);
+
+            // Determine vector toward end
+            Vector3Int delta = endCube - startCube;
+
+            // Find closest cube direction
+            Vector3Int bestDir = CubeDirs[0];
+            int maxDot = int.MinValue;
+            foreach (var dir in CubeDirs)
+            {
+                int dot = delta.x * dir.x + delta.y * dir.y + delta.z * dir.z;
+                if (dot > maxDot)
+                {
+                    maxDot = dot;
+                    bestDir = dir;
+                }
+            }
+
+            // Extend line along that direction
+            Vector3Int currentCube = startCube;
+            for (int i = 0; i < maxLength; i++)
+            {
+                currentCube += bestDir;
+                Vector3Int offset = CubeToOffset_PointTop(currentCube, UseOddROffset);
+                tiles.Add(offset);
+            }
+
+            return tiles;
         }
         public static List<Vector3Int> GetTilesInCone(Vector3Int start, Vector3Int direction, int length, int area)
         {

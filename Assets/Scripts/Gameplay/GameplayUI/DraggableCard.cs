@@ -29,14 +29,25 @@ public class DraggableCard : Draggable
         base.OnEndDrag(eventData);
         TilemapUtilityScript.ResetMaphightlight(BaseTilemap);
 
-        Vector3Int dropCell = TargetingUtility.GetValidDropTarget(eventData, cardScript);
-        Debug.Log($"[DraggableCard] Drop position: {dropCell}");
+        Vector3Int dropCell = TilemapUtilityScript.InvalidPosition;
+        List<EntityScript> targets = new();
+
+        switch (cardScript.cardData.targetingData.CardTargetType)
+        {
+            case CardTargetType.CombatTile:
+                dropCell = TargetingUtility.GetValidTileDrop(eventData, cardScript);
+                targets = TargetingUtility.GetTargetsFromPosition(cardScript, dropCell,FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(),cardScript.cardData.Owner);
+
+                ; break;
+            case CardTargetType.Entity:
+                dropCell = TargetingUtility.GetValidEntityDrop(eventData, cardScript);
+                targets = TargetingUtility.GetTargetsFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
+                break;
+        }
 
         if (dropCell == InvalidPosition) return;
 
-        List<EntityScript> targets = TargetingUtility.GetTargetsFromPosition(cardScript, dropCell,
-            FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(),
-            cardScript.cardData.Owner);
+
 
         Debug.Log($"[DraggableCard] Card {cardScript.cardData.cardName} targets before vetting: {targets.Count}");
 

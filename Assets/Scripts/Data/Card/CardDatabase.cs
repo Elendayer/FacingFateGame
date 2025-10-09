@@ -188,7 +188,8 @@ public static class CardDatabase
             cardIdentities = new() { CardIdentity.Light },
 
             cost_u = 2,
-            power_u = 1,
+            power_u = 50,
+            healing_u = 20,
             duration_u = 1,
 
             targetingData = new()
@@ -196,29 +197,22 @@ public static class CardDatabase
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0
+                range = 1,
+                area = 1,
             },
 
             CardDescription = (User, data) =>
             {
-                int heal = data.Power * data.Duration;
-                data.cardDescription = $"Restore {heal} Health. Increase your Maximum Health by {heal}";
+                data.cardDescription = $"Restore {data.Healing} Health. Increase your Maximum Health by {data.Power}";
             },
 
             CardEffect = (User, Target, data) =>
             {
-                CombatUtility.ApplyHealing(User, Target, data.Power);
+            
                 var mod = new StatModifier(data.Power, ModifierScaling.Flat, new List<gameplayRef>() { }, name: "Valiant Blessing");
-                var valiantModifier = new EntityModifier(
-                    statName: "Valiant Blessing",
-                    to_Trigger_refs: new() {},
-                    duration: data.Duration,
-                    target: Target.entityStats.MaxHealth,
-                    onRefEventAction: (modifier, stat, toTrigger_Reference) =>
-                    {
-                        CombatUtility.ApplyBuff(User, Target, User.entityStats.MaxHealth, mod, ModifierMergeStrategy.Merge);
-                    });
-                CombatUtility.ApplyEntityModifier(User, Target, valiantModifier, ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                CombatUtility.ApplyBuff(User, Target, Target.entityStats.MaxHealth, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyHealing(User, Target, data.Healing);
             }
 
         });

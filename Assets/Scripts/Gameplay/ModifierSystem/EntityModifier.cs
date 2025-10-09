@@ -40,13 +40,16 @@ public class EntityModifier : IEntityModifier
     public bool IsExpired => Duration <= 0;
 
     private Action<StatModifier, Stat, gameplayRef> OnRefEventAction;
-    public TriggerRef TriggerConditionRef { get; private set; }
+    public TriggerRef TriggerConditionRef { get; private set; } = new TriggerRef();
     public Stat TargetStat { get; private set; }
     public void AddListener()
     {
-        foreach (var Reference in TriggerConditionRef.References)
+        if ( TriggerConditionRef.References != null)
         {
-            GameEvents.Subscribe(Reference, TriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
+            foreach (var Reference in TriggerConditionRef.References)
+            {
+                GameEvents.Subscribe(Reference, TriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
+            }
         }
     }
     public EntityModifier

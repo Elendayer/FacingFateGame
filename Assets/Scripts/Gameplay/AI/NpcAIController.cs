@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utility;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class NpcAIController
 {
@@ -34,14 +35,14 @@ public class NpcAIController
             actionCandidates.AddRange(EvaluateHandActions(hand, npc.entityStats.CurrentStamina.Value, virtualPosition));
 
             // Add flee option if applicable
-            var fleeCandidate = TryGetFleeCandidate(virtualPosition, allEntities, npc.entityStats.CurrentStamina.Value);
+            var fleeCandidate = TryGetFleeCandidate(virtualPosition, allEntities);
             if (fleeCandidate != null && fleeCandidate.Score > 0)
                 actionCandidates.Add(fleeCandidate);
 
             if (actionCandidates.Count == 0)
             {
                 // Add chase/reposition option if applicable
-                var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities, npc.entityStats.CurrentStamina.Value);
+                var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities);
                 if (chaseCandidate != null && chaseCandidate.Score > 0)
                     actionCandidates.Add(chaseCandidate);
             }
@@ -62,10 +63,10 @@ public class NpcAIController
             }
 
             // Apply move portion (if any)
-            ApplyMoveActionToPlan(plan, bestAction, ref virtualPosition, npc.entityStats.CurrentStamina);
+            ApplyMoveActionToPlan(plan, bestAction, ref virtualPosition, npc);
 
             // Apply card portion (if any)
-            ApplyCardActionToPlan(plan, bestAction, npc.entityStats.CurrentStamina);
+            ApplyCardActionToPlan(plan, bestAction, npc);
 
             // If stamina is now too low to play any card or move, break
             bool canDoAnything = false;
@@ -81,8 +82,8 @@ public class NpcAIController
             // Check if can move (flee/chase) with remaining stamina
             if (!canDoAnything)
             {
-                var flee = TryGetFleeCandidate(virtualPosition, allEntities, npc.entityStats.CurrentStamina.Value);
-                var chase = TryGetChaseCandidate(virtualPosition, allEntities, npc.entityStats.CurrentStamina.Value);
+                var flee = TryGetFleeCandidate(virtualPosition, allEntities);
+                var chase = TryGetChaseCandidate(virtualPosition, allEntities);
                 if ((flee != null && flee.Score > 0 && (flee.MovementCost <= npc.entityStats.CurrentStamina.Value)) ||
                     (chase != null && chase.Score > 0 && (chase.MovementCost <= npc.entityStats.CurrentStamina.Value)))
                 {
@@ -114,7 +115,7 @@ public class NpcAIController
         return actionCandidates;
     }
 
-    private ScoredCard TryGetFleeCandidate(Vector3Int virtualPosition, List<EntityScript> allEntities, int stamina)
+    private ScoredCard TryGetFleeCandidate(Vector3Int virtualPosition, List<EntityScript> allEntities)
     {
         ScoredCard moveOption_Flee = null;
         switch (npc.npcAIBias.ReposiitionCondition)
@@ -122,7 +123,7 @@ public class NpcAIController
             case FleeCondition.surrounded:
                 if (TargetingUtility.GetEntitiesFromTiles(TilemapUtilityScript.GetTilesInRadius(virtualPosition, 1), allEntities).Count >= 3)
                 {
-                    moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, stamina);
+                    moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npc);
                     if (moveOption_Flee != null)
                     {
                         moveOption_Flee.Score = 1;
@@ -133,7 +134,7 @@ public class NpcAIController
             case FleeCondition.lowHealth:
                 if (npc.entityStats.CurrentHealth.Value < npc.entityStats.MaxHealth.Value * 0.3f)
                 {
-                    moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, stamina);
+                    moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npc);
                     if (moveOption_Flee != null)
                     {
                         moveOption_Flee.Score = 1;
@@ -148,7 +149,7 @@ public class NpcAIController
                     .ToList();
                 if (closeEnemies.Count > 0)
                 {
-                    moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, stamina);
+                    moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npc);
                     if (moveOption_Flee != null)
                     {
                         moveOption_Flee.Score = 1;
@@ -162,7 +163,7 @@ public class NpcAIController
         return moveOption_Flee;
     }
 
-    private ScoredCard TryGetChaseCandidate(Vector3Int virtualPosition, List<EntityScript> allEntities, int stamina)
+    private ScoredCard TryGetChaseCandidate(Vector3Int virtualPosition, List<EntityScript> allEntities)
     {
         var enemies = allEntities.Where(e => e.entityAffiliation != npc.entityAffiliation).ToList();
         if (enemies == null || enemies.Count == 0)
@@ -186,7 +187,7 @@ public class NpcAIController
 
         Debug.Log($"[NpcAI] Nearest enemy is {nearestEnemy.name} at {targetCell}, distance {pathData.Path.Count}");
 
-        if (pathData.Path.Count > 1 && pathData.Path.Count <= stamina)
+        if (pathData.Path.Count > 1 && pathData.Path.Count <= npc.entityStats.CurrentStamina.Value)
         {
             return new ScoredCard
             {
@@ -220,26 +221,30 @@ public class NpcAIController
         return null;
     }
 
-    private void ApplyMoveActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, ref Vector3Int virtualPosition, Stat stamina)
+    private void ApplyMoveActionToPlan(List<PlannedAction> plan, ScoredCard bestAction,
+                                       ref Vector3Int virtualPosition, EntityScript entity)
     {
         if (bestAction?.MovementPath != null && bestAction.MovementPath.Count > 1)
         {
             plan.Add(new PlannedAction
             {
                 Type = PlannedAction.ActionType.Move,
-                Name = bestAction.pseudoName + "_ Move" ,
+                Name = bestAction.pseudoName + "_ Move",
                 TargetCell = bestAction.TargetCell,
                 Path = bestAction.MovementPath
             });
             Debug.Log($"[NpcAI] -> Move Name {bestAction.pseudoName}, MOVE to {bestAction.TargetCell} (cost {bestAction.MovementCost}) ");
             virtualPosition = bestAction.MovementPath.Last();
-            // Preserve previous behaviour: reduce stamina by number of steps in path
 
-            stamina.AddModifier(new StatModifier(-bestAction.Card.cardData.Cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
+            // only subtract stamina if there's an actual card with a cost
+            int staminaCost = bestAction.Card?.cardData?.Cost ?? bestAction.MovementCost;
+            entity.entityStats.CurrentStamina.AddModifier(
+                new StatModifier(-staminaCost, ModifierScaling.Flat, name: "BaseValue"),
+                ModifierMergeStrategy.Merge);
         }
     }
 
-    private void ApplyCardActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, Stat stamina)
+    private void ApplyCardActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, EntityScript entity)
     {
         if (bestAction?.Card != null)
         {
@@ -254,16 +259,16 @@ public class NpcAIController
             });
             Debug.Log($"[NpcAI] -> PLAY {bestAction.Card.cardData.cardName} on {string.Join(", ", bestAction.Targets.Select(t => t.name))}");
 
-            stamina.AddModifier(new StatModifier(-bestAction.Card.cardData.Cost,ModifierScaling.Flat,name: "BaseValue"), ModifierMergeStrategy.Merge);
+            entity.entityStats.CurrentStamina.AddModifier(new StatModifier(-bestAction.Card.cardData.Cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
 
             hand.Remove(bestAction.Card); // Assume card is played and removed from hand
         }
     }
 
-    private ScoredCard DetermineFleeTarget(Vector3Int virtualPosition, List<EntityScript> allEntities, int stamina)
+    private ScoredCard DetermineFleeTarget(Vector3Int virtualPosition, List<EntityScript> allEntities, EntityScript entity)
     {
         ScoredCard bestTarget = null;
-        float bestScore = float.MinValue;
+        float bestScore = float.MinValue;        
 
         // Count how many hostiles we want to flee from
         int hostileCount = allEntities.Count(e => e.entityAffiliation != npc.entityAffiliation);
@@ -281,7 +286,7 @@ public class NpcAIController
         }
 
         // Cap flee distance by number of hostiles (but not above stamina)
-        int maxFleeDistance = Mathf.Min(stamina, hostileCount);
+        int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina.Value, hostileCount);
 
         // Generate candidate positions within flee range
         for (int dx = -maxFleeDistance; dx <= maxFleeDistance; dx++)
@@ -307,16 +312,16 @@ public class NpcAIController
                 if (pathData == null) continue;
 
                 int moveCost = pathData.PathCost;
-                if (moveCost > stamina || moveCost == 0) continue;
+                if (moveCost > entity.entityStats.CurrentStamina.Value || moveCost == 0) continue;
 
                 // Evaluate candidate against hostiles
                 float minEnemyDist = float.MaxValue;
-                foreach (var entity in allEntities)
+                foreach (var e in allEntities)
                 {
-                    if (entity.entityAffiliation != npc.entityAffiliation)
+                    if (e.entityAffiliation != npc.entityAffiliation)
                     {
                         float distToEnemy = Vector3Int.Distance(
-                            entity.GetComponent<EntityOnMap>().currentCell,
+                            e.GetComponent<EntityOnMap>().currentCell,
                             candidate
                         );
                         if (distToEnemy < minEnemyDist)
@@ -413,49 +418,59 @@ public class NpcAIController
         // Collect frequency counts for tiles that are within areaRadius of each target
         var tileFrequency = new Dictionary<Vector3Int, int>();
 
-        // Early exit when no targets
-        if (targets == null || targets.Count == 0)
+        if (areaRadius > 1)
         {
-            Debug.Log("[NpcAI] No targets provided to GetReachablePositions.");
-            return candidatePathdata;
-        }
-
-        // For each target, gather tiles in radius and increment frequency
-        for (int tIndex = 0; tIndex < targets.Count; tIndex++)
-        {
-            var target = targets[tIndex];
-            Vector3Int targetCell = target.GetComponent<EntityOnMap>().currentCell;
-
-            List<Vector3Int> tilesInRange;
-
-            // If areaRadius <= 0, still consider the exact target cell
-            if (areaRadius <= 0)
+            // Early exit when no targets
+            if (targets == null || targets.Count == 0)
             {
-                tilesInRange = new() { targetCell };
+                Debug.Log("[NpcAI] No targets provided to GetReachablePositions.");
+                return candidatePathdata;
             }
-            else
+
+            // For each target, gather tiles in radius and increment frequency
+            for (int tIndex = 0; tIndex < targets.Count; tIndex++)
             {
-                // Use existing utility to get tiles in radius; fall back to single tile if util returns null
-                try
-                {
-                    tilesInRange = TilemapUtilityScript.GetTilesInRadius(targetCell, areaRadius) ?? new() { targetCell };
-                }
-                catch
+                var target = targets[tIndex];
+                Vector3Int targetCell = target.GetComponent<EntityOnMap>().currentCell;
+
+                List<Vector3Int> tilesInRange;
+
+                // If areaRadius <= 0, still consider the exact target cell
+                if (areaRadius <= 0)
                 {
                     tilesInRange = new() { targetCell };
                 }
-            }
-
-            foreach (var tile in tilesInRange)
-            {
-                // Only consider tiles that exist on base map
-                if (!TilemapUtilityScript.BaseTilemap.HasTile(tile))
-                    continue;
-
-                if (tileFrequency.TryGetValue(tile, out int existing))
-                    tileFrequency[tile] = existing + 1;
                 else
-                    tileFrequency[tile] = 1;
+                {
+                    // Use existing utility to get tiles in radius; fall back to single tile if util returns null
+                    try
+                    {
+                        tilesInRange = TilemapUtilityScript.GetTilesInRadius(targetCell, areaRadius) ?? new() { targetCell };
+                    }
+                    catch
+                    {
+                        tilesInRange = new() { targetCell };
+                    }
+                }
+
+                foreach (var tile in tilesInRange)
+                {
+                    // Only consider tiles that exist on base map
+                    if (!TilemapUtilityScript.BaseTilemap.HasTile(tile))
+                        continue;
+
+                    if (tileFrequency.TryGetValue(tile, out int existing))
+                        tileFrequency[tile] = existing + 1;
+                    else
+                        tileFrequency[tile] = 1;
+                }
+            }
+        }
+        else
+        {
+            foreach (var t in targets)
+            {
+                tileFrequency.Add(t.GetComponent<EntityOnMap>().currentCell, 10);
             }
         }
 
@@ -470,15 +485,27 @@ public class NpcAIController
             int frequency = kvp.Value;
 
             // Pathfinding from currentCell to candidate tile
-            var pathData = TilemapUtilityScript.FindPath(currentCell, tile);
+            PathData pathData = new();
+            if (card.cardData.targetingData.range == 1)
+            {
+                pathData = TilemapUtilityScript.FindPath(currentCell, tile, walkClose: true);
+            }
+            else
+            {
+                pathData = TilemapUtilityScript.FindPath(currentCell, tile);
+            }
             if (pathData == null)
             {
+                Debug.Log($"[NpcAI] No path to tile {tile}");
                 continue;
             }
 
             int totalCost = pathData.PathCost + cardCost;
+            Debug.Log($"{pathData.PathCost} : {cardCost} ");
+
             if (totalCost > stamina)
             {
+                Debug.Log("[NpcAI] Path cost exceeds available stamina");
                 continue;
             }
 
@@ -486,6 +513,7 @@ public class NpcAIController
             var affectedTargets = TargetingUtility.GetTargetsFromPosition(card, tile, allEntities, npc);
             if (affectedTargets == null || affectedTargets.Count == 0)
             {
+                Debug.Log($"[NpcAI] No affected targets from tile {tile}");
                 continue;
             }
 
@@ -599,7 +627,7 @@ public class NpcAIController
             return 0;
         }
 
-        List<EntityScript> vettedEntities = TargetingUtility.VetTargetsEntities(card, npc, targets) ?? new List<EntityScript>();
+        List<EntityScript> vettedEntities = TargetingUtility.VetTargetsEntities(card,targets) ?? new List<EntityScript>();
 
         int cardPower = card.cardData.Power;
         int repeats = Mathf.Max(1, card.cardData.Repeats);
