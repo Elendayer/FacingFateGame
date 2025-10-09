@@ -56,12 +56,12 @@ public static class CardDatabase
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
             {
                 data.cardDescription = $"Deal {data.Power} Damage";
             },
@@ -87,12 +87,12 @@ public static class CardDatabase
             { 
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.LineSelf,
+                SelectionType = CardTargetSelection.LineSelf,
                 range = 3,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
             {
                 data.cardDescription = $"Deal {data.Power} Damage in a {data.targetingData.range} Tile Line";
             },
@@ -116,7 +116,7 @@ public static class CardDatabase
             duration_u = 2,
 
 
-            SetCardDescription = (user, data) =>
+            CardDescription = (user, data) =>
             {
                 data.cardDescription = $"Gain {data.Power} Block for {data.Duration} turns.";
             },
@@ -141,7 +141,7 @@ public static class CardDatabase
             EffectTargetTypes = new() { CardType.Technique },
 
 
-            SetCardDescription = (user, data) =>
+            CardDescription = (user, data) =>
             {
                 data.cardDescription = $"Increase the power of a Technique by {data.Power}";
             },
@@ -164,7 +164,7 @@ public static class CardDatabase
             duration_u = 1,
 
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
             {
                 data.cardDescription = $"Stun for {data.Duration} turn";
             },
@@ -191,11 +191,11 @@ public static class CardDatabase
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
             {
                 int heal = data.Power * data.Duration;
                 data.cardDescription = $"Restore {heal} Health. Increase your Maximum Health by {heal}";
@@ -234,13 +234,13 @@ public static class CardDatabase
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.All,
-                areaType = CardTargetArea.Radius,
+                SelectionType = CardTargetSelection.Radius,
                 range = 3,
                 area = 2,
             },
 
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
             {
                 data.cardDescription = $"Apply Burn dealing {data.Power} for {data.Duration} turns";
             },

@@ -279,7 +279,7 @@ public class NpcAIController
             Debug.Log($"[NpcAI] Candidate tile {npcPosition} affects {affectedTargets.Count} targets");
 
             if (affectedTargets.Count == 0) continue;
-            if (card.cardData.targetingData.areaType == CardTargetArea.Single)
+            if (card.cardData.targetingData.SelectionType == CardTargetSelection.Single)
                 affectedTargets = new List<EntityScript> { affectedTargets.First() };
 
             int score = EvaluateCardScore(card, affectedTargets);

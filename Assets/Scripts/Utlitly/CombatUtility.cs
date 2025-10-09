@@ -13,16 +13,16 @@ namespace Utility
 
             // Pre-mitigation damage reduction (e.g., from abilities or effects)
             int damage = rawDamage;
-            rawDamage = target.entityStats.DamageReduction.BaseValueOverride(rawDamage);
+            rawDamage = target.entityStats.DamageReduction.ApplyFinalValue(rawDamage);
 
             // Step 1: Apply Armour
             if (target.entityStats.Armour.Value > 0)
             {
-                damage = Mathf.Max(0, damage - (target.entityStats.IgnoreArmour.BaseValueOverride(target.entityStats.Armour.Value)));
+                damage = Mathf.Max(0, damage - (target.entityStats.IgnoreArmour.ApplyFinalValue(target.entityStats.Armour.Value)));
             }
 
             // Step 2: Apply to Block
-            int block = target.entityStats.IgnoreBlock.BaseValueOverride(target.entityStats.Block.Value);
+            int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block.Value);
             if (block > 0)
             {
                 GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
