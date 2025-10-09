@@ -269,6 +269,8 @@ public enum CardIdentity
 // If Updated needs to update GameplayReference as well
 public enum CardClass
 {
+    Neutral,
+
     Spearman,
     Assassin,
     Mystic,

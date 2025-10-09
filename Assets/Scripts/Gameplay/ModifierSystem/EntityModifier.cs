@@ -60,13 +60,13 @@ public class EntityModifier : IEntityModifier
         int duration = 0,
         Stat target = null,
         Action<StatModifier, Stat, gameplayRef> onRefEventAction = null,
-        StatModifier statModifier = null,
+        //StatModifier statModifier = null,
         TriggerRef triggerConditionRef = new TriggerRef()
         )
     {
         ModifierName = statName;
         BaseValue = baseValue;
-        StatModifier = statModifier;
+        //StatModifier = statModifier;
         To_TriggerGameplayRefs = to_Trigger_refs;
         Duration = duration;
         TargetStat = target;
