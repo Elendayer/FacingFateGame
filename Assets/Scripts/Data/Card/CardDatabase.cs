@@ -277,7 +277,7 @@ public static class CardDatabase
     {
         RegisterCard(new CardData()
         {
-            cardID = 120101,
+            cardID = 990101,
             cardName = "Bite",
             cardIdentities = new() { CardIdentity.Physical },
             cardClass = CardClass.Monster,
@@ -291,7 +291,7 @@ public static class CardDatabase
         });
         RegisterCard(new CardData()
         {
-            cardID = 120102,
+            cardID = 990102,
             cardName = "Claw",
             cardIdentities = new() { CardIdentity.Physical },
             cardClass = CardClass.Monster,

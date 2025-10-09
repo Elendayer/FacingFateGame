@@ -22,32 +22,32 @@ public class NpcAIController
         int stamina = npc.entityStats.CurrentStamina.Value;
         Vector3Int virtualPosition = mover.currentCell; // Simulated NPC position
 
-        Debug.Log($"[NpcAI] {npc.name} starting turn. Stamina: {npc.CurrentStamina.Value}, virtualPosition: {virtualPosition}");
+        Debug.Log($"[NpcAI] {npc.name} starting turn. Stamina: {npc.entityStats.CurrentStamina.Value}, virtualPosition: {virtualPosition}");
         hand = GetHandCards();
 
         // Loop until stamina is too low to do anything
-        while (npc.CurrentStamina.Value > 0)
+        while (npc.entityStats.CurrentStamina.Value > 0)
         {
             var actionCandidates = new List<ScoredCard>();
 
             // Evaluate hand cards
-            actionCandidates.AddRange(EvaluateHandActions(hand, npc.CurrentStamina.Value, virtualPosition));
+            actionCandidates.AddRange(EvaluateHandActions(hand, npc.entityStats.CurrentStamina.Value, virtualPosition));
 
             // Add flee option if applicable
-            var fleeCandidate = TryGetFleeCandidate(virtualPosition, allEntities, npc.CurrentStamina.Value);
+            var fleeCandidate = TryGetFleeCandidate(virtualPosition, allEntities, npc.entityStats.CurrentStamina.Value);
             if (fleeCandidate != null && fleeCandidate.Score > 0)
                 actionCandidates.Add(fleeCandidate);
 
             if (actionCandidates.Count == 0)
             {
                 // Add chase/reposition option if applicable
-                var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities, npc.CurrentStamina.Value);
+                var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities, npc.entityStats.CurrentStamina.Value);
                 if (chaseCandidate != null && chaseCandidate.Score > 0)
                     actionCandidates.Add(chaseCandidate);
             }
 
             Debug.Log($"[NpcAI] Evaluated {actionCandidates.Count} action candidates.");
-            var bestAction = SelectBestActionCandidate(actionCandidates, npc.CurrentStamina.Value);
+            var bestAction = SelectBestActionCandidate(actionCandidates, npc.entityStats.CurrentStamina.Value);
             if (bestAction == null || bestAction.Score <= 0)
             {
                 Debug.Log("[NpcAI] No good actions found.");
@@ -55,24 +55,24 @@ public class NpcAIController
             }
 
             int totalCost = (bestAction.MovementCost) + (bestAction.Card?.cardData.Cost ?? 0);
-            if (totalCost > npc.CurrentStamina.Value)
+            if (totalCost > npc.entityStats.CurrentStamina.Value)
             {
-                Debug.Log($"[NpcAI] Skipping best action: not enough stamina (need {totalCost}, have {npc.CurrentStamina.Value})");
+                Debug.Log($"[NpcAI] Skipping best action: not enough stamina (need {totalCost}, have {npc.entityStats.CurrentStamina.Value})");
                 break;
             }
 
             // Apply move portion (if any)
-            ApplyMoveActionToPlan(plan, bestAction, ref virtualPosition, ref npc.CurrentStamina.Value);
+            ApplyMoveActionToPlan(plan, bestAction, ref virtualPosition, npc.entityStats.CurrentStamina);
 
             // Apply card portion (if any)
-            ApplyCardActionToPlan(plan, bestAction, ref npc.CurrentStamina.Value);
+            ApplyCardActionToPlan(plan, bestAction, npc.entityStats.CurrentStamina);
 
             // If stamina is now too low to play any card or move, break
             bool canDoAnything = false;
             var nextHand = GetHandCards();
             foreach (var card in nextHand)
             {
-                if (card.cardData != null && card.cardData.Cost <= npc.CurrentStamina.Value)
+                if (card.cardData != null && card.cardData.Cost <= npc.entityStats.CurrentStamina.Value)
                 {
                     canDoAnything = true;
                     break;
@@ -81,10 +81,10 @@ public class NpcAIController
             // Check if can move (flee/chase) with remaining stamina
             if (!canDoAnything)
             {
-                var flee = TryGetFleeCandidate(virtualPosition, allEntities, npc.CurrentStamina.Value);
-                var chase = TryGetChaseCandidate(virtualPosition, allEntities, npc.CurrentStamina.Value);
-                if ((flee != null && flee.Score > 0 && (flee.MovementCost <= npc.CurrentStamina.Value)) ||
-                    (chase != null && chase.Score > 0 && (chase.MovementCost <= npc.CurrentStamina.Value)))
+                var flee = TryGetFleeCandidate(virtualPosition, allEntities, npc.entityStats.CurrentStamina.Value);
+                var chase = TryGetChaseCandidate(virtualPosition, allEntities, npc.entityStats.CurrentStamina.Value);
+                if ((flee != null && flee.Score > 0 && (flee.MovementCost <= npc.entityStats.CurrentStamina.Value)) ||
+                    (chase != null && chase.Score > 0 && (chase.MovementCost <= npc.entityStats.CurrentStamina.Value)))
                 {
                     canDoAnything = true;
                 }
@@ -131,7 +131,7 @@ public class NpcAIController
                 }
                 break;
             case FleeCondition.lowHealth:
-                if (npc.CurrentHealth.Value < npc.MaxHealth.Value * 0.3f)
+                if (npc.entityStats.CurrentHealth.Value < npc.entityStats.MaxHealth.Value * 0.3f)
                 {
                     moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, stamina);
                     if (moveOption_Flee != null)
@@ -220,7 +220,7 @@ public class NpcAIController
         return null;
     }
 
-    private void ApplyMoveActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, ref Vector3Int virtualPosition, ref int stamina)
+    private void ApplyMoveActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, ref Vector3Int virtualPosition, Stat stamina)
     {
         if (bestAction?.MovementPath != null && bestAction.MovementPath.Count > 1)
         {
@@ -234,11 +234,12 @@ public class NpcAIController
             Debug.Log($"[NpcAI] -> Move Name {bestAction.pseudoName}, MOVE to {bestAction.TargetCell} (cost {bestAction.MovementCost}) ");
             virtualPosition = bestAction.MovementPath.Last();
             // Preserve previous behaviour: reduce stamina by number of steps in path
-            stamina -= bestAction.MovementPath.Count;
+
+            stamina.AddModifier(new StatModifier(-bestAction.Card.cardData.Cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
         }
     }
 
-    private void ApplyCardActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, ref int stamina)
+    private void ApplyCardActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, Stat stamina)
     {
         if (bestAction?.Card != null)
         {
@@ -252,7 +253,9 @@ public class NpcAIController
                 Path = bestAction.MovementPath
             });
             Debug.Log($"[NpcAI] -> PLAY {bestAction.Card.cardData.cardName} on {string.Join(", ", bestAction.Targets.Select(t => t.name))}");
-            stamina -= bestAction.Card.cardData.Cost;
+
+            stamina.AddModifier(new StatModifier(-bestAction.Card.cardData.Cost,ModifierScaling.Flat,name: "BaseValue"), ModifierMergeStrategy.Merge);
+
             hand.Remove(bestAction.Card); // Assume card is played and removed from hand
         }
     }
@@ -533,7 +536,7 @@ public class NpcAIController
     private ScoredCard GetBestPositionScore(CardScript card, List<PathData> candidatePositions, List<EntityScript> allEntities)
     {
         Vector3Int virtualPosition = mover.currentCell;
-        int availableStamina = npc.CurrentStamina.Value;
+        int availableStamina = npc.entityStats.CurrentStamina.Value;
         int cardCost = card?.cardData?.Cost ?? 0;
 
         var orderedCandidates = candidatePositions;
@@ -555,7 +558,7 @@ public class NpcAIController
             var affectedTargets = TargetingUtility.GetTargetsFromPosition(card, npcPosition, allEntities, npc);
 
             if (affectedTargets.Count == 0) continue;
-            if (card.cardData.targetingData.areaType == CardTargetArea.Single)
+            if (card.cardData.targetingData.SelectionType == CardTargetSelection.Single)
                 affectedTargets = new List<EntityScript> { affectedTargets.First() };
 
             int score = EvaluateCardScore(card, affectedTargets, candidate.PathCost);
@@ -598,8 +601,9 @@ public class NpcAIController
 
         List<EntityScript> vettedEntities = TargetingUtility.VetTargetsEntities(card, npc, targets) ?? new List<EntityScript>();
 
-        int cardPower = card.cardData.Power + card.cardData.CardAiBias.PowerOverride(new());
+        int cardPower = card.cardData.Power;
         int repeats = Mathf.Max(1, card.cardData.Repeats);
+
         int throughput = (cardPower * repeats) * vettedEntities.Count;
         int cost = Mathf.Max(1, card.cardData.Cost + moveCost);
         int efficiency = throughput / cost;

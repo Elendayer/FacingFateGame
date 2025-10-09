@@ -40,8 +40,9 @@ public class StatModifier : IStatModifier
     public ModifierScaling ModifierScaling { get; private set; }
     public int Duration { get; set; }
     public List<gameplayRef> To_TriggerGameplayRefs { get; private set; }
-    public bool IsExpired => Duration <= 0;
     public TriggerRef On_TriggerConditionRef { get; private set; }
+
+    public bool IsExpired => Duration <= 0;
     public Stat TargetStat;
     public int GetRemainingDuration() => Duration;
 
@@ -83,9 +84,9 @@ public class StatModifier : IStatModifier
         (    
         int value,
         ModifierScaling scaling,
-        List<gameplayRef> gReferences = null,
+        List<gameplayRef> to_triggerReferences = null,
         int duration = 99999,
-        TriggerRef triggerConditionRef = new(),
+        TriggerRef on_triggerConditionRef = new(),
         Stat target = null,
         string name = null
         )
@@ -93,8 +94,8 @@ public class StatModifier : IStatModifier
         ModifierName = name;
         StaticValue = value;
         ModifierScaling = scaling;
-        To_TriggerGameplayRefs = gReferences;
-        On_TriggerConditionRef = triggerConditionRef;
+        To_TriggerGameplayRefs = to_triggerReferences;
+        On_TriggerConditionRef = on_triggerConditionRef;
         Duration = duration;
         TargetStat = target;
     }

@@ -28,7 +28,7 @@ namespace Utility
                 GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
 
                 int blockAbsorb = Mathf.Min(damage, block);
-                target.entityStats.Block.AddModifier(new StatModifier(-damage, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
+                target.entityStats.Block.AddModifier(new StatModifier(-blockAbsorb, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
                 damage -= blockAbsorb;
             }
 
@@ -42,6 +42,7 @@ namespace Utility
 
                 target.entityStats.CurrentHealth.AddModifier(new StatModifier(-damage, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
             }
+
             if(user.entityStats.Lifesteal.GetAllValues().Count > 0)
             {
                 GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onLifesteal }, user.GetInstanceID(), target.GetInstanceID()));
@@ -64,17 +65,17 @@ namespace Utility
         {
             GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBuffed }, user.GetInstanceID(), target.GetInstanceID()));
 
-            targetStat.AddModifier(mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            targetStat.AddModifier(mod, mergeStrategy);
         }
         public static void ApplyDebuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
             GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onDebuffed }, user.GetInstanceID(), target.GetInstanceID()));
 
-            targetStat.AddModifier(mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            targetStat.AddModifier(mod, mergeStrategy);
         }
         public static void ApplyEntityModifier(EntityScript user, EntityScript target, IEntityModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            target.AddModifier(mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            target.AddModifier(mod, mergeStrategy);
         }
     }
 }

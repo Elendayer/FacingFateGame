@@ -51,7 +51,7 @@ public class NonPlayerScript : EntityScript
             else if (action.Type == PlannedAction.ActionType.PlayCard)
             {
                 Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on {string.Join(", ", action.Targets.Select(t => t.name))}");
-                bool cardComplete = false;
+                //bool cardComplete = false;
                 // If ActivateCard is async, you should hook a callback/event here. For now, just yield for pacing.
                 action.Card.cardData.ActivateCard(action.Targets, gameObject);
                 yield return new WaitForSeconds(1f); // pacing for readability

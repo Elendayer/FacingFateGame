@@ -161,11 +161,11 @@ public static class TargetingUtility
                 return TilemapUtilityScript.GetTilesInRing(centerTile, card.cardData.targetingData.area);
             case CardTargetSelection.LineFree:
                 return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, card.cardData.targetingData.area);
-            case CardTargetArea.LineSelf:
+            case CardTargetSelection.LineSelf:
                 return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range);
-                    case CardTargetArea.Cone:
+                    case CardTargetSelection.Cone:
                         return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range, card.cardData.targetingData.area);
-                    case CardTargetArea.All:
+                    case CardTargetSelection.All:
                         return TilemapUtilityScript.GetAllValidTiles();
                 default:
                 return new List<Vector3Int> { centerTile };

@@ -52,7 +52,7 @@ public class CardData
 
 
     [Header("Card Target")]
-    public TargetArea targetingData = new();
+    public TargetingData targetingData = new();
 
     [Header("Card Effect Target")]
     public List<gameplayRef> GameplayReferences { get; internal set; } = new();
@@ -119,34 +119,9 @@ public class CardData
         };
     }
 
-    int GetValues(StatAspect aspect)
-    {
-        int value = 0;
-
-        value =
-            Owner.GetStatValue(cardType, aspect)
-            + Owner.GetStatValue(cardClass, aspect);
-
-        foreach (CardIdentity ce in cardIdentities)
-        {
-            value += Owner.GetStatValue(ce, aspect);
-        }
-
-        return value;
-    }
-
-    public Action<EntityScript, CardData> SetCardDescription =
-        (user, data) => Debug.Log($"Not defined Description of {data.cardName}");
-
-    public Action<EntityScript, EntityScript, CardData> CardEffect =
-        (user, target, data) => Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
-
-    [Header("AI")]
-    public CardAiBias CardAiBias = new();
-
     public void ActivateCard(List<EntityScript> targetEntity, GameObject obj)
     {
-        //GenerateTriggerFromCardData();
+        GenerateTriggerFromCardData();
 
         foreach (EntityScript target in targetEntity)
         {
@@ -200,7 +175,7 @@ public enum CardTargetSelection
 }
 
 [System.Serializable]
-public class TargetArea
+public class TargetingData
 {
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;

@@ -36,11 +36,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage.",
+            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage.",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Power);
@@ -63,11 +63,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} melee damage.",
+            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} melee damage.",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Power);
@@ -90,11 +90,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage (absorb mana: TODO).",
+            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage (absorb mana: TODO).",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Power);
@@ -120,11 +120,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "All entities attack if possible (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "All entities attack if possible (TODO).",
             CardEffect = (User, Target, d) => { /* TODO */ }
         });
 
@@ -142,11 +142,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Regenerate mana? (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Regenerate mana? (TODO).",
             CardEffect = (User, Target, d) => { /* TODO */ }
         });
     }
@@ -166,11 +166,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Create a double that draws aggro and attacks once (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Create a double that draws aggro and attacks once (TODO).",
             CardEffect = (User, Target, d) => { /* TODO: spawn double */ }
         });
 
@@ -188,11 +188,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Ring,
+                SelectionType = CardTargetSelection.Ring,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Create 3 blocking entities around target; they attack once (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Create 3 blocking entities around target; they attack once (TODO).",
             CardEffect = (User, Target, d) => { /* TODO spawn 3 entities */ }
         });
 
@@ -210,11 +210,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3, // Ranged
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Force the target to attack someone else this turn.",
+            CardDescription = (User, d) => d.cardDescription = "Force the target to attack someone else this turn.",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Apply a temporary 'Taunt/Confuse' so the target attacks a different target.
@@ -235,11 +235,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1, // Melee
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Force the target to move 2 spaces.",
+            CardDescription = (User, d) => d.cardDescription = "Force the target to move 2 spaces.",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Compute path and forcibly move target 2 tiles (respecting collisions).
@@ -260,11 +260,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.CombatTile,  // block a tile
                 CardTargetAffiliation = CardTargetAffiliation.All,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1, // Melee
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Create a barrier that blocks 1 space.",
+            CardDescription = (User, d) => d.cardDescription = "Create a barrier that blocks 1 space.",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Spawn a blocking entity/obstacle on the chosen tile for N turns.
@@ -285,11 +285,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1, // Melee
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Switch positions with the target.",
+            CardDescription = (User, d) => d.cardDescription = "Switch positions with the target.",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Swap grid positions / transforms of User and Target.
@@ -310,11 +310,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3, // Ranged
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Proc Bleed on the target.",
+            CardDescription = (User, d) => d.cardDescription = "Proc Bleed on the target.",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Immediately trigger target's Bleed tick(s) or apply Bleed if none.
@@ -335,11 +335,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3, // Ranged
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Proc Poison on the target.",
+            CardDescription = (User, d) => d.cardDescription = "Proc Poison on the target.",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Immediately trigger target's Poison tick(s) or apply Poison if none.
@@ -360,11 +360,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Proc Ignite on target (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Proc Ignite on target (TODO).",
             CardEffect = (User, Target, d) => { /* TODO */ }
         });
 
@@ -382,11 +382,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3, // Ranged
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Target cannot attack this turn.",
+            CardDescription = (User, d) => d.cardDescription = "Target cannot attack this turn.",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Apply a 'Silence/Disarm' style modifier preventing attacks until turn end.
@@ -407,11 +407,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Radius,
+                SelectionType = CardTargetSelection.Radius,
                 range = 2, // Ranged AOE origin
                 area = 1,  // small radius
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Proc all status effects on enemies in area.",
+            CardDescription = (User, d) => d.cardDescription = "Proc all status effects on enemies in area.",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: For each affected enemy, trigger existing DoTs/CCs (Bleed/Poison/Ignite/etc.).
@@ -435,27 +435,26 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 4,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = $"Burn target for {d.Power} over {d.Duration} turns.",
+            CardDescription = (User, d) => d.cardDescription = $"Burn target for {d.Power} over {d.Duration} turns.",
             CardEffect = (User, Target, d) =>
             {
-                var ignite = new FunctionModifier(
+                var ignite = new EntityModifier(
                     statName: "Burn",
                     baseValue: d.Power,
-                    statScaling: ModifierScaling.Flat,
                     to_Trigger_refs: new() { gameplayRef.onBurn },
                     duration: d.Duration,
-                    target: Target.CurrentHealth,
+                    target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     onRefEventAction: (mod, stat, refEv) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef { References = new() { gameplayRef.onBurn }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
-                CombatUtility.ApplyModifier(User, Target, Target.CurrentHealth, ignite, ModifierMergeStrategy.RefreshIncrease);
+                CombatUtility.ApplyEntityModifier(User, Target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -477,11 +476,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Using spells costs more (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Using spells costs more (TODO).",
             CardEffect = (User, Target, d) => { /* TODO */ }
         });
     }
@@ -502,11 +501,11 @@ public static class MysticCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Spells are cheaper (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Spells are cheaper (TODO).",
             CardEffect = (User, Target, d) => { /* TODO */ }
         });
     }

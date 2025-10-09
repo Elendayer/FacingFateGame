@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Utility;
 
 // Assassin cards in Fire Bomb style. Damage effects implemented; complex ones left as comments.
@@ -35,12 +36,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.LineSelf,
+                SelectionType = CardTargetSelection.LineSelf,
                 range = 3,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = $"Line: Deal {data.Power} damage to enemies in a line.",
 
             CardEffect = (User, Target, data) =>
@@ -66,12 +67,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Ring,
+                SelectionType = CardTargetSelection.Ring,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = $"AOE: Deal {data.Power} damage to adjacent enemies.",
 
             CardEffect = (User, Target, data) =>
@@ -97,12 +98,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = "Execute enemy below 10% HP (TODO: implement condition & kill).",
 
             CardEffect = (User, Target, data) =>
@@ -128,12 +129,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single, // if unsupported, switch to Single later
+                SelectionType = CardTargetSelection.Single, // if unsupported, switch to Single later
                 range = 3,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = "Throw needles at enemies and inflict status (TODO).",
 
             CardEffect = (User, Target, data) =>
@@ -143,13 +144,12 @@ public static class AssassinCards
                 var tick = data.Power;
 
                 // POISON
-                var poison = new FunctionModifier(
+                var poison = new EntityModifier(
                     statName: "Poison",
                     baseValue: tick,
-                    statScaling: ModifierScaling.Flat,
                     to_Trigger_refs: new() { gameplayRef.onPoison },
                     duration: dur,
-                    target: Target.CurrentHealth,
+                    target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
                         References = new() { gameplayRef.onTurnStart },
@@ -167,13 +167,12 @@ public static class AssassinCards
                     });
 
                 // BURN
-                var burn = new FunctionModifier(
+                var burn = new EntityModifier(
                     statName: "Burn",
                     baseValue: tick,
-                    statScaling: ModifierScaling.Flat,
                     to_Trigger_refs: new() { gameplayRef.onBurn },
                     duration: dur,
-                    target: Target.CurrentHealth,
+                    target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
                         References = new() { gameplayRef.onTurnStart },
@@ -191,13 +190,12 @@ public static class AssassinCards
                     });
 
                 // BLEED
-                var bleed = new FunctionModifier(
+                var bleed = new EntityModifier(
                     statName: "Bleed",
                     baseValue: tick,
-                    statScaling: ModifierScaling.Flat,
                     to_Trigger_refs: new() { gameplayRef.onBleed },
                     duration: dur,
-                    target: Target.CurrentHealth,
+                    target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
                         References = new() { gameplayRef.onTurnStart },
@@ -214,9 +212,9 @@ public static class AssassinCards
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
 
-                CombatUtility.ApplyModifier(User, Target, Target.CurrentHealth, poison, ModifierMergeStrategy.RefreshIncrease);
-                CombatUtility.ApplyModifier(User, Target, Target.CurrentHealth, burn, ModifierMergeStrategy.RefreshIncrease);
-                CombatUtility.ApplyModifier(User, Target, Target.CurrentHealth, bleed, ModifierMergeStrategy.RefreshIncrease);
+                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(User, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
 
         });
@@ -237,12 +235,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 5,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = $"Deal {data.Power} damage (increased crit; TODO).",
 
             CardEffect = (User, Target, data) =>
@@ -268,12 +266,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.LineSelf,
+                SelectionType = CardTargetSelection.LineSelf,
                 range = 3,
                 area = 2,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = $"Pierce up to 2 enemies in a line for {data.Power} damage (TODO: cap=2).",
 
             CardEffect = (User, Target, data) =>
@@ -299,12 +297,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Radius,
+                SelectionType = CardTargetSelection.Radius,
                 range = 2,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = $"AOE: Deal {data.Power} damage in a small area.",
 
             CardEffect = (User, Target, data) =>
@@ -329,12 +327,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = $"AOE ring: Deal {data.Power} damage around you.",
 
             CardEffect = (User, Target, data) =>
@@ -360,12 +358,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single, // TODO: selection targeting
+                SelectionType = CardTargetSelection.Single, // TODO: selection targeting
                 range = 3,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = "Hit multiple enemies with needles; applies Bleed (TODO).",
 
             CardEffect = (User, Target, data) =>
@@ -391,12 +389,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = "Immobilize an enemy (TODO).",
 
             CardEffect = (User, Target, data) =>
@@ -421,12 +419,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 3,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = "Stun an enemy (TODO).",
 
             CardEffect = (User, Target, data) =>
@@ -453,31 +451,30 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Ring,
+                SelectionType = CardTargetSelection.Ring,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) =>
+            CardDescription = (User, data) =>
                 data.cardDescription = $"Apply Bleed (DoT {data.Power} for {data.Duration}) to adjacent enemies.",
 
             CardEffect = (User, Target, data) =>
             {
                 // DoT like Fire Bomb but using onBleed
-                var bleed = new FunctionModifier(
+                var bleed = new EntityModifier(
                     statName: "Bleed",
                     baseValue: data.Power,
-                    statScaling: ModifierScaling.Flat,
                     to_Trigger_refs: new() { gameplayRef.onBleed },
                     duration: data.Duration,
-                    target: Target.CurrentHealth,
+                    target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     onRefEventAction: (mod, stat, refEv) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef { References = new() { gameplayRef.onBleed }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
-                CombatUtility.ApplyModifier(User, Target, Target.CurrentHealth, bleed, ModifierMergeStrategy.RefreshIncrease);
+                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -499,12 +496,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 2,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) => data.cardDescription = "Move behind an enemy (TODO).",
+            CardDescription = (User, data) => data.cardDescription = "Move behind an enemy (TODO).",
             CardEffect = (User, Target, data) => { /* TODO movement */ }
         });
 
@@ -523,12 +520,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) => data.cardDescription = "Next attack inflicts Ignite (TODO).",
+            CardDescription = (User, data) => data.cardDescription = "Next attack inflicts Ignite (TODO).",
             CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
         });
 
@@ -547,12 +544,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) => data.cardDescription = "Next attack inflicts Poison (TODO).",
+            CardDescription = (User, data) => data.cardDescription = "Next attack inflicts Poison (TODO).",
             CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
         });
 
@@ -571,12 +568,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) => data.cardDescription = "Next attack inflicts Stun (TODO).",
+            CardDescription = (User, data) => data.cardDescription = "Next attack inflicts Stun (TODO).",
             CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
         });
 
@@ -595,12 +592,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) => data.cardDescription = "Increase damage/crit (TODO).",
+            CardDescription = (User, data) => data.cardDescription = "Increase damage/crit (TODO).",
             CardEffect = (User, Target, data) => { /* TODO buff */ }
         });
 
@@ -619,12 +616,12 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
 
-            SetCardDescription = (User, data) => data.cardDescription = "Reapply the last venom used (TODO).",
+            CardDescription = (User, data) => data.cardDescription = "Reapply the last venom used (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }
         });
     }
@@ -650,11 +647,11 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
-            SetCardDescription = (User, data) => data.cardDescription = "Randomly inflict a negative effect on yourself (TODO).",
+            CardDescription = (User, data) => data.cardDescription = "Randomly inflict a negative effect on yourself (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }
         });
     }
@@ -675,11 +672,11 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
-            SetCardDescription = (User, data) => data.cardDescription = "Next attack repeats again (TODO).",
+            CardDescription = (User, data) => data.cardDescription = "Next attack repeats again (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }
         });
     }

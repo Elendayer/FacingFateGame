@@ -30,6 +30,8 @@ public class EntityScript : MonoBehaviour
 
     private void AddListeners()
     {
+        GameEvents.Subscribe(gameplayRef.onTurnStart, GetInstanceID(), GameEvents_OnTurnStart);
+
         GameEvents.Subscribe(gameplayRef.onBurn, GetInstanceID(), TriggerAnimation);
         GameEvents.Subscribe(gameplayRef.onDamage, GetInstanceID(), TriggerAnimation);
     }
@@ -83,29 +85,6 @@ public class EntityScript : MonoBehaviour
                     entityModifiers.Add(modifier);
                 }
                 break;
-
-    private void AddListeners()
-    {
-        GameEvents.OnRefEvent += TriggerAnimation;
-        GameEvents.OnRefEvent += GameEvents_OnTurnStart;
-    }
-
-    private void GameEvents_OnTurnStart(TriggerRef trigger)
-    {
-        if (trigger.TargetId == this.GetInstanceID())
-        {
-            CurrentStamina.Value = MaxStamina.Value;
-        }
-    }
-
-    private void TriggerAnimation(TriggerRef triggerRef)
-    {
-        if (triggerRef.TargetId == this.GetInstanceID())
-        {
-            GameObject effectObj;
-            foreach (gameplayRef gRef in triggerRef.References)
-            {
-                switch (gRef)
             case ModifierMergeStrategy.RefreshDurationAndMerge:
                 if (existing is StatModifier existingRefresh && modifier is StatModifier newRefresh)
                 {
@@ -132,6 +111,15 @@ public class EntityScript : MonoBehaviour
         }
         modifier.AddListener();
     }
+   
+    private void GameEvents_OnTurnStart(TriggerRef trigger)
+    {
+        if (trigger.UserId == this.GetInstanceID())
+        {
+            entityStats.CurrentStamina.AddModifier(new StatModifier(entityStats.MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Override);
+        }
+    }
+
     public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
     public void AddOrReplaceModifier(IEntityModifier modifier)
     {
@@ -144,11 +132,6 @@ public class EntityScript : MonoBehaviour
 
     public IEntityModifier GetModifierByName(string name)
         => entityModifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);
-
-    private void OnDestroy()
-    {
-        GameEvents.OnRefEvent -= TriggerAnimation;
-    }
 }
 
 public enum EntityAttributeEnum
