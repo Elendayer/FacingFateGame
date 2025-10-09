@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using Utility;
 
 public class DeckManager : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class DeckManager : MonoBehaviour
     [Header("Deck Management")]
     public GameObject deckDockPrefab;
 
-    public Dictionary<EntityScript,Transform> DeckManagement = new Dictionary<EntityScript,Transform>();
+    public Dictionary<EntityScript, Transform> DeckManagement = new Dictionary<EntityScript, Transform>();
 
     private Stack<GameObject> cardStack = new Stack<GameObject>();
     private Stack<GameObject> discardStack = new Stack<GameObject>();
@@ -32,7 +33,9 @@ public class DeckManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject); // Optional: persist between scenes
-
+    }
+    public void StartUp()
+    {
         CardDatabase.RegisterAll();
 
         if (deckDrawButton != null)
@@ -48,7 +51,7 @@ public class DeckManager : MonoBehaviour
     {
         GameObject cardDock = Instantiate(deckDockPrefab, transform);
         List<GameObject> cardObjs = new();
-        cardDock.name = entity.name + " Deck Dock";
+        cardDock.name = entity.name + "_Dock";
         DeckManagement.Add(entity, cardDock.transform);
 
         foreach (int cardID in entity.deckCardIDs)
@@ -63,7 +66,7 @@ public class DeckManager : MonoBehaviour
         foreach (GameObject child in cardObjs)
         {
             child.transform.SetParent(cardDock.transform);
-            UtilityScript.ZeroLocalRectTransform(child.transform as RectTransform);
+            TransformUtility.ZeroLocalRectTransform(child.transform as RectTransform);
             cardStack.Push(child.gameObject);
         }
 
@@ -76,7 +79,7 @@ public class DeckManager : MonoBehaviour
 
         if (cardData == null)
         {
-            Debug.LogWarning($"Card ID '{id}' could not be created.");
+            Debug.LogWarning($"[DeckManager] Card ID '{id}' could not be created.");
             return null;
         }
 
@@ -87,11 +90,11 @@ public class DeckManager : MonoBehaviour
         if (cardScript != null)
         {
             cardScript.SetHidden();
-            cardScript.SetCard(cardData);
+            cardScript.cardData = cardData;
         }
         else
         {
-            Debug.LogWarning("CardScript component missing on card prefab.");
+            Debug.LogWarning("[DeckManager] CardScript component missing on card prefab.");
             Destroy(cardGO);
             return null;
         }
@@ -105,7 +108,7 @@ public class DeckManager : MonoBehaviour
 
         if (cardData == null)
         {
-            Debug.LogWarning($"Card ID '{id}' not found in database.");
+            Debug.LogWarning($"[DeckManager] Card ID '{id}' not found in database.");
             return null;
         }
         return cardData;
@@ -115,16 +118,16 @@ public class DeckManager : MonoBehaviour
     {
         if (cardStack.Count == 0)
         {
-            Debug.Log("Deck is empty.");
+            Debug.Log("[DeckManager] Deck is empty.");
             ShuffleDiscard();
             return;
         }
         if (HandManager.Instance.handAnchor.childCount > HandManager.Instance.maxHandsize)
-        {       
-            Debug.Log("Hand is full.");
+        {
+            Debug.Log("DeckManager] Hand is full.");
             return;
         }
-        
+
         GameObject topCard = cardStack.Pop();
         HandManager.Instance.AddCard(topCard);
 
@@ -139,8 +142,8 @@ public class DeckManager : MonoBehaviour
 
         CardScript cs = cardobject.GetComponent<CardScript>();
 
-        UtilityScript.Discard(cs);
- 
+        HandUtility.Discard(cs);
+
         discardStack.Push(cardobject);
     }
 
@@ -165,14 +168,14 @@ public class DeckManager : MonoBehaviour
             cardStack.Push(card);
         }
 
-        Debug.Log("Deck shuffled.");
+        Debug.Log("[DeckManager] Deck shuffled.");
     }
 
     public void ShuffleDiscard()
     {
         if (discardStack.Count == 0)
         {
-            Debug.Log("Discard pile is empty. Cannot reshuffle.");
+            Debug.Log("[DeckManager] Discard pile is empty. Cannot reshuffle.");
             return;
         }
 
@@ -189,11 +192,11 @@ public class DeckManager : MonoBehaviour
         foreach (GameObject card in cards)
         {
             card.transform.SetParent(deckParent);
-            UtilityScript.ZeroTransform(card.transform);
+            TransformUtility.ZeroTransform(card.transform);
             cardStack.Push(card);
         }
 
-        Debug.Log($"Shuffled {cards.Count} discarded cards back into the deck.");
+        Debug.Log($"[DeckManager] Shuffled {cards.Count} discarded cards back into the deck.");
     }
 
     public void MoveOutDeck(EntityScript entity)
@@ -224,10 +227,10 @@ public class DeckManager : MonoBehaviour
 
     public void MoveInDeck(EntityScript entity)
     {
-    cardStack.Clear();
-    discardStack.Clear();
+        cardStack.Clear();
+        discardStack.Clear();
         Transform dock = DeckManagement[entity];
-        Debug.Log($"Moving cards into deck of {entity.name} from {dock.name}");
+        Debug.Log($"[DeckManager] Moving cards into deck of {entity.name} from {dock.name}");
         List<CardScript> cards = new();
 
         cards = dock.GetComponentsInChildren<CardScript>().ToList();
@@ -236,11 +239,10 @@ public class DeckManager : MonoBehaviour
         {
             c.cardData.Owner = entity;
 
-            Debug.Log($"Moving card {c.cardData.cardName} into deck of {entity.name}");
             RectTransform ct = c.GetComponent<RectTransform>();
 
             ct.SetParent(deckParent);
-            UtilityScript.ZeroLocalRectTransform(ct);
+            TransformUtility.ZeroLocalRectTransform(ct);
 
             cardStack.Push(ct.gameObject);
         }
@@ -255,7 +257,7 @@ public class DeckManager : MonoBehaviour
     }
     public void StartTurn(EntityScript entity)
     {
-        if(entity.GetType() == typeof(PlayerScript))
+        if (entity.GetType() == typeof(PlayerScript))
         {
             MoveInDeck(entity);
 
@@ -263,6 +265,10 @@ public class DeckManager : MonoBehaviour
             {
                 DrawTopCard();
             }
+        }
+        else
+        {
+            (entity as NonPlayerScript).TakeTurn();
         }
     }
 }

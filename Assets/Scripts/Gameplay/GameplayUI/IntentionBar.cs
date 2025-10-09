@@ -18,15 +18,3 @@ public class IntentionBar : MonoBehaviour
 
     }
 }
-
-public enum Intention
-{
-    None,
-    Attack,
-    Block,
-    Heal,
-    Buff,
-    Debuff,
-    BuffDebuff,
-    Other,
-}

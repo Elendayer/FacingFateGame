@@ -22,15 +22,19 @@ public class EntityScript : MonoBehaviour
     public Dictionary<EntityAttributeEnum, Stat> EntityAttributes = new();
 
     public Dictionary<(CardType, StatAspect), Stat> CardTypeStats = new();
-    public Dictionary<(CardElement, StatAspect), Stat> CardElementStats = new();
+    public Dictionary<(CardIdentity, StatAspect), Stat> CardElementStats = new();
     public Dictionary<(CardClass, StatAspect), Stat> CardClassStats = new();
 
-    private void Start()
+    private EntityVisualScript EntityVisual;
+
+    public virtual void StartUp()
     {
+        EntityVisual = GetComponentInChildren<EntityVisualScript>();
+
         // Fill EntityAttributes
         foreach (EntityAttributeEnum attr in Enum.GetValues(typeof(EntityAttributeEnum)))
         {
-            EntityAttributes.Add(attr, new Stat() { Value = 2});
+            EntityAttributes.Add(attr, new Stat() { Value = 2 });
         }
 
         // Fill CardTypeStats
@@ -43,7 +47,7 @@ public class EntityScript : MonoBehaviour
         }
 
         // Fill CardElementStats
-        foreach (CardElement element in Enum.GetValues(typeof(CardElement)))
+        foreach (CardIdentity element in Enum.GetValues(typeof(CardIdentity)))
         {
             foreach (StatAspect aspect in Enum.GetValues(typeof(StatAspect)))
             {
@@ -59,6 +63,8 @@ public class EntityScript : MonoBehaviour
                 CardClassStats.Add((cls, aspect), new Stat());
             }
         }
+
+        AddListeners();
     }
 
     public int GetStatValue(EntityAttributeEnum attr)
@@ -71,7 +77,6 @@ public class EntityScript : MonoBehaviour
         Debug.LogWarning($"{this.name} Stat not found for ({attr})");
         return 0;
     }
-
     public int GetStatValue(CardType type, StatAspect aspect)
     {
         if (CardTypeStats.TryGetValue((type, aspect), out var stat))
@@ -92,8 +97,7 @@ public class EntityScript : MonoBehaviour
         Debug.LogWarning($"{this.name} Stat not found for ({cls}, {aspect})");
         return 0;
     }
-
-    public int GetStatValue(CardElement element, StatAspect aspect)
+    public int GetStatValue(CardIdentity element, StatAspect aspect)
     {
         if (CardElementStats.TryGetValue((element, aspect), out var stat))
         {
@@ -102,6 +106,34 @@ public class EntityScript : MonoBehaviour
 
         Debug.LogWarning($"{this.name} Stat not found for ({element}, {aspect})");
         return 0;
+    }
+
+    private void AddListeners()
+    {
+        GameEvents.Subscribe(gameplayRef.onBurn, GetInstanceID(), TriggerAnimation);
+        GameEvents.Subscribe(gameplayRef.onDamage, GetInstanceID(), TriggerAnimation);
+    }
+    private void TriggerAnimation(TriggerRef triggerRef)
+    {
+        GameObject effectObj;
+        foreach (gameplayRef gRef in triggerRef.References)
+        {
+            switch (gRef)
+            {
+                default: break;
+                case gameplayRef.onBurn:
+                    effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
+                    Debug.Log("Tried to Add Burn Effect");
+                    Instantiate(effectObj, EntityVisual.transform);
+                    break;
+
+                case gameplayRef.onDamage:
+                    effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
+                    Debug.Log("Tried to Add Damage Effect");
+                    Instantiate(effectObj, EntityVisual.transform);
+                    break;
+            }
+        }
     }
 }
 

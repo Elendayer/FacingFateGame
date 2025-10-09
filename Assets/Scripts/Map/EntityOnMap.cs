@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Utility;
 
 public class EntityOnMap : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class EntityOnMap : MonoBehaviour
 
     private void Start()
     {
+        refTilemap =TilemapUtilityScript.BaseTilemap;
         transform.position = refTilemap.CellToWorld(currentCell);
         SetOccupied(true);     
     }
