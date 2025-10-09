@@ -30,11 +30,21 @@ public class EntityOnMap : MonoBehaviour
     /// </summary>
     public void MoveTo(Vector3Int targetCell)
     {
-        SetOccupied(false);
         if (moveRoutine != null) StopCoroutine(moveRoutine);
 
-        List<Vector3Int> path = TilemapUtilityScript.FindPath(currentCell, targetCell);
+        List<Vector3Int> path = TilemapUtilityScript.FindPath(currentCell, targetCell)?.Path;
 
+        if (path != null && path.Count > 0)
+        {
+            TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
+            moveRoutine = StartCoroutine(FollowPath(path));
+        }
+        else
+            Debug.LogWarning("No path found to " + targetCell);
+    }
+    public void MoveToViaPath(List<Vector3Int> path)
+    {
+        if (moveRoutine != null) StopCoroutine(moveRoutine);
         if (path != null && path.Count > 0)
         {
             TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
@@ -46,6 +56,8 @@ public class EntityOnMap : MonoBehaviour
 
     private IEnumerator FollowPath(List<Vector3Int> path)
     {
+        SetOccupied(false);
+
         foreach (var cell in path)
         {
             Vector3 targetPos = refTilemap.GetCellCenterWorld(cell);

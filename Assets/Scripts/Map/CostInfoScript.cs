@@ -8,17 +8,19 @@ public class CostInfoScript : MonoBehaviour
 public class CostInfo
 {
     public int cost => 1 +
-(isWalkable ? 1 : 9999) +
+(isUnwalkable ?  9999: 0) +
 (isOccupied ? 9999 : 0) +
-(highAvoidance ? 30 :
-mediumAvoidance ? 20 :
-lowAvoidance ? 10 : 0);
+(highAvoidance ? 10 :
+mediumAvoidance ? 5 :
+lowAvoidance ? 2 : 0);
+
+    public int costUnobstructed = 1;
 
     [Header("Cost Calc")]
     public bool lowAvoidance = false;
     public bool mediumAvoidance = false;
     public bool highAvoidance = false;
 
-    public bool isWalkable = true;
+    public bool isUnwalkable = false;
     public bool isOccupied = false;
 }

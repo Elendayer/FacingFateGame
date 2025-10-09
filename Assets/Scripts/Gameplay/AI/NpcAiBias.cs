@@ -10,13 +10,16 @@ public class NpcAiBias
     public Dictionary<gameplayRef,int> refBias = new Dictionary<gameplayRef,int>();
     public Dictionary<CardIdentity,int> identityBias = new Dictionary<CardIdentity,int>();
 
-    public FleeCondition fleeCondition = FleeCondition.none;
+    public FleeCondition ReposiitionCondition;
 
     public int BiasCalc(CardData cardData)
     {
+        if (cardData == null) return 0;
+
         if (cardData.CardAiBias == null) return 0;
 
         int biasValue = 0;
+
         if (intentionBias.TryGetValue(cardData.CardAiBias.Intention, out int iValue))
         {
             biasValue += iValue;
@@ -25,7 +28,7 @@ public class NpcAiBias
         {
             if (refBias.TryGetValue(gr, out int rValue))
             {
-                biasValue -= rValue;
+                biasValue += rValue;
             }
         }
         foreach(CardIdentity identity in cardData.cardIdentities)
@@ -41,7 +44,6 @@ public class NpcAiBias
 
 public enum FleeCondition
 {
-    none,
     surrounded,
     lowHealth,
     preferRanged,

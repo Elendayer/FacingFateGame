@@ -42,8 +42,7 @@ public class TurnManager : MonoBehaviour
 
     private void OnTurnStart()
     {
-
-        GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onTurnStart }, 0, TurnOrder[CurrentTurnIndex].GetInstanceID()));
+        GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex].GetInstanceID()));
 
         DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
     }

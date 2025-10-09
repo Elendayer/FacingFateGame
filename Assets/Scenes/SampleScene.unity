@@ -833,7 +833,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
@@ -899,6 +899,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character Enemy Stacy
       objectReference: {fileID: 0}
+    - target: {fileID: 7864468927191603878, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 851740942c609a348b5d4b2252f1e8c3, type: 2}
     - target: {fileID: 8935636570208141450, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: m_SortingOrder
       value: 1
@@ -2176,11 +2180,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100007
+      value: 100001
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
@@ -2246,6 +2250,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character Ally Qubert
       objectReference: {fileID: 0}
+    - target: {fileID: 7864468927191603878, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 1a91804bc1e3eda4dba8c560e3f96a51, type: 2}
     - target: {fileID: 8935636570208141450, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: m_SortingOrder
       value: 1
@@ -2679,6 +2687,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textMeshPro: {fileID: 12402385}
   eM: {fileID: 0}
+  healthRenderer: {fileID: 0}
+  staminaRenderer: {fileID: 0}
 --- !u!114 &1370892866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3056,8 +3066,8 @@ MonoBehaviour:
   costInfoScript: {fileID: 1854110843}
   BaseMap: {fileID: 1854110839}
   OverlayMap: {fileID: 469480539}
-  SizeX: 15
-  SizeY: 10
+  SizeX: 30
+  SizeY: 20
 --- !u!224 &1457707190
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3196,7 +3206,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
@@ -3262,6 +3272,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character Enemy Melfin
       objectReference: {fileID: 0}
+    - target: {fileID: 7864468927191603878, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 851740942c609a348b5d4b2252f1e8c3, type: 2}
     - target: {fileID: 8935636570208141450, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: m_SortingOrder
       value: 1
@@ -3621,7 +3635,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
@@ -3687,6 +3701,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character Enemy Bob
       objectReference: {fileID: 0}
+    - target: {fileID: 7864468927191603878, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 851740942c609a348b5d4b2252f1e8c3, type: 2}
     - target: {fileID: 8935636570208141450, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: m_SortingOrder
       value: 1
@@ -3828,6 +3846,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character Player Carlos
       objectReference: {fileID: 0}
+    - target: {fileID: 7429975276734969743, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 5dd2bba04d4ccdb41b613ce827d4e6db, type: 2}
     - target: {fileID: 7540707036617351832, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0

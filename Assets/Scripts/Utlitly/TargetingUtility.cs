@@ -149,22 +149,6 @@ public static class TargetingUtility
             ? new List<Vector3Int> { targetCell }
             : TilemapUtilityScript.GetTilesInRadius(targetCell, card.cardData.targetingData.range);
 
-        // Remove occupied tiles
-        if (TilemapUtilityScript.BaseTilemap != null)
-        {
-            var costInfoScript = TilemapUtilityScript.BaseTilemap.GetComponent<CostInfoScript>();
-            if (costInfoScript != null)
-            {
-                candidateTiles = candidateTiles
-                    .Where(tile =>
-                    {
-                        costInfoScript.costInfoDict.TryGetValue(tile, out var costInfo);
-                        return costInfo == null || !costInfo.isOccupied;
-                    })
-                    .ToList();
-            }
-        }
-
         return candidateTiles;
     }
     public static List<Vector3Int> GetEffectAreaTiles(CardScript card, Vector3Int centerTile, EntityScript owner)
@@ -178,8 +162,12 @@ public static class TargetingUtility
             case CardTargetSelection.LineFree:
                 return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, card.cardData.targetingData.area);
             case CardTargetSelection.LineSelf:
-                return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.area);
-            default:
+                return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range);
+                    case CardTargetSelection.Cone:
+                        return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range, card.cardData.targetingData.area);
+                    case CardTargetSelection.All:
+                        return TilemapUtilityScript.GetAllValidTiles();
+                default:
                 return new List<Vector3Int> { centerTile };
         }
     }

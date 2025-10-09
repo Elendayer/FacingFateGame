@@ -52,7 +52,7 @@ public class CardData
 
 
     [Header("Card Target")]
-    public TargetArea targetingData = new();
+    public TargetingData targetingData = new();
 
     [Header("Card Effect Target")]
     public List<gameplayRef> GameplayReferences { get; internal set; } = new();
@@ -173,8 +173,9 @@ public enum CardTargetSelection
     Select,
     All
 }
+
 [System.Serializable]
-public class TargetArea
+public class TargetingData
 {
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;

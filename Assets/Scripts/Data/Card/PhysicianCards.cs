@@ -35,12 +35,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
-                range = 1, // 0–1
+                SelectionType = CardTargetSelection.Single,
+                range = 1, 
                 area = 1,
             },
 
-            SetCardDescription = (User, d) => d.cardDescription = "Boost ally life regeneration (TBD: value & duration).",
+            CardDescription = (User, d) => d.cardDescription = "Boost ally life regeneration (TBD: value & duration).",
             CardEffect = (User, Target, d) => { /* TODO: regen buff */ }
         });
 
@@ -60,12 +60,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) => d.cardDescription = "Turn target's Poison into Bleed (TBD: conversion rule).",
+            CardDescription = (User, d) => d.cardDescription = "Turn target's Poison into Bleed (TBD: conversion rule).",
             CardEffect = (User, Target, d) => { /* TODO: convert Poison stacks to Bleed stacks */ }
         });
 
@@ -84,12 +84,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Ring,
+                SelectionType = CardTargetSelection.Ring,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) => d.cardDescription = "Heal all allies in range (TBD: heal value).",
+            CardDescription = (User, d) => d.cardDescription = "Heal all allies in range (TBD: heal value).",
             CardEffect = (User, Target, d) => { /* TODO: heal allies in ring */ }
         });
 
@@ -109,12 +109,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) => d.cardDescription = "Worsen target's Poison (TBD: add stacks / increase tick).",
+            CardDescription = (User, d) => d.cardDescription = "Worsen target's Poison (TBD: add stacks / increase tick).",
             CardEffect = (User, Target, d) => { /* TODO: modify poison modifier on target */ }
         });
 
@@ -133,12 +133,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) => d.cardDescription = "Cleanse ally (remove negative effects).",
+            CardDescription = (User, d) => d.cardDescription = "Cleanse ally (remove negative effects).",
             CardEffect = (User, Target, d) => { /* TODO: cleanse implementation */ }
         });
     }
@@ -160,12 +160,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Radius,
+                SelectionType = CardTargetSelection.Radius,
                 range = 2,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) => d.cardDescription = "Increase boost for every ally in range (TBD: exact buff & scaling).",
+            CardDescription = (User, d) => d.cardDescription = "Increase boost for every ally in range (TBD: exact buff & scaling).",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: For each ally in sphere around chosen tile/user, grant stacking boost.
@@ -188,12 +188,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.LineSelf,
+                SelectionType = CardTargetSelection.LineSelf,
                 range = 3,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) => d.cardDescription = "Heal everyone in a line (TBD: heal value).",
+            CardDescription = (User, d) => d.cardDescription = "Heal everyone in a line (TBD: heal value).",
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Heal allied entities along the line.
@@ -218,12 +218,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.None,
-                areaType = CardTargetArea.Ring,
+                SelectionType = CardTargetSelection.Ring,
                 range = 1,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) =>
+            CardDescription = (User, d) =>
                 d.cardDescription = "Gather materials around you. Value=3 ⇒ create/draw a new card (TODO).",
 
             CardEffect = (User, Target, d) =>
@@ -247,12 +247,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.None, // wir wählen Ally & Enemy
-                areaType = CardTargetArea.Single,                // Mehrfach-/Zielauswahl
+                SelectionType = CardTargetSelection.Single,                // Mehrfach-/Zielauswahl
                 range = 1,                                          // Tabelle: 0–1
                 area = 1,
             },
 
-            SetCardDescription = (User, d) =>
+            CardDescription = (User, d) =>
                 d.cardDescription = "Select an ally to heal and an enemy to Poison (TODO amounts).",
 
             CardEffect = (User, Target, d) =>
@@ -278,12 +278,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) =>
+            CardDescription = (User, d) =>
                 d.cardDescription = "When attacked this turn, deal Thorns and apply Poison to the attacker.",
 
             CardEffect = (User, Target, d) =>
@@ -309,12 +309,12 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
 
-            SetCardDescription = (User, d) =>
+            CardDescription = (User, d) =>
                 d.cardDescription = "Halve movement cost until end of turn.",
 
             CardEffect = (User, Target, d) =>
@@ -340,11 +340,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "20%: item fails (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "20%: item fails (TODO).",
             CardEffect = (User, Target, d) => { /* TODO */ }
         });
     }
@@ -364,11 +364,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 0,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase item potency (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Increase item potency (TODO).",
             CardEffect = (User, Target, d) => { /* TODO */ }
         });
     }
@@ -388,11 +388,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Heal an ally (amount TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Heal an ally (amount TBD).",
             CardEffect = (User, Target, d) => { /* TODO: heal */ }
         });
 
@@ -412,11 +412,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase Max Health for 3 turns (value TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase Max Health for 3 turns (value TBD).",
             CardEffect = (User, Target, d) => { /* TODO: temp max health up */ }
         });
 
@@ -434,11 +434,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase Max Health (duration TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase Max Health (duration TBD).",
             CardEffect = (User, Target, d) => { /* TODO: add max health (persist/encounter) */ }
         });
 
@@ -457,11 +457,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Regenerate stamina (amount TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Regenerate stamina (amount TBD).",
             CardEffect = (User, Target, d) => { /* TODO: restore stamina */ }
         });
 
@@ -481,11 +481,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase Max Stamina for 3 turns (value TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase Max Stamina for 3 turns (value TBD).",
             CardEffect = (User, Target, d) => { /* TODO: temp max stamina up */ }
         });
 
@@ -504,11 +504,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase Max Stamina (duration TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase Max Stamina (duration TBD).",
             CardEffect = (User, Target, d) => { /* TODO: add max stamina (persist/encounter) */ }
         });
 
@@ -522,18 +522,22 @@ public static class PhysicianCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 3,
+            power_u = 5,
             duration_u = 1,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Boost ally for 1 turn (details TBD).",
-            CardEffect = (User, Target, d) => { /* TODO: generic one-turn buff */ }
+            CardDescription = (User, d) => d.cardDescription = "Boost ally for 1 turn (details TBD).",
+            CardEffect = (User, Target, d) => 
+            { 
+                CombatUtility.ApplyBuff(User, Target, Target.entityStats.Armour, new StatModifier(d.Power, ModifierScaling.Flat, new List<gameplayRef> {gameplayRef.onBuffed }, duration: d.Duration, name: "Brew of Unbroken Will"), ModifierMergeStrategy.Merge);
+            }
         });
 
         // 140608 – Elixir of Unbroken Will – +Armor for 3 turns
@@ -552,11 +556,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase ally Armor for 3 turns (value TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase ally Armor for 3 turns (value TBD).",
             CardEffect = (User, Target, d) => { /* TODO: armor buff */ }
         });
 
@@ -575,11 +579,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase ally Armor (duration TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase ally Armor (duration TBD).",
             CardEffect = (User, Target, d) => { /* TODO: armor increase persist/encounter */ }
         });
 
@@ -599,11 +603,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase ally Attack for 1 turn (value TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase ally Attack for 1 turn (value TBD).",
             CardEffect = (User, Target, d) => { /* TODO: attack buff 1T */ }
         });
 
@@ -623,11 +627,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase ally Attack for several turns (value/X TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase ally Attack for several turns (value/X TBD).",
             CardEffect = (User, Target, d) => { /* TODO: attack buff multi-turn */ }
         });
 
@@ -646,11 +650,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Increase ally Attack (duration TBD).",
+            CardDescription = (User, d) => d.cardDescription = "Increase ally Attack (duration TBD).",
             CardEffect = (User, Target, d) => { /* TODO: attack increase persist/encounter */ }
         });
 
@@ -669,11 +673,11 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                areaType = CardTargetArea.Single,
+                SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
-            SetCardDescription = (User, d) => d.cardDescription = "Cleanse target from negative effects.",
+            CardDescription = (User, d) => d.cardDescription = "Cleanse target from negative effects.",
             CardEffect = (User, Target, d) => { /* TODO: remove debuffs */ }
         });
 
@@ -694,28 +698,27 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                areaType = CardTargetArea.Radius,
+                SelectionType = CardTargetSelection.Radius,
                 range = 3,
                 area = 2,
             },
 
-            SetCardDescription = (User, d) => d.cardDescription = $"Throw a poison cloud: apply Poison {d.Power} for {d.Duration} turns in area.",
+            CardDescription = (User, d) => d.cardDescription = $"Throw a poison cloud: apply Poison {d.Power} for {d.Duration} turns in area.",
             CardEffect = (User, Target, d) =>
             {
-                var poison = new FunctionModifier(
+                var poison = new EntityModifier(
                     statName: "Poison",
                     baseValue: d.Power,
-                    statScaling: ModifierScaling.Flat,
                     to_Trigger_refs: new() { gameplayRef.onPoison },
                     duration: d.Duration,
-                    target: Target.CurrentHealth,
+                    target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     onRefEventAction: (mod, stat, refEv) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef { References = new() { gameplayRef.onPoison }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
-                CombatUtility.ApplyModifier(User, Target, Target.CurrentHealth, poison, ModifierMergeStrategy.RefreshIncrease);
+                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
