@@ -34,7 +34,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 9020706638173528162}
+  - {fileID: 4427242154021710987}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -56,18 +56,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entityAffiliation: 1
   deckCardIDs: 
-  MaxHealth:
-    Value: 100
-  CurrentHealth:
-    Value: 100
-  MaxStamina:
-    Value: 10
-  CurrentStamina:
-    Value: 10
-  Block:
-    Value: 0
-  Armour:
-    Value: 0
+  entityStats:
+    Owner: {fileID: 0}
 --- !u!114 &9001171521745787760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,7 +229,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5925646098595141539}
   m_CullTransparentMesh: 1
---- !u!1001 &6439848976085857211
+--- !u!1001 &1801920520880176978
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -247,18 +237,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2832468515761090220}
     m_Modifications:
-    - target: {fileID: 2625893676631839705, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 2625893676631839705, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 2625893676631839705, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.01
-      objectReference: {fileID: 0}
     - target: {fileID: 2625893676631839705, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -299,29 +277,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2625893676631839705, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3418901331746383801, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
       propertyPath: m_Name
       value: Entity
-      objectReference: {fileID: 0}
-    - target: {fileID: 3601482904747577635, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3601482904747577635, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
---- !u!4 &9020706638173528162 stripped
+--- !u!4 &4427242154021710987 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2625893676631839705, guid: 5910b330f8d3aef478b1c8878ba13fb8, type: 3}
-  m_PrefabInstance: {fileID: 6439848976085857211}
+  m_PrefabInstance: {fileID: 1801920520880176978}
   m_PrefabAsset: {fileID: 0}

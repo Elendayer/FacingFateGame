@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utility;
@@ -19,7 +19,8 @@ public class NpcAIController
     public List<PlannedAction> BuildTurnPlan()
     {
         List<PlannedAction> plan = new();
-        Vector3Int virtualPosition = mover.currentCell;
+        int stamina = npc.entityStats.CurrentStamina.Value;
+        Vector3Int virtualPosition = mover.currentCell; // Simulated NPC position
 
         Debug.Log($"[NpcAI] {npc.name} starting turn. Stamina: {npc.CurrentStamina.Value}, virtualPosition: {virtualPosition}");
         hand = GetHandCards();
@@ -102,6 +103,8 @@ public class NpcAIController
         foreach (var card in hand)
         {
             var scoredCard = EvaluateCardForTurn(card, stamina, virtualPosition);
+            Debug.Log($"[NpcAI] {scoredCard.Targets.Count} Targets and {scoredCard.Score} Score");
+            if (scoredCard.Score <= 0) continue;
 
             if (scoredCard != null && scoredCard.Score > 0)
             {

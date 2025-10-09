@@ -3,50 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-// If Updated needs to update GameplayReference as well
-public enum CardType
-{
-    Skill,
-    Item,
-    Ability,
-    Technique,
-    Spell,
-    Blessing,
-    Curse
-}
-public enum CardIdentity
-{
-    Non,
-    Physical,
-    Fire,
-    Ice,
-    Air,
-    Earth,
-    Shadow,
-    Poison,
-    Light,
-    Blood,
-    Arcane,
-    Soul,
-    Divine,
-    Occult
-}
-// If Updated needs to update GameplayReference as well
-public enum CardClass
-{
-    Knight,
-    Rogue,
-    Wizard,
-    Cleric,
-    Paladin,
-    Warlock,
-    Ranger,
-    Druid,
-    Barbarian,
-    Alchemist,
-    Monster,
-}
-
 [System.Serializable]
 public class CardData
 {
@@ -62,43 +18,75 @@ public class CardData
     [Header("Typing")]
     public CardType cardType;
     public CardClass cardClass;
-    public List<CardIdentity> cardIdentities;
+    public List<CardIdentity> cardIdentities = new();
 
     [Header("Cost")]
     public int cost_u = 0;
     public Stat cost_s = new();
-    public int Cost => cost_u + cost_s.GetFinalValue() + GetValues(StatAspect.Cost);
+    public int Cost => cost_u + cost_s.Value + GetValues(StatAspect.Cost);
 
     [Header("Power")]
     public int power_u = 0;
     public Stat power_s = new();
-    public int Power => power_u + power_s.GetFinalValue() + GetValues(StatAspect.Power);
+    public int Power =>  power_u + power_s.Value + GetValues(StatAspect.Power);
+
+    [Header("Damage")]
+    public int damage_u = 0;
+    public Stat damage_s = new();
+    public int Damage => Owner.entityStats.DamageIncrease.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u) + GetValues(StatAspect.Damage));
+
+    [Header("Healing")]
+    public int healing_u = 0;
+    public Stat healing_s = new();
+    public int Healing => Owner.entityStats.HealingIncrease.ApplyFinalValue( healing_s.ApplyFinalValue(healing_u) + GetValues(StatAspect.Healing));
 
     [Header("Duration")]
     public int duration_u = 0;
     public Stat duration_s = new();
-    public int Duration => duration_u + duration_s.GetFinalValue() + GetValues(StatAspect.Duration);
+    public int Duration => duration_u + duration_s.Value + GetValues(StatAspect.Duration);
 
     [Header("Repeats")]
     public int repeats_u = 0;
     public Stat repeats_s = new();
-    public int Repeats => repeats_u + repeats_s.GetFinalValue() + GetValues(StatAspect.Repeats);
+    public int Repeats => repeats_u + repeats_s.Value + GetValues(StatAspect.Repeats);
 
 
     [Header("Card Target")]
-    public TargetArea targetingData;
+    public TargetArea targetingData = new();
 
     [Header("Card Effect Target")]
-    public List<gameplayRef> GameplayReferences { get; internal set; }
+    public List<gameplayRef> GameplayReferences { get; internal set; } = new();
 
-    public List<CardType> EffectTargetTypes;
+    public List<CardType> EffectTargetTypes = new();
     public CardScript TargetCard;
+
+    int GetValues(StatAspect aspect)
+    {
+        int value = 0;
+
+        value =
+            Owner.entityStats.GetStatValue(cardType, aspect)
+            + Owner.entityStats.GetStatValue(cardClass, aspect);
+
+        foreach (CardIdentity ce in cardIdentities)
+        {
+            value += Owner.entityStats.GetStatValue(ce, aspect);
+        }
+
+        return value;
+    }
+
+    public Action<EntityScript, CardData> CardDescription =
+        (user, data) => Debug.Log($"Not defined Description of {data.cardName}");
+
+    public Action<EntityScript, EntityScript, CardData> CardEffect =
+        (user, target, data) => Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
+
+    [Header("AI")]
+    public CardAiBias CardAiBias = new();
 
     public CardData Clone()
     {
-        // Hilfsfunktion: Stat flach kopieren (nur Base-Value, keine Modifiers)
-        Stat CloneStat(Stat s) => new Stat { Value = s != null ? s.Value : 0 };
-
         return new CardData
         {
             // Identity & Meta
@@ -115,19 +103,15 @@ public class CardData
 
             // Werte (u = base, s = eigene Stat-Container pro Instanz)
             cost_u = cost_u,
-            cost_s = CloneStat(cost_s),
             power_u = power_u,
-            power_s = CloneStat(power_s),
             duration_u = duration_u,
-            duration_s = CloneStat(duration_s),
             repeats_u = repeats_u,
-            repeats_s = CloneStat(repeats_s),
 
             // Targeting-Flags (keine Ziel-Referenzen übernehmen)
             targetingData = targetingData,
 
             // Delegates (zeigen auf dieselben Methoden – gewünscht)
-            SetCardDescription = SetCardDescription,
+            CardDescription = CardDescription,
             CardEffect = CardEffect,
 
             // AI
@@ -172,15 +156,17 @@ public class CardData
     }
     private void GenerateTriggerFromCardData()
     {
-        gameplayRef refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{cardClass.GetType().Name}");
+        gameplayRef refValue;
+
+        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{cardClass}");
         GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
 
-        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{cardType.GetType().Name}");
+        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{cardType}");
         GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
 
-        foreach (CardIdentity element in cardIdentities)
+        foreach (CardIdentity identity in cardIdentities)
         {
-            refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"On{element.GetType().Name}");
+            refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{identity}");
             GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
         }
     }
@@ -201,7 +187,7 @@ public enum CardTargetAffiliation
     EnemyNeutral,
     AllyEnemy,
 }
-public enum CardTargetArea
+public enum CardTargetSelection
 {
     Single,
     Radius,
@@ -209,7 +195,8 @@ public enum CardTargetArea
     LineFree,
     LineSelf,
     Cone,
-    All,  
+    Select,
+    All
 }
 
 [System.Serializable]
@@ -217,39 +204,46 @@ public class TargetArea
 {
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;
-    public CardTargetArea areaType = CardTargetArea.Single;
+    public CardTargetSelection SelectionType = CardTargetSelection.Single;
     public int range = 1; 
     public int area = 1; 
 }
 
 public class CardAiBias
 {
+    // General Intention of the Card
     public Intention Intention = Intention.None;
+
+    // Unique ID for lookup
     public gameplayRef triggerCondition = gameplayRef.None;
+
+    // Override for Friendly Fire Avoidance
     public CardTargetAffiliation AffiliationBiasOverride = CardTargetAffiliation.None;
+
+    // Additional Throughput
+    public int throughputBase = 0;
+    // Divider for Throughput to scale down high values
+    public int throughputScale = 1;
+    // Additional Throughput per gameplayRef
     public Dictionary<gameplayRef, int> throughputBias = new();
 
-    public int PowerOverrideValue = 0;
     public int cooldown = 1;
 
-    public int PowerOverride(List<gameplayRef> gRefs)
+
+    public int ThroughputOverride(List<EntityScript> target)
     {
-        int OverrideValue = PowerOverrideValue;
-
-        if (gRefs == null)
+        int OverrideValue = throughputScale;
+        foreach (KeyValuePair<gameplayRef, int> gRef in throughputBias)
         {
-            return OverrideValue;
-        }
-
-        else
-        {
-            foreach (gameplayRef gRef in gRefs)
+            foreach (EntityScript t in target)
             {
-                throughputBias.TryGetValue(gRef, out int value);
-                OverrideValue += value;
+                if (t.HasReference(gRef.Key))
+                {
+                    OverrideValue += gRef.Value;
+                }
             }
-            return OverrideValue;
-        }   
+        }
+        return OverrideValue;
     }
 }
 
@@ -263,5 +257,57 @@ public enum Intention
     Buff,
     Debuff,
     BuffDebuff,
+    Summon,
     Other,
+}
+
+// If Updated needs to update GameplayReference as well
+public enum CardType
+{
+    Skill,
+    Item,
+    Ability,
+    Technique,
+    Spell,
+    Blessing,
+    Curse
+}
+public enum CardIdentity
+{
+    None,
+    Physical,
+    Fire,
+    Ice,
+    Air,
+    Earth,
+    Shadow,
+    Poison,
+    Light,
+    Blood,
+    Arcane,
+    Soul,
+    Divine,
+    Occult,
+    Ranged,
+    Melee
+}
+// If Updated needs to update GameplayReference as well
+public enum CardClass
+{
+    Spearman,
+    Assassin,
+    Mystic,
+    Physician,
+    
+    Knight,
+    Rogue,
+    Wizard,
+    Cleric,
+    Paladin,
+    Warlock,
+    Ranger,
+    Druid,
+    Barbarian,
+    Alchemist,
+    Monster,
 }

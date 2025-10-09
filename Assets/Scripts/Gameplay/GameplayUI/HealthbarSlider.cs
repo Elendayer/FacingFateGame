@@ -1,26 +1,43 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HealthbarSlider : MonoBehaviour
 {
-    public Slider slider;
     public TextMeshProUGUI textMeshPro;
     public EntityScript eM;
 
-    int max => eM.MaxHealth.GetFinalValue();
-    int current => eM.CurrentHealth.GetFinalValue();
+    float maxHealth => eM.entityStats.MaxHealth.Value;
+    float currentHealth => eM.entityStats.CurrentHealth.Value;
+
+    float maxStamina => eM.entityStats.MaxStamina.Value;
+    float currentStamina => eM.entityStats.CurrentStamina.Value;
+
+    public MeshRenderer healthRenderer;
+    public MeshRenderer staminaRenderer;   
+
 
     private void Start()
     {
         eM = GetComponentInParent<EntityScript>();
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        slider.maxValue = max;
 
-        slider.value = current;
-        textMeshPro.text = $"{current} / {max}";
+        MeshRenderer renderer = GetComponent<MeshRenderer>();
+
+        StartCoroutine(SlowUpdate());
+    }
+
+    // Update is called once per frame
+    IEnumerator SlowUpdate()
+    {
+        while (true)
+        {
+            if (currentHealth != 0)
+            {
+                healthRenderer.material.SetFloat("_ratio", currentHealth / maxHealth);
+                staminaRenderer.material.SetFloat("_ratio", currentStamina / maxStamina);
+                //textMeshPro.text = $"{current} / {max}"; 
+            }
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 }

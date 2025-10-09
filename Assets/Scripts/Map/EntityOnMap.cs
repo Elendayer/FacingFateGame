@@ -21,6 +21,7 @@ public class EntityOnMap : MonoBehaviour
 
     private void Start()
     {
+        refTilemap =TilemapUtilityScript.BaseTilemap;
         transform.position = refTilemap.CellToWorld(currentCell);
         SetOccupied(true);     
     }

@@ -12,35 +12,39 @@ public static class TargetingUtility
     {
         List<EntityScript> targets = new();
 
-        switch (card.cardData.targetingData.areaType)
+        switch (card.cardData.targetingData.SelectionType)
         {
-            case CardTargetArea.Single:
+            case CardTargetSelection.Single:
                 var SingleTarget = TilemapUtilityScript.GetTilesInRadius(pos, card.cardData.targetingData.range);
                 List< Vector3Int> v3 = new List< Vector3Int>();
                 v3.Add(SingleTarget[0]);  
 
                 targets = GetEntitiesFromTiles(v3, allEntities);
                 break;
-            case CardTargetArea.All:
+            case CardTargetSelection.All:
                 targets = allEntities;
                 break;
-            case CardTargetArea.Radius:
+            case CardTargetSelection.Radius:
                 var radiusTiles = TilemapUtilityScript.GetTilesInRadius(pos, card.cardData.targetingData.range);
                 targets = GetEntitiesFromTiles(radiusTiles, allEntities);
                 break;
-            case CardTargetArea.Ring:
+            case CardTargetSelection.Ring:
                 var ringTiles = TilemapUtilityScript.GetTilesInRing(pos, card.cardData.targetingData.range);
                 targets = GetEntitiesFromTiles(ringTiles, allEntities);
                 break;
-            case CardTargetArea.LineFree:
+            case CardTargetSelection.LineFree:
                 var lineFreeTiles = TilemapUtilityScript.GetTilesInLine(pos, pos, card.cardData.targetingData.range);
                 targets = GetEntitiesFromTiles(lineFreeTiles, allEntities);
                 break;
-            case CardTargetArea.LineSelf:
+            case CardTargetSelection.LineSelf:
                 var lineSelfTiles = TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, pos, card.cardData.targetingData.range);
                 targets = GetEntitiesFromTiles(lineSelfTiles, allEntities);
                 break;
-        }
+                    case CardTargetSelection.Cone:
+                    break;
+                    case CardTargetSelection.Select:
+                    break;
+            }
 
         return VetTargetsEntities(card, owner, targets);
     }
@@ -149,13 +153,13 @@ public static class TargetingUtility
     }
     public static List<Vector3Int> GetEffectAreaTiles(CardScript card, Vector3Int centerTile, EntityScript owner)
     {
-        switch (card.cardData.targetingData.areaType)
+        switch (card.cardData.targetingData.SelectionType)
         {
-            case CardTargetArea.Radius:
+            case CardTargetSelection.Radius:
                 return TilemapUtilityScript.GetTilesInRadius(centerTile, card.cardData.targetingData.area);
-            case CardTargetArea.Ring:
+            case CardTargetSelection.Ring:
                 return TilemapUtilityScript.GetTilesInRing(centerTile, card.cardData.targetingData.area);
-            case CardTargetArea.LineFree:
+            case CardTargetSelection.LineFree:
                 return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, card.cardData.targetingData.area);
             case CardTargetArea.LineSelf:
                 return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range);

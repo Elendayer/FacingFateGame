@@ -44,13 +44,11 @@ public class TurnManager : MonoBehaviour
     {
         GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex].GetInstanceID()));
 
-        Debug.Log($" {gameplayRef.onTurnStart}, TargetId = {TurnOrder[CurrentTurnIndex].GetInstanceID()}");
-
         DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
     }
     private void OnTurnEnd()
     {
-        GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex].GetInstanceID()));
+        GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onTurnEnd }, 0, TurnOrder[CurrentTurnIndex].GetInstanceID()));
         DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
 
         CurrentTurnIndex++;

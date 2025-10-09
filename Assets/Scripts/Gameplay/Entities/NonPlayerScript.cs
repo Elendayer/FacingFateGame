@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -8,7 +8,7 @@ public class NonPlayerScript : EntityScript
     public NpcAIController npcAIController;
 
     public string npcAIBiasId = string.Empty;
-    public NpcAiBias npcAIBias;
+    public NpcAiBias npcAIBias = new();
 
     [SerializeField]
     private List<PlannedAction> plan;
@@ -19,7 +19,7 @@ public class NonPlayerScript : EntityScript
 
         npcAIController = new NpcAIController(this);
         npcAIBias = AiBiasDatabase.GetBiasById(npcAIBiasId);
-        Debug.Log($"[NPC] Setup complete for {name}");
+        Debug.Log($"[NonPlayerScript] Setup complete for {name}");
     }
     public void TakeTurn()
     {
