@@ -85,8 +85,8 @@ public class EntityStats
         }
 
         Debug.Log($"[EntityStats] PostStartUp called for {Owner.name}");
-        MaxHealth.AddModifier(new StatModifier(value: () => GetStatValue(EntityAttributeEnum.Tenacity) * 50, ModifierScaling.Flat,name: "BaseValue"));
-        MaxStamina.AddModifier(new StatModifier(value:() => GetStatValue(EntityAttributeEnum.Endurance) * 5, ModifierScaling.Flat, name: "BaseValue"));
+        MaxHealth.AddModifier(new StatModifier(value: () => GetStatValue(EntityAttributeEnum.Tenacity) * 50, ModifierScaling.Flat, name: "BaseValue"));
+        MaxStamina.AddModifier(new StatModifier(value: () => GetStatValue(EntityAttributeEnum.Endurance) * 5, ModifierScaling.Flat, name: "BaseValue"));
 
         CurrentHealth.AddModifier(new StatModifier(MaxHealth.Value, ModifierScaling.Flat, name: "BaseValue"));
         CurrentStamina.AddModifier(new StatModifier(MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"));
