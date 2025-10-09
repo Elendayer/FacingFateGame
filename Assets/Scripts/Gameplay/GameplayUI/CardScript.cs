@@ -33,7 +33,7 @@ public class CardScript : MonoBehaviour
     {
         if (cardData != null)
         {
-            cardData.SetCardDescription(cardData.Owner, cardData);
+            cardData.CardDescription(cardData.Owner, cardData);
             artworkRenderer.sprite = cardData.cardArtwork;
             nameText.text = cardData.cardName;
             descriptionText.text = cardData.cardDescription;

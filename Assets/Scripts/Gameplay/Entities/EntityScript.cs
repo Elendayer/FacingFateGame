@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EntityScript : MonoBehaviour
@@ -10,102 +11,21 @@ public class EntityScript : MonoBehaviour
     [Header("Deck Settings")]
     public List<int> deckCardIDs = new List<int>();  // Populate with card IDs
 
-    [Header("Base Stats")]
-    public Stat MaxHealth = new() { Value = 100 };
-    public Stat CurrentHealth = new() { Value = 100 };
-    public Stat MaxStamina = new() { Value = 10 };
-    public Stat CurrentStamina = new() { Value = 10 };
+    [Header("Entity Stats")]
+    public EntityStats entityStats;
 
-    public Stat Block = new() { Value = 0 };
-    public Stat Armour = new() { Value = 0 };
-
-    public Dictionary<EntityAttributeEnum, Stat> EntityAttributes = new();
-
-    public Dictionary<(CardType, StatAspect), Stat> CardTypeStats = new();
-    public Dictionary<(CardIdentity, StatAspect), Stat> CardElementStats = new();
-    public Dictionary<(CardClass, StatAspect), Stat> CardClassStats = new();
-
+    [Header("Entity Gameplay References")]
     private EntityVisualScript EntityVisual;
 
     public virtual void StartUp()
     {
         EntityVisual = GetComponentInChildren<EntityVisualScript>();
-
-        // Fill EntityAttributes
-        foreach (EntityAttributeEnum attr in Enum.GetValues(typeof(EntityAttributeEnum)))
-        {
-            EntityAttributes.Add(attr, new Stat() { Value = 2 });
-        }
-
-        // Fill CardTypeStats
-        foreach (CardType type in Enum.GetValues(typeof(CardType)))
-        {
-            foreach (StatAspect aspect in Enum.GetValues(typeof(StatAspect)))
-            {
-                CardTypeStats.Add((type, aspect), new Stat());
-            }
-        }
-
-        // Fill CardElementStats
-        foreach (CardIdentity element in Enum.GetValues(typeof(CardIdentity)))
-        {
-            foreach (StatAspect aspect in Enum.GetValues(typeof(StatAspect)))
-            {
-                CardElementStats.Add((element, aspect), new Stat());
-            }
-        }
-
-        // Fill CardClassStats
-        foreach (CardClass cls in Enum.GetValues(typeof(CardClass)))
-        {
-            foreach (StatAspect aspect in Enum.GetValues(typeof(StatAspect)))
-            {
-                CardClassStats.Add((cls, aspect), new Stat());
-            }
-        }
+        
+        entityStats = new();
+        entityStats.StartUp(this);
+        //entityStats.PostStartUp();
 
         AddListeners();
-    }
-
-    public int GetStatValue(EntityAttributeEnum attr)
-    {
-        if (EntityAttributes.TryGetValue(attr, out var stat))
-        {
-            return stat.GetFinalValue();
-        }
-
-        Debug.LogWarning($"{this.name} Stat not found for ({attr})");
-        return 0;
-    }
-    public int GetStatValue(CardType type, StatAspect aspect)
-    {
-        if (CardTypeStats.TryGetValue((type, aspect), out var stat))
-        {
-            return stat.GetFinalValue();
-        }
-
-        Debug.LogWarning($"{this.name} Stat not found for ({type}, {aspect})");
-        return 0;
-    }
-    public int GetStatValue(CardClass cls, StatAspect aspect)
-    {
-        if (CardClassStats.TryGetValue((cls, aspect), out var stat))
-        {
-            return stat.GetFinalValue();
-        }
-
-        Debug.LogWarning($"{this.name} Stat not found for ({cls}, {aspect})");
-        return 0;
-    }
-    public int GetStatValue(CardIdentity element, StatAspect aspect)
-    {
-        if (CardElementStats.TryGetValue((element, aspect), out var stat))
-        {
-            return stat.GetFinalValue();
-        }
-
-        Debug.LogWarning($"{this.name} Stat not found for ({element}, {aspect})");
-        return 0;
     }
 
     private void AddListeners()
@@ -135,6 +55,73 @@ public class EntityScript : MonoBehaviour
             }
         }
     }
+
+    private readonly List<IEntityModifier> entityModifiers = new();
+
+    public void AddModifier(IEntityModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
+    {
+        var existing = entityModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
+
+        switch (strategy)
+        {
+            case ModifierMergeStrategy.AddUnique:
+                entityModifiers.Add(modifier);
+                break;
+
+            case ModifierMergeStrategy.Override:
+                if (existing != null) entityModifiers.Remove(existing);
+                entityModifiers.Add(modifier);
+                break;
+
+            case ModifierMergeStrategy.Merge:
+                if (existing is StatModifier existingMod && modifier is StatModifier newMod)
+                {
+                    existingMod.BaseValue += newMod.BaseValue;
+                }
+                else
+                {
+                    entityModifiers.Add(modifier);
+                }
+                break;
+
+            case ModifierMergeStrategy.RefreshDurationAndMerge:
+                if (existing is StatModifier existingRefresh && modifier is StatModifier newRefresh)
+                {
+                    existingRefresh.BaseValue += newRefresh.BaseValue;
+                    existingRefresh.Duration = Math.Max(existingRefresh.GetRemainingDuration(), newRefresh.GetRemainingDuration());
+                }
+                else
+                {
+                    entityModifiers.Add(modifier);
+                }
+                break;
+
+            case ModifierMergeStrategy.RefreshDurationAndOverride:
+                if (existing is StatModifier existingRefreshDuration && modifier is StatModifier newRefreshDuration)
+                {
+                    existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
+                    existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
+                }
+                else
+                {
+                    entityModifiers.Add(modifier);
+                }
+                break;
+        }
+        modifier.AddListener();
+    }
+    public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
+    public void AddOrReplaceModifier(IEntityModifier modifier)
+    {
+        var existing = entityModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
+        if (existing != null) entityModifiers.Remove(existing);
+        entityModifiers.Add(modifier);
+    }
+    public bool HasReference(gameplayRef reference)
+        => entityModifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+
+    public IEntityModifier GetModifierByName(string name)
+        => entityModifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);
 }
 
 public enum EntityAttributeEnum

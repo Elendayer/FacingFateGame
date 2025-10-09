@@ -8,12 +8,17 @@ public static class GameEvents
     public static event Action OnTurnEnd;
     public static event Action OnRoundEnd;
     public static event Action OnRoundStart;
-
+    public static event Action OnCombatStart;
+    public static event Action OnCombatEnd;
 
     public static void TriggerTurnStart() => OnTurnStart?.Invoke();
     public static void TriggerTurnEnd() => OnTurnEnd?.Invoke();
+
     public static void TriggerRoundEnd() => OnRoundEnd?.Invoke();
     public static void TriggerRoundStart() => OnRoundStart?.Invoke();
+
+    public static void TriggerCombatStart() => OnCombatStart?.Invoke();
+    public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
 
     // Dictionary: (gameplayRef, Id) -> event
     private static readonly Dictionary<(gameplayRef, int), Action<TriggerRef>> _refEvents
@@ -68,6 +73,7 @@ public enum gameplayRef
     onHeal,
     onDeath,
     onSummon,
+    onLifesteal,
 
     onTurnStart,
     onTurnEnd,
