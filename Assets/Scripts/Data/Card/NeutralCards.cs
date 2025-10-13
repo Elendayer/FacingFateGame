@@ -32,7 +32,7 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
+                range = 2,
                 area = 1,
             },
 
@@ -244,7 +244,7 @@ public static class NeutralCards
             }
         });
 
-        // 100109 – Gnaw – bite until bleed (repeat 2) – TODO: Bleed DoT
+        // 100109 – Gnaw – bite until bleed (repeat 2) – now applies Bleed DoT (with fallback duration)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 100109,
@@ -256,6 +256,7 @@ public static class NeutralCards
             cost_u = 5,
             damage_u = 1,
             repeats_u = 2,
+            // duration_u intentionally optional; DoT will use fallback if unset.
 
             targetingData = new()
             {
@@ -266,11 +267,47 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Bite multiple times (applies Bleed – TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Bite multiple times and apply Bleed over time.",
             CardEffect = (User, Target, d) =>
             {
+                // direct hit (per repeat)
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // TODO: Bleed-DoT wie Poison/Burn anwenden (CardIdentity.Blood)
+
+                // Bleed DoT + immediate tick
+                int dur = d.Duration > 0 ? d.Duration : 6;
+                string name = $"Bleed#{d.cardID}";
+                var bleed = new EntityModifier(
+                    statName: name,
+                    baseValue: d.Damage,
+                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    duration: dur,
+                    target: Target.entityStats.CurrentHealth,
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    onRefEventAction: (mod, stat, ev) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { gameplayRef.onBleed },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
+                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                    });
+
+                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                // immediate tick on play
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                GameEvents.TriggerRefEvent(new TriggerRef
+                {
+                    References = new() { gameplayRef.onBleed },
+                    UserId = User.GetInstanceID(),
+                    AffectedEntityId = Target.GetInstanceID()
+                });
             }
         });
 
@@ -296,13 +333,16 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Deal 5 damage and apply Poison for 6 turns.",
+            CardDescription = (User, d) => d.cardDescription = "Deal 5 damage and apply Poison for 6 turns (immediate tick).",
             CardEffect = (User, Target, d) =>
             {
+                // direct hit
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
 
+                // Poison DoT + immediate tick
+                string name = $"Poison#{d.cardID}";
                 var poison = new EntityModifier(
-                    statName: "Poison",
+                    statName: name,
                     baseValue: d.Damage,
                     to_Trigger_refs: new() { gameplayRef.onPoison },
                     duration: d.Duration,
@@ -322,7 +362,17 @@ public static class NeutralCards
                         });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
+
                 CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                // immediate tick on play
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                GameEvents.TriggerRefEvent(new TriggerRef
+                {
+                    References = new() { gameplayRef.onPoison },
+                    UserId = User.GetInstanceID(),
+                    AffectedEntityId = Target.GetInstanceID()
+                });
             }
         });
 
@@ -493,7 +543,7 @@ public static class NeutralCards
 
     private static void RegisterItems()
     {
-        // 100601 – Throw Poison – Single; apply Poison DoT
+        // 100601 – Throw Poison – Single/Radius; apply Poison DoT (with immediate tick)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 100601,
@@ -510,16 +560,17 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                SelectionType = CardTargetSelection.Radius, // keep as defined in your file
                 range = 3,
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Apply Poison 2 for 6 turns.",
+            CardDescription = (User, d) => d.cardDescription = "Apply Poison 2 for 6 turns (immediate tick).",
             CardEffect = (User, Target, d) =>
             {
+                string name = $"Poison#{d.cardID}";
                 var poison = new EntityModifier(
-                    statName: "Poison",
+                    statName: name,
                     baseValue: d.Damage,
                     to_Trigger_refs: new() { gameplayRef.onPoison },
                     duration: d.Duration,
@@ -539,11 +590,21 @@ public static class NeutralCards
                         });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
+
                 CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                // immediate tick on play
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                GameEvents.TriggerRefEvent(new TriggerRef
+                {
+                    References = new() { gameplayRef.onPoison },
+                    UserId = User.GetInstanceID(),
+                    AffectedEntityId = Target.GetInstanceID()
+                });
             }
         });
 
-        // 100602 – Throw Firebomb – Single; apply Burn DoT
+        // 100602 – Throw Firebomb – Single/Radius; apply Burn DoT (with immediate tick)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 100602,
@@ -560,16 +621,17 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                SelectionType = CardTargetSelection.Radius, // keep as defined in your file
                 range = 3,
                 area = 2,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Apply Burn 2 for 6 turns.",
+            CardDescription = (User, d) => d.cardDescription = "Apply Burn 3 for 6 turns (immediate tick).",
             CardEffect = (User, Target, d) =>
             {
+                string name = $"Burn#{d.cardID}";
                 var burn = new EntityModifier(
-                    statName: "Burn",
+                    statName: name,
                     baseValue: d.Damage,
                     to_Trigger_refs: new() { gameplayRef.onBurn },
                     duration: d.Duration,
@@ -589,7 +651,17 @@ public static class NeutralCards
                         });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
+
                 CombatUtility.ApplyEntityModifier(User, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                // immediate tick on play
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                GameEvents.TriggerRefEvent(new TriggerRef
+                {
+                    References = new() { gameplayRef.onBurn },
+                    UserId = User.GetInstanceID(),
+                    AffectedEntityId = Target.GetInstanceID()
+                });
             }
         });
     }

@@ -201,7 +201,8 @@ public enum StatAspect
     Healing,
     Cost,
     Duration,
-    Repeats
+    Repeats,
+    Range
 }
 // -------------------- Referenece Struct --------------------
 public struct TriggerRef

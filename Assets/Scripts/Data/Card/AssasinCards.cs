@@ -3,8 +3,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Utility;
 
-// Assassin cards in Fire Bomb style. Damage effects implemented; complex ones left as comments.
-// Call AssassinCards.RegisterAll() from CardDatabase.RegisterAll().
 public static class AssassinCards
 {
     public static void RegisterAll()

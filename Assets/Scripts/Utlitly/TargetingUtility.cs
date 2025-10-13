@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System;
 using UnityEngine.EventSystems;
 using static UnityEngine.EventSystems.EventTrigger;
 
@@ -23,19 +24,19 @@ namespace Utility
                     targets = allEntities;
                     break;
                 case CardTargetSelection.Radius:
-                    var radiusTiles = TilemapUtilityScript.GetTilesInRadius(pos, card.cardData.targetingData.range);
+                    var radiusTiles = TilemapUtilityScript.GetTilesInRadius(pos, GetEffectiveRange(card, owner));
                     targets = GetEntitiesFromTiles(radiusTiles, allEntities);
                     break;
                 case CardTargetSelection.Ring:
-                    var ringTiles = TilemapUtilityScript.GetTilesInRing(pos, card.cardData.targetingData.range);
+                    var ringTiles = TilemapUtilityScript.GetTilesInRing(pos, GetEffectiveRange(card, owner));
                     targets = GetEntitiesFromTiles(ringTiles, allEntities);
                     break;
                 case CardTargetSelection.LineFree:
-                    var lineFreeTiles = TilemapUtilityScript.GetTilesInLine(pos, pos, card.cardData.targetingData.range);
+                    var lineFreeTiles = TilemapUtilityScript.GetTilesInLine(pos, pos, GetEffectiveRange(card, owner));
                     targets = GetEntitiesFromTiles(lineFreeTiles, allEntities);
                     break;
                 case CardTargetSelection.LineSelf:
-                    var lineSelfTiles = TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, pos, card.cardData.targetingData.range);
+                    var lineSelfTiles = TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, pos, GetEffectiveRange(card, owner));
                     targets = GetEntitiesFromTiles(lineSelfTiles, allEntities);
                     break;
                 case CardTargetSelection.Cone:
@@ -165,9 +166,10 @@ namespace Utility
         }
         public static List<Vector3Int> GetCandidateTilesForTarget(CardScript card, Vector3Int targetCell)
         {
-            List<Vector3Int> candidateTiles = card.cardData.targetingData.range <= 0
-                ? new List<Vector3Int> { targetCell }
-                : TilemapUtilityScript.GetTilesInRadius(targetCell, card.cardData.targetingData.range);
+            int effRange = GetEffectiveRange(card, card.cardData.Owner);
+            List < Vector3Int > candidateTiles = effRange <= 0
+                 ? new List<Vector3Int> { targetCell }
+                 : TilemapUtilityScript.GetTilesInRadius(targetCell, effRange);
 
             return candidateTiles;
         }
@@ -176,15 +178,15 @@ namespace Utility
             switch (card.cardData.targetingData.SelectionType)
             {
                 case CardTargetSelection.Radius:
-                    return TilemapUtilityScript.GetTilesInRadius(centerTile, card.cardData.targetingData.area);
+                    return TilemapUtilityScript.GetTilesInRadius(centerTile, GetEffectiveRange(card, owner));
                 case CardTargetSelection.Ring:
-                    return TilemapUtilityScript.GetTilesInRing(centerTile, card.cardData.targetingData.area);
+                    return TilemapUtilityScript.GetTilesInRing(centerTile, GetEffectiveRange(card, owner));
                 case CardTargetSelection.LineFree:
-                    return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, card.cardData.targetingData.area);
+                    return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, GetEffectiveRange(card, owner));
                 case CardTargetSelection.LineSelf:
-                    return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range);
+                    return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, GetEffectiveRange(card, owner));
                 case CardTargetSelection.Cone:
-                    return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.targetingData.range, card.cardData.targetingData.area);
+                    return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, GetEffectiveRange(card, owner), card.cardData.targetingData.area);
                 case CardTargetSelection.All:
                     return TilemapUtilityScript.GetAllValidTiles();
                 default:
@@ -193,8 +195,11 @@ namespace Utility
         }
         public static Vector3Int GetValidTileDrop(PointerEventData eventData, CardScript cardScript )
         {
-            List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
+            List<EntityOnMap> allEntities = UnityEngine.Object.FindObjectsByType<EntityOnMap>(0).ToList();
             Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+
+            int effRange = GetEffectiveRange(cardScript, cardScript.cardData.Owner);
+            Debug.Log($"[TargetingUtility] base={cardScript.cardData.targetingData.range} eff={effRange}");
 
             foreach (GameObject hoveredObject in eventData.hovered)
             {
@@ -204,9 +209,12 @@ namespace Utility
 
                 Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
 
-                if (TilemapUtilityScript.FindPath(currentCell,cell,ignoreCost:true).Path.Count > cardScript.cardData.targetingData.range)
+                var path = TilemapUtilityScript.FindPath(currentCell, cell, ignoreCost: true);
+                int pathLen = (path.Path == null) ? int.MaxValue : path.Path.Count;
+
+                if (pathLen > effRange)
                 {
-                    Debug.Log($"[TargetingUtility] Target {cell} is out of range.");
+                    Debug.Log($"[TargetingUtility] Target {cell} is out of range. (need <= {effRange}, got {pathLen})");
                     return TilemapUtilityScript.InvalidPosition;
                 }
 
@@ -216,8 +224,11 @@ namespace Utility
         }
         public static Vector3Int GetValidEntityDrop(PointerEventData eventData, CardScript cardScript)
         {
-            List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
+            List<EntityOnMap> allEntities = UnityEngine.Object.FindObjectsByType<EntityOnMap>(0).ToList();
             Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+
+            int effRange = GetEffectiveRange(cardScript, cardScript.cardData.Owner);
+            Debug.Log($"[TargetingUtility] base={cardScript.cardData.targetingData.range} eff={effRange}");
 
             foreach (GameObject hoveredObject in eventData.hovered)
             {
@@ -232,9 +243,11 @@ namespace Utility
 
                 // Check range
                 var path = TilemapUtilityScript.FindPath(currentCell, cell, ignoreCost: true);
-                if (path.Path == null || path.Path.Count > cardScript.cardData.targetingData.range)
+                int pathLen = (path.Path == null) ? int.MaxValue : path.Path.Count;
+
+                if (pathLen > effRange)
                 {
-                    Debug.Log($"[TargetingUtility] Target {cell} is out of range.");
+                    Debug.Log($"[TargetingUtility] Target {cell} is out of range. (need <= {effRange}, got {pathLen})");
                     continue;
                 }
 
@@ -251,6 +264,45 @@ namespace Utility
 
             // No valid entity found
             return TilemapUtilityScript.InvalidPosition;
+        }
+
+        // Berechnet die effektive Reichweite einer Karte.
+        // - Addiert Range-Buffs aus Class/Type/Identity
+        // - Gilt NICHT für Self-Karten (Affiliation = Self)
+        // --- typsichere, defensive Wrapper ---
+        private static int SafeGetStat(EntityStats stats, CardClass key, StatAspect aspect)
+        {
+            try { return stats.GetStatValue(key, aspect); }
+            catch (System.Exception e) { Debug.LogWarning($"[TargetingUtility] No class stat for '{key}' ({aspect}). 0 used. {e.Message}"); return 0; }
+        }
+        private static int SafeGetStat(EntityStats stats, CardType key, StatAspect aspect)
+        {
+            try { return stats.GetStatValue(key, aspect); }
+            catch (System.Exception e) { Debug.LogWarning($"[TargetingUtility] No type stat for '{key}' ({aspect}). 0 used. {e.Message}"); return 0; }
+        }
+        private static int SafeGetStat(EntityStats stats, CardIdentity key, StatAspect aspect)
+        {
+            try { return stats.GetStatValue(key, aspect); }
+            catch (System.Exception e) { Debug.LogWarning($"[TargetingUtility] No id stat for '{key}' ({aspect}). 0 used. {e.Message}"); return 0; }
+        }
+
+        // --- effektive Range (kein Bonus für Self-Karten) ---
+        private static int GetEffectiveRange(CardScript card, EntityScript owner)
+        {
+            int baseRange = card.cardData.targetingData.range;
+
+            if (card.cardData.targetingData.CardTargetAffiliation == CardTargetAffiliation.Self)
+                return baseRange;
+
+            if (owner == null || owner.entityStats == null) return baseRange;
+
+            int bonus = 0;
+            bonus += SafeGetStat(owner.entityStats, card.cardData.cardClass, StatAspect.Range);
+            bonus += SafeGetStat(owner.entityStats, card.cardData.cardType, StatAspect.Range);
+            foreach (var id in card.cardData.cardIdentities)
+                bonus += SafeGetStat(owner.entityStats, id, StatAspect.Range);
+
+            return Mathf.Max(0, baseRange + bonus);
         }
 
     }

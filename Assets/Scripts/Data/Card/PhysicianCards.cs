@@ -183,6 +183,7 @@ public static class PhysicianCards
 
             cost_u = 3,
             power_u = 0,
+            healing_u = 20,
 
             targetingData = new()
             {
@@ -197,6 +198,7 @@ public static class PhysicianCards
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Heal allied entities along the line.
+                CombatUtility.ApplyHealing(User, Target, d.healing_u);
             }
         });
     }
@@ -407,6 +409,7 @@ public static class PhysicianCards
 
             cost_u = 3,
             duration_u = 3,
+            power_u = 30,
 
             targetingData = new()
             {
@@ -417,7 +420,25 @@ public static class PhysicianCards
                 area = 1,
             },
             CardDescription = (User, d) => d.cardDescription = "Increase Max Health for 3 turns (value TBD).",
-            CardEffect = (User, Target, d) => { /* TODO: temp max health up */ }
+            CardEffect = (User, Target, d) => 
+            {
+                // Flat +MaxHealth für d.Duration Züge
+                var mod = new StatModifier(
+                    value: d.Power,                       // <- bei Stat-Buffs nimmst du power_u
+                    scaling: ModifierScaling.Flat,
+                    to_triggerReferences: null,          // optional (für UI/Refs nicht nötig)
+                    duration: d.Duration,                // 3
+                    on_triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnEnd },   // pro Zug herunterzählen
+            AffectedEntityId = Target.GetInstanceID()
+                    },
+                    target: Target.entityStats.MaxHealth, // wichtig: Ziel-Stat setzen
+                    name: "MaxHealth (Elixir)"
+                );
+
+                CombatUtility.ApplyBuff(User, Target, Target.entityStats.MaxHealth, mod, ModifierMergeStrategy.Merge);
+            }
         });
 
         // 140603 – Pill of a Hundred Herbs – +Max Health
