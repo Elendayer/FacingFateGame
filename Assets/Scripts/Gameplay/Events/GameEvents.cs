@@ -106,11 +106,14 @@ public enum gameplayRef
     Soul,
     Divine,
     Occult,
+    Melee,
+    Ranged,
 
     Spearman,
     Assassin,
     Mystic,
     Physician,
+    Neutral,
 
     Knight,
     Rogue,

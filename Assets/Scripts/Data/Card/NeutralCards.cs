@@ -22,17 +22,17 @@ public static class NeutralCards
             cardName = "Strike",
             cardType = CardType.Technique,
             cardClass = CardClass.Neutral,
-            cardIdentities = new() { CardIdentity.Melee },
+            cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
             cost_u = 1,
-            damage_u = 10,
+            damage_u = 100,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 2,
+                range = 1,
                 area = 1,
             },
 

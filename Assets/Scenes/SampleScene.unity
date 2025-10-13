@@ -840,7 +840,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100001
+      value: 100101
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
@@ -2190,7 +2190,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100001
+      value: 100101
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
@@ -3222,7 +3222,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100001
+      value: 100101
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
@@ -3651,7 +3651,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100001
+      value: 100101
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
@@ -3873,6 +3873,10 @@ PrefabInstance:
     - target: {fileID: 7540707036617351832, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9001171521745787760, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: currentCell.x
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9020706638173528162, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_LocalScale.x
