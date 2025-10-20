@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Utility;
 
 public static class AssassinCards
@@ -8,17 +7,16 @@ public static class AssassinCards
     public static void RegisterAll()
     {
         RegisterMartialArts();
-        RegisterAbilities();
         RegisterSpells();
+        RegisterAbilities();
         RegisterCurses();
         RegisterBlessings();
     }
 
-    // Class code = 12|TT|II
-
+    // --------------------------- Martial Arts (Techniques) ---------------------------
     private static void RegisterMartialArts()
     {
-        // 120101 – Shadowfang Strike (Line)
+        // 120101 â€“ Shadowfang Strike (LineSelf)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120101,
@@ -27,28 +25,28 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 5,
-            power_u = 10,
+            cost_u = 3,
+            damage_u = 10,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
-                range = 3,
+                range = 2,
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = $"Line: Deal {data.Power} damage to enemies in a line.",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Line: deal {d.Damage} damage to enemies in line (range {d.targetingData.range}).",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, data.Power);
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
             }
         });
 
-        // 120102 – Dance of a Hundred Cuts (AOE Ring)
+        // 120102 â€“ Dance of a Hundred Cuts (Ring, repeats)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120102,
@@ -57,9 +55,9 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 8,
-            power_u = 1,
-            repeats_u = 4,
+            cost_u = 4,
+            damage_u = 2,
+            repeats_u = 4, // System-seitig wiederholt abhandeln
 
             targetingData = new()
             {
@@ -70,17 +68,16 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = $"AOE: Deal {data.Power} damage to adjacent enemies.",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"AOE (adjacent): deal {d.Damage} damage (x{d.Repeats}).",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                // Damage is applied per resolved target around the user.
-                CombatUtility.ApplyDamage(User, Target, data.Power);
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
             }
         });
 
-        // 120103 – Lotus Death Kiss (Execute <10%) – complex
+        // 120103 â€“ Lotus Death Kiss (Execute <10% HP) â€“ damage fallback jetzt
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120103,
@@ -89,8 +86,8 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 6,
-            power_u = 10,
+            cost_u = 2,
+            damage_u = 10,
 
             targetingData = new()
             {
@@ -101,164 +98,124 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = "Execute enemy below 10% HP (TODO: implement condition & kill).",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"If target <10% HP: execute (TODO). Otherwise deal {d.Damage} damage.",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                // TODO: If Target health < 10% -> execute/kill; else deal damage.
+                // TODO: Execute-Logik (instant kill) wenn Ziel <10% MaxHP
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
             }
         });
 
-        // 120104 – Moonlit Needlestorm – complex (status)
+        // 120104 â€“ Moonlit Needlestorm (3 DoTs, Merge)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120104,
             cardName = "Moonlit Needlestorm",
             cardType = CardType.Technique,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Blood, CardIdentity.Poison, CardIdentity.Fire },
+            cardIdentities = new() { CardIdentity.Poison, CardIdentity.Fire, CardIdentity.Blood },
 
-            cost_u = 6,
-            power_u = 1,
-            repeats_u = 3,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.CombatTile,
-                CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single, // if unsupported, switch to Single later
-                range = 3,
-                area = 1,
-            },
-
-            CardDescription = (User, data) =>
-                data.cardDescription = "Throw needles at enemies and inflict status (TODO).",
-
-            CardEffect = (User, Target, data) =>
-            {
-                // Fallback, falls duration_u noch nicht gesetzt ist
-                var dur = data.Duration > 0 ? data.Duration : 6;
-                var tick = data.Power;
-
-                // POISON
-                var poison = new EntityModifier(
-                    statName: "Poison",
-                    baseValue: tick,
-                    to_Trigger_refs: new() { gameplayRef.onPoison },
-                    duration: dur,
-                    target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { gameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
-                    },
-                    onRefEventAction: (mod, stat, toTrigger) =>
-                    {
-                        GameEvents.TriggerRefEvent(new TriggerRef
-                        {
-                            References = new() { gameplayRef.onPoison },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
-                    });
-
-                // BURN
-                var burn = new EntityModifier(
-                    statName: "Burn",
-                    baseValue: tick,
-                    to_Trigger_refs: new() { gameplayRef.onBurn },
-                    duration: dur,
-                    target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { gameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
-                    },
-                    onRefEventAction: (mod, stat, toTrigger) =>
-                    {
-                        GameEvents.TriggerRefEvent(new TriggerRef
-                        {
-                            References = new() { gameplayRef.onBurn },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
-                    });
-
-                // BLEED
-                var bleed = new EntityModifier(
-                    statName: "Bleed",
-                    baseValue: tick,
-                    to_Trigger_refs: new() { gameplayRef.onBleed },
-                    duration: dur,
-                    target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { gameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
-                    },
-                    onRefEventAction: (mod, stat, toTrigger) =>
-                    {
-                        GameEvents.TriggerRefEvent(new TriggerRef
-                        {
-                            References = new() { gameplayRef.onBleed },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
-                    });
-
-                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
-                CombatUtility.ApplyEntityModifier(User, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
-                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
-            }
-
-        });
-
-        // 120105 – Black Lotus Needle (Single, increased crit)
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 120105,
-            cardName = "Black Lotus Needle",
-            cardType = CardType.Technique,
-            cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Physical, CardIdentity.Ranged },
-
-            cost_u = 5,
-            power_u = 20,
+            cost_u = 3,
+            damage_u = 1,     // TickhÃ¶he
+            duration_u = 6,   // Dauer der DoTs
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 5,
+                range = 2,
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = $"Deal {data.Power} damage (increased crit; TODO).",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Inflict Poison, Burn and Bleed ({d.Damage} per turn for {d.Duration} turns).",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                // Direct hit; crit handling later.
-                CombatUtility.ApplyDamage(User, Target, data.Power);
+                int tick = Mathf.Max(1, d.Damage);
+                int dur = d.Duration > 0 ? d.Duration : 6;
+
+                // Helper zum Erstellen eines DoTs
+                EntityModifier MakeDot(string statName, gameplayRef tickRef)
+                {
+                    return new EntityModifier(
+                        statName: statName,
+                        baseValue: tick,
+                        to_Trigger_refs: new() { tickRef },
+                        duration: dur,
+                        target: Target.entityStats.CurrentHealth,
+                        triggerConditionRef: new TriggerRef
+                        {
+                            References = new() { gameplayRef.onTurnStart },
+                            AffectedEntityId = Target.GetInstanceID()
+                        },
+                        onRefEventAction: (mod, stat, ev) =>
+                        {
+                            GameEvents.TriggerRefEvent(new TriggerRef
+                            {
+                                References = new() { tickRef },
+                                UserId = User.GetInstanceID(),
+                                AffectedEntityId = Target.GetInstanceID()
+                            });
+                            CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        });
+                }
+
+                var poison = MakeDot("Poison", gameplayRef.onPoison);
+                var burn = MakeDot("Burn", gameplayRef.onBurn);
+                var bleed = MakeDot("Bleed", gameplayRef.onBleed);
+
+                // WICHTIG: hier explizit Merge (kein Refresh), damit gleiche Karte nicht verlÃ¤ngert
+                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyEntityModifier(User, Target, burn, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.Merge);
             }
         });
 
-        // 120106 – Moon Piercing Arrow (Line 2 targets)
+        // 120105 â€“ Black Lotus Needle (Single heavy hit)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 120105,
+            cardName = "Black Lotus Needle",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Assassin,
+            cardIdentities = new() { CardIdentity.Physical },
+
+            cost_u = 4,
+            damage_u = 20,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                SelectionType = CardTargetSelection.Single,
+                range = 2,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Deal {d.Damage} damage to a single enemy.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+            }
+        });
+
+        // 120106 â€“ Moon Piercing Arrow (LineSelf; max 2 Ziele â€“ TODO cap)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120106,
             cardName = "Moon Piercing Arrow",
             cardType = CardType.Technique,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Ranged },
+            cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 5,
-            power_u = 10,
+            cost_u = 3,
+            damage_u = 10,
 
             targetingData = new()
             {
@@ -266,20 +223,20 @@ public static class AssassinCards
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
                 range = 3,
-                area = 2,
+                area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = $"Pierce up to 2 enemies in a line for {data.Power} damage (TODO: cap=2).",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Line: deal {d.Damage}; hits up to 2 enemies (cap TODO).",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                // Damage each target along the line; cap to 2 separately if needed.
-                CombatUtility.ApplyDamage(User, Target, data.Power);
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                // TODO: nur die ersten 2 getroffenen Entities der Linie werten
             }
         });
 
-        // 120107 – Midnight Rain (AOE Sphere)
+        // 120107 â€“ Midnight Rain (Small AOE)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120107,
@@ -288,8 +245,8 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 7,
-            power_u = 5,
+            cost_u = 4,
+            damage_u = 5,
 
             targetingData = new()
             {
@@ -300,16 +257,16 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = $"AOE: Deal {data.Power} damage in a small area.",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"AOE: deal {d.Damage} damage in a small area.",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, data.Power);
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
             }
         });
 
-        // 120108 – Bouncing Shot (Attack Bounce)
+        // 120108 â€“ Bouncing Shot (chain with ally/enemy + hop distance <= 2)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120108,
@@ -319,28 +276,89 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 3,
-            power_u = 4,
+            damage_u = 4,
+            repeats_u = 2, // Anzahl Bounces (Standard 2, kann per Stat skaliert werden)
 
             targetingData = new()
             {
-                CardTargetType = CardTargetType.CombatTile,
+                CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 3,
+                range = 3,   // Reichweite zum ERSTEN Ziel
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = $"AOE ring: Deal {data.Power} damage around you.",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Hit for {d.Damage} and bounce to {(d.Repeats > 0 ? d.Repeats : 2)} enemies (â‰¤2 tiles between bounces).",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, data.Power);
-                //To-Do Bouncing logic
+                // -------- Helpers --------
+                bool IsEnemyOf(EntityScript owner, EntityScript candidate)
+                {
+                    if (owner == null || candidate == null) return false;
+                    // Feind = andere Fraktion und nicht Neutral.
+                    return candidate.entityAffiliation != owner.entityAffiliation
+                           && candidate.entityAffiliation != EntityAffiliation.Neutral;
+                }
+
+                int StepsBetween(Vector3Int from, Vector3Int to)
+                {
+                    var p = TilemapUtilityScript.FindPath(from, to, ignoreCost: true);
+                    // Path.Count = Anzahl Knoten; Schritte = Knoten - 1
+                    return (p.Path == null || p.Path.Count == 0) ? int.MaxValue : Mathf.Max(0, p.Path.Count - 1);
+                }
+
+                EntityScript FindNextBounceTarget(EntityScript from, HashSet<int> alreadyHit, int maxHopSteps)
+                {
+                    var allOnMap = Object.FindObjectsByType<EntityOnMap>(
+                        FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+
+                    var fromCell = from.GetComponent<EntityOnMap>()?.currentCell ?? TilemapUtilityScript.InvalidPosition;
+
+                    EntityScript best = null;
+                    int bestSteps = int.MaxValue;
+
+                    foreach (var eom in allOnMap)
+                    {
+                        var cand = eom.GetComponent<EntityScript>();
+                        if (cand == null) continue;
+                        if (alreadyHit.Contains(cand.GetInstanceID())) continue;
+                        if (!IsEnemyOf(User, cand)) continue;
+
+                        int steps = StepsBetween(fromCell, eom.currentCell);
+                        if (steps <= maxHopSteps && steps < bestSteps)
+                        {
+                            best = cand;
+                            bestSteps = steps;
+                        }
+                    }
+                    return best;
+                }
+
+                // 1) Starttreffer
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+
+                // 2) Bounces
+                var hitSet = new HashSet<int> { Target.GetInstanceID() };
+                var last = Target;
+
+                int maxBounces = (d.Repeats > 0) ? d.Repeats : 2; 
+                const int hopLimit = 2; 
+
+                for (int i = 0; i < maxBounces; i++)
+                {
+                    var next = FindNextBounceTarget(last, hitSet, hopLimit);
+                    if (next == null) break;
+
+                    CombatUtility.ApplyDamage(User, next, d.Damage);
+                    hitSet.Add(next.GetInstanceID());
+                    last = next;
+                }
             }
         });
 
-        // 120109 – Barbed Needle Volley – complex selection + bleed
+        // 120109 â€“ Barbed Needle Volley (Damage + Bleed)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120109,
@@ -349,69 +367,66 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 5,
-            power_u = 7,
+            cost_u = 4,
+            damage_u = 7,
+            duration_u = 6, // Bleed-Dauer
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single, // TODO: selection targeting
-                range = 3,
+                SelectionType = CardTargetSelection.Radius, // (du hast Sphere -> Radius bereits korrigiert)
+                range = 2,
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = "Hit multiple enemies with needles; applies Bleed (TODO).",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"AOE: deal {d.Damage} damage and inflict Bleed ({d.Duration} turns).",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, data.Power);
-                // TODO: multi-target selection + apply Bleed DoT like Fire Bomb.
+                // Direktschaden
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+
+                // Bleed-DoT
+                var bleed = new EntityModifier(
+                    statName: "Bleed",
+                    baseValue: d.Damage, // oder etwas kleiner als d.Damage, falls gewÃ¼nscht
+                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    duration: d.Duration,
+                    target: Target.entityStats.CurrentHealth,
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    onRefEventAction: (mod, stat, ev) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { gameplayRef.onBleed },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
+                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                    });
+
+                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
-        // 120110 – Serpent Coil Shot – immobilize (CC)
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 120110,
-            cardName = "Serpent Coil Shot",
-            cardType = CardType.Technique,
-            cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Physical },
-
-            cost_u = 2,
-            power_u = 0,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
-                range = 3,
-                area = 1,
-            },
-
-            CardDescription = (User, data) =>
-                data.cardDescription = "Immobilize an enemy (TODO).",
-
-            CardEffect = (User, Target, data) =>
-            {
-                // TODO: Apply immobilize debuff.
-            }
-        });
-
-        // 120111 – Merciful Headshot – stun (CC)
+        // 120111 â€“ Merciful Headshot (Stun + Damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120111,
             cardName = "Merciful Headshot",
             cardType = CardType.Technique,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Physical,CardIdentity.Ranged },
+            cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 3,
-            power_u = 2,
+            cost_u = 2,
+            damage_u = 6,
+            duration_u = 1, // Stun fÃ¼r 1 Zug
 
             targetingData = new()
             {
@@ -422,27 +437,54 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = "Stun an enemy (TODO).",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Deal {d.Damage} damage and Stun the target for {d.Duration} turn.",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, data.Power);
-                // TODO: Apply stun.
+                // Direkter Schaden
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+
+                // Stun-Modifier (Ein-Zug)
+                var stun = new EntityModifier(
+                    statName: "Stun",
+                    baseValue: 1,
+                    to_Trigger_refs: new() { gameplayRef.onStunned },
+                    duration: Mathf.Max(1, d.Duration),
+                    target: Target.entityStats.CurrentHealth, // TrÃ¤ger ist die Entity; Stat selbst egal
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    onRefEventAction: (mod, stat, ev) =>
+                    {
+                // Melde â€žStun aktivâ€œ â€“ Turn/AI sollten bei vorhandenem Stun-Modifier Aktionen Ã¼berspringen (TODO in Turn/AI)
+                GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { gameplayRef.onStunned },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
+                // Optional: hier kÃ¶nntest du AP/Stamina auf 0 setzen, falls dein System so arbeitet.
+                // Target.entityStats.CurrentStamina?.ApplyFinalValue(0); // <-- nur falls vorhanden/gewÃ¼nscht
+            });
+
+                CombatUtility.ApplyEntityModifier(User, Target, stun, ModifierMergeStrategy.Merge);
             }
         });
 
-        // 120112 – Crimson Thorn Array – Bleed AOE ring
+        // 120112 â€“ Crimson Thorn Array (Bleed DoT AOE)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120112,
             cardName = "Crimson Thorn Array",
             cardType = CardType.Technique,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Blood },
+            cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 8,
-            power_u = 8,
+            cost_u = 3,
+            damage_u = 8,   // Bleed-TickhÃ¶he
             duration_u = 6,
 
             targetingData = new()
@@ -454,32 +496,45 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) =>
-                data.cardDescription = $"Apply Bleed (DoT {data.Power} for {data.Duration}) to adjacent enemies.",
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Apply Bleed ({d.Damage} per turn for {d.Duration}) to adjacent enemies.",
 
-            CardEffect = (User, Target, data) =>
+            CardEffect = (User, Target, d) =>
             {
-                // DoT like Fire Bomb but using onBleed
                 var bleed = new EntityModifier(
                     statName: "Bleed",
-                    baseValue: data.Power,
+                    baseValue: d.Damage,
                     to_Trigger_refs: new() { gameplayRef.onBleed },
-                    duration: data.Duration,
+                    duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
-                    onRefEventAction: (mod, stat, refEv) =>
+                    triggerConditionRef: new TriggerRef
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef { References = new() { gameplayRef.onBleed }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    onRefEventAction: (mod, stat, ev) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { gameplayRef.onBleed },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
+
                 CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
+
     }
+
+
+
 
     private static void RegisterAbilities()
     {
-        // 120201 – Phantom Step – movement (non-damage)
+        // 120201 â€“ Phantom Step â€“ movement (non-damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120201,
@@ -503,7 +558,7 @@ public static class AssassinCards
             CardEffect = (User, Target, data) => { /* TODO movement */ }
         });
 
-        // 120202 – Apply Scorching Blood Venom – ignite next attack (non-damage)
+        // 120202 â€“ Apply Scorching Blood Venom â€“ ignite next attack (non-damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120202,
@@ -527,7 +582,7 @@ public static class AssassinCards
             CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
         });
 
-        // 120203 – Apply Black Lotus Venom – poison next attack (non-damage)
+        // 120203 â€“ Apply Black Lotus Venom â€“ poison next attack (non-damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120203,
@@ -551,7 +606,7 @@ public static class AssassinCards
             CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
         });
 
-        // 120204 – Apply Dazzlying Numbing Venom – stun next attack (non-damage)
+        // 120204 â€“ Apply Dazzlying Numbing Venom â€“ stun next attack (non-damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120204,
@@ -575,7 +630,7 @@ public static class AssassinCards
             CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
         });
 
-        // 120205 – Eye of the Nighthawk – dmg/crit up (non-damage)
+        // 120205 â€“ Eye of the Nighthawk â€“ dmg/crit up (non-damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120205,
@@ -599,7 +654,7 @@ public static class AssassinCards
             CardEffect = (User, Target, data) => { /* TODO buff */ }
         });
 
-        // 120206 – Reapply Venom – reapplies last venom (non-damage)
+        // 120206 â€“ Reapply Venom â€“ reapplies last venom (non-damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120206,
@@ -631,7 +686,7 @@ public static class AssassinCards
 
     private static void RegisterCurses()
     {
-        // 120401 – Fumble – self-random (non-damage)
+        // 120401 â€“ Fumble â€“ self-random (non-damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120401,
@@ -656,7 +711,7 @@ public static class AssassinCards
 
     private static void RegisterBlessings()
     {
-        // 120501 – Lucky Strike – next attack repeats (non-damage)
+        // 120501 â€“ Lucky Strike â€“ next attack repeats (non-damage)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120501,

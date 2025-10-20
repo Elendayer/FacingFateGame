@@ -32,13 +32,35 @@ namespace Utility
                     targets = GetEntitiesFromTiles(ringTiles, allEntities);
                     break;
                 case CardTargetSelection.LineFree:
-                    var lineFreeTiles = TilemapUtilityScript.GetTilesInLine(pos, pos, GetEffectiveRange(card, owner));
-                    targets = GetEntitiesFromTiles(lineFreeTiles, allEntities);
-                    break;
+                    {
+                        int effRange = GetEffectiveRange(card, owner);
+                        var ownerCell = owner.GetComponent<EntityOnMap>().currentCell;
+
+                        // Richtung aus Besitzer -> Maus/pos ableiten; fallback = (1,0,0)
+                        Vector3Int dir = DirectionStep(ownerCell, pos);
+                        if (dir == Vector3Int.zero) dir = Vector3Int.right;
+
+                        // Linie vom gewählten Tile "pos" in diese Richtung aufspannen
+                        var end = new Vector3Int(pos.x + dir.x * effRange, pos.y + dir.y * effRange, pos.z);
+                        var lineTiles = TilemapUtilityScript.GetTilesInLine(pos, end, effRange);
+
+                        int maxHits = Mathf.Max(1, card.cardData.targetingData.area);
+                        targets = CollectLinearTargets(lineTiles, allEntities, card, maxHits);
+                        break;
+                    }
                 case CardTargetSelection.LineSelf:
-                    var lineSelfTiles = TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, pos, GetEffectiveRange(card, owner));
-                    targets = GetEntitiesFromTiles(lineSelfTiles, allEntities);
-                    break;
+                    {
+                        int effRange = GetEffectiveRange(card, owner);
+                        var ownerCell = owner.GetComponent<EntityOnMap>().currentCell;
+
+                        // Linie vom Besitzer in Richtung "pos"
+                        var lineTiles = TilemapUtilityScript.GetTilesInLine(ownerCell, pos, effRange);
+
+                        int maxHits = Mathf.Max(1, card.cardData.targetingData.area);
+                        targets = CollectLinearTargets(lineTiles, allEntities, card, maxHits);
+                        break;
+                    }
+
                 case CardTargetSelection.Cone:
                     break;
                 case CardTargetSelection.Select:
@@ -286,21 +308,53 @@ namespace Utility
             catch (System.Exception e) { Debug.LogWarning($"[TargetingUtility] No id stat for '{key}' ({aspect}). 0 used. {e.Message}"); return 0; }
         }
 
-        // --- effektive Range (kein Bonus für Self-Karten) ---
+        // Nimmt eine Tile-Liste in Reihenfolge (Linie) und sammelt bis zu maxHits valide Entities
+        private static List<EntityScript> CollectLinearTargets(
+            List<Vector3Int> lineTiles,
+            List<EntityScript> allEntities,
+            CardScript card,
+            int maxHits)
+        {
+            var result = new List<EntityScript>();
+            if (lineTiles == null || allEntities == null || card == null) return result;
+
+            foreach (var tile in lineTiles)
+            {
+                var hit = allEntities.FirstOrDefault(e =>
+                    e != null &&
+                    e.TryGetComponent<EntityOnMap>(out var eom) &&
+                    eom.currentCell == tile);
+
+                if (hit == null) continue;
+                if (!VetTargetEntity(card, hit)) continue;
+
+                result.Add(hit);
+                if (result.Count >= maxHits) break; // nur 1 oder mehrere, je nach area
+            }
+
+            return result;
+        }
+
+        // Ein Schrittvektor (-1/0/1 pro Achse) von 'from' Richtung 'to'
+        private static Vector3Int DirectionStep(Vector3Int from, Vector3Int to)
+        {
+            int dx = Mathf.Clamp(to.x - from.x, -1, 1);
+            int dy = Mathf.Clamp(to.y - from.y, -1, 1);
+            return new Vector3Int(dx, dy, 0);
+        }
+
+        // Effektive Reichweite unter Einbezug deiner Stat-Aspekte (Self-Karten bekommen keinen Bonus)
         private static int GetEffectiveRange(CardScript card, EntityScript owner)
         {
-            int baseRange = card.cardData.targetingData.range;
-
-            if (card.cardData.targetingData.CardTargetAffiliation == CardTargetAffiliation.Self)
-                return baseRange;
-
+            int baseRange = card?.cardData?.targetingData?.range ?? 0;
+            if (card?.cardData?.targetingData?.CardTargetAffiliation == CardTargetAffiliation.Self) return baseRange;
             if (owner == null || owner.entityStats == null) return baseRange;
 
             int bonus = 0;
-            bonus += SafeGetStat(owner.entityStats, card.cardData.cardClass, StatAspect.Range);
-            bonus += SafeGetStat(owner.entityStats, card.cardData.cardType, StatAspect.Range);
+            bonus += owner.entityStats.GetStatValue(card.cardData.cardClass, StatAspect.Range);
+            bonus += owner.entityStats.GetStatValue(card.cardData.cardType, StatAspect.Range);
             foreach (var id in card.cardData.cardIdentities)
-                bonus += SafeGetStat(owner.entityStats, id, StatAspect.Range);
+                bonus += owner.entityStats.GetStatValue(id, StatAspect.Range);
 
             return Mathf.Max(0, baseRange + bonus);
         }
