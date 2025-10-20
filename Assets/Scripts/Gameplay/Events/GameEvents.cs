@@ -83,6 +83,7 @@ public enum gameplayRef
     onStatChanged,
     onModifierApplied,
     onModifierExpired,
+    onHitLanded,
 
     Skill,
     Item,
