@@ -205,7 +205,7 @@ public static class AssassinCards
             }
         });
 
-        // 120106 – Moon Piercing Arrow (LineSelf; max 2 Ziele – TODO cap)
+        // 120106 – Moon Piercing Arrow (LineSelf; multi-hit along the line)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120106,
@@ -223,18 +223,18 @@ public static class AssassinCards
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
                 range = 3,
-                area = 1,
+                area = 3, // <= trifft bis zu X Gegner in der Linie
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Line: deal {d.Damage}; hits up to 2 enemies (cap TODO).",
+                d.cardDescription = $"Line: hit up to {d.targetingData.area} enemies for {d.Damage} each (range {d.targetingData.range}).",
 
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // TODO: nur die ersten 2 getroffenen Entities der Linie werten
             }
         });
+
 
         // 120107 – Midnight Rain (Small AOE)
         CardDatabase.RegisterCard(new CardData()
@@ -534,31 +534,7 @@ public static class AssassinCards
 
     private static void RegisterAbilities()
     {
-        // 120201 – Phantom Step – movement (non-damage)
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 120201,
-            cardName = "Phantom Step",
-            cardType = CardType.Ability,
-            cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.None },
-
-            cost_u = 0,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
-                range = 2,
-                area = 1,
-            },
-
-            CardDescription = (User, data) => data.cardDescription = "Move behind an enemy (TODO).",
-            CardEffect = (User, Target, data) => { /* TODO movement */ }
-        });
-
-        // 120202 – Apply Scorching Blood Venom – ignite next attack (non-damage)
+        // 120202 – Apply Scorching Blood Venom (Next attack applies Ignite/Burn)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120202,
@@ -567,7 +543,9 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Fire },
 
-            cost_u = 0,
+            cost_u = 0,           // Tabelle: 0–1 → erstmal 0
+            damage_u = 3,         // Tick pro Runde
+            duration_u = 6,       // 6 Runden
 
             targetingData = new()
             {
@@ -578,11 +556,19 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) => data.cardDescription = "Next attack inflicts Ignite (TODO).",
-            CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
-        });
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Next attack applies Ignite: {d.Damage} damage for {d.Duration} turns.",
 
-        // 120203 – Apply Black Lotus Venom – poison next attack (non-damage)
+            CardEffect = (User, Target, d) =>
+            {
+                // Ignite == Burn
+                CombatUtility.ApplyNextHitDot(User, d.Damage, d.Duration, "Burn", gameplayRef.onBurn);
+                CombatUtility.SetLastVenom(User, "Burn", d.Damage, d.Duration, gameplayRef.onBurn); // <— merken für Reapply
+            }
+
+    });
+
+        // 120203 – Apply Black Lotus Venom (Next attack applies Poison)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120203,
@@ -592,6 +578,8 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.Poison },
 
             cost_u = 0,
+            damage_u = 3,
+            duration_u = 6,
 
             targetingData = new()
             {
@@ -602,11 +590,17 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) => data.cardDescription = "Next attack inflicts Poison (TODO).",
-            CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Next attack applies Poison: {d.Damage} damage for {d.Duration} turns.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                CombatUtility.ApplyNextHitDot(User, d.Damage, d.Duration, "Poison", gameplayRef.onPoison);
+                CombatUtility.SetLastVenom(User, "Poison", d.Damage, d.Duration, gameplayRef.onPoison);
+            }
         });
 
-        // 120204 – Apply Dazzlying Numbing Venom – stun next attack (non-damage)
+        // 120204 – Apply Dazzlying Numbing Venom (Next attack applies Stun)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120204,
@@ -616,6 +610,8 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 0,
+            damage_u = 0,
+            duration_u = 1,
 
             targetingData = new()
             {
@@ -626,8 +622,15 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) => data.cardDescription = "Next attack inflicts Stun (TODO).",
-            CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Next attack applies Stun (duration {d.Duration}).",
+
+            CardEffect = (User, Target, d) =>
+            {
+                // TODO: NextHit → apply Stun to the hit target (no damage-over-time).
+                // CombatUtility.ApplyNextHitStatus(User, duration: d.Duration, "Stun", gameplayRef.onStunned);
+                // CombatUtility.SetLastVenom(User, "Stun", d.Damage, d.Duration, gameplayRef.onStunned);
+            }
         });
 
         // 120205 – Eye of the Nighthawk – dmg/crit up (non-damage)
@@ -654,7 +657,7 @@ public static class AssassinCards
             CardEffect = (User, Target, data) => { /* TODO buff */ }
         });
 
-        // 120206 – Reapply Venom – reapplies last venom (non-damage)
+        // 120206 – Reapply Venom – reapplies the last used venom
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120206,
@@ -674,9 +677,23 @@ public static class AssassinCards
                 area = 1,
             },
 
-            CardDescription = (User, data) => data.cardDescription = "Reapply the last venom used (TODO).",
-            CardEffect = (User, Target, data) => { /* TODO */ }
+            CardDescription = (User, d) =>
+                d.cardDescription = "Reapply the last venom used; your next attack applies it again.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                if (CombatUtility.TryGetLastVenom(User, out var ven))
+                {
+                    CombatUtility.ApplyNextHitDot(User, ven.tick, ven.duration, ven.effectName, ven.tickRef);
+                }
+                else
+                {
+                    // Kein gespeichertes Venom vorhanden → kein Effekt (oder optional Default)
+                    // CombatUtility.ApplyNextHitDot(User, 3, 6, "Poison", gameplayRef.onPoison);
+                }
+            }
         });
+
     }
 
     private static void RegisterSpells()

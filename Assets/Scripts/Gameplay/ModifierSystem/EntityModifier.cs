@@ -79,6 +79,10 @@ public class EntityModifier : IEntityModifier
     public void OnRefEventTriggered(TriggerRef trigger)
     {
         {
+            StatModifier.LastTriggerRef = trigger;
+
+            StatModifier.On_RefEventTriggered(trigger);
+
             foreach (gameplayRef gRef in To_TriggerGameplayRefs)
             {
                 OnRefEventAction?.Invoke(StatModifier, TargetStat, gRef);

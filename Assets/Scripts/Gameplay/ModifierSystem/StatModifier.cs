@@ -12,6 +12,7 @@ public interface IStatModifier
     bool IsExpired { get; }
     void AddListener();
     void On_RefEventTriggered(TriggerRef reference);
+
 }
 
 public class StatModifier : IStatModifier
@@ -41,6 +42,7 @@ public class StatModifier : IStatModifier
     public int Duration { get; set; }
     public List<gameplayRef> To_TriggerGameplayRefs { get; private set; }
     public TriggerRef On_TriggerConditionRef { get; private set; }
+    public TriggerRef LastTriggerRef { get; internal set; } = new TriggerRef();
 
     public bool IsExpired => Duration <= 0;
     public Stat TargetStat;
