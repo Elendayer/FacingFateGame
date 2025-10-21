@@ -534,7 +534,7 @@ public static class AssassinCards
 
     private static void RegisterAbilities()
     {
-        // 120202 – Apply Scorching Blood Venom (Next attack applies Ignite/Burn)
+        // 120202 – Apply Scorching Blood Venom (Burn for next X attacks)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120202,
@@ -543,9 +543,10 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Fire },
 
-            cost_u = 0,           // Tabelle: 0–1 → erstmal 0
-            damage_u = 3,         // Tick pro Runde
-            duration_u = 6,       // 6 Runden
+            cost_u = 0,
+            damage_u = 3,   // Burn tick per turn
+            duration_u = 6, // Burn duration
+            power_u = 3,    // charges = next X attacks
 
             targetingData = new()
             {
@@ -557,18 +558,18 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Next attack applies Ignite: {d.Damage} damage for {d.Duration} turns.",
+            {
+                int charges = (d.Power > 0 ? d.Power : 3);
+                d.cardDescription = $"For the next {charges} attacks: apply Burn ({d.Damage} for {d.Duration} turns).";
+            },
 
             CardEffect = (User, Target, d) =>
             {
-                // Ignite == Burn
-                CombatUtility.ApplyNextHitDot(User, d.Damage, d.Duration, "Burn", gameplayRef.onBurn);
-                CombatUtility.SetLastVenom(User, "Burn", d.Damage, d.Duration, gameplayRef.onBurn); // <— merken für Reapply
+                VenomUtility.ArmBurnFromCard(User, d);
             }
+        });
 
-    });
-
-        // 120203 – Apply Black Lotus Venom (Next attack applies Poison)
+        // 120203 – Apply Black Lotus Venom (Poison for next X attacks)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120203,
@@ -577,9 +578,10 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Poison },
 
-            cost_u = 0,
-            damage_u = 3,
-            duration_u = 6,
+            cost_u = 3,
+            damage_u = 3,   // Poison tick
+            duration_u = 2, // Poison duration
+            power_u = 3,    // next X attacks
 
             targetingData = new()
             {
@@ -591,16 +593,20 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Next attack applies Poison: {d.Damage} damage for {d.Duration} turns.",
+            {
+                int charges = (d.Power > 0 ? d.Power : 3);
+                d.cardDescription = $"For the next {charges} attacks: apply Poison ({d.Damage} for {d.Duration} turns).";
+            },
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyNextHitDot(User, d.Damage, d.Duration, "Poison", gameplayRef.onPoison);
-                CombatUtility.SetLastVenom(User, "Poison", d.Damage, d.Duration, gameplayRef.onPoison);
+                VenomUtility.ArmPoisonFromCard(User, d);
+                Debug.Log($"[Venom] charges via power_u = {d.Power}");
+
             }
         });
 
-        // 120204 – Apply Dazzlying Numbing Venom (Next attack applies Stun)
+        // 120204 – Apply Dazzlying Numbing Venom (Stun for next X attacks)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120204,
@@ -610,8 +616,8 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 0,
-            damage_u = 0,
-            duration_u = 1,
+            duration_u = 1, 
+            power_u = 2,    
 
             targetingData = new()
             {
@@ -623,20 +629,54 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Next attack applies Stun (duration {d.Duration}).",
+            {
+                int charges = (d.Power > 0 ? d.Power : 3);
+                d.cardDescription = $"For the next {charges} attacks: apply Stun for {d.Duration} turn(s).";
+            },
 
             CardEffect = (User, Target, d) =>
             {
-                // TODO: NextHit → apply Stun to the hit target (no damage-over-time).
-                // CombatUtility.ApplyNextHitStatus(User, duration: d.Duration, "Stun", gameplayRef.onStunned);
-                // CombatUtility.SetLastVenom(User, "Stun", d.Damage, d.Duration, gameplayRef.onStunned);
+                VenomUtility.ArmStunFromCard(User, d);
             }
         });
 
-        // 120205 – Eye of the Nighthawk – dmg/crit up (non-damage)
+        // 120205 – Reapply Venom (top-up to X charges of your last venom card)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120205,
+            cardName = "Reapply Venom",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Assassin,
+            cardIdentities = new() { CardIdentity.None },
+
+            cost_u = 0,
+            power_u = 3, // Ziel-Anzahl an Charges nach dem Top-Up
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                SelectionType = CardTargetSelection.Single,
+                range = 0,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+            {
+                int target = (d.Power > 0 ? d.Power : 3);
+                d.cardDescription = $"Reapply your last venom card (top-up to {target} charges).";
+            },
+
+            CardEffect = (User, Target, d) =>
+            {
+                VenomUtility.ReapplyFromCard(User, d); // top-up auf d.Power (Default 3)
+            }
+        });
+
+        // 120206 – Eye of the Nighthawk – dmg/crit up (non-damage)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 120206,
             cardName = "Eye of the Nighthawk",
             cardType = CardType.Ability,
             cardClass = CardClass.Assassin,
@@ -655,43 +695,6 @@ public static class AssassinCards
 
             CardDescription = (User, data) => data.cardDescription = "Increase damage/crit (TODO).",
             CardEffect = (User, Target, data) => { /* TODO buff */ }
-        });
-
-        // 120206 – Reapply Venom – reapplies the last used venom
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 120206,
-            cardName = "Reapply Venom",
-            cardType = CardType.Ability,
-            cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.None },
-
-            cost_u = 0,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
-            },
-
-            CardDescription = (User, d) =>
-                d.cardDescription = "Reapply the last venom used; your next attack applies it again.",
-
-            CardEffect = (User, Target, d) =>
-            {
-                if (CombatUtility.TryGetLastVenom(User, out var ven))
-                {
-                    CombatUtility.ApplyNextHitDot(User, ven.tick, ven.duration, ven.effectName, ven.tickRef);
-                }
-                else
-                {
-                    // Kein gespeichertes Venom vorhanden → kein Effekt (oder optional Default)
-                    // CombatUtility.ApplyNextHitDot(User, 3, 6, "Poison", gameplayRef.onPoison);
-                }
-            }
         });
 
     }

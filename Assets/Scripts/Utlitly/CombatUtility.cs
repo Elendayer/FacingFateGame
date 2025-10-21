@@ -88,11 +88,10 @@ namespace Utility
             target.AddModifier(mod, mergeStrategy);
         }
 
-        // Entity-Finder (Unity 6)
         public static EntityScript FindEntityById(int instanceId)
         {
-            var all = UnityEngine.Object.FindObjectsByType<EntityScript>(
-                UnityEngine.FindObjectsInactive.Exclude, UnityEngine.FindObjectsSortMode.None);
+            var all = Object.FindObjectsByType<EntityScript>(
+                FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             for (int i = 0; i < all.Length; i++)
                 if (all[i] != null && all[i].GetInstanceID() == instanceId)
                     return all[i];
@@ -161,30 +160,90 @@ namespace Utility
             ApplyEntityModifier(user, user, arm, ModifierMergeStrategy.Merge);
         }
 
-        #region Last-Venom memory (for "Reapply Venom")
-        private static readonly Dictionary<int, (string effectName, int tick, int duration, gameplayRef tickRef)> _lastVenom
-            = new Dictionary<int, (string, int, int, gameplayRef)>();
+        // ---- Next-Hit STATUS (z.B. Stun) ---------------------------------------------
 
-        public static void SetLastVenom(EntityScript user, string effectName, int tick, int duration, gameplayRef tickRef)
+        // Einfacher Eintrag: rüste die nächsten 'charges' Treffer mit einem Status aus.
+        // Bitte beim Aufruf gameplayRef.onStunned übergeben.
+        public static void ApplyNextHitStatusWithCharges(
+            EntityScript user,
+            int duration,
+            string effectName,
+            gameplayRef statusRef,   // z.B. gameplayRef.onStunned
+            int charges)
+        {
+            if (user == null || charges <= 0) return;
+
+            duration = Mathf.Max(1, duration);
+
+            for (int i = 0; i < charges; i++)
+                ApplyNextHitStatus(user, duration, effectName, statusRef);
+        }
+
+        // Eine Charge „armen“: beim nächsten onHitLanded wird der Status auf das getroffene Ziel gelegt.
+        private static void ApplyNextHitStatus(
+            EntityScript user,
+            int duration,
+            string effectName,
+            gameplayRef statusRef)    // z.B. gameplayRef.onStunned
         {
             if (user == null) return;
-            _lastVenom[user.GetInstanceID()] = (effectName, Mathf.Max(1, tick), Mathf.Max(1, duration), tickRef);
-        }
 
-        public static bool TryGetLastVenom(
-            EntityScript user,
-            out (string effectName, int tick, int duration, gameplayRef tickRef) v)
-        {
-            if (user != null)
-            {
-                var id = user.GetInstanceID();
-                if (_lastVenom.TryGetValue(id, out v))
-                    return true;
-            }
-            v = default;
-            return false;
+            bool consumed = false;
+
+            var arm = new EntityModifier(
+                statName: $"NextHit:{effectName}",
+                baseValue: 0,
+                to_Trigger_refs: new() { statusRef },   // rein dokumentarisch
+                duration: 1,
+                target: user.entityStats.CurrentHealth,
+                triggerConditionRef: new TriggerRef
+                {
+            // WICHTIG: Wir hören auf den TREFFER des Users
+            References = new() { gameplayRef.onHitLanded },
+                    AffectedEntityId = user.GetInstanceID()
+                },
+                onRefEventAction: (mod, stat, _gRef) =>
+                {
+                    if (consumed) return;
+                    consumed = true;
+
+            // getroffene Einheit ermitteln (vom zuletzt ausgelösten Trigger)
+            var hit = FindEntityById(mod.LastTriggerRef.AffectedEntityId);
+                    if (hit == null) { mod.Duration = 0; return; }
+
+            // Status-Modifier auf das Ziel: Dauer 'duration', triggert pro Rundenstart ein Event
+            var status = new EntityModifier(
+                        statName: effectName,                 // z.B. "Stun"
+                        baseValue: 1,
+                        to_Trigger_refs: new() { statusRef }, // z.B. onStunned
+                        duration: duration,
+                        target: hit.entityStats.CurrentHealth,
+                        triggerConditionRef: new TriggerRef
+                        {
+                            References = new() { gameplayRef.onTurnStart },
+                            AffectedEntityId = hit.GetInstanceID()
+                        },
+                        onRefEventAction: (m2, s2, _g2) =>
+                        {
+                    // hier nur das Status-Event feuern; Auswirkung (z.B. Skip Turn) macht dein Turn/AI-System
+                    GameEvents.TriggerRefEvent(new TriggerRef
+                            {
+                                References = new() { statusRef },
+                                UserId = user.GetInstanceID(),
+                                AffectedEntityId = hit.GetInstanceID()
+                            });
+                        });
+
+            // Status anwenden (kein Verlängern nötig) – einfache Zusammenführung genügt
+            ApplyEntityModifier(user, hit, status, ModifierMergeStrategy.Merge);
+
+            // diese „Arming“-Charge verbrauchen
+            mod.Duration = 0;
+                });
+
+            // Den Arming-Mod auf den User legen
+            ApplyEntityModifier(user, user, arm, ModifierMergeStrategy.Merge);
         }
-        #endregion
 
     }
 }
