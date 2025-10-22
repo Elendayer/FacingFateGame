@@ -13,7 +13,7 @@ namespace Utility
 
             // Pre-mitigation damage reduction (e.g., from abilities or effects)
             int damage = rawDamage;
-            rawDamage = target.entityStats.DamageReduction.ApplyFinalValue(rawDamage);
+            rawDamage = target.entityStats.DamageTakenReduction.ApplyFinalValue(rawDamage);
 
             // Step 1: Apply Armour
             if (target.entityStats.Armour.Value > 0)
@@ -54,11 +54,13 @@ namespace Utility
         {
             GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onHeal }, user.GetInstanceID(), target.GetInstanceID()));
 
-            target.entityStats.CurrentHealth.AddModifier(new StatModifier(Mathf.Min
+            target.entityStats.CurrentHealth.AddModifier(new StatModifier(
+                Mathf.Min
                 (
-                target.entityStats.CurrentHealth.Value + healing,
-                target.entityStats.MaxHealth.Value
-                ), ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.AddUnique);
+                    target.entityStats.CurrentHealth.Value + healing,
+                    target.entityStats.MaxHealth.Value
+            ),
+                ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
         }
 
         public static void ApplyBuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
@@ -76,6 +78,24 @@ namespace Utility
         public static void ApplyEntityModifier(EntityScript user, EntityScript target, IEntityModifier mod, ModifierMergeStrategy mergeStrategy)
         {
             target.AddModifier(mod, mergeStrategy);
+        }
+
+        public static void SpawnEntity(EntityScript user, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation )
+        {
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onSummon }, user.GetInstanceID(), -1));
+
+            GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, parent: user.transform.parent);
+            EntityOnMap entityOnMap = SpawnObj.GetComponent<EntityOnMap>();
+
+            entityOnMap.Spawn(spawnPosition);
+
+            NonPlayerScript spawnedEntity = SpawnObj.GetComponent<NonPlayerScript>();
+
+            Npc npc =  NpcDatabase.GetNpcById(npcID);
+
+            spawnedEntity.name = npc.name;
+            spawnedEntity.entityAffiliation = affiliation;
+            spawnedEntity.npcAIBias = npc.aiBias;
         }
     }
 }

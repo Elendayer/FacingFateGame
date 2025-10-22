@@ -16,7 +16,7 @@ namespace Utility
 
             switch (card.cardData.targetingData.SelectionType)
             {
-                case CardTargetSelection.Single:                  
+                case CardTargetSelection.Single:
                     targets = GetEntitiesFromTiles(new() { pos }, allEntities);
                     break;
                 case CardTargetSelection.All:
@@ -191,7 +191,7 @@ namespace Utility
                     return new List<Vector3Int> { centerTile };
             }
         }
-        public static Vector3Int GetValidTileDrop(PointerEventData eventData, CardScript cardScript )
+        public static Vector3Int GetValidTileDrop(PointerEventData eventData, CardScript cardScript)
         {
             List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
             Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
@@ -204,7 +204,7 @@ namespace Utility
 
                 Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
 
-                if (TilemapUtilityScript.FindPath(currentCell,cell,ignoreCost:true).Path.Count > cardScript.cardData.targetingData.range)
+                if (TilemapUtilityScript.FindPath(currentCell, cell, ignoreCost: true).Path.Count > cardScript.cardData.targetingData.range)
                 {
                     Debug.Log($"[TargetingUtility] Target {cell} is out of range.");
                     return TilemapUtilityScript.InvalidPosition;
@@ -253,5 +253,21 @@ namespace Utility
             return TilemapUtilityScript.InvalidPosition;
         }
 
+        public static Vector3Int GetValidGroundDrop(PointerEventData eventData, CardScript cardScript)
+        {
+            foreach (GameObject hoveredObject in eventData.hovered)
+            {
+                Debug.Log($"[TargetingUtility] Hovered object: {hoveredObject.name}");
+
+                // Only consider tiles with DraggableTarget component
+                if (!hoveredObject.TryGetComponent(out DraggableTarget dt))
+                    continue;
+
+                // Convert hovered object position to tile cell
+                Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
+                return cell;
+            }
+            return TilemapUtilityScript.InvalidPosition;
+        }
     }
 }

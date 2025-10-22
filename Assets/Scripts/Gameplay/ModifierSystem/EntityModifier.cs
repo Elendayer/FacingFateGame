@@ -52,6 +52,7 @@ public class EntityModifier : IEntityModifier
             }
         }
     }
+
     public EntityModifier
         (
         string statName,

@@ -30,34 +30,45 @@ public class DraggableCard : Draggable
         TilemapUtilityScript.ResetMaphightlight(BaseTilemap);
 
         Vector3Int dropCell = TilemapUtilityScript.InvalidPosition;
+        CardTargetType ctt = cardScript.cardData.targetingData.CardTargetType;
+
         List<EntityScript> targets = new();
 
-        switch (cardScript.cardData.targetingData.CardTargetType)
+        switch (ctt)
         {
             case CardTargetType.CombatTile:
                 dropCell = TargetingUtility.GetValidTileDrop(eventData, cardScript);
-                targets = TargetingUtility.GetTargetsFromPosition(cardScript, dropCell,FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(),cardScript.cardData.Owner);
+                targets = TargetingUtility.GetTargetsFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
 
                 ; break;
             case CardTargetType.Entity:
                 dropCell = TargetingUtility.GetValidEntityDrop(eventData, cardScript);
                 targets = TargetingUtility.GetTargetsFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
                 break;
+            case CardTargetType.Ground:
+                dropCell = TargetingUtility.GetValidGroundDrop(eventData, cardScript);
+                break;
         }
 
         if (dropCell == InvalidPosition) return;
 
 
-
         Debug.Log($"[DraggableCard] Card {cardScript.cardData.cardName} targets before vetting: {targets.Count}");
 
-        if (targets.Any())
+        if (ctt == CardTargetType.Entity || ctt == CardTargetType.CombatTile)
         {
-            Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on {string.Join(", ", targets.Select(t => t.name))}");
-            cardScript.cardData.ActivateCard(targets, gameObject);
+            if (targets.Any())
+            {
+                Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on {string.Join(", ", targets.Select(t => t.name))}");
+                cardScript.cardData.ActivateCard(targets, gameObject);
+            }
+        }
+        else
+        {
+            Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on ground at {dropCell}");
+            cardScript.cardData.ActivateCard(new List<Vector3Int>() { dropCell }, gameObject);
         }
     }
-
     private void HighlightCardEffectArea(PointerEventData eventData)
     {
         Vector3Int? currentTile = GetHoveredTile(eventData, BaseTilemap);

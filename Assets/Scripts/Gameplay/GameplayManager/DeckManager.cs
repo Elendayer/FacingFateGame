@@ -37,6 +37,8 @@ public class DeckManager : MonoBehaviour
     public void StartUp()
     {
         CardDatabase.RegisterAll();
+        AiBiasDatabase.RegisterAll();
+        NpcDatabase.RegisterAll();
 
         if (deckDrawButton != null)
             deckDrawButton.onClick.AddListener(DrawTopCard);

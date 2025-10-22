@@ -25,9 +25,16 @@ public class EntityOnMap : MonoBehaviour
         transform.position = refTilemap.CellToWorld(currentCell);
         SetOccupied(true);     
     }
-    /// <summary>
-    /// Move the character to the target cell coordinate using A* pathfinding.
-    /// </summary>
+
+    public void Spawn(Vector3Int vector3Int)
+    {
+        refTilemap = TilemapUtilityScript.BaseTilemap;
+
+        currentCell = vector3Int;
+        transform.position = refTilemap.CellToWorld(currentCell);
+        SetOccupied(false);
+    }
+
     public void MoveTo(Vector3Int targetCell)
     {
         if (moveRoutine != null) StopCoroutine(moveRoutine);

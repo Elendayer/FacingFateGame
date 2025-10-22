@@ -106,6 +106,8 @@ public enum gameplayRef
     Soul,
     Divine,
     Occult,
+    Melee,
+    Ranged,
 
     Spearman,
     Assassin,

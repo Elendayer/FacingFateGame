@@ -21,8 +21,10 @@ public class AiBiasDatabase : MonoBehaviour
     }
     public static NpcAiBias GetBiasById(string id)
     {
-        if (!AILookup.TryGetValue(id, out var AiBias) || AiBias == null)
+        if (!AILookup.TryGetValue(id, out var blueprint) || blueprint == null)
             return null;
+
+        NpcAiBias AiBias = blueprint.Clone();
 
         return AiBias;
     }
@@ -47,7 +49,7 @@ public class AiBiasDatabase : MonoBehaviour
             refBias = new Dictionary<gameplayRef, int>(),
             identityBias = new Dictionary<CardIdentity, int>(),
 
-            ReposiitionCondition = FleeCondition.surrounded
+            RepositionCondition = RepositionCondition.surrounded
         });
     } 
 }

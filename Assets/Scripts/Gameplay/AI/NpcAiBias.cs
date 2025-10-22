@@ -10,7 +10,7 @@ public class NpcAiBias
     public Dictionary<gameplayRef,int> refBias = new Dictionary<gameplayRef,int>();
     public Dictionary<CardIdentity,int> identityBias = new Dictionary<CardIdentity,int>();
 
-    public FleeCondition ReposiitionCondition;
+    public RepositionCondition RepositionCondition;
 
     public int BiasCalc(CardData cardData)
     {
@@ -40,9 +40,23 @@ public class NpcAiBias
         }
         return biasValue;
     }
+
+    public NpcAiBias Clone()
+    {
+        return new NpcAiBias
+        {
+            id = this.id,
+            intentionBias = new Dictionary<Intention, int>(this.intentionBias),
+            refBias = new Dictionary<gameplayRef, int>(this.refBias),
+            identityBias = new Dictionary<CardIdentity, int>(this.identityBias),
+
+            RepositionCondition = this.RepositionCondition
+        };
+    }
+
 }
 
-public enum FleeCondition
+public enum RepositionCondition
 {
     surrounded,
     lowHealth,

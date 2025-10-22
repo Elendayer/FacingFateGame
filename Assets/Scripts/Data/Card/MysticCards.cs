@@ -164,14 +164,17 @@ public static class MysticCards
 
             targetingData = new()
             {
-                CardTargetType = CardTargetType.Entity,
+                CardTargetType = CardTargetType.Ground,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
             CardDescription = (User, d) => d.cardDescription = "Create a double that draws aggro and attacks once (TODO).",
-            CardEffect = (User, Target, d) => { /* TODO: spawn double */ }
+            CardEffectGround = (User, Target, d) => 
+            {
+                CombatUtility.SpawnEntity(User, Target, "0001", EntityAffiliation.Neutral); 
+            }
         });
 
         // 130302 – Phantom Spear Battalion – ring blockers (non-damage)

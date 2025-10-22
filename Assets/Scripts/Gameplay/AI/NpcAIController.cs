@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utility;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class NpcAIController
 {
@@ -118,9 +117,9 @@ public class NpcAIController
     private ScoredCard TryGetFleeCandidate(Vector3Int virtualPosition, List<EntityScript> allEntities)
     {
         ScoredCard moveOption_Flee = null;
-        switch (npc.npcAIBias.ReposiitionCondition)
+        switch (npc.npcAIBias.RepositionCondition)
         {
-            case FleeCondition.surrounded:
+            case RepositionCondition.surrounded:
                 if (TargetingUtility.GetEntitiesFromTiles(TilemapUtilityScript.GetTilesInRadius(virtualPosition, 1), allEntities).Count >= 3)
                 {
                     moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npc);
@@ -131,7 +130,7 @@ public class NpcAIController
                     }
                 }
                 break;
-            case FleeCondition.lowHealth:
+            case RepositionCondition.lowHealth:
                 if (npc.entityStats.CurrentHealth.Value < npc.entityStats.MaxHealth.Value * 0.3f)
                 {
                     moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npc);
@@ -142,7 +141,7 @@ public class NpcAIController
                     }
                 }
                 break;
-            case FleeCondition.preferRanged:
+            case RepositionCondition.preferRanged:
                 var closeEnemies = allEntities
                     .Where(e => e.entityAffiliation != npc.entityAffiliation)
                     .Where(e => Vector3Int.Distance(e.GetComponent<EntityOnMap>().currentCell, virtualPosition) < 2)
