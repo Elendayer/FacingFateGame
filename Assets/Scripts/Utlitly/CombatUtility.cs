@@ -8,68 +8,73 @@ namespace Utility
         public static void ApplyDamage(EntityScript user, EntityScript target, int rawDamage, bool isAttack = false)
         {
             if (isAttack)
-            {
                 GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onAttack }, user.GetInstanceID(), target.GetInstanceID()));
-            }
 
-            // Pre-mitigation damage reduction (e.g., from abilities or effects)
+            // Damage-Basis
             int damage = rawDamage;
-            rawDamage = target.entityStats.DamageReduction.ApplyFinalValue(rawDamage);
 
-            // Step 1: Apply Armour
+            // 1) Pre-Mitigation (Resistenzen o.ä.)
+            damage = target.entityStats.DamageReduction.ApplyFinalValue(damage);
+
+            // 2) Armour
             if (target.entityStats.Armour.Value > 0)
             {
-                damage = Mathf.Max(0, damage - (target.entityStats.IgnoreArmour.ApplyFinalValue(target.entityStats.Armour.Value)));
+                int effectiveArmour = target.entityStats.IgnoreArmour.ApplyFinalValue(target.entityStats.Armour.Value);
+                damage = Mathf.Max(0, damage - effectiveArmour);
             }
 
-            // Step 2: Apply to Block
+            // 3) Block
             int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block.Value);
-            if (block > 0)
+            if (block > 0 && damage > 0)
             {
                 GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
-
                 int blockAbsorb = Mathf.Min(damage, block);
                 target.entityStats.Block.AddModifier(new StatModifier(-blockAbsorb, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
                 damage -= blockAbsorb;
             }
 
-            // Step 3: Apply to Health
+            // 4) Health
             if (damage > 0)
             {
                 if (isAttack)
-                {
                     GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onDamage }, user.GetInstanceID(), target.GetInstanceID()));
-                }
 
                 target.entityStats.CurrentHealth.AddModifier(
                     new StatModifier(-damage, ModifierScaling.Flat, name: "BaseValue"),
                     ModifierMergeStrategy.Merge);
 
-                GameEvents.TriggerRefEvent(new TriggerRef(
-                    new() { gameplayRef.onHitLanded },
-                    user.GetInstanceID(),
-                    target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onHitLanded }, user.GetInstanceID(), target.GetInstanceID()));
             }
 
-
-
-            if (user.entityStats.Lifesteal.GetAllValues().Count > 0)
+            // 5) Lifesteal
+            if (damage > 0 && user.entityStats.Lifesteal.GetAllValues().Count > 0)
             {
                 GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onLifesteal }, user.GetInstanceID(), target.GetInstanceID()));
-                ApplyHealing(user, user, Mathf.CeilToInt(damage * (user.entityStats.Lifesteal.Value / 100f)));
-            }        
+                int heal = Mathf.CeilToInt(damage * (user.entityStats.Lifesteal.Value / 100f));
+                ApplyHealing(user, user, heal);
+            }
+
+            VenomUtility.TryConsumeAndApplyOnHit(user, target);
         }
+
 
         public static void ApplyHealing(EntityScript user, EntityScript target, int healing)
         {
+            if (healing <= 0) return;
+
             GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onHeal }, user.GetInstanceID(), target.GetInstanceID()));
 
-            target.entityStats.CurrentHealth.AddModifier(new StatModifier(Mathf.Min
-                (
-                target.entityStats.CurrentHealth.Value + healing,
-                target.entityStats.MaxHealth.Value
-                ), ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.AddUnique);
+            int missing = target.entityStats.MaxHealth.Value - target.entityStats.CurrentHealth.Value;
+            int effHeal = Mathf.Clamp(healing, 0, Mathf.Max(0, missing));
+
+            if (effHeal > 0)
+            {
+                target.entityStats.CurrentHealth.AddModifier(
+                    new StatModifier(+effHeal, ModifierScaling.Flat, name: "BaseValue"),
+                    ModifierMergeStrategy.Merge);
+            }
         }
+
 
         public static void ApplyBuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
@@ -83,10 +88,42 @@ namespace Utility
 
             targetStat.AddModifier(mod, mergeStrategy);
         }
-        public static void ApplyEntityModifier(EntityScript user, EntityScript target, IEntityModifier mod, ModifierMergeStrategy mergeStrategy)
+        // CombatUtility.cs
+
+        public static void ApplyEntityModifier(
+            EntityScript user,
+            EntityScript target,
+            EntityModifier mod,
+            ModifierMergeStrategy mergeStrategy)
         {
+            if (target == null || mod == null) return;
+
+            // Falls dein Mod Events nutzt
+            mod.AddListener();
+
+            // Deine bestehende Pipeline
             target.AddModifier(mod, mergeStrategy);
+
+            // Optional: Inspector-Debug (nur wenn du StatusDebugView nutzt)
+            target.GetComponent<StatusDebugView>()?.Track(mod);
         }
+
+        // Wrapper für Altaufrufe mit dem Interface
+        public static void ApplyEntityModifier(
+            EntityScript user,
+            EntityScript target,
+            IEntityModifier mod,
+            ModifierMergeStrategy mergeStrategy)
+        {
+            if (target == null || mod == null) return;
+            if (mod is EntityModifier em)
+                ApplyEntityModifier(user, target, em, mergeStrategy);
+            else
+                Debug.LogWarning($"[CombatUtility] Unsupported IEntityModifier '{mod.GetType().Name}'. Use ApplyBuff(...) for Stat modifiers.");
+        }
+
+
+
 
         public static EntityScript FindEntityById(int instanceId)
         {
@@ -160,15 +197,12 @@ namespace Utility
             ApplyEntityModifier(user, user, arm, ModifierMergeStrategy.Merge);
         }
 
-        // ---- Next-Hit STATUS (z.B. Stun) ---------------------------------------------
 
-        // Einfacher Eintrag: rüste die nächsten 'charges' Treffer mit einem Status aus.
-        // Bitte beim Aufruf gameplayRef.onStunned übergeben.
         public static void ApplyNextHitStatusWithCharges(
             EntityScript user,
             int duration,
             string effectName,
-            gameplayRef statusRef,   // z.B. gameplayRef.onStunned
+            gameplayRef statusRef,  
             int charges)
         {
             if (user == null || charges <= 0) return;
@@ -179,12 +213,11 @@ namespace Utility
                 ApplyNextHitStatus(user, duration, effectName, statusRef);
         }
 
-        // Eine Charge „armen“: beim nächsten onHitLanded wird der Status auf das getroffene Ziel gelegt.
         private static void ApplyNextHitStatus(
             EntityScript user,
             int duration,
             string effectName,
-            gameplayRef statusRef)    // z.B. gameplayRef.onStunned
+            gameplayRef statusRef)    
         {
             if (user == null) return;
 
@@ -193,12 +226,12 @@ namespace Utility
             var arm = new EntityModifier(
                 statName: $"NextHit:{effectName}",
                 baseValue: 0,
-                to_Trigger_refs: new() { statusRef },   // rein dokumentarisch
+                to_Trigger_refs: new() { statusRef },   
                 duration: 1,
                 target: user.entityStats.CurrentHealth,
                 triggerConditionRef: new TriggerRef
                 {
-            // WICHTIG: Wir hören auf den TREFFER des Users
+
             References = new() { gameplayRef.onHitLanded },
                     AffectedEntityId = user.GetInstanceID()
                 },
@@ -207,15 +240,13 @@ namespace Utility
                     if (consumed) return;
                     consumed = true;
 
-            // getroffene Einheit ermitteln (vom zuletzt ausgelösten Trigger)
             var hit = FindEntityById(mod.LastTriggerRef.AffectedEntityId);
                     if (hit == null) { mod.Duration = 0; return; }
 
-            // Status-Modifier auf das Ziel: Dauer 'duration', triggert pro Rundenstart ein Event
             var status = new EntityModifier(
-                        statName: effectName,                 // z.B. "Stun"
+                        statName: effectName,               
                         baseValue: 1,
-                        to_Trigger_refs: new() { statusRef }, // z.B. onStunned
+                        to_Trigger_refs: new() { statusRef }, 
                         duration: duration,
                         target: hit.entityStats.CurrentHealth,
                         triggerConditionRef: new TriggerRef
@@ -243,6 +274,68 @@ namespace Utility
 
             // Den Arming-Mod auf den User legen
             ApplyEntityModifier(user, user, arm, ModifierMergeStrategy.Merge);
+        }
+
+        public static EntityModifier CreateDot(
+            EntityScript user,
+            EntityScript target,
+            string effectName,
+            int tickValue,
+            int duration,
+            gameplayRef procRef)
+        {
+            return new EntityModifier(
+                statName: effectName,
+                baseValue: tickValue,
+                to_Trigger_refs: new() { procRef },
+                duration: duration,
+                target: target.entityStats.CurrentHealth,
+                triggerConditionRef: new TriggerRef
+                {
+                    References = new() { gameplayRef.onTurnStart },
+                    AffectedEntityId = target.GetInstanceID()
+                },
+                onRefEventAction: (mod, stat, ev) =>
+                {
+            // optionales „procced“-Event
+            GameEvents.TriggerRefEvent(new TriggerRef
+                    {
+                        References = new() { procRef },
+                        UserId = user.GetInstanceID(),
+                        AffectedEntityId = target.GetInstanceID()
+                    });
+
+            // Tick-Schaden
+            CombatUtility.ApplyDamage(user, target, mod.BaseValue);
+                }
+            );
+        }
+
+        public static void ApplyDot(
+            EntityScript user,
+            EntityScript target,
+            string effectName,
+            int tickValue,
+            int duration,
+            gameplayRef procRef,
+            ModifierMergeStrategy merge,
+            bool immediateTick = false)
+        {
+            var mod = CreateDot(user, target, effectName, tickValue, duration, procRef);
+
+            // deine bestehende Pipeline; hier drin optional StatusDebugView.Track(mod)
+            ApplyEntityModifier(user, target, mod, merge);
+
+            if (immediateTick)
+            {
+                ApplyDamage(user, target, tickValue);
+                GameEvents.TriggerRefEvent(new TriggerRef
+                {
+                    References = new() { procRef },
+                    UserId = user.GetInstanceID(),
+                    AffectedEntityId = target.GetInstanceID()
+                });
+            }
         }
 
     }

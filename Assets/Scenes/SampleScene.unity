@@ -621,6 +621,11 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &212959538 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+  m_PrefabInstance: {fileID: 461453950}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &224209493 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2832468515761090220, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
@@ -836,15 +841,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100101
+      value: 110104
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
-      value: 100002
+      value: 120202
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[2]'
@@ -933,13 +938,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 461453952}
   m_SourcePrefab: {fileID: 100100000, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
 --- !u!224 &461453951 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2832468515761090220, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
   m_PrefabInstance: {fileID: 461453950}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &461453952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 212959538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0bb8a9b9cbc16c4d86828515b91ae29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
+  _rows: []
 --- !u!1 &469480538
 GameObject:
   m_ObjectHideFlags: 0
@@ -2186,15 +2207,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100101
+      value: 110104
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
-      value: 100007
+      value: 120203
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[2]'
@@ -2287,7 +2308,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2124137229}
   m_SourcePrefab: {fileID: 100100000, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
 --- !u!1 &1227688145
 GameObject:
@@ -3218,15 +3242,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100101
+      value: 110104
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
-      value: 100002
+      value: 120203
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[2]'
@@ -3315,12 +3339,20 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2026404414}
   m_SourcePrefab: {fileID: 100100000, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
 --- !u!224 &1525487523 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2832468515761090220, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
   m_PrefabInstance: {fileID: 1525487522}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1534443277 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+  m_PrefabInstance: {fileID: 1197714234}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1591935310
 GameObject:
@@ -3647,7 +3679,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
@@ -3655,7 +3687,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
-      value: 100002
+      value: 120202
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[2]'
@@ -3744,7 +3776,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1907007552}
   m_SourcePrefab: {fileID: 100100000, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
 --- !u!1001 &1804769186
 PrefabInstance:
@@ -3756,7 +3791,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
@@ -3764,19 +3799,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
-      value: 100101
+      value: 100110
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[2]'
-      value: 100101
+      value: 120203
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[3]'
-      value: 100101
+      value: 110104
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[4]'
       value: 110201
+      objectReference: {fileID: 0}
+    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: 'deckCardIDs.Array.data[5]'
+      value: 120203
       objectReference: {fileID: 0}
     - target: {fileID: 2832468515761090220, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_Pivot.x
@@ -3893,7 +3932,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1958448941}
   m_SourcePrefab: {fileID: 100100000, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
 --- !u!1 &1854110838
 GameObject:
@@ -4144,6 +4186,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e52ec6d17a50c47ab4c4f8e97a2330, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1907007551 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+  m_PrefabInstance: {fileID: 1784589651}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1907007552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907007551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0bb8a9b9cbc16c4d86828515b91ae29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
+  _rows: []
 --- !u!1 &1938320529
 GameObject:
   m_ObjectHideFlags: 0
@@ -4219,6 +4279,42 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1938320529}
   m_CullTransparentMesh: 1
+--- !u!1 &1958448940 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+  m_PrefabInstance: {fileID: 1804769186}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1958448941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958448940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0bb8a9b9cbc16c4d86828515b91ae29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
+  _rows: []
+--- !u!1 &2026404413 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+  m_PrefabInstance: {fileID: 1525487522}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2026404414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026404413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0bb8a9b9cbc16c4d86828515b91ae29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
+  _rows: []
 --- !u!1 &2107421683
 GameObject:
   m_ObjectHideFlags: 0
@@ -4299,6 +4395,19 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2832468515761090220, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
   m_PrefabInstance: {fileID: 1197714234}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2124137229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1534443277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0bb8a9b9cbc16c4d86828515b91ae29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
+  _rows: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

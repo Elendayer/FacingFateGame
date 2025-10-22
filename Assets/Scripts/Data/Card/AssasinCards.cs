@@ -534,19 +534,19 @@ public static class AssassinCards
 
     private static void RegisterAbilities()
     {
-        // 120202 – Apply Scorching Blood Venom (Burn for next X attacks)
+        // 120202 – Apply Scorching Blood Venom – next X hits apply Burn DoT
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120202,
             cardName = "Apply Scorching Blood Venom",
             cardType = CardType.Ability,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Fire },
+            cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison },
 
             cost_u = 0,
-            damage_u = 3,   // Burn tick per turn
-            duration_u = 6, // Burn duration
-            power_u = 3,    // charges = next X attacks
+            power_u = 3,     // <- Anzahl Angriffe (charges)
+            damage_u = 2,    // <- Burn Tick
+            duration_u = 3,  // <- DoT Dauer
 
             targetingData = new()
             {
@@ -559,17 +559,32 @@ public static class AssassinCards
 
             CardDescription = (User, d) =>
             {
-                int charges = (d.Power > 0 ? d.Power : 3);
-                d.cardDescription = $"For the next {charges} attacks: apply Burn ({d.Damage} for {d.Duration} turns).";
+                d.cardDescription =
+                    $"Next {d.Power} attacks apply Burn (DoT {d.Damage} for {d.Duration} turns).";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                VenomUtility.ArmBurnFromCard(User, d);
+                VenomUtility.SetLastVenom(
+                    user: User,
+                    effectName: "Burn",
+                    tick: d.Damage,
+                    duration: d.Duration,
+                    tickRef: gameplayRef.onBurn
+                );
+
+                CombatUtility.ApplyNextHitStatusWithCharges(
+                    user: User,
+                    duration: d.Duration,
+                    effectName: "Burn",
+                    statusRef: gameplayRef.onBurn,
+                    charges: Mathf.Max(1, d.Power)
+                );
             }
         });
 
-        // 120203 – Apply Black Lotus Venom (Poison for next X attacks)
+
+        // 120203 – Apply Black Lotus Venom – next X hits apply Poison DoT
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120203,
@@ -578,10 +593,10 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Poison },
 
-            cost_u = 3,
-            damage_u = 3,   // Poison tick
-            duration_u = 2, // Poison duration
-            power_u = 3,    // next X attacks
+            cost_u = 0,
+            power_u = 3,     
+            damage_u = 2,    
+            duration_u = 3,  
 
             targetingData = new()
             {
@@ -594,17 +609,30 @@ public static class AssassinCards
 
             CardDescription = (User, d) =>
             {
-                int charges = (d.Power > 0 ? d.Power : 3);
-                d.cardDescription = $"For the next {charges} attacks: apply Poison ({d.Damage} for {d.Duration} turns).";
+                d.cardDescription =
+                    $"Next {d.Power} attacks apply Poison (DoT {d.Damage} for {d.Duration} turns).";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                VenomUtility.ArmPoisonFromCard(User, d);
-                Debug.Log($"[Venom] charges via power_u = {d.Power}");
+                VenomUtility.SetLastVenom(
+                    user: User,
+                    effectName: "Poison",
+                    tick: d.Damage,
+                    duration: d.Duration,
+                    tickRef: gameplayRef.onPoison
+                );
 
+                CombatUtility.ApplyNextHitStatusWithCharges(
+                    user: User,
+                    duration: d.Duration,
+                    effectName: "Poison",
+                    statusRef: gameplayRef.onPoison,
+                    charges: Mathf.Max(1, d.Power)
+                );
             }
         });
+
 
         // 120204 – Apply Dazzlying Numbing Venom (Stun for next X attacks)
         CardDatabase.RegisterCard(new CardData()

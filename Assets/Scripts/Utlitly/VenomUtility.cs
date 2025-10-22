@@ -1,19 +1,10 @@
-using System.Collections.Generic;
+Ôªøusing System.Collections.Generic;
 using UnityEngine;
 
 namespace Utility
 {
-    /// <summary>
-    /// Zentrale Utilities f¸r Venoms (Poison/Burn/Bleed/Stun).
-    /// - Nutzt power_u (d.Power) als Anzahl der n‰chsten Angriffe (Charges).
-    /// - Kapselt "Apply Next Hit ..." f¸r DoTs/Status.
-    /// - Merkt sich die zuletzt gespielte Venom-KARTE (eine Art), damit "Reapply Venom" sie erneut arm'en kann.
-    /// </summary>
     public static class VenomUtility
     {
-        // ------------------------------------------------------------
-        // Last-Venom memory (f¸r "Reapply Venom") ñ exakt wie gew¸nscht
-        // ------------------------------------------------------------
         #region Last-Venom memory (for "Reapply Venom")
         private static readonly Dictionary<int, (string effectName, int tick, int duration, gameplayRef tickRef)> _lastVenom
             = new Dictionary<int, (string, int, int, gameplayRef)>();
@@ -41,42 +32,42 @@ namespace Utility
         }
         #endregion
 
-        // ------------------------------------------------------------
-        // ÷ffentliche API: Karten-Wrapper (nutzen power_u als Charges)
-        // ------------------------------------------------------------
+        // ---------------------
+        // ‚ÄúArm‚Äù-Hilfsfunktionen
+        // ---------------------
 
-        /// <summary>F¸r die n‰chsten (charges) Angriffe: Burn anwenden.</summary>
+        /// <summary>F√ºr die n√§chsten (charges) Angriffe: Burn anwenden.</summary>
         public static void ArmBurnHits(EntityScript user, int tick, int duration, int charges)
         {
             ArmNextHitDotWithCharges(user, tick, duration, "Burn", gameplayRef.onBurn, charges);
             SetLastVenom(user, "Burn", tick, duration, gameplayRef.onBurn);
         }
 
-        /// <summary>F¸r die n‰chsten (charges) Angriffe: Poison anwenden.</summary>
+        /// <summary>F√ºr die n√§chsten (charges) Angriffe: Poison anwenden.</summary>
         public static void ArmPoisonHits(EntityScript user, int tick, int duration, int charges)
         {
             ArmNextHitDotWithCharges(user, tick, duration, "Poison", gameplayRef.onPoison, charges);
             SetLastVenom(user, "Poison", tick, duration, gameplayRef.onPoison);
         }
 
-        /// <summary>F¸r die n‰chsten (charges) Angriffe: Bleed anwenden.</summary>
+        /// <summary>F√ºr die n√§chsten (charges) Angriffe: Bleed anwenden.</summary>
         public static void ArmBleedHits(EntityScript user, int tick, int duration, int charges)
         {
             ArmNextHitDotWithCharges(user, tick, duration, "Bleed", gameplayRef.onBleed, charges);
             SetLastVenom(user, "Bleed", tick, duration, gameplayRef.onBleed);
         }
 
-        /// <summary>F¸r die n‰chsten (charges) Angriffe: Stun anwenden (Status, kein DoT).</summary>
+        /// <summary>F√ºr die n√§chsten (charges) Angriffe: Stun anwenden (Status, kein DoT).</summary>
         public static void ArmStunHits(EntityScript user, int duration, int charges)
         {
-            // Falls du keinen CombatUtility-Status-Helper hast, kann ich dir hier den Inline-Arm-Code einbauen.
+            // Achtung: Event-Name ist onStunned (nicht onStun).
             CombatUtility.ApplyNextHitStatusWithCharges(user, duration, "Stun", gameplayRef.onStunned, charges);
             SetLastVenom(user, "Stun", 0, duration, gameplayRef.onStunned);
         }
 
         /// <summary>
-        /// Reapply Venom: setzt einfach die zuletzt gespielte Venom-Karte erneut ein
-        /// (armt sie erneut f¸r 'charges' n‰chste Angriffe).
+        /// Reapply Venom: setzt die zuletzt gespielte Venom-Karte erneut ein
+        /// (armt sie erneut f√ºr 'charges' n√§chste Angriffe).
         /// </summary>
         public static void ReapplyLastVenom(EntityScript user, int charges)
         {
@@ -89,24 +80,27 @@ namespace Utility
             else
             {
                 ArmNextHitDotWithCharges(user, v.tick, v.duration, v.effectName, v.tickRef, charges);
-                // lastVenom bleibt gleich (gleiche Art), daher kein erneutes SetLastVenom nˆtig
+                // lastVenom bleibt gleich (gleiche Art)
             }
         }
 
-
-        /// Arm't die NƒCHSTEN 'charges' Treffer mit einem DoT (Poison/Burn/Bleed).
-
+        /// <summary>
+        /// Armt ‚Äòcharges‚Äô n√§chste Treffer mit einem DoT. Die eigentliche Anlage passiert beim Treffer
+        /// (siehe TryConsumeAndApplyOnHit ‚Äì Hook in CombatUtility.ApplyDamage).
+        /// </summary>
         public static void ArmNextHitDotWithCharges(
             EntityScript user, int tick, int duration, string effectName, gameplayRef tickRef, int charges)
         {
             if (user == null || charges <= 0) return;
             tick = Mathf.Max(1, tick);
             duration = Mathf.Max(1, duration);
+
+            // Wir nutzen die zentrale ‚ÄúNext-Hit‚Äù-Pipeline in CombatUtility, damit alle Karten an EINEM Ort landen.
             for (int i = 0; i < charges; i++)
                 CombatUtility.ApplyNextHitDot(user, tick, duration, effectName, tickRef);
         }
 
-        /// Arm't die NƒCHSTEN 'charges' Treffer mit einem Status (z. B. Stun).
+        /// <summary>Convenience: Status (kein DoT) f√ºr die n√§chsten ‚Äòcharges‚Äô Angriffe vormerken.</summary>
         public static void ArmNextHitStatusWithCharges(
             EntityScript user, int duration, string effectName, gameplayRef statusRef, int charges)
         {
@@ -114,6 +108,10 @@ namespace Utility
             duration = Mathf.Max(1, duration);
             CombatUtility.ApplyNextHitStatusWithCharges(user, duration, effectName, statusRef, charges);
         }
+
+        // ------------------------
+        // Karten ‚Üí Helper-Mapping
+        // ------------------------
 
         public static void ArmBurnFromCard(EntityScript user, CardData d)
         {
@@ -143,6 +141,12 @@ namespace Utility
         {
             int charges = (d.Power > 0 ? d.Power : 3);
             ReapplyLastVenom(user, charges);
+        }
+
+
+        public static void TryConsumeAndApplyOnHit(EntityScript user, EntityScript target)
+        {
+            //CombatUtility.TryConsumeAndApplyOnHit(user, target);
         }
     }
 }

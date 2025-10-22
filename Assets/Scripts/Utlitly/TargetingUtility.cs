@@ -140,7 +140,6 @@ namespace Utility
                 };
             }).ToList();
         }
-
         public static bool IsValidTarget(CardScript card, EntityScript owner, EntityScript target)
         {
             var aff = target.entityAffiliation;
@@ -215,83 +214,88 @@ namespace Utility
                     return new List<Vector3Int> { centerTile };
             }
         }
-        public static Vector3Int GetValidTileDrop(PointerEventData eventData, CardScript cardScript )
+        public static Vector3Int GetValidTileDrop(PointerEventData eventData, CardScript cardScript)
         {
-            List<EntityOnMap> allEntities = UnityEngine.Object.FindObjectsByType<EntityOnMap>(0).ToList();
-            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+            var ownerEom = cardScript?.cardData?.Owner?.GetComponent<EntityOnMap>();
+            if (ownerEom == null) return TilemapUtilityScript.InvalidPosition;
 
+            // SELF: sofort Owner-Zelle zurückgeben
+            if (IsSelf(cardScript))
+                return ownerEom.currentCell;
+
+            var currentCell = ownerEom.currentCell;
             int effRange = GetEffectiveRange(cardScript, cardScript.cardData.Owner);
-            Debug.Log($"[TargetingUtility] base={cardScript.cardData.targetingData.range} eff={effRange}");
 
-            foreach (GameObject hoveredObject in eventData.hovered)
+            foreach (var hoveredObject in eventData.hovered)
             {
                 Debug.Log($"[TargetingUtility] Hovered object: {hoveredObject.name}");
+                if (!hoveredObject.TryGetComponent(out DraggableTarget _)) continue;
 
-                if (!hoveredObject.TryGetComponent(out DraggableTarget dt)) continue;
-
-                Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
+                var cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
 
                 var path = TilemapUtilityScript.FindPath(currentCell, cell, ignoreCost: true);
-                int pathLen = (path.Path == null) ? int.MaxValue : path.Path.Count;
-
-                if (pathLen > effRange)
+                if (path.Path == null || path.Path.Count > effRange)
                 {
-                    Debug.Log($"[TargetingUtility] Target {cell} is out of range. (need <= {effRange}, got {pathLen})");
-                    return TilemapUtilityScript.InvalidPosition;
+                    Debug.Log($"[TargetingUtility] Target {cell} is out of range. (need <= {effRange}, got {path.Path?.Count ?? -1})");
+                    continue;
                 }
 
                 return cell;
             }
+
             return TilemapUtilityScript.InvalidPosition;
         }
+
+
         public static Vector3Int GetValidEntityDrop(PointerEventData eventData, CardScript cardScript)
         {
-            List<EntityOnMap> allEntities = UnityEngine.Object.FindObjectsByType<EntityOnMap>(0).ToList();
-            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+            var ownerEom = cardScript?.cardData?.Owner?.GetComponent<EntityOnMap>();
+            if (ownerEom == null) return TilemapUtilityScript.InvalidPosition;
 
+            // SELF: keine Hover-Objekte, kein Range-Check – immer eigene Zelle
+            if (IsSelf(cardScript))
+                return ownerEom.currentCell;
+
+            // Bisherige Logik für Nicht-Self
+            var allEntities = UnityEngine.Object
+                .FindObjectsByType<EntityOnMap>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                .ToList();
+
+
+            var currentCell = ownerEom.currentCell;
             int effRange = GetEffectiveRange(cardScript, cardScript.cardData.Owner);
-            Debug.Log($"[TargetingUtility] base={cardScript.cardData.targetingData.range} eff={effRange}");
 
-            foreach (GameObject hoveredObject in eventData.hovered)
+            foreach (var hoveredObject in eventData.hovered)
             {
                 Debug.Log($"[TargetingUtility] Hovered object: {hoveredObject.name}");
+                if (!hoveredObject.TryGetComponent(out DraggableTarget _)) continue;
 
-                // Only consider tiles with DraggableTarget component
-                if (!hoveredObject.TryGetComponent(out DraggableTarget dt))
-                    continue;
+                var cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
 
-                // Convert hovered object position to tile cell
-                Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
-
-                // Check range
                 var path = TilemapUtilityScript.FindPath(currentCell, cell, ignoreCost: true);
-                int pathLen = (path.Path == null) ? int.MaxValue : path.Path.Count;
-
-                if (pathLen > effRange)
+                if (path.Path == null || path.Path.Count > effRange)
                 {
-                    Debug.Log($"[TargetingUtility] Target {cell} is out of range. (need <= {effRange}, got {pathLen})");
+                    Debug.Log($"[TargetingUtility] Target {cell} is out of range. (need <= {effRange}, got {path.Path?.Count ?? -1})");
                     continue;
                 }
 
-                // Check if there is an entity on this tile
-                EntityOnMap entityOnTile = allEntities.FirstOrDefault(e => e.currentCell == cell);
-                if (entityOnTile != null)
-                {
-                    if (TargetingUtility.VetTargetEntity(cardScript, entityOnTile.GetComponent<EntityScript>()))
-                    {
-                        return cell;
-                    }
-                }
+                var entityOnTile = allEntities.FirstOrDefault(e => e.currentCell == cell);
+                if (entityOnTile != null && VetTargetEntity(cardScript, entityOnTile.GetComponent<EntityScript>()))
+                    return cell;
             }
 
-            // No valid entity found
             return TilemapUtilityScript.InvalidPosition;
         }
 
-        // Berechnet die effektive Reichweite einer Karte.
-        // - Addiert Range-Buffs aus Class/Type/Identity
-        // - Gilt NICHT für Self-Karten (Affiliation = Self)
-        // --- typsichere, defensive Wrapper ---
+        private static bool IsSelf(CardScript card)
+        {
+            return card != null
+                && card.cardData != null
+                && card.cardData.targetingData != null
+                && card.cardData.targetingData.CardTargetAffiliation == CardTargetAffiliation.Self;
+        }
+
+
         private static int SafeGetStat(EntityStats stats, CardClass key, StatAspect aspect)
         {
             try { return stats.GetStatValue(key, aspect); }
