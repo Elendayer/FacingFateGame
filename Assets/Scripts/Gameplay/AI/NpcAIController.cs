@@ -629,7 +629,7 @@ public class NpcAIController
 
         List<EntityScript> vettedEntities = TargetingUtility.VetTargetsEntities(card,targets) ?? new List<EntityScript>();
 
-        int cardPower = card.cardData.Power;
+        int cardPower = card.cardData.Power + card.cardData.Damage + card.cardData.Healing;
         int repeats = Mathf.Max(1, card.cardData.Repeats);
 
         int throughput = (cardPower * repeats) * vettedEntities.Count;

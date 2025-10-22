@@ -8,6 +8,8 @@ public class TurnManager : MonoBehaviour
 
     public List<EntityScript> TurnOrder = new List<EntityScript>();
 
+    public EntityScript CurrentTurnEntity => TurnOrder[CurrentTurnIndex];
+
     public int CurrentTurnIndex = 0;
     private void Awake()
     {

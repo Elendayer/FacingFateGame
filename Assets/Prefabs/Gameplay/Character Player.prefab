@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6208202023648593538}
   - component: {fileID: 8935636570208141450}
   - component: {fileID: 4777331206848150532}
+  - component: {fileID: 4947648441073929551}
   m_Layer: 0
   m_Name: Character Player
   m_TagString: Untagged
@@ -22,26 +23,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &2832468515761090220
-RectTransform:
+--- !u!4 &2832468515761090220
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5925646098595141539}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 1
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4427242154021710987}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1904531680357473891
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58,6 +55,7 @@ MonoBehaviour:
   deckCardIDs: 
   entityStats:
     Owner: {fileID: 0}
+  modifierNames: []
 --- !u!114 &9001171521745787760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,8 +68,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10ba6d1c153c2384bb92f441c93238ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  refTilemap: {fileID: 0}
-  DefaultTile: {fileID: 0}
   moveSpeed: 3
   currentCell: {x: 0, y: 0, z: 0}
 --- !u!114 &3567744316417343318
@@ -86,13 +82,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce6f6f866f8993347bdbd7a0baadeb50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  desiredDraggableTargetType: 0
-  BaseTilemap: {fileID: 0}
   lineRenderer: {fileID: 8935636570208141450}
   curveResolution: 3
+  arrowHeightOffset: 1
   character: {fileID: 9001171521745787760}
-  baseTilemap: {fileID: 0}
-  worldCamera: {fileID: 0}
+  targetTilemap: {fileID: 0}
 --- !u!225 &6208202023648593538
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -126,6 +120,8 @@ LineRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -147,6 +143,7 @@ LineRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 589123887
   m_SortingLayer: 3
   m_SortingOrder: 0
@@ -229,6 +226,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5925646098595141539}
   m_CullTransparentMesh: 1
+--- !u!135 &4947648441073929551
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925646098595141539}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1801920520880176978
 PrefabInstance:
   m_ObjectHideFlags: 0

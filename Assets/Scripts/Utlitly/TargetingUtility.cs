@@ -1,22 +1,22 @@
-using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static UnityEngine.EventSystems.EventTrigger;
+using UnityEngine.Tilemaps;
 
 namespace Utility
 {
 
     public static class TargetingUtility
     {
+
         public static List<EntityScript> GetTargetsFromPosition(CardScript card, Vector3Int pos, List<EntityScript> allEntities, EntityScript owner)
         {
             List<EntityScript> targets = new();
 
             switch (card.cardData.targetingData.SelectionType)
             {
-                case CardTargetSelection.Single:                  
+                case CardTargetSelection.Single:
                     targets = GetEntitiesFromTiles(new() { pos }, allEntities);
                     break;
                 case CardTargetSelection.All:
@@ -190,11 +190,12 @@ namespace Utility
                 default:
                     return new List<Vector3Int> { centerTile };
             }
-        }
+        } 
         public static Vector3Int GetValidTileDrop(PointerEventData eventData, CardScript cardScript )
         {
             List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
             Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+
 
             foreach (GameObject hoveredObject in eventData.hovered)
             {
@@ -204,7 +205,7 @@ namespace Utility
 
                 Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
 
-                if (TilemapUtilityScript.FindPath(currentCell,cell,ignoreCost:true).Path.Count > cardScript.cardData.targetingData.range)
+                if (TilemapUtilityScript.FindPath(currentCell, cell,ignoreCost:true).Path.Count > cardScript.cardData.targetingData.range)
                 {
                     Debug.Log($"[TargetingUtility] Target {cell} is out of range.");
                     return TilemapUtilityScript.InvalidPosition;
@@ -214,6 +215,7 @@ namespace Utility
             }
             return TilemapUtilityScript.InvalidPosition;
         }
+
         public static Vector3Int GetValidEntityDrop(PointerEventData eventData, CardScript cardScript)
         {
             List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
@@ -242,7 +244,7 @@ namespace Utility
                 EntityOnMap entityOnTile = allEntities.FirstOrDefault(e => e.currentCell == cell);
                 if (entityOnTile != null)
                 {
-                    if (TargetingUtility.VetTargetEntity(cardScript, entityOnTile.GetComponent<EntityScript>()))
+                    if (VetTargetEntity(cardScript, entityOnTile.GetComponent<EntityScript>()))
                     {
                         return cell;
                     }
@@ -253,5 +255,33 @@ namespace Utility
             return TilemapUtilityScript.InvalidPosition;
         }
 
+        public static Vector3Int? GetHoveredTile(PointerEventData eventData)
+        {
+            foreach (GameObject hoveredObject in eventData.hovered)
+            {
+                if (hoveredObject.TryGetComponent(out DraggableTarget dt) &&
+                    dt.draggableTargetType == DraggableTargetType.CombatTile)
+                {
+                    return TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
+                }
+            }
+            return TilemapUtilityScript.InvalidPosition;
+        }
+        public static Vector3Int GetHoveredTile(Ray ray )
+        {
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Debug.Log($"[TargetingUtility] Raycast hit: {hit.collider.name}");
+                // Check if the hit object is a draggable target of type CombatTile
+                if (hit.collider.TryGetComponent<DraggableTarget>(out var dt) &&
+                    dt.draggableTargetType == DraggableTargetType.CombatTile)
+                {
+                    // Convert world position to tilemap cell
+                    return TilemapUtilityScript.BaseTilemap.WorldToCell(hit.collider.transform.position);
+                }
+            }
+
+            return TilemapUtilityScript.InvalidPosition;
+        }
     }
 }

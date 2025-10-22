@@ -13,6 +13,8 @@ public interface IEntityModifier
     void AddListener();
     void OnRefEventTriggered(TriggerRef reference);
 }
+
+[System.Serializable]
 public class EntityModifier : IEntityModifier
 {
     public string ModifierName { get; private set; }

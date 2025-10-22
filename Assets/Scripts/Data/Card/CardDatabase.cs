@@ -54,7 +54,7 @@ public static class CardDatabase
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 1,
-            power_u = 10,
+            damage_u = 10,
 
             targetingData = new()
             {
@@ -67,12 +67,12 @@ public static class CardDatabase
 
             CardDescription = (User, data) =>
             {
-                data.cardDescription = $"Deal {data.Power} Damage";
+                data.cardDescription = $"Deal {data.Damage} Damage";
             },
 
             CardEffect = (User, target, data) =>
             {
-                CombatUtility.ApplyDamage(User,target, data.Power, true);
+                CombatUtility.ApplyDamage(User,target, data.Damage, true);
             }
         });
 

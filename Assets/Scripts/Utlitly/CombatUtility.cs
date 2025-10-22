@@ -4,6 +4,11 @@ namespace Utility
 {
     public static class CombatUtility
     {
+        public static void ApplyCost(EntityScript user, Stat resourceStat, int cost)
+        {
+            resourceStat.AddModifier(new StatModifier(-cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { }, user.GetInstanceID()));
+        }
         public static void ApplyDamage(EntityScript user, EntityScript target, int rawDamage, bool isAttack = false)
         {
             if (isAttack)
@@ -13,7 +18,7 @@ namespace Utility
 
             // Pre-mitigation damage reduction (e.g., from abilities or effects)
             int damage = rawDamage;
-            rawDamage = target.entityStats.DamageReduction.ApplyFinalValue(rawDamage);
+            damage = target.entityStats.DamageReduction.ApplyFinalValue(rawDamage);
 
             // Step 1: Apply Armour
             if (target.entityStats.Armour.Value > 0)

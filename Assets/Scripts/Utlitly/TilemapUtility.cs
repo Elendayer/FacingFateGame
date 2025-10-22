@@ -423,33 +423,33 @@ namespace Utility
                 UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
                 if (img != null)
                 {
-                    img.color = Color.white;
+                    img.color = Color.clear;
                     continue;
                 }
             }
         }
-        public static void ResetMaphightlight(List<Vector3Int> path, Tilemap tilemap)
+        public static void ResetMaphightlight(List<Vector3Int> path)
         {
-            if (tilemap == null) return;
+            if (BaseTilemap == null) return;
 
             foreach (var pos in path)
             {
-                if (!tilemap.HasTile(pos)) continue;
-                GameObject tileObj = tilemap.GetInstantiatedObject(pos);
+                if (!BaseTilemap.HasTile(pos)) continue;
+                GameObject tileObj = BaseTilemap.GetInstantiatedObject(pos);
                 if (tileObj == null) continue;
                 // Reset UI Image color
                 UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
                 if (img != null)
                 {
-                    img.color = Color.white;
+                    img.color = Color.clear;
                     continue;
                 }
             }
         }
 
-        public static void SetTilesHighlight(List<Vector3Int> path, Tilemap tilemap, HighlightType ht)
+        public static void SetTilesHighlight(List<Vector3Int> path, HighlightType ht)
         {
-            Color color = Color.white;
+            Color color = Color.clear;
 
             switch (ht)
             {
@@ -467,7 +467,7 @@ namespace Utility
             foreach (var pos in path)
             {
                 // Get the prefab instance associated with this tile position
-                GameObject tileObj = tilemap.GetInstantiatedObject(pos);
+                GameObject tileObj = BaseTilemap.GetInstantiatedObject(pos);
                 if (tileObj == null) continue;
 
                 // Try Image (UI-based prefab)
