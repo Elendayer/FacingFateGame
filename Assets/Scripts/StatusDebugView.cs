@@ -16,7 +16,7 @@ public class StatusDebugView : MonoBehaviour
     {
         public string name;
         public int value;
-        public int remaining;
+        public int remainingDuratiom;
     }
 
     [SerializeField] private List<Row> _rows = new List<Row>();
@@ -33,13 +33,13 @@ public class StatusDebugView : MonoBehaviour
             {
                 name = key,
                 value = mod.BaseValue,
-                remaining = Math.Max(0, mod.Duration)
+                remainingDuratiom = Math.Max(0, mod.Duration)
             });
         }
         else
         {
             row.value = mod.BaseValue;
-            row.remaining = Math.Max(0, mod.Duration);
+            row.remainingDuratiom = Math.Max(0, mod.Duration);
         }
     }
 
@@ -58,7 +58,7 @@ public class StatusDebugView : MonoBehaviour
     {
         for (int i = 0; i < _rows.Count; i++)
         {
-            if (_rows[i].remaining < 0) _rows[i].remaining = 0;
+            if (_rows[i].remainingDuratiom < 0) _rows[i].remainingDuratiom = 0;
         }
     }
 
@@ -80,12 +80,12 @@ public class StatusDebugView : MonoBehaviour
         var row = _rows.Find(r => r.name == name);
         if (row == null)
         {
-            _rows.Add(new Row { name = name, value = damagePerRound, remaining = Mathf.Max(0, roundsLeft) });
+            _rows.Add(new Row { name = name, value = damagePerRound, remainingDuratiom = Mathf.Max(0, roundsLeft) });
         }
         else
         {
             row.value = damagePerRound;
-            row.remaining = Mathf.Max(0, roundsLeft);
+            row.remainingDuratiom = Mathf.Max(0, roundsLeft);
         }
         if (roundsLeft <= 0)
             _rows.RemoveAll(r => r.name == name);
@@ -110,18 +110,18 @@ public class StatusDebugView : MonoBehaviour
             var row = _rows.Find(r => r.name == d.Name);
             if (row == null)
             {
-                _rows.Add(new Row { name = d.Name, value = d.DamagePerRound, remaining = Mathf.Max(0, d.RoundsLeft) });
+                _rows.Add(new Row { name = d.Name, value = d.DamagePerRound, remainingDuratiom = Mathf.Max(0, d.RoundsLeft) });
             }
             else
             {
                 row.value = d.DamagePerRound;
-                row.remaining = Mathf.Max(0, d.RoundsLeft);
+                row.remainingDuratiom = Mathf.Max(0, d.RoundsLeft);
             }
             seen.Add(d.Name);
         }
 
         // Raus mit Dingen, die nicht mehr existieren oder abgelaufen sind
-        _rows.RemoveAll(r => r.remaining <= 0 || !seen.Contains(r.name));
+        _rows.RemoveAll(r => r.remainingDuratiom <= 0 || !seen.Contains(r.name));
     }
 
     /// <summary>

@@ -81,14 +81,29 @@ namespace Utility
             GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBuffed }, user.GetInstanceID(), target.GetInstanceID()));
 
             targetStat.AddModifier(mod, mergeStrategy);
+
+            var dbg = target.GetComponent<StatusDebugView>();
+            if (dbg != null)
+            {
+                var label = string.IsNullOrEmpty(mod.ModifierName) ? "BUFF" : mod.ModifierName;
+                var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
+                dbg.SyncDot(label, eff.BaseValue, eff.Duration);
+            }
         }
         public static void ApplyDebuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
             GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onDebuffed }, user.GetInstanceID(), target.GetInstanceID()));
 
             targetStat.AddModifier(mod, mergeStrategy);
+
+            var dbg = target.GetComponent<StatusDebugView>();
+            if (dbg != null)
+            {
+                var label = string.IsNullOrEmpty(mod.ModifierName) ? "DEBUFF" : mod.ModifierName;
+                var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
+                dbg.SyncDot(label, eff.BaseValue, eff.Duration);
+            }
         }
-        // CombatUtility.cs
 
         public static void ApplyEntityModifier(
             EntityScript user,
@@ -98,17 +113,13 @@ namespace Utility
         {
             if (target == null || mod == null) return;
 
-            // Falls dein Mod Events nutzt
+            //Debug
+            if (mod.StatModifier == null) mod.StatModifier = new StatModifier(mod.BaseValue, ModifierScaling.Flat, duration: mod.Duration, on_triggerConditionRef: mod.TriggerConditionRef, target: mod.TargetStat, name: mod.ModifierName);
             mod.AddListener();
-
-            // Deine bestehende Pipeline
             target.AddModifier(mod, mergeStrategy);
-
-            // Optional: Inspector-Debug (nur wenn du StatusDebugView nutzt)
             target.GetComponent<StatusDebugView>()?.Track(mod);
         }
 
-        // Wrapper für Altaufrufe mit dem Interface
         public static void ApplyEntityModifier(
             EntityScript user,
             EntityScript target,
@@ -135,7 +146,6 @@ namespace Utility
             return null;
         }
 
-        // Einmaliger "Next Hit" → trägt DoT am getroffenen Ziel auf
         public static void ApplyNextHitDot(EntityScript user, int tick, int duration, string effectName, gameplayRef tickRef)
         {
             if (user == null) return;
@@ -144,7 +154,7 @@ namespace Utility
             var arm = new EntityModifier(
                 statName: $"NextHit:{effectName}",
                 baseValue: tick,
-                to_Trigger_refs: new() { tickRef },        // nur dokumentarisch
+                to_Trigger_refs: new() { tickRef },        
                 duration: 1,
                 target: user.entityStats.CurrentHealth,
                 triggerConditionRef: new TriggerRef
@@ -157,15 +167,14 @@ namespace Utility
                     if (consumed) return;
                     consumed = true;
 
-            // NEU: Ziel kommt aus dem gemerkten Trigger
-            var hit = FindEntityById(mod.LastTriggerRef.AffectedEntityId);
+                    var hit = FindEntityById(mod.LastTriggerRef.AffectedEntityId);
                     if (hit == null) return;
 
                     int dur = duration > 0 ? duration : 6;
                     int val = Mathf.Max(1, mod.BaseValue);
 
                     var dot = new EntityModifier(
-                        statName: effectName,                     // "Poison"/"Burn"/"Bleed"
+                        statName: effectName,             
                         baseValue: val,
                         to_Trigger_refs: new() { tickRef },
                         duration: dur,
@@ -184,13 +193,16 @@ namespace Utility
                                 AffectedEntityId = hit.GetInstanceID()
                             });
                             ApplyDamage(user, hit, m2.BaseValue);
+
                         });
 
-            // wie bei Needlestorm gewünscht: Merge
-            ApplyEntityModifier(user, hit, dot, ModifierMergeStrategy.Merge);
+                    ApplyEntityModifier(user, hit, dot, ModifierMergeStrategy.Merge);
 
-            // sich selbst „verbrauchen“
-            mod.Duration = 0;
+                    //Debug
+                    hit.GetComponent<StatusDebugView>()?.SyncDot(string.IsNullOrWhiteSpace(dot.ModifierName) ? effectName : dot.ModifierName, dot.BaseValue, dot.Duration);
+
+                    mod.Duration = 0;
+
                 });
 
             // mehrere Next-Hit-Mods dürfen koexistieren
@@ -231,45 +243,43 @@ namespace Utility
                 target: user.entityStats.CurrentHealth,
                 triggerConditionRef: new TriggerRef
                 {
-
-            References = new() { gameplayRef.onHitLanded },
+                    References = new() { gameplayRef.onHitLanded },
                     AffectedEntityId = user.GetInstanceID()
                 },
+
                 onRefEventAction: (mod, stat, _gRef) =>
                 {
                     if (consumed) return;
                     consumed = true;
 
-            var hit = FindEntityById(mod.LastTriggerRef.AffectedEntityId);
+                    var hit = FindEntityById(mod.LastTriggerRef.AffectedEntityId);
                     if (hit == null) { mod.Duration = 0; return; }
 
-            var status = new EntityModifier(
-                        statName: effectName,               
-                        baseValue: 1,
-                        to_Trigger_refs: new() { statusRef }, 
-                        duration: duration,
-                        target: hit.entityStats.CurrentHealth,
-                        triggerConditionRef: new TriggerRef
+                    var status = new EntityModifier(
+                    statName: effectName,               
+                    baseValue: 1,
+                    to_Trigger_refs: new() { statusRef }, 
+                    duration: duration,
+                    target: hit.entityStats.CurrentHealth,
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = hit.GetInstanceID()
+                    },
+                    onRefEventAction: (m2, s2, _g2) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onTurnStart },
+                            References = new() { statusRef },
+                            UserId = user.GetInstanceID(),
                             AffectedEntityId = hit.GetInstanceID()
-                        },
-                        onRefEventAction: (m2, s2, _g2) =>
-                        {
-                    // hier nur das Status-Event feuern; Auswirkung (z.B. Skip Turn) macht dein Turn/AI-System
-                    GameEvents.TriggerRefEvent(new TriggerRef
-                            {
-                                References = new() { statusRef },
-                                UserId = user.GetInstanceID(),
-                                AffectedEntityId = hit.GetInstanceID()
-                            });
                         });
+                        hit.GetComponent<StatusDebugView>()?.SyncDot(string.IsNullOrWhiteSpace(m2.ModifierName) ? effectName : m2.ModifierName, 0, m2.Duration);
+                    });
 
-            // Status anwenden (kein Verlängern nötig) – einfache Zusammenführung genügt
-            ApplyEntityModifier(user, hit, status, ModifierMergeStrategy.Merge);
+                    ApplyEntityModifier(user, hit, status, ModifierMergeStrategy.Merge);
 
-            // diese „Arming“-Charge verbrauchen
-            mod.Duration = 0;
+                    mod.Duration = 0;
                 });
 
             // Den Arming-Mod auf den User legen
@@ -297,16 +307,19 @@ namespace Utility
                 },
                 onRefEventAction: (mod, stat, ev) =>
                 {
-            // optionales „procced“-Event
-            GameEvents.TriggerRefEvent(new TriggerRef
+                    // optionales „procced“-Event
+                    GameEvents.TriggerRefEvent(new TriggerRef
                     {
                         References = new() { procRef },
                         UserId = user.GetInstanceID(),
                         AffectedEntityId = target.GetInstanceID()
                     });
 
-            // Tick-Schaden
-            CombatUtility.ApplyDamage(user, target, mod.BaseValue);
+                    // Tick-Schaden
+                    CombatUtility.ApplyDamage(user, target, mod.BaseValue);
+
+                    //Debug
+                    target.GetComponent<StatusDebugView>()?.SyncDot(string.IsNullOrWhiteSpace(mod.ModifierName) ? effectName : mod.ModifierName, mod.BaseValue, mod.Duration);
                 }
             );
         }
