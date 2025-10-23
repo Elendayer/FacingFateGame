@@ -44,24 +44,55 @@ public class EntityOnMap : MonoBehaviour
         if (path != null && path.Count > 0)
         {
             TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
-            moveRoutine = StartCoroutine(FollowPath(path));
+            moveRoutine = StartCoroutine(FollowPath(path, moveSpeed));
         }
         else
+        {
             Debug.LogWarning("No path found to " + targetCell);
+        }
     }
-    public void MoveToViaPath(List<Vector3Int> path)
+    public void MoveTo(Vector3Int targetCell, float speed)
     {
         if (moveRoutine != null) StopCoroutine(moveRoutine);
+
+        List<Vector3Int> path = TilemapUtilityScript.FindPath(currentCell, targetCell)?.Path;
+
         if (path != null && path.Count > 0)
         {
             TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
-            moveRoutine = StartCoroutine(FollowPath(path));
+            moveRoutine = StartCoroutine(FollowPath(path, speed));
         }
         else
+        {
             Debug.LogWarning("No path found to " + targetCell);
+        }
     }
 
-    private IEnumerator FollowPath(List<Vector3Int> path)
+    public void MoveToViaPath(List<Vector3Int> path)
+    {
+        if (moveRoutine != null) StopCoroutine(moveRoutine);
+
+        if (path != null && path.Count > 0)
+        {
+            TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
+            moveRoutine = StartCoroutine(FollowPath(path, moveSpeed));
+        }
+        else
+        { 
+            Debug.LogWarning("No path found to " + targetCell);
+        }
+    }
+
+    public void TeleportTo(Vector3Int targetCell)
+    {
+        SetOccupied(false);
+        Vector3 targetPos = refTilemap.GetCellCenterWorld(targetCell);
+        transform.position = targetPos;
+        currentCell = targetCell;
+        SetOccupied(true);
+    }
+
+    private IEnumerator FollowPath(List<Vector3Int> path, float speed)
     {
         SetOccupied(false);
 
@@ -72,7 +103,7 @@ public class EntityOnMap : MonoBehaviour
             // Smooth movement toward target cell
             while (Vector3.Distance(transform.position, targetPos) > 0.05f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
                 yield return null;
             }
 

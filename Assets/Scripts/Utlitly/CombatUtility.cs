@@ -90,9 +90,10 @@ namespace Utility
             entityOnMap.Spawn(spawnPosition);
 
             NonPlayerScript spawnedEntity = SpawnObj.GetComponent<NonPlayerScript>();
+            spawnedEntity.StartUp();
 
             Npc npc =  NpcDatabase.GetNpcById(npcID);
-
+            
             spawnedEntity.name = npc.name;
             spawnedEntity.entityAffiliation = affiliation;
             spawnedEntity.npcAIBias = npc.aiBias;

@@ -266,19 +266,16 @@ public class NpcAIController
 
     private ScoredCard DetermineFleeTarget(Vector3Int virtualPosition, List<EntityScript> allEntities, EntityScript entity)
     {
-        ScoredCard bestTarget = null;
-        float bestScore = float.MinValue;        
-
-        // Count how many hostiles we want to flee from
-        int hostileCount = allEntities.Count(e => e.entityAffiliation != npc.entityAffiliation);
+        // Count hostiles
+        int hostileCount = allEntities.Count(e => e.entityAffiliation != entity.entityAffiliation);
         if (hostileCount == 0)
         {
-            // no enemies, stay in place
-            return new ScoredCard()
+            // No enemies — stay in place
+            return new ScoredCard
             {
                 TargetCell = virtualPosition,
                 pseudoName = "No Enemies Move",
-                MovementPath = new List<Vector3Int>() { virtualPosition },
+                MovementPath = new List<Vector3Int> { virtualPosition },
                 MovementCost = 0,
                 Score = 0
             };
@@ -287,80 +284,79 @@ public class NpcAIController
         // Cap flee distance by number of hostiles (but not above stamina)
         int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina.Value, hostileCount);
 
-        // Generate candidate positions within flee range
+        // Delegate the search and scoring
+        ScoredCard bestTarget = EvaluateFleeCandidates(virtualPosition, allEntities, entity, maxFleeDistance);
+
+        // Fallback if no valid move found
+        return bestTarget ?? new ScoredCard
+        {
+            pseudoName = "No Move",
+            TargetCell = virtualPosition,
+            MovementPath = new List<Vector3Int> { virtualPosition },
+            MovementCost = 0,
+            Score = 0
+        };
+    }
+    private ScoredCard EvaluateFleeCandidates(Vector3Int virtualPosition, List<EntityScript> allEntities, EntityScript entity, int maxFleeDistance)
+    {
+        ScoredCard bestTarget = null;
+        float bestScore = float.MinValue;
+
         for (int dx = -maxFleeDistance; dx <= maxFleeDistance; dx++)
         {
             for (int dy = -maxFleeDistance; dy <= maxFleeDistance; dy++)
             {
-                Vector3Int candidate = new Vector3Int(
-                    virtualPosition.x + dx,
-                    virtualPosition.y + dy,
-                    virtualPosition.z
-                );
+                Vector3Int candidate = new Vector3Int(virtualPosition.x + dx, virtualPosition.y + dy, virtualPosition.z);
 
-                // Skip current position
-                if (candidate == virtualPosition)
-                    continue;
-
-                // Skip if tile does not exist on basemap
-                if (!TilemapUtilityScript.BaseTilemap.HasTile(candidate))
+                // Skip current position or invalid tiles
+                if (candidate == virtualPosition || !TilemapUtilityScript.BaseTilemap.HasTile(candidate))
                     continue;
 
                 // Pathfinding
                 var pathData = TilemapUtilityScript.FindPath(virtualPosition, candidate);
-                if (pathData == null) continue;
+                if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
+                    continue;
 
                 int moveCost = pathData.PathCost;
-                if (moveCost > entity.entityStats.CurrentStamina.Value || moveCost == 0) continue;
+                if (moveCost == 0 || moveCost > entity.entityStats.CurrentStamina.Value)
+                    continue;
 
-                // Evaluate candidate against hostiles
+                // Determine minimum distance to any hostile
                 float minEnemyDist = float.MaxValue;
                 foreach (var e in allEntities)
                 {
-                    if (e.entityAffiliation != npc.entityAffiliation)
-                    {
-                        float distToEnemy = Vector3Int.Distance(
-                            e.GetComponent<EntityOnMap>().currentCell,
-                            candidate
-                        );
-                        if (distToEnemy < minEnemyDist)
-                            minEnemyDist = distToEnemy;
-                    }
+                    if (e.entityAffiliation == entity.entityAffiliation)
+                        continue;
+
+                    float distToEnemy = Vector3Int.Distance(e.GetComponent<EntityOnMap>().currentCell, candidate);
+                    if (distToEnemy < minEnemyDist)
+                        minEnemyDist = distToEnemy;
                 }
 
-                // Score system:
-                // - Prefer being farther from enemies
-                // - Slightly prefer closer paths
+                // Scoring formula
                 float score = (minEnemyDist * 2f) - moveCost;
 
-                // Penalize if too close
-                if (minEnemyDist < 2)
+                // Penalize being too close
+                if (minEnemyDist < 2f)
                     score -= 100f;
 
+                // Track best-scoring candidate
                 if (score > bestScore)
                 {
                     bestScore = score;
-                    bestTarget = new ScoredCard()
+                    bestTarget = new ScoredCard
                     {
                         pseudoName = "Flee",
                         TargetCell = candidate,
                         MovementPath = pathData.Path,
-                        MovementCost = pathData.PathCost,
+                        MovementCost = moveCost,
                         Score = Mathf.RoundToInt(score)
                     };
                 }
             }
         }
 
-        // Fallback: stay in place
-        return bestTarget ?? new ScoredCard()
-        {
-            pseudoName = "No Move",
-            TargetCell = virtualPosition,
-            MovementPath = new List<Vector3Int>() { virtualPosition },
-            MovementCost = 0,
-            Score = 0
-        };
+        return bestTarget;
     }
 
     // --- Hand retrieval ---

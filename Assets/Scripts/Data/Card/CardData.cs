@@ -92,6 +92,9 @@ public class CardData
             // Werte (u = base, s = eigene Stat-Container pro Instanz)
             cost_u = cost_u,
             power_u = power_u,
+            damage_u = damage_u,
+            healing_u = healing_u,
+
             duration_u = duration_u,
             repeats_u = repeats_u,
 

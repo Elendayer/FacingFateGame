@@ -239,13 +239,13 @@ public static class MysticCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1, // Melee
+                range = 9, 
                 area = 1,
             },
             CardDescription = (User, d) => d.cardDescription = "Force the target to move 2 spaces.",
             CardEffect = (User, Target, d) =>
             {
-                // TODO: Compute path and forcibly move target 2 tiles (respecting collisions).
+                MovementUtility.SwapLocations(User, Target);
             }
         });
 

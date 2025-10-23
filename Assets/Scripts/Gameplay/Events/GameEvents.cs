@@ -49,7 +49,7 @@ public static class GameEvents
 
         foreach (var reference in grs.References)
         {
-            Debug.Log($"[GameEvents] - {reference}, {grs.AffectedEntityId}");
+            Debug.Log($"[GameEvents] - {reference}, {grs.UserId} ,  {grs.AffectedEntityId}");
 
             // Notify for TargetId
             if (_refEvents.TryGetValue((reference, grs.AffectedEntityId), out var targetAction))
