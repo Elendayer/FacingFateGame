@@ -14,118 +14,10 @@ public static class PhysicianCards
         RegisterBlessing();
     }
 
-    // --------------------------- Spells ---------------------------
-    private static void RegisterSpells()
-    {
-        // 140101 – Jade Needle Resonance – Buff allies in area (Damage up)
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 140101,
-            cardName = "Jade Needle Resonance",
-            cardType = CardType.Spell,
-            cardClass = CardClass.Physician,
-            cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 5,
-            power_u = 2,     // DamageIncrease +2
-            duration_u = 2,  // 2 turns
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.CombatTile,
-                CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Radius,
-                range = 2,
-                area = 1,
-            },
-
-            CardDescription = (User, d) =>
-                d.cardDescription = $"Allies in range gain +{d.Power} damage for {d.Duration} turns.",
-
-            CardEffect = (User, Target, d) =>
-            {
-                // Buff DamageIncrease on each affected ally
-                var stat = Target.entityStats.DamageIncrease;
-                var mod = new StatModifier(
-                    value: d.Power,
-                    scaling: ModifierScaling.Flat,
-                    duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
-                    target: stat,
-                    name: $"JadeResonance_Dmg+{d.Power}"
-                );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
-            }
-        });
-
-        // 140102 – Breath of the Jade Lotus – Heals everyone in a line
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 140102,
-            cardName = "Breath of the Jade Lotus",
-            cardType = CardType.Spell,
-            cardClass = CardClass.Physician,
-            cardIdentities = new() { CardIdentity.None },
-
-            cost_u = 3,
-            healing_u = 8,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.CombatTile,
-                CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.LineSelf,
-                range = 3,
-                area = 1,
-            },
-
-            CardDescription = (User, d) =>
-                d.cardDescription = $"Heal allies in a line for {d.Healing}.",
-
-            CardEffect = (User, Target, d) =>
-            {
-                CombatUtility.ApplyHealing(User, Target, d.Healing);
-            }
-        });
-
-        // 140112 – Pure Flames – Ignite (single-target damage-over-time)  —— optional simple damage
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 140112,
-            cardName = "Pure Flames",
-            cardType = CardType.Spell,
-            cardClass = CardClass.Physician,
-            cardIdentities = new() { CardIdentity.Fire },
-
-            cost_u = 2,
-            damage_u = 4,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
-                range = 2,
-                area = 1,
-            },
-
-            CardDescription = (User, d) =>
-                d.cardDescription = $"Deal {d.Damage} fire damage.",
-
-            CardEffect = (User, Target, d) =>
-            {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // (Optional) DoT Ignite könnte später ergänzt werden.
-            }
-        });
-
-        // Andere Spells mit Speziallogik (Warp Intention, Sleepwalking, etc.) -> TODO
-    }
-
-    // --------------------------- Martial Arts ---------------------------
     private static void RegisterMartialArts()
     {
-        // 140201 – Jade Needle Acupuncture – HoT on ally
+        // 140101 – Jade Needle Acupuncture – HoT on ally
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 140201,
@@ -134,8 +26,8 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 2,
-            power_u = 2,      // HoT tick
+            cost_u = 20,
+            healing_u = 20,      
             duration_u = 3,   // for 3 turns
 
             targetingData = new()
@@ -155,7 +47,7 @@ public static class PhysicianCards
                 // Heal-over-time as positive “on turn start” tick
                 var regen = new EntityModifier(
                     statName: "Regeneration",
-                    baseValue: d.Power,
+                    baseValue: d.Healing,
                     to_Trigger_refs: new() { gameplayRef.onHeal },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
@@ -177,11 +69,35 @@ public static class PhysicianCards
                 );
 
                 CombatUtility.ApplyEntityModifier(User, Target, regen, ModifierMergeStrategy.RefreshDurationAndMerge);
-                // Optional: immediate small heal on play? -> we skip for now.
             }
         });
 
-        // 140203 – Formation of the Hundred Remedies – Heal allies in ring
+        // 140102 – Bloodletting – convert Poison → Bleed
+        CardDatabase.RegisterCard(new CardData()
+    {
+        cardID = 140102,
+            cardName = "Bloodletting",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.Blood, CardIdentity.Poison },
+
+            cost_u = 10,
+            power_u = 1,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                SelectionType = CardTargetSelection.Single,
+                range = 1,
+                area = 1,
+            },
+
+            CardDescription = (User, d) => d.cardDescription = "Turn target's Poison into Bleed.",
+            CardEffect = (User, Target, d) => { /* TODO: convert Poison stacks to Bleed stacks */ }
+        });
+
+        // 140103 – Formation of the Hundred Remedies – Heal allies in ring
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 140203,
@@ -190,8 +106,8 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
-            healing_u = 6,
+            cost_u = 100,
+            healing_u = 100,
 
             targetingData = new()
             {
@@ -211,19 +127,255 @@ public static class PhysicianCards
             }
         });
 
-        // 140202 Bloodletting (Poison->Bleed), 140204 Venomous Grip (worsen Poison), 140205 Cleanse Ally -> TODO
+        // 140104 – Venomous Grip (Single Enemy) – worsen Poison
+        CardDatabase.RegisterCard(new CardData()
+    {
+            cardID = 140104,
+            cardName = "Venomous Grip",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.Poison },
+
+            cost_u = 40,
+            power_u = 2,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                SelectionType = CardTargetSelection.Single,
+                range = 1,
+                area = 1,
+            },
+
+            CardDescription = (User, d) => d.cardDescription = "Worsen target's Poison (TBD: add stacks / increase tick).",
+            CardEffect = (User, Target, d) => { /* TODO: modify poison modifier on target */ }
+        });
+
+        // 140105 – Needle of the Flowing River (Single Ally) – cleanse
+        CardDatabase.RegisterCard(new CardData()
+    {
+            cardID = 140105,
+            cardName = "Needle of the Flowing River",
+            cardType = CardType.Technique,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.None },
+
+            cost_u = 2,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Ally,
+                SelectionType = CardTargetSelection.Single,
+                range = 1,
+                area = 1,
+            },
+
+            CardDescription = (User, d) => d.cardDescription = "Cleanse ally (remove negative effects).",
+            CardEffect = (User, Target, d) => { /* TODO: cleanse implementation */ }
+        });
     }
+
 
     // --------------------------- Abilities ---------------------------
     private static void RegisterAbilities()
     {
-        // 140401 – Gather – TODO (creates a new card based on environment)
-        // 140402 – Toxic Remedy Paradox – Heal ally + poison enemy (selection) -> TODO
-        // 140403 – Poison Barbs – Thorns on hit -> TODO
-        // 140404 – Doctor's Footwork – Halve movement cost -> TODO
+        // 140201 – Gather – sammelt Materialien; bei Wert 3 = neue Karte (TODO)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140201,
+            cardName = "Gather",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.None },
+
+            cost_u = 3,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.None,
+                SelectionType = CardTargetSelection.Ring,
+                range = 1,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = "Gather materials around you. Value=3 ⇒ create/draw a new card (TODO).",
+
+            CardEffect = (User, Target, d) =>
+            {
+                // TODO: Sammel-Stack am User erhöhen; bei Stack >= 3 -> neue Karte erzeugen/ziehen und Stack resetten.
+            }
+        });
+
+        // 140202 – Toxic Remedy Paradox – heilt einen Ally & vergiftet einen Enemy
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140202,
+            cardName = "Toxic Remedy Paradox",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.Poison },
+
+            cost_u = 4,      
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.None, 
+                SelectionType = CardTargetSelection.Single,                
+                range = 1,                                          
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = "Select an ally to heal and an enemy to Poison (TODO amounts).",
+
+            CardEffect = (User, Target, d) =>
+            {
+                // TODO: Zielauswahl entkoppeln: Ally Cleansen, Enemy Poison-DoT anwenden.
+            }
+        });
+
+        // 140203 – Poison Barbs – bei Treffer: Thorns + Poison (Self)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140203,
+            cardName = "Poison Barbs",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.Poison },
+
+            cost_u = 5,
+            power_u = 2,
+            duration_u = 1,  
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                SelectionType = CardTargetSelection.Single,
+                range = 0,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = "When attacked this turn, deal Thorns and apply Poison to the attacker.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                // TODO: Reaktiven Modifier auf den User legen:
+                // On 'onHitTaken' -> füge fixen Thorns-Schaden zu & apply Poison-DoT auf den Angreifer.
+            }
+        });
+
+        // 140204 – Doctor's Footwork – halbiert Movement-Kosten (Self)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140204,
+            cardName = "Doctor's Footwork",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.None },
+
+            cost_u = 2,
+            duration_u = 1,  // bis Rundenende
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                SelectionType = CardTargetSelection.Single,
+                range = 0,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = "Halve movement cost until end of turn.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                // TODO: Temporären Modifier auf den User anwenden, der die Bewegungs-Kosten halbiert.
+                // (z. B. Multiplikator 0.5 auf Stamina/Movement-Cost; endet am Turn-End.)
+            }
+        });
     }
 
-    // --------------------------- Items ---------------------------
+    private static void RegisterSpells()
+    {
+        // 140301 – Jade Needle Resonance – Buff allies in area (Damage up)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140101,
+            cardName = "Jade Needle Resonance",
+            cardType = CardType.Spell,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.None },
+
+            cost_u = 5,
+            power_u = 20,     
+            duration_u = 2,  
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Ally,
+                SelectionType = CardTargetSelection.Radius,
+                range = 2,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Allies in range gain {d.Power} damage increase for {d.Duration} turns.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                // Buff DamageIncrease on each affected ally
+                var stat = Target.entityStats.DamageIncrease;
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Percent,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    target: stat,
+                    name: $"JadeResonance_Dmg+{d.Power}"
+                );
+                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            }
+        });
+
+        // 140302 – Breath of the Jade Lotus – Heals everyone in a line
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140102,
+            cardName = "Breath of the Jade Lotus",
+            cardType = CardType.Spell,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.None },
+
+            cost_u = 30,
+            healing_u = 80,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Ally,
+                SelectionType = CardTargetSelection.LineSelf,
+                range = 3,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Heal allies in a line for {d.Healing}.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                CombatUtility.ApplyHealing(User, Target, d.Healing);
+            }
+        });
+    }
     private static void RegisterItems()
     {
         // 140601 – Brew of a Hundred Herbs – Heal an Ally
@@ -235,8 +387,8 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 0,
-            healing_u = 10,
+            cost_u = 10,
+            healing_u = 100,
 
             targetingData = new()
             {
@@ -265,9 +417,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 3,
-            power_u = 10, // +MaxHealth
+            power_u = 100, // +MaxHealth
 
             targetingData = new()
             {
@@ -305,9 +457,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
-            duration_u = 0,  // 0 -> indefinite
-            power_u = 10,
+            cost_u = 10,
+            duration_u = 0,
+            power_u = 100,
 
             targetingData = new()
             {
@@ -336,7 +488,7 @@ public static class PhysicianCards
             }
         });
 
-        // 140604 – Crimson Rejuvenation Brew – Regenerates Stamina (TODO exact API)
+        // 140604 – Crimson Rejuvenation Brew – Regenerates Stamina
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 140604,
@@ -346,7 +498,7 @@ public static class PhysicianCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 1,
-            power_u = 5, // intended stamina amount
+            power_u = 150,
 
             targetingData = new()
             {
@@ -362,9 +514,7 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                // TODO: if you have a helper like CombatUtility.RestoreStamina, use it here:
-                // CombatUtility.RestoreStamina(User, Target, d.Power);
-                // Fallback: small HoT on stamina stat could be added later.
+                // TODO Stamina
             }
         });
 
@@ -377,9 +527,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 3,
-            power_u = 5,
+            power_u = 150,
 
             targetingData = new()
             {
@@ -417,9 +567,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 0,
-            power_u = 5,
+            power_u = 150,
 
             targetingData = new()
             {
@@ -442,13 +592,13 @@ public static class PhysicianCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef(),
                     target: stat,
-                    name: $"MaxStamina+{d.Power}_Pill"
+                    name: $"MaxStamina+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
             }
         });
 
-        // 140607 – Brew of Unbroken Will – Boost Ally for 1 Turn (DamageIncrease)
+        // 140607 – Brew of Unbroken Will – +Armour for 1 Turn (DamageIncrease)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 140607,
@@ -457,9 +607,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 1,
-            power_u = 2, 
+            power_u = 100, 
 
             targetingData = new()
             {
@@ -471,7 +621,7 @@ public static class PhysicianCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Ally gains +{d.Power} damage for this turn.",
+                d.cardDescription = $"Ally gains +{d.Power} armour for this turn.",
 
             CardEffect = (User, Target, d) =>
             {
@@ -482,7 +632,7 @@ public static class PhysicianCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     target: stat,
-                    name: $"UnbrokenWill_Dmg+{d.Power}"
+                    name: $"ArmourIncrease+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
@@ -497,9 +647,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 3,
-            power_u = 10,
+            power_u = 100,
 
             targetingData = new()
             {
@@ -522,7 +672,7 @@ public static class PhysicianCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     target: stat,
-                    name: $"Armour+{d.Power}"
+                    name: $"ArmourIncrease+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
@@ -537,9 +687,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 0,
-            power_u = 10,
+            power_u = 100,
 
             targetingData = new()
             {
@@ -562,7 +712,7 @@ public static class PhysicianCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef(),
                     target: stat,
-                    name: $"Armour+{d.Power}_Pill"
+                    name: $"ArmourIncrease+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
             }
@@ -577,9 +727,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 1,
-            power_u = 2,
+            power_u = 100,
 
             targetingData = new()
             {
@@ -617,9 +767,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 3,
-            power_u = 2,
+            power_u = 100,
 
             targetingData = new()
             {
@@ -657,9 +807,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 1,
+            cost_u = 10,
             duration_u = 0,
-            power_u = 2,
+            power_u = 100,
 
             targetingData = new()
             {
@@ -689,18 +839,15 @@ public static class PhysicianCards
         });
 
         // 140613 – Crystal Cleansing Balm – Cleanse target (status removal) -> TODO
-
-        // 140614 – Mandrake Poison Cloud – Throws Poison Cloud (AoE damage placeholder)
         CardDatabase.RegisterCard(new CardData()
         {
-            cardID = 140614,
-            cardName = "Mandrake Poison Cloud",
+            cardID = 140613,
+            cardName = "Crystal Cleansing Balm",
             cardType = CardType.Item,
             cardClass = CardClass.Physician,
-            cardIdentities = new() { CardIdentity.Poison },
+            cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 3,
-            damage_u = 2,
+            cost_u = 10,
 
             targetingData = new()
             {
@@ -712,25 +859,132 @@ public static class PhysicianCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Deal {d.Damage} poison damage in a small area.",
+                d.cardDescription = $"Cleanses Target of all DoTs.",
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Persisting hazard / DoT field could be added later.
+                //TODO Cleanse
+            }
+        });
+
+        // 140614 – Mandrake Poison Cloud – Throws Poison Cloud
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140614,
+            cardName = "Mandrake Poison Cloud",
+            cardType = CardType.Item,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.Poison },
+
+            cost_u = 30,
+            damage_u = 2,
+            duration_u = 3,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                SelectionType = CardTargetSelection.Radius,
+                range = 2,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Deal {d.Damage} poison damage in a small area. A poisonous clod stays on the field.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                string name = $"Poison#{d.cardID}";
+                var poison = new EntityModifier(
+                    statName: name,
+                    baseValue: d.Damage,
+                    to_Trigger_refs: new() { gameplayRef.onPoison },
+                    duration: d.Duration,
+                    target: Target.entityStats.CurrentHealth,
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    onRefEventAction: (mod, stat, ev) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { gameplayRef.onPoison },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
+                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                    });
+
+                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                // ToDO: Posion Cloud sollte länger auf dem Spielfeld und ALLE vergiften die durchgehen wollen
             }
         });
     }
 
-    // --------------------------- Curse ---------------------------
     private static void RegisterCurse()
     {
-        // 140701 – Alchemist’s Misstep – failure chance -> TODO (20% fail)
+        // 140401 – Alchemist’s Misstep – failure chance 20% fail for Items
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140401,
+            cardName = "Alchemist’s Misstep",
+            cardType = CardType.Item,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.None },
+
+            cost_u = 10,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                SelectionType = CardTargetSelection.Radius,
+                range = 2,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Cleanses Target of all DoTs.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                //Item Fail 20% der Zeit
+            }
+        });
     }
 
-    // --------------------------- Blessing ---------------------------
     private static void RegisterBlessing()
     {
-        // 140801 – Mythical Herb – Increases potency of items -> TODO
+        // 140501 – Mythical Herb – Increases potency of items 
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 140501,
+            cardName = "Mythical Herb",
+            cardType = CardType.Item,
+            cardClass = CardClass.Physician,
+            cardIdentities = new() { CardIdentity.None },
+
+            cost_u = 10,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.CombatTile,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                SelectionType = CardTargetSelection.Radius,
+                range = 2,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Cleanses Target of all DoTs.",
+
+            CardEffect = (User, Target, d) =>
+            {
+                //TODO Improve ItemCards
+            }
+        });
     }
 }

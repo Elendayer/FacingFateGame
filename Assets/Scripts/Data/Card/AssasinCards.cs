@@ -55,9 +55,9 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 4,
-            damage_u = 2,
-            repeats_u = 4, // System-seitig wiederholt abhandeln
+            cost_u = 80,
+            damage_u = 30,
+            repeats_u = 4,
 
             targetingData = new()
             {
@@ -77,7 +77,7 @@ public static class AssassinCards
             }
         });
 
-        // 120103 – Lotus Death Kiss (Execute <10% HP) – damage fallback jetzt
+        // 120103 – Lotus Death Kiss (Execute <10% HP)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120103,
@@ -108,7 +108,7 @@ public static class AssassinCards
             }
         });
 
-        // 120104 – Moonlit Needlestorm (3 DoTs, Merge)
+        // 120104 – Moonlit Needlestorm (3 DoTs)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120104,
@@ -117,9 +117,9 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Poison, CardIdentity.Fire, CardIdentity.Blood },
 
-            cost_u = 3,
-            damage_u = 1,     // Tickhöhe
-            duration_u = 6,   // Dauer der DoTs
+            cost_u = 60,
+            damage_u = 10,     // Tickhöhe
+            duration_u = 2,   // Dauer der DoTs
 
             targetingData = new()
             {
@@ -184,8 +184,8 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 4,
-            damage_u = 20,
+            cost_u = 80,
+            damage_u = 200,
 
             targetingData = new()
             {
@@ -214,8 +214,8 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 3,
-            damage_u = 10,
+            cost_u = 30,
+            damage_u = 100,
 
             targetingData = new()
             {
@@ -258,7 +258,7 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"AOE: deal {d.Damage} damage in a small area.",
+                d.cardDescription = $"Deals {d.Damage} damage in a small area.",
 
             CardEffect = (User, Target, d) =>
             {
@@ -483,9 +483,9 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 3,
-            damage_u = 8,   // Bleed-Tickhöhe
-            duration_u = 6,
+            cost_u = 60,
+            damage_u = 20,   
+            duration_u = 3,
 
             targetingData = new()
             {
@@ -529,11 +529,42 @@ public static class AssassinCards
 
     }
 
-
-
-
     private static void RegisterAbilities()
     {
+        //120201 - Phantom Step - Moves Behind an Enemy
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 120201,
+            cardName = "Apply Scorching Blood Venom",
+            cardType = CardType.Ability,
+            cardClass = CardClass.Assassin,
+            cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison },
+
+            cost_u = 0,
+            power_u = 3,     // <- Anzahl Angriffe (charges)
+            damage_u = 2,    // <- Burn Tick
+            duration_u = 3,  // <- DoT Dauer
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Self,
+                SelectionType = CardTargetSelection.Single,
+                range = 0,
+                area = 1,
+            },
+
+            CardDescription = (User, d) =>
+            {
+                d.cardDescription = $"Moves behind an Enemy.";
+            },
+
+            CardEffect = (User, Target, d) =>
+            {
+
+            }
+        });
+
         // 120202 – Apply Scorching Blood Venom – next X hits apply Burn DoT
         CardDatabase.RegisterCard(new CardData()
         {
@@ -545,8 +576,8 @@ public static class AssassinCards
 
             cost_u = 0,
             power_u = 3,     // <- Anzahl Angriffe (charges)
-            damage_u = 2,    // <- Burn Tick
-            duration_u = 3,  // <- DoT Dauer
+            damage_u = 2,    
+            duration_u = 3,  
 
             targetingData = new()
             {
@@ -582,7 +613,6 @@ public static class AssassinCards
                 );
             }
         });
-
 
         // 120203 – Apply Black Lotus Venom – next X hits apply Poison DoT
         CardDatabase.RegisterCard(new CardData()
@@ -632,7 +662,6 @@ public static class AssassinCards
                 );
             }
         });
-
 
         // 120204 – Apply Dazzlying Numbing Venom (Stun for next X attacks)
         CardDatabase.RegisterCard(new CardData()
@@ -729,7 +758,7 @@ public static class AssassinCards
 
     private static void RegisterSpells()
     {
-        // no explicit damage spells listed for Assassin; add later if needed
+
     }
 
     private static void RegisterCurses()

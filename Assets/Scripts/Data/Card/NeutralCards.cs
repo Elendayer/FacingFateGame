@@ -24,7 +24,7 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-            cost_u = 1,
+            cost_u = 10,
             damage_u = 100,
 
             targetingData = new()
@@ -52,8 +52,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-            cost_u = 5,
-            damage_u = 15,
+            cost_u = 20,
+            damage_u = 200,
 
             targetingData = new()
             {
@@ -64,7 +64,7 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Deal 15 damage. (TODO: apply -1 Movement)",
+            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage}, reduces Movement",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
@@ -81,8 +81,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-            cost_u = 1,
-            damage_u = 5,
+            cost_u = 10,
+            damage_u = 50,
 
             targetingData = new()
             {
@@ -93,7 +93,7 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Deal 5 damage.",
+            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
@@ -109,8 +109,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-            cost_u = 2,
-            damage_u = 3,
+            cost_u = 30,
+            damage_u = 50,
             repeats_u = 2,
 
             targetingData = new()
@@ -126,7 +126,6 @@ public static class NeutralCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Wiederholungen werden vom System abgewickelt
             }
         });
 
@@ -139,8 +138,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee },
 
-            cost_u = 2,
-            damage_u = 1,
+            cost_u = 20,
+            damage_u = 10,
 
             targetingData = new()
             {
@@ -151,7 +150,7 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Push enemy 1 space (deals minor damage).",
+            CardDescription = (User, d) => d.cardDescription = $"Push enemy 1 space and deals {d.Damage}.",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
@@ -159,7 +158,7 @@ public static class NeutralCards
             }
         });
 
-        // 100106 – Charge – move both 1 space (maybe Stun)
+        // 100106 – Charge – move both 1 space 
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 100106,
@@ -225,8 +224,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-            cost_u = 2,
-            damage_u = 1,
+            cost_u = 20,
+            damage_u = 50,
 
             targetingData = new()
             {
@@ -253,10 +252,10 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Blood, CardIdentity.Physical },
 
-            cost_u = 5,
-            damage_u = 1,
+            cost_u = 50,
+            damage_u = 50,
             repeats_u = 2,
-            // duration_u intentionally optional; DoT will use fallback if unset.
+            duration_u = 6,
 
             targetingData = new()
             {
@@ -320,8 +319,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical, CardIdentity.Poison },
 
-            cost_u = 5,
-            damage_u = 5,
+            cost_u = 50,
+            damage_u = 150,
             duration_u = 6,
 
             targetingData = new()
@@ -336,8 +335,6 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = "Deal 5 damage and apply Poison for 6 turns (immediate tick).",
             CardEffect = (User, Target, d) =>
             {
-                // direct hit
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
 
                 // Poison DoT + immediate tick
                 string name = $"Poison#{d.cardID}";
@@ -385,8 +382,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
 
-            cost_u = 2,
-            damage_u = 3,
+            cost_u = 60,
+            damage_u = 100,
 
             targetingData = new()
             {
@@ -413,9 +410,9 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Ranged },
 
-            cost_u = 5,
-            damage_u = 3,
-            repeats_u = 2,
+            cost_u = 80,
+            damage_u = 30,
+            repeats_u = 5,
 
             targetingData = new()
             {
@@ -445,9 +442,9 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 3,
-            damage_u = 0,
-            duration_u = 1,
+            cost_u = 30,
+            power_u = 100,
+            duration_u = 3,
 
             targetingData = new()
             {
@@ -458,8 +455,20 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Your next attack is empowered (TODO).",
-            CardEffect = (User, Target, d) => { /* TODO: One-hit buff */ }
+            CardDescription = (User, d) => d.cardDescription = $"Your next attack is empowered by {d.power_u}.",
+            CardEffect = (User, Target, d) => 
+            {
+                var stat = Target.entityStats.DamageIncrease;
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Flat,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    target: stat,
+                    name: $"SoaringDragonElixir_Dmg+{d.Power}"
+                );
+                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            }
         });
 
         // 100202 – Growl – demoralize enemies (AOE debuff)
@@ -471,9 +480,9 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 3,
-            power_u = 3, // stat debuff (non-damage)
-            duration_u = 1,
+            cost_u = 50,
+            power_u = 50, 
+            duration_u = 2,
 
             targetingData = new()
             {
@@ -484,8 +493,20 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Demoralize enemies in an area (reduce stats).",
-            CardEffect = (User, Target, d) => { /* TODO: Apply debuff to enemies */ }
+            CardDescription = (User, d) => d.cardDescription = $"Demoralize enemies in an area and reduces attack damage by {d.Power}.",
+            CardEffect = (User, Target, d) => 
+            {
+                var stat = Target.entityStats.DamageIncrease;
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Flat,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    target: stat,
+                    name: $"GrowlDecrease{d.Power}"
+                );
+                CombatUtility.ApplyDebuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            }
         });
 
         // 100203 – Howl – improve allies' stats (AOE buff)
@@ -497,9 +518,9 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 3,
-            power_u = 3, // stat buff (non-damage)
-            duration_u = 1,
+            cost_u = 50,
+            power_u = 50, // stat buff (non-damage)
+            duration_u = 2,
 
             targetingData = new()
             {
@@ -510,8 +531,20 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Bolster allies in range (raise stats).",
-            CardEffect = (User, Target, d) => { /* TODO: Apply buff to allies */ }
+            CardDescription = (User, d) => d.cardDescription = "Bolster allies damage in range by {d.Power} ).",
+            CardEffect = (User, Target, d) =>
+            {
+                var stat = Target.entityStats.DamageIncrease;
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Flat,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    target: stat,
+                    name: $"HowlIncrease{d.Power}"
+                );
+                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            }
         });
 
         // 100204 – Guard Up – raise defense until end of turn
@@ -523,9 +556,9 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 2,
-            power_u = 0,
-            duration_u = 1,
+            cost_u = 50,
+            power_u = 50,
+            duration_u = 2,
 
             targetingData = new()
             {
@@ -536,8 +569,20 @@ public static class NeutralCards
                 area = 1,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Increase your defense until end of turn.",
-            CardEffect = (User, Target, d) => { /* TODO: Armor up */ }
+            CardDescription = (User, d) => d.cardDescription = $"Increase your defense until end of turn by {d.Power}.",
+            CardEffect = (User, Target, d) =>
+            {
+                var stat = Target.entityStats.Armour;
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Flat,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    target: stat,
+                    name: $"ArmourIncrease{d.Power}"
+                );
+                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            }
         });
     }
 
@@ -552,8 +597,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Poison, CardIdentity.Ranged },
 
-            cost_u = 3,
-            damage_u = 2,
+            cost_u = 10,
+            damage_u = 20,
             duration_u = 6,
 
             targetingData = new()
@@ -613,8 +658,8 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Fire, CardIdentity.Ranged },
 
-            cost_u = 2,
-            damage_u = 3,
+            cost_u = 20,
+            damage_u = 20,
             duration_u = 6,
 
             targetingData = new()
@@ -626,7 +671,7 @@ public static class NeutralCards
                 area = 2,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Apply Burn 3 for 6 turns (immediate tick).",
+            CardDescription = (User, d) => d.cardDescription = $"Apply Burn {d.Damage} for {d.Duration} turns.",
             CardEffect = (User, Target, d) =>
             {
                 string name = $"Burn#{d.cardID}";

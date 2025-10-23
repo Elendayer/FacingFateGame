@@ -23,8 +23,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 1,
-            damage_u = 3,
+            cost_u = 20,
+            damage_u = 75,
             repeats_u = 2,
 
             targetingData = new()
@@ -57,8 +57,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 5,
-            damage_u = 3,
+            cost_u = 25,
+            damage_u = 120,
 
             targetingData = new()
             {
@@ -77,7 +77,6 @@ public static class SpearmanCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Fetch all enemies along a 3-tile line from User and deal d.Damage to each.
             }
         });
 
@@ -90,8 +89,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 3,
-            damage_u = 2,
+            cost_u = 30,
+            damage_u = 85,
 
             targetingData = new()
             {
@@ -110,7 +109,7 @@ public static class SpearmanCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Fetch enemies along a 2-tile line from User; deal d.Damage to each. (No movement/knockback.)
+                // To-Do: Movement nach Vorne
             }
         });
 
@@ -123,9 +122,9 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 3,
-            damage_u = 10,
-            duration_u = 6,
+            cost_u = 50,
+            damage_u = 80,
+            duration_u = 3,
 
             targetingData = new()
             {
@@ -189,8 +188,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 5,
-            damage_u = 5,
+            cost_u = 70,
+            damage_u = 250,
 
             targetingData = new()
             {
@@ -209,7 +208,6 @@ public static class SpearmanCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Fetch all adjacent enemies (ring=1) and deal d.Damage to each. No knockback.
             }
         });
 
@@ -222,8 +220,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 2,
-            damage_u = 10,
+            cost_u = 25,
+            damage_u = 50,
 
             targetingData = new()
             {
@@ -242,7 +240,6 @@ public static class SpearmanCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Deal direct damage to Target.
             }
         });
 
@@ -275,7 +272,7 @@ public static class SpearmanCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Single-target damage: d.Damage to Target. No knockback.
+                // To-Do Slow
             }
         });
 
@@ -288,8 +285,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 10,
-            damage_u = 2,
+            cost_u = 100,
+            damage_u = 200,
 
             targetingData = new()
             {
@@ -308,7 +305,7 @@ public static class SpearmanCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Fetch all adjacent enemies and deal d.Damage to each.
+                // Slow all Enemies oder Stun
             }
         });
 
@@ -321,7 +318,7 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 1,
+            cost_u = 10,
             power_u = 10,
             duration_u = 1,
 
@@ -336,25 +333,23 @@ public static class SpearmanCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Self-buff until end of turn (e.g., Taunt/Damage up).";
+                d.cardDescription = $"Increses attack damage by {d.Power}.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                // +Attack strength (outgoing damage) by power_u until end of turn (tick: onTurnStart)
                 var mod = new StatModifier(
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },   // Dauer tickt zu Rundenbeginn
+                        References = new() { gameplayRef.onTurnStart },   
             AffectedEntityId = Target.GetInstanceID()
                     },
-                    target: Target.entityStats.DamageIncrease,             // <-- Angriffsstärke-Stat
-                    name: $"DamageIncrease#{d.cardID}");                   // gleiche Karte => Refresh
+                    target: Target.entityStats.DamageIncrease,             
+                    name: $"DamageIncrease#{d.cardID}");                   
 
-                // gleiche Karte => RefreshDurationAndMerge; andere Karten haben anderen Namen => koexistieren
                 CombatUtility.ApplyBuff(User, Target, Target.entityStats.DamageIncrease, mod,
                     ModifierMergeStrategy.RefreshDurationAndMerge);
             }
@@ -378,7 +373,7 @@ public static class SpearmanCards
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
                 range = 4,
-                area = 1,
+                area = 4,
             },
 
             CardDescription = (User, d) =>
@@ -389,7 +384,6 @@ public static class SpearmanCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Fetch enemies along a 4-tile line from User; deal d.Damage to each.
             }
         });
     }
@@ -405,7 +399,7 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 2,
+            cost_u = 20,
             power_u = 2,
             duration_u = 1,
 
@@ -427,7 +421,6 @@ public static class SpearmanCards
             {
                 foreach (CardClass cls in System.Enum.GetValues(typeof(CardClass)))
                 {
-                    // defensiv: nur anwenden, wenn Stat existiert
                     if (!User.entityStats.CardClassStats.ContainsKey((cls, StatAspect.Range)))
                         continue;
 
@@ -436,14 +429,14 @@ public static class SpearmanCards
                     var mod = new StatModifier(
                         value: d.Power,
                         scaling: ModifierScaling.Flat,
-                        duration: d.Duration,  // „bis Rundenende“ (tickt am onTurnStart runter)
+                        duration: d.Duration,  
                         on_triggerConditionRef: new TriggerRef
                         {
                             References = new() { gameplayRef.onTurnStart },
                             AffectedEntityId = User.GetInstanceID()
                         },
                         target: stat,
-                        name: $"EHL_Range+{d.Power}#{cls}" // gleiche Karte => refresh/merge je Klasse
+                        name: $"EHL_Range+{d.Power}#{cls}" 
                     );
 
                     CombatUtility.ApplyBuff(User, User, stat, mod,
@@ -482,7 +475,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                // Give User 1 counter charge for this turn; when hit by melee, deal d.Power to attacker.
+                // Counter Melee
             }
         });
 
@@ -515,7 +508,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                // Give User 1 ranged-deflect charge for this turn; exact behavior TBD.
+                //To-Do Deflect Ranged
             }
         });
 
@@ -528,8 +521,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 4,
-            power_u = 10,
+            cost_u = 20,
+            power_u = 50,
             duration_u = 1,
 
             targetingData = new()
@@ -543,12 +536,25 @@ public static class SpearmanCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Taunt and gain +10 Armour for 1 turn.";
+                d.cardDescription = $"Taunt and gain {d.Power} Armour for {d.Duration} turn.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                // Apply Taunt to User and +10 Armour for 1 turn.
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Flat,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    target: Target.entityStats.Armour,
+                    name: $"ArmourIncrease#{d.cardID}");
+
+                    CombatUtility.ApplyBuff(User, Target, Target.entityStats.DamageIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                // Apply Taunt
             }
         });
 
@@ -581,7 +587,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                // Give User 1 counter charge for this turn; when hit by any attack, deal d.Power to attacker.
+                // Damage zurückwerfen
             }
         });
 
@@ -594,8 +600,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 5,
-            power_u = 1,
+            cost_u = 100,
+            power_u = 25,
             duration_u = 1,
 
             targetingData = new()
@@ -609,12 +615,23 @@ public static class SpearmanCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Defensive stance this turn (mitigation {d.Power}).";
+                d.cardDescription = $"Increses armour by {d.Power}) for adjacent allies and gives them thorns.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                // Reduce incoming damage by d.Power for this turn (exact rule TBD).
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Flat,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    target: Target.entityStats.Armour,
+                    name: $"ArmourIncrease#{d.cardID}");
+                //To-DO Thorns
             }
         });
     }
@@ -631,7 +648,7 @@ public static class SpearmanCards
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 0,
-            power_u = 10,
+            power_u = -50,
 
             targetingData = new()
             {
@@ -644,12 +661,25 @@ public static class SpearmanCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Reduce Armour by 50% (details TBD).";
+                d.cardDescription = $"Reduce Armour by {d.Power}%.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                // Reduce Target Armour by 50% (duration/stacking TBD).
+                var stat = Target.entityStats.DamageIncrease;
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Percent,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    target: Target.entityStats.Armour,
+                    name: $"ArmourIncrease#{d.cardID}");
+
+                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -666,7 +696,7 @@ public static class SpearmanCards
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 0,
-            power_u = 10,
+            power_u = 100,
 
             targetingData = new()
             {
@@ -679,12 +709,27 @@ public static class SpearmanCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Increase Aggro and attack power while active (details TBD).";
+                d.cardDescription = $"Increase Aggro and attack power by {d.Power}% while active.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                // Increase Aggro and attack power while active (exact scaling/duration TBD).
+                var stat = Target.entityStats.DamageIncrease;
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Percent,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { gameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    target: Target.entityStats.DamageIncrease,
+                    name: $"AttackIncrease#{d.cardID}");
+
+                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                
+                // To-Do Increase Aggro
             }
         });
     }
