@@ -8,7 +8,7 @@ public interface IStatModifier
     int BaseValue { get; set; }
     ModifierScaling ModifierScaling { get; }
     int Duration { get; set; }
-    List<gameplayRef> To_TriggerGameplayRefs { get; }
+    List<GameplayRef> To_TriggerGameplayRefs { get; }
     bool IsExpired { get; }
     void AddListener();
     void On_RefEventTriggered(TriggerRef reference);
@@ -39,7 +39,7 @@ public class StatModifier : IStatModifier
 
     public ModifierScaling ModifierScaling { get; private set; }
     public int Duration { get; set; }
-    public List<gameplayRef> To_TriggerGameplayRefs { get; private set; }
+    public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
     public TriggerRef On_TriggerConditionRef { get; private set; }
 
     public bool IsExpired => Duration <= 0;
@@ -84,7 +84,7 @@ public class StatModifier : IStatModifier
         (    
         int value,
         ModifierScaling scaling,
-        List<gameplayRef> to_triggerReferences = null,
+        List<GameplayRef> to_triggerReferences = null,
         int duration = 99999,
         TriggerRef on_triggerConditionRef = new(),
         Stat target = null,
@@ -103,7 +103,7 @@ public class StatModifier : IStatModifier
         (
         Func<int> value,
         ModifierScaling scaling,
-        List<gameplayRef> gReferences = null,
+        List<GameplayRef> gReferences = null,
         int duration = 99999,
         TriggerRef triggerConditionRef = new(),
         Stat target = null,
@@ -164,7 +164,7 @@ public class ConditionalStatModifier : IStatModifier
     public ModifierScaling ModifierScaling { get; private set; }
     public int Duration { get; set; }
     public int Uses { get; set; } = 1;
-    public List<gameplayRef> To_TriggerGameplayRefs { get; private set; }
+    public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
     public bool IsExpired => Duration <= 0;
     public Stat TargetStat;
     public int GetRemainingDuration() => Duration;
@@ -207,7 +207,7 @@ public class ConditionalStatModifier : IStatModifier
        bool condition,
         ModifierScaling scaling,
         int duration = 99999,
-        List<gameplayRef> gReferences = null,
+        List<GameplayRef> gReferences = null,
         TriggerRef on_triggerConditionRef = new(),
         Stat target = null,
         string name = null
@@ -226,7 +226,7 @@ public class ConditionalStatModifier : IStatModifier
          bool condition,
         ModifierScaling scaling,
         int duration = 99999,
-        List<gameplayRef> gReferences = null,
+        List<GameplayRef> gReferences = null,
         TriggerRef triggerConditionRef = new(),
         Stat target = null,
         string name = null
@@ -245,7 +245,7 @@ public class ConditionalStatModifier : IStatModifier
     Func<bool> condition,
     ModifierScaling scaling,
     int duration = 99999,
-    List<gameplayRef> gReferences = null,
+    List<GameplayRef> gReferences = null,
     TriggerRef on_triggerConditionRef = new(),
     Stat target = null,
     string name = null
@@ -264,7 +264,7 @@ public class ConditionalStatModifier : IStatModifier
         Func<bool> condition,
         ModifierScaling scaling,
         int duration = 99999,
-        List<gameplayRef> gReferences = null,
+        List<GameplayRef> gReferences = null,
         TriggerRef triggerConditionRef = new(),
         Stat target = null,
         string name = null

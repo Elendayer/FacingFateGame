@@ -8,7 +8,7 @@ namespace Utility
         {
             if (isAttack)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onAttack }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onAttack }, user.GetInstanceID(), target.GetInstanceID()));
             }
 
             // Pre-mitigation damage reduction (e.g., from abilities or effects)
@@ -25,7 +25,7 @@ namespace Utility
             int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block.Value);
             if (block > 0)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
 
                 int blockAbsorb = Mathf.Min(damage, block);
                 target.entityStats.Block.AddModifier(new StatModifier(-blockAbsorb, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
@@ -37,7 +37,7 @@ namespace Utility
             {
                 if (isAttack)
                 {
-                    GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onDamage }, user.GetInstanceID(), target.GetInstanceID()));
+                    GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onDamage }, user.GetInstanceID(), target.GetInstanceID()));
                 }
 
                 target.entityStats.CurrentHealth.AddModifier(new StatModifier(-damage, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
@@ -45,14 +45,14 @@ namespace Utility
 
             if(user.entityStats.Lifesteal.GetAllValues().Count > 0)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onLifesteal }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onLifesteal }, user.GetInstanceID(), target.GetInstanceID()));
                 ApplyHealing(user, user, Mathf.CeilToInt(damage * (user.entityStats.Lifesteal.Value / 100f)));
             }        
         }
 
         public static void ApplyHealing(EntityScript user, EntityScript target, int healing)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onHeal }, user.GetInstanceID(), target.GetInstanceID()));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHeal }, user.GetInstanceID(), target.GetInstanceID()));
 
             target.entityStats.CurrentHealth.AddModifier(new StatModifier(
                 Mathf.Min
@@ -65,13 +65,13 @@ namespace Utility
 
         public static void ApplyBuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBuffed }, user.GetInstanceID(), target.GetInstanceID()));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBuffed }, user.GetInstanceID(), target.GetInstanceID()));
 
             targetStat.AddModifier(mod, mergeStrategy);
         }
         public static void ApplyDebuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onDebuffed }, user.GetInstanceID(), target.GetInstanceID()));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onDebuffed }, user.GetInstanceID(), target.GetInstanceID()));
 
             targetStat.AddModifier(mod, mergeStrategy);
         }
@@ -82,7 +82,7 @@ namespace Utility
 
         public static void SpawnEntity(EntityScript user, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation )
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onSummon }, user.GetInstanceID(), -1));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onSummon }, user.GetInstanceID(), -1));
 
             GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, parent: user.transform.parent);
             EntityOnMap entityOnMap = SpawnObj.GetComponent<EntityOnMap>();

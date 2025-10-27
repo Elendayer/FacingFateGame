@@ -38,12 +38,12 @@ public class DraggableCard : Draggable
         {
             case CardTargetType.CombatTile:
                 dropCell = TargetingUtility.GetValidTileDrop(eventData, cardScript);
-                targets = TargetingUtility.GetTargetsFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
+                targets = TargetingUtility.GetEntitiesFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
 
                 ; break;
             case CardTargetType.Entity:
                 dropCell = TargetingUtility.GetValidEntityDrop(eventData, cardScript);
-                targets = TargetingUtility.GetTargetsFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
+                targets = TargetingUtility.GetEntitiesFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
                 break;
             case CardTargetType.Ground:
                 dropCell = TargetingUtility.GetValidGroundDrop(eventData, cardScript);

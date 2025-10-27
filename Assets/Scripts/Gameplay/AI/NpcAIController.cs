@@ -505,7 +505,7 @@ public class NpcAIController
             }
 
             // Determine which targets would be affected from this tile position
-            var affectedTargets = TargetingUtility.GetTargetsFromPosition(card, tile, allEntities, npc);
+            var affectedTargets = TargetingUtility.GetEntitiesFromPosition(card, tile, allEntities, npc);
             if (affectedTargets == null || affectedTargets.Count == 0)
             {
                 Debug.Log($"[NpcAI] No affected targets from tile {tile}");
@@ -578,7 +578,7 @@ public class NpcAIController
         foreach (var candidate in orderedCandidates)
         {
             Vector3Int npcPosition = candidate.End;
-            var affectedTargets = TargetingUtility.GetTargetsFromPosition(card, npcPosition, allEntities, npc);
+            var affectedTargets = TargetingUtility.GetEntitiesFromPosition(card, npcPosition, allEntities, npc);
 
             if (affectedTargets.Count == 0) continue;
             if (card.cardData.targetingData.SelectionType == CardTargetSelection.Single)
@@ -622,7 +622,7 @@ public class NpcAIController
             return 0;
         }
 
-        List<EntityScript> vettedEntities = TargetingUtility.VetTargetsEntities(card,targets) ?? new List<EntityScript>();
+        List<EntityScript> vettedEntities = TargetingUtility.GetValidTargets(card, card.cardData.Owner ,targets) ?? new List<EntityScript>();
 
         int cardPower = card.cardData.Power;
         int repeats = Mathf.Max(1, card.cardData.Repeats);

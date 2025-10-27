@@ -55,7 +55,7 @@ public class CardData
     public TargetingData targetingData = new();
 
     [Header("Card Effect Target")]
-    public List<gameplayRef> GameplayReferences { get; internal set; } = new();
+    public List<GameplayRef> GameplayReferences { get; internal set; } = new();
 
     public List<CardType> EffectTargetTypes = new();
     public CardScript TargetCard;
@@ -134,17 +134,17 @@ public class CardData
 
     private void GenerateTriggerFromCardData()
     {
-        gameplayRef refValue;
+        GameplayRef refValue;
 
-        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{cardClass}");
+        refValue = (GameplayRef)Enum.Parse(typeof(GameplayRef), $"{cardClass}");
         GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
 
-        refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{cardType}");
+        refValue = (GameplayRef)Enum.Parse(typeof(GameplayRef), $"{cardType}");
         GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
 
         foreach (CardIdentity identity in cardIdentities)
         {
-            refValue = (gameplayRef)Enum.Parse(typeof(gameplayRef), $"{identity}");
+            refValue = (GameplayRef)Enum.Parse(typeof(GameplayRef), $"{identity}");
             GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
         }
     }
@@ -194,7 +194,7 @@ public class CardAiBias
     public Intention Intention = Intention.None;
 
     // Unique ID for lookup
-    public gameplayRef triggerCondition = gameplayRef.None;
+    public GameplayRef triggerCondition = GameplayRef.None;
 
     // Override for Friendly Fire Avoidance
     public CardTargetAffiliation AffiliationBiasOverride = CardTargetAffiliation.None;
@@ -204,7 +204,7 @@ public class CardAiBias
     // Divider for Throughput to scale down high values
     public int throughputScale = 1;
     // Additional Throughput per gameplayRef
-    public Dictionary<gameplayRef, int> throughputBias = new();
+    public Dictionary<GameplayRef, int> throughputBias = new();
 
     public int cooldown = 1;
 
@@ -212,11 +212,11 @@ public class CardAiBias
     public int ThroughputOverride(List<EntityScript> target)
     {
         int OverrideValue = throughputScale;
-        foreach (KeyValuePair<gameplayRef, int> gRef in throughputBias)
+        foreach (KeyValuePair<GameplayRef, int> gRef in throughputBias)
         {
             foreach (EntityScript t in target)
             {
-                if (t.HasReference(gRef.Key))
+                if (t.HasReference(gRef.Key).found)
                 {
                     OverrideValue += gRef.Value;
                 }

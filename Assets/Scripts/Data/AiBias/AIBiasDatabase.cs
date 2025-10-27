@@ -46,7 +46,7 @@ public class AiBiasDatabase : MonoBehaviour
             id = "StupidFuck",
 
             intentionBias = new Dictionary<Intention, int>(),
-            refBias = new Dictionary<gameplayRef, int>(),
+            refBias = new Dictionary<GameplayRef, int>(),
             identityBias = new Dictionary<CardIdentity, int>(),
 
             RepositionCondition = RepositionCondition.surrounded

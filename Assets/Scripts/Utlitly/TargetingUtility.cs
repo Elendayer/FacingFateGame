@@ -1,16 +1,15 @@
-using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Utility
 {
 
     public static class TargetingUtility
     {
-        public static List<EntityScript> GetTargetsFromPosition(CardScript card, Vector3Int pos, List<EntityScript> allEntities, EntityScript owner)
+        #region Get Entities
+        public static List<EntityScript> GetEntitiesFromPosition(CardScript card, Vector3Int pos, List<EntityScript> allEntities, EntityScript owner)
         {
             List<EntityScript> targets = new();
 
@@ -44,133 +43,103 @@ namespace Utility
                     break;
             }
 
-            return VetTargetsEntities(card, targets);
+            return GetValidTargets(card, owner, targets);
         }
         public static List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles, List<EntityScript> allEntities)
         {
             return allEntities.Where(e => tiles.Contains(e.GetComponent<EntityOnMap>().currentCell)).ToList();
         }
-        public static List<EntityScript> VetTargetsEntities(CardScript card, List<EntityScript> preTargets)
-        {
-            var owner = card.cardData.Owner;
+        #endregion
 
-            if (card == null || owner == null || preTargets == null) return new List<EntityScript>();
-
-            var targeting = card.cardData.targetingData;
-            EntityAffiliation ownerAffiliation = owner.entityAffiliation;
-
-            return preTargets.Where(target =>
-            {
-                EntityAffiliation targetAff = target.entityAffiliation;
-
-                return targeting.CardTargetAffiliation switch
-                {
-                    CardTargetAffiliation.Ally => targetAff == ownerAffiliation && targetAff != EntityAffiliation.Neutral,
-                    CardTargetAffiliation.Enemy => targetAff != ownerAffiliation && targetAff != EntityAffiliation.Neutral,
-                    CardTargetAffiliation.Self => target == owner,
-                    CardTargetAffiliation.All => true,
-                    CardTargetAffiliation.AllyNeutral => targetAff == ownerAffiliation || targetAff == EntityAffiliation.Neutral,
-                    CardTargetAffiliation.EnemyNeutral => targetAff != ownerAffiliation || targetAff == EntityAffiliation.Neutral,
-                    CardTargetAffiliation.AllyEnemy => targetAff != EntityAffiliation.Neutral,
-                    _ => false
-                };
-            }).ToList();
-        }
-        public static bool VetTargetEntity(CardScript card, EntityScript target)
+        public static bool CheckForValidTarget(CardScript card, EntityScript target)
         {
             var owner = card.cardData.Owner;
 
             if (card == null || owner == null || target == null) return false;
             var targeting = card.cardData.targetingData;
-            EntityAffiliation ownerAffiliation = owner.entityAffiliation;
-            EntityAffiliation targetAff = target.entityAffiliation;
-            return targeting.CardTargetAffiliation switch
+
+            // Check for untargetable modifier
+            var hasRef = target.HasReference(GameplayRef.untargetableByAll);
+            if (hasRef.found)
             {
-                CardTargetAffiliation.Ally => targetAff == ownerAffiliation && targetAff != EntityAffiliation.Neutral,
-                CardTargetAffiliation.Enemy => targetAff != ownerAffiliation && targetAff != EntityAffiliation.Neutral,
-                CardTargetAffiliation.Self => target == owner,
-                CardTargetAffiliation.All => true,
-                CardTargetAffiliation.AllyNeutral => targetAff == ownerAffiliation || targetAff == EntityAffiliation.Neutral,
-                CardTargetAffiliation.EnemyNeutral => targetAff != ownerAffiliation || targetAff == EntityAffiliation.Neutral,
-                CardTargetAffiliation.AllyEnemy => targetAff != EntityAffiliation.Neutral,
-                _ => false
-            };
-        }
-        public static List<EntityScript> VetTargetsEntities(EntityScript owner, CardTargetAffiliation targetAffiliation, List<EntityScript> preTargets)
-        {
-            EntityAffiliation ownerAffiliation = owner.entityAffiliation;
+                return false;
+            }
 
-            return preTargets.Where(target =>
-            {
-                EntityAffiliation targetAff = target.entityAffiliation;
-
-                return targetAffiliation switch
-                {
-                    CardTargetAffiliation.Ally => targetAff == ownerAffiliation && targetAff != EntityAffiliation.Neutral,
-                    CardTargetAffiliation.Enemy => targetAff != ownerAffiliation && targetAff != EntityAffiliation.Neutral,
-                    CardTargetAffiliation.Self => target == owner,
-                    CardTargetAffiliation.All => true,
-                    CardTargetAffiliation.AllyNeutral => targetAff == ownerAffiliation || targetAff == EntityAffiliation.Neutral,
-                    CardTargetAffiliation.EnemyNeutral => targetAff != ownerAffiliation || targetAff == EntityAffiliation.Neutral,
-                    CardTargetAffiliation.AllyEnemy => targetAff != EntityAffiliation.Neutral,
-                    _ => false
-                };
-            }).ToList();
-        }
-
-        public static bool IsValidTarget(CardScript card, EntityScript owner, EntityScript target)
-        {
+            // Check affiliation
             var aff = target.entityAffiliation;
             var ownerAff = owner.entityAffiliation;
-            switch (card.cardData.targetingData.CardTargetAffiliation)
-            {
-                case CardTargetAffiliation.Ally: return aff == ownerAff;
-                case CardTargetAffiliation.Enemy: return aff != ownerAff;
-                case CardTargetAffiliation.Self: return target == owner;
-                case CardTargetAffiliation.All: return true;
-                case CardTargetAffiliation.AllyNeutral: return (aff == ownerAff || aff == EntityAffiliation.Neutral);
-                case CardTargetAffiliation.EnemyNeutral: return (aff != ownerAff || aff == EntityAffiliation.Neutral);
-                case CardTargetAffiliation.AllyEnemy: return (aff != EntityAffiliation.Neutral);
-                default: return false;
-            }
+
+            return IsValidAffiliation(targeting.CardTargetAffiliation, ownerAff, aff, owner, target);
         }
+
         public static List<EntityScript> GetValidTargets(CardScript card, EntityScript owner, List<EntityScript> allEntities)
         {
             if (card == null || owner == null || allEntities == null) return new List<EntityScript>();
 
             var targeting = card.cardData.targetingData;
 
-            // Filter out self if needed
             return allEntities.Where(target =>
             {
                 if (target == null) return false;
 
+                // Check for untargetable modifier
+                var hasRef = target.HasReference(GameplayRef.untargetableByAll);
+                if (hasRef.found) 
+                { 
+                    return false; 
+                }
+
+                // Check affiliation
                 var aff = target.entityAffiliation;
                 var ownerAff = owner.entityAffiliation;
 
-                bool valid = targeting.CardTargetAffiliation switch
-                {
-                    CardTargetAffiliation.Ally => aff == ownerAff && aff != EntityAffiliation.Neutral,
-                    CardTargetAffiliation.Enemy => aff != ownerAff && aff != EntityAffiliation.Neutral,
-                    CardTargetAffiliation.Self => target == owner,
-                    CardTargetAffiliation.All => true,
-                    CardTargetAffiliation.AllyNeutral => aff == ownerAff || aff == EntityAffiliation.Neutral,
-                    CardTargetAffiliation.EnemyNeutral => aff != ownerAff || aff == EntityAffiliation.Neutral,
-                    CardTargetAffiliation.AllyEnemy => aff != EntityAffiliation.Neutral,
-                    _ => false
-                };
-
+                // Determine if target is valid based on affiliation
+                bool valid = IsValidAffiliation(targeting.CardTargetAffiliation, ownerAff, aff, owner, target);
                 return valid;
             }).ToList();
         }
-        public static List<Vector3Int> GetCandidateTilesForTarget(CardScript card, Vector3Int targetCell)
+        private static bool IsValidAffiliation(
+            CardTargetAffiliation targetingAffiliation,
+            EntityAffiliation ownerAffiliation,
+            EntityAffiliation targetAffiliation,
+            EntityScript owner,
+            EntityScript target)
         {
-            List<Vector3Int> candidateTiles = card.cardData.targetingData.range <= 0
-                ? new List<Vector3Int> { targetCell }
-                : TilemapUtilityScript.GetTilesInRadius(targetCell, card.cardData.targetingData.range);
+            // Check for untargetable modifiers on the target
+            var (hasUntargetableEnemies, _) = target.HasReference(GameplayRef.untargetableByEnemies);
+            var (hasUntargetableAllies, _) = target.HasReference(GameplayRef.untargetableByAllies);
 
-            return candidateTiles;
+            // Base affiliation logic
+            bool baseValid = targetingAffiliation switch
+            {
+                CardTargetAffiliation.Ally => targetAffiliation == ownerAffiliation && targetAffiliation != EntityAffiliation.Neutral,
+                CardTargetAffiliation.Enemy => targetAffiliation != ownerAffiliation && targetAffiliation != EntityAffiliation.Neutral,
+                CardTargetAffiliation.Self => target == owner,
+                CardTargetAffiliation.All => true,
+                CardTargetAffiliation.AllyNeutral => targetAffiliation == ownerAffiliation || targetAffiliation == EntityAffiliation.Neutral,
+                CardTargetAffiliation.EnemyNeutral => targetAffiliation != ownerAffiliation || targetAffiliation == EntityAffiliation.Neutral,
+                CardTargetAffiliation.AllyEnemy => targetAffiliation != EntityAffiliation.Neutral,
+                _ => false
+            };
+
+            if (!baseValid)
+                return false;
+
+            // Apply untargetable logic
+            bool isEnemyTarget = targetAffiliation != ownerAffiliation && targetAffiliation != EntityAffiliation.Neutral;
+            bool isAllyTarget = targetAffiliation == ownerAffiliation && targetAffiliation != EntityAffiliation.Neutral;
+
+            if (isEnemyTarget && hasUntargetableEnemies)
+                return false;
+
+            if (isAllyTarget && hasUntargetableAllies)
+                return false;
+
+            return true;
         }
+
+
+        // Get affected tiles based on card targeting data
         public static List<Vector3Int> GetEffectAreaTiles(CardScript card, Vector3Int centerTile, EntityScript owner)
         {
             switch (card.cardData.targetingData.SelectionType)
@@ -191,6 +160,8 @@ namespace Utility
                     return new List<Vector3Int> { centerTile };
             }
         }
+
+        #region Drop Validation
         public static Vector3Int GetValidTileDrop(PointerEventData eventData, CardScript cardScript)
         {
             List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
@@ -242,7 +213,7 @@ namespace Utility
                 EntityOnMap entityOnTile = allEntities.FirstOrDefault(e => e.currentCell == cell);
                 if (entityOnTile != null)
                 {
-                    if (TargetingUtility.VetTargetEntity(cardScript, entityOnTile.GetComponent<EntityScript>()))
+                    if (TargetingUtility.CheckForValidTarget(cardScript, entityOnTile.GetComponent<EntityScript>()))
                     {
                         return cell;
                     }
@@ -252,7 +223,6 @@ namespace Utility
             // No valid entity found
             return TilemapUtilityScript.InvalidPosition;
         }
-
         public static Vector3Int GetValidGroundDrop(PointerEventData eventData, CardScript cardScript)
         {
             foreach (GameObject hoveredObject in eventData.hovered)
@@ -269,5 +239,6 @@ namespace Utility
             }
             return TilemapUtilityScript.InvalidPosition;
         }
+        #endregion
     }
 }
