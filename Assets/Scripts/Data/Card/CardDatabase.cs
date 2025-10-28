@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 
@@ -127,7 +127,7 @@ public static class CardDatabase
 
             CardEffect = (user, target, data) =>
             {
-                user.entityStats.Block.AddModifier(new StatModifier( data.Power,ModifierScaling.Flat, new List<gameplayRef>() { gameplayRef.onBlocking }, data.Duration));
+                user.entityStats.Block.AddModifier(new StatModifier( data.Power,ModifierScaling.Flat, new List<GameplayRef>() { GameplayRef.onBlocking }, data.Duration));
             }
         });
 
@@ -209,7 +209,7 @@ public static class CardDatabase
             CardEffect = (User, Target, data) =>
             {
             
-                var mod = new StatModifier(data.Power, ModifierScaling.Flat, new List<gameplayRef>() { }, name: "Valiant Blessing");
+                var mod = new StatModifier(data.Power, ModifierScaling.Flat, new List<GameplayRef>() { }, name: "Valiant Blessing");
 
                 CombatUtility.ApplyBuff(User, Target, Target.entityStats.MaxHealth, mod, ModifierMergeStrategy.Merge);
                 CombatUtility.ApplyHealing(User, Target, data.Healing);
@@ -252,14 +252,14 @@ public static class CardDatabase
                 var burnModifier = new EntityModifier(
                     statName: "Burn",
                     baseValue: data.Power,
-                    to_Trigger_refs : new() { gameplayRef.onBurn },
+                    to_Trigger_refs : new() { GameplayRef.onBurn },
                     duration: data.Duration,
                     target: Target.entityStats.CurrentHealth,
-                    statModifier : new StatModifier(data.Power, ModifierScaling.Flat, new List<gameplayRef>() { gameplayRef.onBurn }, name: "Burn"),
-                    triggerConditionRef: new TriggerRef() { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID()},
+                    statModifier : new StatModifier(data.Power, ModifierScaling.Flat, new List<GameplayRef>() { GameplayRef.onBurn }, name: "Burn"),
+                    triggerConditionRef: new TriggerRef() { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID()},
                     onRefEventAction: (modifier, stat, toTrigger_Reference) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef() { References = new() { gameplayRef.onBurn }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
+                        GameEvents.TriggerRefEvent(new TriggerRef() { References = new() { GameplayRef.onBurn }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
                         CombatUtility.ApplyDamage(User, Target, modifier.BaseValue);
                     });
 
@@ -296,6 +296,66 @@ public static class CardDatabase
             CardEffect = (User, target, data) =>
             {
                 }
+        });
+        // 100602 � Throw Firebomb � Single/Radius; apply Burn DoT (with immediate tick)
+        CardDatabase.RegisterCard(new CardData()
+        {
+            cardID = 100602,
+            cardName = "Throw Firebomb",
+            cardType = CardType.Item,
+            cardClass = CardClass.Monster,
+            cardIdentities = new() { CardIdentity.Fire, CardIdentity.Ranged },
+
+            cost_u = 2,
+            damage_u = 3,
+            duration_u = 6,
+
+            targetingData = new()
+            {
+                CardTargetType = CardTargetType.Entity,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                SelectionType = CardTargetSelection.Radius, // keep as defined in your file
+                range = 3,
+                area = 2,
+            },
+
+            CardDescription = (User, d) => d.cardDescription = $"Apply Burn {d.Damage} for {d.Duration} turns (immediate tick).",
+            CardEffect = (User, Target, d) =>
+            {
+                string name = $"Burn#{d.cardID}";
+                var burn = new EntityModifier(
+                    statName: name,
+                    baseValue: d.Damage,
+                    to_Trigger_refs: new() { GameplayRef.onBurn },
+                    duration: d.Duration,
+                    target: Target.entityStats.CurrentHealth,
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { GameplayRef.onTurnStart },
+                        AffectedEntityId = Target.GetInstanceID()
+                    },
+                    onRefEventAction: (mod, stat, ev) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { GameplayRef.onBurn },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
+                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                    });
+
+                CombatUtility.ApplyEntityModifier(User, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                // immediate tick on play
+                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                GameEvents.TriggerRefEvent(new TriggerRef
+                {
+                    References = new() { GameplayRef.onBurn },
+                    UserId = User.GetInstanceID(),
+                    AffectedEntityId = Target.GetInstanceID()
+                });
+            }
         });
     }
 }

@@ -29,26 +29,26 @@ public class EntityScript : MonoBehaviour
     }
     private void AddListeners()
     {
-        GameEvents.Subscribe(gameplayRef.onTurnStart, GetInstanceID(), GameEvents_OnTurnStart);
+        GameEvents.Subscribe(GameplayRef.onTurnStart, GetInstanceID(), GameEvents_OnTurnStart);
 
-        GameEvents.Subscribe(gameplayRef.onBurn, GetInstanceID(), TriggerAnimation);
-        GameEvents.Subscribe(gameplayRef.onDamage, GetInstanceID(), TriggerAnimation);
+        GameEvents.Subscribe(GameplayRef.onBurn, GetInstanceID(), TriggerAnimation);
+        GameEvents.Subscribe(GameplayRef.onDamage, GetInstanceID(), TriggerAnimation);
     }
     private void TriggerAnimation(TriggerRef triggerRef)
     {
         GameObject effectObj;
-        foreach (gameplayRef gRef in triggerRef.References)
+        foreach (GameplayRef gRef in triggerRef.References)
         {
             switch (gRef)
             {
                 default: break;
-                case gameplayRef.onBurn:
+                case GameplayRef.onBurn:
                     effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
                     Debug.Log("Tried to Add Burn Effect");
                     Instantiate(effectObj, EntityVisual.transform);
                     break;
 
-                case gameplayRef.onDamage:
+                case GameplayRef.onDamage:
                     effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
                     Debug.Log("Tried to Add Damage Effect");
                     Instantiate(effectObj, EntityVisual.transform);
@@ -128,8 +128,27 @@ public class EntityScript : MonoBehaviour
         if (existing != null) entityModifiers.Remove(existing);
         entityModifiers.Add(modifier);
     }
-    public bool HasReference(gameplayRef reference)
-        => entityModifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+    public (bool found, IEntityModifier modifier) HasReference(GameplayRef reference)
+    {
+        var modifier = entityModifiers
+            .FirstOrDefault(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+
+        return (modifier != null, modifier);
+    }
+
+    public bool HasModifier(string name)
+        => entityModifiers.Any(m => m.ModifierName == name && !m.IsExpired);
+
+    public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef)
+    {
+        var modifier = entityModifiers.FirstOrDefault(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+        if (modifier != null)
+        {
+            modifier.OnRefEventTriggered(triggerRef);
+            return true;
+        }
+        return false;
+    }
 
     public IEntityModifier GetModifierByName(string name)
         => entityModifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);

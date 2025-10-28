@@ -164,14 +164,17 @@ public static class MysticCards
 
             targetingData = new()
             {
-                CardTargetType = CardTargetType.Entity,
+                CardTargetType = CardTargetType.Ground,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
                 range = 1,
                 area = 1,
             },
             CardDescription = (User, d) => d.cardDescription = "Create a double that draws aggro and attacks once (TODO).",
-            CardEffect = (User, Target, d) => { /* TODO: spawn double */ }
+            CardEffectGround = (User, Target, d) => 
+            {
+                CombatUtility.SpawnEntity(User, Target, "0001", EntityAffiliation.Neutral); 
+            }
         });
 
         // 130302 – Phantom Spear Battalion – ring blockers (non-damage)
@@ -236,13 +239,13 @@ public static class MysticCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1, // Melee
+                range = 9, 
                 area = 1,
             },
             CardDescription = (User, d) => d.cardDescription = "Force the target to move 2 spaces.",
             CardEffect = (User, Target, d) =>
             {
-                // TODO: Compute path and forcibly move target 2 tiles (respecting collisions).
+                MovementUtility.SwapLocations(User, Target);
             }
         });
 
@@ -445,13 +448,13 @@ public static class MysticCards
                 var ignite = new EntityModifier(
                     statName: "Burn",
                     baseValue: d.Power,
-                    to_Trigger_refs: new() { gameplayRef.onBurn },
+                    to_Trigger_refs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     onRefEventAction: (mod, stat, refEv) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef { References = new() { gameplayRef.onBurn }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
+                        GameEvents.TriggerRefEvent(new TriggerRef { References = new() { GameplayRef.onBurn }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
                 CombatUtility.ApplyEntityModifier(User, Target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
