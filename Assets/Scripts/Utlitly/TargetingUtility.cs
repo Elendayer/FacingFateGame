@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Tilemaps;
 
 namespace Utility
 {
@@ -167,6 +168,7 @@ namespace Utility
             List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
             Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
 
+
             foreach (GameObject hoveredObject in eventData.hovered)
             {
                 Debug.Log($"[TargetingUtility] Hovered object: {hoveredObject.name}");
@@ -185,6 +187,7 @@ namespace Utility
             }
             return TilemapUtilityScript.InvalidPosition;
         }
+
         public static Vector3Int GetValidEntityDrop(PointerEventData eventData, CardScript cardScript)
         {
             List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
@@ -229,16 +232,33 @@ namespace Utility
             {
                 Debug.Log($"[TargetingUtility] Hovered object: {hoveredObject.name}");
 
-                // Only consider tiles with DraggableTarget component
-                if (!hoveredObject.TryGetComponent(out DraggableTarget dt))
-                    continue;
-
-                // Convert hovered object position to tile cell
-                Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
-                return cell;
+        public static Vector3Int? GetHoveredTile(PointerEventData eventData)
+        {
+            foreach (GameObject hoveredObject in eventData.hovered)
+            {
+                if (hoveredObject.TryGetComponent(out DraggableTarget dt) &&
+                    dt.draggableTargetType == DraggableTargetType.CombatTile)
+                {
+                    return TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
+                }
             }
             return TilemapUtilityScript.InvalidPosition;
         }
-        #endregion
+        public static Vector3Int GetHoveredTile(Ray ray )
+        {
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Debug.Log($"[TargetingUtility] Raycast hit: {hit.collider.name}");
+                // Check if the hit object is a draggable target of type CombatTile
+                if (hit.collider.TryGetComponent<DraggableTarget>(out var dt) &&
+                    dt.draggableTargetType == DraggableTargetType.CombatTile)
+                {
+                    // Convert world position to tilemap cell
+                    return TilemapUtilityScript.BaseTilemap.WorldToCell(hit.collider.transform.position);
+                }
+            }
+
+            return TilemapUtilityScript.InvalidPosition;
+        }
     }
 }

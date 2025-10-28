@@ -98,6 +98,14 @@ public class CardData
             duration_u = duration_u,
             repeats_u = repeats_u,
 
+            cost_s = new Stat(),
+            power_s = new Stat(),
+            damage_s = new Stat(),
+            healing_s = new Stat(), 
+
+            duration_s = new Stat(),
+            repeats_s = new Stat(),
+
             // Targeting-Flags (keine Ziel-Referenzen übernehmen)
             targetingData = targetingData,
 

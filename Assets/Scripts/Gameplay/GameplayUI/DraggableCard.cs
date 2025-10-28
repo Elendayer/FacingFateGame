@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using Utility;
 
-public class DraggableCard : Draggable
+public class DraggableCard : DraggableUI
 {
     public CardScript cardScript; // Reference to the card logic
     private static readonly Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
@@ -27,7 +27,7 @@ public class DraggableCard : Draggable
     public override void OnEndDrag(PointerEventData eventData)
     {
         base.OnEndDrag(eventData);
-        TilemapUtilityScript.ResetMaphightlight(BaseTilemap);
+        TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
 
         Vector3Int dropCell = TilemapUtilityScript.InvalidPosition;
         CardTargetType ctt = cardScript.cardData.targetingData.CardTargetType;
@@ -71,29 +71,17 @@ public class DraggableCard : Draggable
     }
     private void HighlightCardEffectArea(PointerEventData eventData)
     {
-        Vector3Int? currentTile = GetHoveredTile(eventData, BaseTilemap);
+        Vector3Int? currentTile = TargetingUtility.GetHoveredTile(eventData);
         if (currentTile == InvalidPosition || lastHighlightedTile == currentTile) return;
 
         List<Vector3Int> tilesToHighlight = currentTile.HasValue
             ? TargetingUtility.GetEffectAreaTiles(cardScript, currentTile.Value, cardScript.cardData.Owner)
             : new List<Vector3Int>();
 
-        TilemapUtilityScript.ResetMaphightlight(BaseTilemap);
-        TilemapUtilityScript.SetTilesHighlight(tilesToHighlight, BaseTilemap, TilemapUtilityScript.HighlightType.Target);
+        TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
+        TilemapUtilityScript.SetTilesHighlight(tilesToHighlight, TilemapUtilityScript.HighlightType.Target);
 
         lastHighlightedTile = currentTile ?? InvalidPosition;
     }
 
-    private Vector3Int? GetHoveredTile(PointerEventData eventData, Tilemap tilemap)
-    {
-        foreach (GameObject hoveredObject in eventData.hovered)
-        {
-            if (hoveredObject.TryGetComponent(out DraggableTarget dt) &&
-                dt.draggableTargetType == DraggableTargetType.CombatTile)
-            {
-                return tilemap.WorldToCell(hoveredObject.transform.position);
-            }
-        }
-        return InvalidPosition;
-    }
 }

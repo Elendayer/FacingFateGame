@@ -100,7 +100,7 @@ public class Stat
             }
         }
 
-        BaseValue = (BaseValue * (100 + percent)) / 100;
+        BaseValue = BaseValue * (100 + percent) / 100;
 
         foreach (var mult in multipliers)
         {
@@ -112,6 +112,7 @@ public class Stat
 
     public int ApplyFinalValue(int value)
     {
+        int baseValue = value;
         int percent = 0;
         List<int> multipliers = new();
 
@@ -131,7 +132,7 @@ public class Stat
                 switch (statMod.ModifierScaling)
                 {
                     case ModifierScaling.Flat:
-                        value += statMod.BaseValue;
+                        baseValue += statMod.BaseValue;
                         break;
                     case ModifierScaling.Percent:
                         percent += statMod.BaseValue;
@@ -143,14 +144,14 @@ public class Stat
             }
         }
 
-        value = (value * (100 + percent)) / 100;
+        baseValue = baseValue * (100 + percent) / 100;
 
         foreach (var mult in multipliers)
         {
-            value = (value * mult) / 100;
+            baseValue = (baseValue * mult) / 100;
         }
 
-        return value;
+        return baseValue;
     }
 
     public List<int> GetAllValues(ModifierScaling? filterType = null)

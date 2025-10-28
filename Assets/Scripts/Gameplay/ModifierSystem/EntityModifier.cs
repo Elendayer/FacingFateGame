@@ -14,6 +14,8 @@ public interface IEntityModifier
     void OnRefEventTriggered(TriggerRef reference);
     void OnManuelTrigger();
 }
+
+[System.Serializable]
 public class EntityModifier : IEntityModifier
 {
     public string ModifierName { get; private set; }

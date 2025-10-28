@@ -27,7 +27,6 @@ public class EntityScript : MonoBehaviour
 
         AddListeners();
     }
-
     private void AddListeners()
     {
         GameEvents.Subscribe(GameplayRef.onTurnStart, GetInstanceID(), GameEvents_OnTurnStart);
@@ -58,7 +57,11 @@ public class EntityScript : MonoBehaviour
         }
     }
 
+
+    [Header("Modifier System")]
+    [SerializeField]
     private readonly List<IEntityModifier> entityModifiers = new();
+    public List<string> modifierNames;
 
     public void AddModifier(IEntityModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
     {
@@ -111,7 +114,6 @@ public class EntityScript : MonoBehaviour
         }
         modifier.AddListener();
     }
-   
     private void GameEvents_OnTurnStart(TriggerRef trigger)
     {
         if (trigger.UserId == this.GetInstanceID())
@@ -119,7 +121,6 @@ public class EntityScript : MonoBehaviour
             entityStats.CurrentStamina.AddModifier(new StatModifier(entityStats.MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Override);
         }
     }
-
     public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
     public void AddOrReplaceModifier(IEntityModifier modifier)
     {
@@ -151,9 +152,15 @@ public class EntityScript : MonoBehaviour
 
     public IEntityModifier GetModifierByName(string name)
         => entityModifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);
+
+    private void OnValidate()
+    {
+        modifierNames.Clear();
+        modifierNames.AddRange(entityModifiers.Select(c => c.ModifierName));
+    }
 }
 
-public enum EntityAttributeEnum
+public enum EntityAttributeEnum 
 {
     Strength,
     Dexterity,
