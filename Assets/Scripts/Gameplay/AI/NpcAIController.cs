@@ -408,7 +408,7 @@ public class NpcAIController
         }
 
         // Determine area radius from card targeting data
-        int areaRadius = card.cardData.targetingData?.area ?? 0;
+        int areaRadius = card.cardData?.Area ?? 0;
 
         // Collect frequency counts for tiles that are within areaRadius of each target
         var tileFrequency = new Dictionary<Vector3Int, int>();
@@ -481,7 +481,7 @@ public class NpcAIController
 
             // Pathfinding from currentCell to candidate tile
             PathData pathData = new();
-            if (card.cardData.targetingData.range == 1)
+            if (card.cardData.Range == 1)
             {
                 pathData = TilemapUtilityScript.FindPath(currentCell, tile, walkClose: true);
             }

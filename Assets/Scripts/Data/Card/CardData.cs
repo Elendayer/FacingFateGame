@@ -50,6 +50,15 @@ public class CardData
     public Stat repeats_s = new();
     public int Repeats => repeats_u + repeats_s.Value;
 
+    [Header("Range & Area")]
+    public int range_u = 1;
+    public Stat range_s = new();
+    public int Range => Owner.entityStats.RangeIncrease.ApplyFinalValue(range_s.ApplyFinalValue(range_u));
+    public int area_u = 1;
+
+    public Stat area_s = new();
+    public int Area => Owner.entityStats.AreaIncrease.ApplyFinalValue(area_s.ApplyFinalValue(area_u));
+
 
     [Header("Card Target")]
     public TargetingData targetingData = new();
@@ -105,9 +114,12 @@ public class CardData
 
             duration_s = new Stat(),
             repeats_s = new Stat(),
+            
+            range_u = 1,
+            area_u = 1,
 
-            // Targeting-Flags (keine Ziel-Referenzen übernehmen)
-            targetingData = targetingData,
+    // Targeting-Flags (keine Ziel-Referenzen übernehmen)
+    targetingData = targetingData,
 
             // Delegates (zeigen auf dieselben Methoden – gewünscht)
             CardDescription = CardDescription,
@@ -142,18 +154,36 @@ public class CardData
 
     private void GenerateTriggerFromCardData()
     {
-        GameplayRef refValue;
-
-        refValue = (GameplayRef)Enum.Parse(typeof(GameplayRef), $"{cardClass}");
-        GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
-
-        refValue = (GameplayRef)Enum.Parse(typeof(GameplayRef), $"{cardType}");
-        GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
-
-        foreach (CardIdentity identity in cardIdentities)
+        // Lokaler Helfer: versucht einen gameplayRef anhand eines Namens zu feuern
+        void TryTrigger(string name, int userId)
         {
-            refValue = (GameplayRef)Enum.Parse(typeof(GameplayRef), $"{identity}");
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { refValue }, Owner.GetInstanceID()));
+            if (string.IsNullOrEmpty(name)) return;
+
+            if (Enum.TryParse<GameplayRef>(name, out var gref))
+            {
+                GameEvents.TriggerRefEvent(new TriggerRef
+                {
+                    References = new() { gref },
+                    UserId = userId
+                });
+            }
+            else
+            {
+                Debug.Log($"[CardData] gameplayRef '{name}' not found. Skipping trigger.");
+            }
+        }
+
+        // UserId vom Kartenbesitzer (falls vorhanden)
+        int uid = Owner != null ? Owner.GetInstanceID() : 0;
+
+        // Klasse, Typ und Identities probieren
+        TryTrigger(cardClass.ToString(), uid);
+        TryTrigger(cardType.ToString(), uid);
+
+        if (cardIdentities != null)
+        {
+            foreach (var id in cardIdentities)
+                TryTrigger(id.ToString(), uid);
         }
     }
 }
@@ -192,8 +222,6 @@ public class TargetingData
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;
     public CardTargetSelection SelectionType = CardTargetSelection.Single;
-    public int range = 1; 
-    public int area = 1; 
 }
 
 public class CardAiBias
@@ -281,10 +309,12 @@ public enum CardIdentity
 // If Updated needs to update GameplayReference as well
 public enum CardClass
 {
+
     Spearman,
     Assassin,
     Mystic,
     Physician,
+    Neutral,
     
     Knight,
     Rogue,

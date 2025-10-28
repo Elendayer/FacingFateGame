@@ -97,6 +97,7 @@ public enum GameplayRef
     onStatChanged,
     onModifierApplied,
     onModifierExpired,
+    onHitLanded,
 
     //Card Types
     Skill,
@@ -130,6 +131,7 @@ public enum GameplayRef
     Assassin,
     Mystic,
     Physician,
+    Neutral,
 
 
     //Classes Old

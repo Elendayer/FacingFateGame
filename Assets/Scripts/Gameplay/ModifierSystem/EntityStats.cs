@@ -38,6 +38,9 @@ public class EntityStats
 
     public Stat Lifesteal = new();
 
+    public Stat RangeIncrease = new();
+    public Stat AreaIncrease = new();
+
     public void StartUp(EntityScript entityScript)
     {
         Owner = entityScript;
