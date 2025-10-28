@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -147,19 +148,19 @@ public static class AssassinCards
                 var poison = new EntityModifier(
                     statName: "Poison",
                     baseValue: tick,
-                    to_Trigger_refs: new() { gameplayRef.onPoison },
+                    to_Trigger_refs: new() { GameplayRef.onPoison },
                     duration: dur,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, toTrigger) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onPoison },
+                            References = new() { GameplayRef.onPoison },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -170,19 +171,19 @@ public static class AssassinCards
                 var burn = new EntityModifier(
                     statName: "Burn",
                     baseValue: tick,
-                    to_Trigger_refs: new() { gameplayRef.onBurn },
+                    to_Trigger_refs: new() { GameplayRef.onBurn },
                     duration: dur,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, toTrigger) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onBurn },
+                            References = new() { GameplayRef.onBurn },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -193,19 +194,19 @@ public static class AssassinCards
                 var bleed = new EntityModifier(
                     statName: "Bleed",
                     baseValue: tick,
-                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    to_Trigger_refs: new() { GameplayRef.onBleed },
                     duration: dur,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, toTrigger) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onBleed },
+                            References = new() { GameplayRef.onBleed },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -465,13 +466,13 @@ public static class AssassinCards
                 var bleed = new EntityModifier(
                     statName: "Bleed",
                     baseValue: data.Power,
-                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    to_Trigger_refs: new() { GameplayRef.onBleed },
                     duration: data.Duration,
                     target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     onRefEventAction: (mod, stat, refEv) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef { References = new() { gameplayRef.onBleed }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
+                        GameEvents.TriggerRefEvent(new TriggerRef { References = new() { GameplayRef.onBleed }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
                 CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -526,7 +527,56 @@ public static class AssassinCards
             },
 
             CardDescription = (User, data) => data.cardDescription = "Next attack inflicts Ignite (TODO).",
-            CardEffect = (User, Target, data) => { /* TODO next-attack buff */ }
+            CardEffect = (User, Target, data) =>
+            {
+                var VenomDebuff = new EntityModifier
+                (
+                    statName: "Venom",
+                    baseValue: data.Damage,
+                    to_Trigger_refs: new() { GameplayRef.onBuffed },
+                    duration: data.Duration,
+                    target: Target.entityStats.CurrentHealth,
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { GameplayRef.onTurnStart },
+                        AffectedEntityId = User.GetInstanceID()
+                    },
+                    onRefEventAction: (mod, stat, ev) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { GameplayRef.onPoison },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
+                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                    });
+
+                var VenomBuff = new EntityModifier
+                (
+                    statName: "Venom on Blade",
+                    baseValue: data.Damage,
+                    to_Trigger_refs: new() { GameplayRef.onBuffed },
+                    duration: data.Duration,
+                    target: Target.entityStats.CurrentHealth,
+                    triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { GameplayRef.onAttack },
+                        AffectedEntityId = User.GetInstanceID()
+                    },
+                    onRefEventAction: (mod, stat, ev) =>
+                    {
+                        GameEvents.TriggerRefEvent(new TriggerRef
+                        {
+                            References = new() { },
+                            UserId = User.GetInstanceID(),
+                            AffectedEntityId = Target.GetInstanceID()
+                        });
+                        CombatUtility.ApplyEntityModifier(User, Target, VenomDebuff, ModifierMergeStrategy.Merge);
+                    });
+
+               CombatUtility.ApplyEntityModifier(User, Target, VenomBuff, ModifierMergeStrategy.Override);
+            }
         });
 
         // 120203 – Apply Black Lotus Venom – poison next attack (non-damage)

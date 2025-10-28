@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[System.Serializable]
 public class Stat
 {
     public int Value => GetFinalValue();
@@ -163,7 +162,7 @@ public class Stat
             .ToList();
     }
 
-    public bool HasReference(gameplayRef reference)
+    public bool HasReference(GameplayRef reference)
         => statModifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
 
     public IStatModifier GetModifierByName(string name)
@@ -176,23 +175,25 @@ public class Stat
         statModifiers.Add(modifier);
     }
 }
-    // -------------------- Enums --------------------
 
-    public enum ModifierMergeStrategy
-    {
-        AddUnique,
-        Override,
-        Merge,
-        RefreshDurationAndMerge,
-        RefreshDurationAndOverride
-    }
 
-    public enum ModifierScaling
-    {
-        Flat,
-        Percent,
-        Multiplier
-    }
+// -------------------- Enums --------------------
+
+public enum ModifierMergeStrategy
+{
+    AddUnique,
+    Override,
+    Merge,
+    RefreshDurationAndMerge,
+    RefreshDurationAndOverride
+}
+
+public enum ModifierScaling
+{
+    Flat,
+    Percent,
+    Multiplier
+}
 
 public enum StatAspect
 {
@@ -206,10 +207,10 @@ public enum StatAspect
 // -------------------- Referenece Struct --------------------
 public struct TriggerRef
 {
-    public List<gameplayRef> References;
+    public List<GameplayRef> References;
     public int UserId;
     public int AffectedEntityId;
-    public TriggerRef(List<gameplayRef> references = null, int userId = 0, int targetId = 0)
+    public TriggerRef(List<GameplayRef> references = null, int userId = 0, int targetId = 0)
     {
         References = references;
         UserId = userId;

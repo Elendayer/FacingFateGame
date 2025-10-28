@@ -536,7 +536,7 @@ public static class PhysicianCards
             CardDescription = (User, d) => d.cardDescription = "Boost ally for 1 turn (details TBD).",
             CardEffect = (User, Target, d) => 
             { 
-                CombatUtility.ApplyBuff(User, Target, Target.entityStats.Armour, new StatModifier(d.Power, ModifierScaling.Flat, new List<gameplayRef> {gameplayRef.onBuffed }, duration: d.Duration, name: "Brew of Unbroken Will"), ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyBuff(User, Target, Target.entityStats.Armour, new StatModifier(d.Power, ModifierScaling.Flat, new List<GameplayRef> {GameplayRef.onBuffed }, duration: d.Duration, name: "Brew of Unbroken Will"), ModifierMergeStrategy.Merge);
             }
         });
 
@@ -709,13 +709,13 @@ public static class PhysicianCards
                 var poison = new EntityModifier(
                     statName: "Poison",
                     baseValue: d.Power,
-                    to_Trigger_refs: new() { gameplayRef.onPoison },
+                    to_Trigger_refs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     onRefEventAction: (mod, stat, refEv) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef { References = new() { gameplayRef.onPoison }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
+                        GameEvents.TriggerRefEvent(new TriggerRef { References = new() { GameplayRef.onPoison }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
                         CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
                     });
                 CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
