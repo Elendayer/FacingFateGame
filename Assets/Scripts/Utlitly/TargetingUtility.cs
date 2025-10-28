@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System;
 using UnityEngine.EventSystems;
-using UnityEngine.Tilemaps;
 
 namespace Utility
 {
@@ -24,43 +22,21 @@ namespace Utility
                     targets = allEntities;
                     break;
                 case CardTargetSelection.Radius:
-                    var radiusTiles = TilemapUtilityScript.GetTilesInRadius(pos, GetEffectiveRange(card, owner));
+                    var radiusTiles = TilemapUtilityScript.GetTilesInRadius(pos, card.cardData.Range);
                     targets = GetEntitiesFromTiles(radiusTiles, allEntities);
                     break;
                 case CardTargetSelection.Ring:
-                    var ringTiles = TilemapUtilityScript.GetTilesInRing(pos, GetEffectiveRange(card, owner));
+                    var ringTiles = TilemapUtilityScript.GetTilesInRing(pos, card.cardData.Range);
                     targets = GetEntitiesFromTiles(ringTiles, allEntities);
                     break;
                 case CardTargetSelection.LineFree:
-                    {
-                        int effRange = GetEffectiveRange(card, owner);
-                        var ownerCell = owner.GetComponent<EntityOnMap>().currentCell;
-
-                        // Richtung aus Besitzer -> Maus/pos ableiten; fallback = (1,0,0)
-                        Vector3Int dir = DirectionStep(ownerCell, pos);
-                        if (dir == Vector3Int.zero) dir = Vector3Int.right;
-
-                        // Linie vom gew�hlten Tile "pos" in diese Richtung aufspannen
-                        var end = new Vector3Int(pos.x + dir.x * effRange, pos.y + dir.y * effRange, pos.z);
-                        var lineTiles = TilemapUtilityScript.GetTilesInLine(pos, end, effRange);
-
-                        int maxHits = Mathf.Max(1, card.cardData.targetingData.area);
-                        targets = CollectLinearTargets(lineTiles, allEntities, card, maxHits);
-                        break;
-                    }
+                    var lineFreeTiles = TilemapUtilityScript.GetTilesInLine(pos, pos, card.cardData.Range);
+                    targets = GetEntitiesFromTiles(lineFreeTiles, allEntities);
+                    break;
                 case CardTargetSelection.LineSelf:
-                    {
-                        int effRange = GetEffectiveRange(card, owner);
-                        var ownerCell = owner.GetComponent<EntityOnMap>().currentCell;
-
-                        // Linie vom Besitzer in Richtung "pos"
-                        var lineTiles = TilemapUtilityScript.GetTilesInLine(ownerCell, pos, effRange);
-
-                        int maxHits = Mathf.Max(1, card.cardData.targetingData.area);
-                        targets = CollectLinearTargets(lineTiles, allEntities, card, maxHits);
-                        break;
-                    }
-
+                    var lineSelfTiles = TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, pos, card.cardData.Range);
+                    targets = GetEntitiesFromTiles(lineSelfTiles, allEntities);
+                    break;
                 case CardTargetSelection.Cone:
                     break;
                 case CardTargetSelection.Select:
@@ -108,9 +84,9 @@ namespace Utility
 
                 // Check for untargetable modifier
                 var hasRef = target.HasReference(GameplayRef.untargetableByAll);
-                if (hasRef.found) 
-                { 
-                    return false; 
+                if (hasRef.found)
+                {
+                    return false;
                 }
 
                 // Check affiliation
@@ -169,15 +145,15 @@ namespace Utility
             switch (card.cardData.targetingData.SelectionType)
             {
                 case CardTargetSelection.Radius:
-                    return TilemapUtilityScript.GetTilesInRadius(centerTile, GetEffectiveRange(card, owner));
+                    return TilemapUtilityScript.GetTilesInRadius(centerTile, card.cardData.Area);
                 case CardTargetSelection.Ring:
-                    return TilemapUtilityScript.GetTilesInRing(centerTile, GetEffectiveRange(card, owner));
+                    return TilemapUtilityScript.GetTilesInRing(centerTile, card.cardData.Area);
                 case CardTargetSelection.LineFree:
-                    return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, GetEffectiveRange(card, owner));
+                    return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, card.cardData.Area);
                 case CardTargetSelection.LineSelf:
-                    return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, GetEffectiveRange(card, owner));
+                    return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.Range);
                 case CardTargetSelection.Cone:
-                    return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, GetEffectiveRange(card, owner), card.cardData.targetingData.area);
+                    return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.Range, card.cardData.Range);
                 case CardTargetSelection.All:
                     return TilemapUtilityScript.GetAllValidTiles();
                 default:
@@ -188,60 +164,48 @@ namespace Utility
         #region Drop Validation
         public static Vector3Int GetValidTileDrop(PointerEventData eventData, CardScript cardScript)
         {
-            var ownerEom = cardScript?.cardData?.Owner?.GetComponent<EntityOnMap>();
-            if (ownerEom == null) return TilemapUtilityScript.InvalidPosition;
-
+            List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
+            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
 
             foreach (GameObject hoveredObject in eventData.hovered)
             {
                 Debug.Log($"[TargetingUtility] Hovered object: {hoveredObject.name}");
-                if (!hoveredObject.TryGetComponent(out DraggableTarget _)) continue;
 
-                var cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
+                if (!hoveredObject.TryGetComponent(out DraggableTarget dt)) continue;
 
                 Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
 
-                if (TilemapUtilityScript.FindPath(currentCell, cell, ignoreCost: true).Path.Count > cardScript.cardData.targetingData.range)
+                if (TilemapUtilityScript.FindPath(currentCell, cell, ignoreCost: true).Path.Count > cardScript.cardData.Range)
                 {
-                    Debug.Log($"[TargetingUtility] Target {cell} is out of range. (need <= {effRange}, got {path.Path?.Count ?? -1})");
-                    continue;
+                    Debug.Log($"[TargetingUtility] Target {cell} is out of range.");
+                    return TilemapUtilityScript.InvalidPosition;
                 }
 
                 return cell;
             }
-
             return TilemapUtilityScript.InvalidPosition;
         }
-
         public static Vector3Int GetValidEntityDrop(PointerEventData eventData, CardScript cardScript)
         {
-            var ownerEom = cardScript?.cardData?.Owner?.GetComponent<EntityOnMap>();
-            if (ownerEom == null) return TilemapUtilityScript.InvalidPosition;
+            List<EntityOnMap> allEntities = Object.FindObjectsByType<EntityOnMap>(0).ToList();
+            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
 
-            // SELF: keine Hover-Objekte, kein Range-Check � immer eigene Zelle
-            if (IsSelf(cardScript))
-                return ownerEom.currentCell;
-
-            // Bisherige Logik f�r Nicht-Self
-            var allEntities = UnityEngine.Object
-                .FindObjectsByType<EntityOnMap>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
-                .ToList();
-
-
-            var currentCell = ownerEom.currentCell;
-            int effRange = GetEffectiveRange(cardScript, cardScript.cardData.Owner);
-
-            foreach (var hoveredObject in eventData.hovered)
+            foreach (GameObject hoveredObject in eventData.hovered)
             {
                 Debug.Log($"[TargetingUtility] Hovered object: {hoveredObject.name}");
-                if (!hoveredObject.TryGetComponent(out DraggableTarget _)) continue;
 
-                var cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
+                // Only consider tiles with DraggableTarget component
+                if (!hoveredObject.TryGetComponent(out DraggableTarget dt))
+                    continue;
 
+                // Convert hovered object position to tile cell
+                Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
+
+                // Check range
                 var path = TilemapUtilityScript.FindPath(currentCell, cell, ignoreCost: true);
-                if (path.Path == null || path.Path.Count > effRange)
+                if (path.Path == null || path.Path.Count > cardScript.cardData.Range)
                 {
-                    Debug.Log($"[TargetingUtility] Target {cell} is out of range. (need <= {effRange}, got {path.Path?.Count ?? -1})");
+                    Debug.Log($"[TargetingUtility] Target {cell} is out of range.");
                     continue;
                 }
 
@@ -256,6 +220,7 @@ namespace Utility
                 }
             }
 
+            // No valid entity found
             return TilemapUtilityScript.InvalidPosition;
         }
         public static Vector3Int GetValidGroundDrop(PointerEventData eventData, CardScript cardScript)
@@ -263,6 +228,18 @@ namespace Utility
             foreach (GameObject hoveredObject in eventData.hovered)
             {
                 Debug.Log($"[TargetingUtility] Hovered object: {hoveredObject.name}");
+
+                // Only consider tiles with DraggableTarget component
+                if (!hoveredObject.TryGetComponent(out DraggableTarget dt))
+                    continue;
+
+                // Convert hovered object position to tile cell
+                Vector3Int cell = TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
+                return cell;
+            }
+            return TilemapUtilityScript.InvalidPosition;
+        }
+        #endregion
 
         public static Vector3Int? GetHoveredTile(PointerEventData eventData)
         {
@@ -276,7 +253,7 @@ namespace Utility
             }
             return TilemapUtilityScript.InvalidPosition;
         }
-        public static Vector3Int GetHoveredTile(Ray ray )
+        public static Vector3Int GetHoveredTile(Ray ray)
         {
             if (Physics.Raycast(ray, out RaycastHit hit))
             {

@@ -21,7 +21,7 @@ namespace Utility
             int damage = rawDamage;
 
             // 1) Pre-Mitigation (Resistenzen o.ä.)
-            damage = target.entityStats.DamageReduction.ApplyFinalValue(damage);
+            damage = target.entityStats.DamageTakenReduction.ApplyFinalValue(damage);
 
             // 2) Armour
             if (target.entityStats.Armour.Value > 0)
@@ -34,7 +34,7 @@ namespace Utility
             int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block.Value);
             if (block > 0 && damage > 0)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
                 int blockAbsorb = Mathf.Min(damage, block);
                 target.entityStats.Block.AddModifier(new StatModifier(-blockAbsorb, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
                 damage -= blockAbsorb;
@@ -52,13 +52,13 @@ namespace Utility
                     new StatModifier(-damage, ModifierScaling.Flat, name: "BaseValue"),
                     ModifierMergeStrategy.Merge);
 
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onHitLanded }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHitLanded }, user.GetInstanceID(), target.GetInstanceID()));
             }
 
             // 5) Lifesteal
             if (damage > 0 && user.entityStats.Lifesteal.GetAllValues().Count > 0)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onLifesteal }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onLifesteal }, user.GetInstanceID(), target.GetInstanceID()));
                 int heal = Mathf.CeilToInt(damage * (user.entityStats.Lifesteal.Value / 100f));
                 ApplyHealing(user, user, heal);
             }
@@ -69,7 +69,7 @@ namespace Utility
         {
             if (healing <= 0) return;
 
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onHeal }, user.GetInstanceID(), target.GetInstanceID()));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHeal }, user.GetInstanceID(), target.GetInstanceID()));
 
             int missing = target.entityStats.MaxHealth.Value - target.entityStats.CurrentHealth.Value;
             int effHeal = Mathf.Clamp(healing, 0, Mathf.Max(0, missing));
@@ -121,7 +121,7 @@ namespace Utility
             if (target == null || mod == null) return;
 
             //Debug
-            if (mod.StatModifier == null) mod.StatModifier = new StatModifier(mod.BaseValue, ModifierScaling.Flat, duration: mod.Duration, on_triggerConditionRef: mod.TriggerConditionRef, target: mod.TargetStat, name: mod.ModifierName);
+            if (mod.StatModifier == null) mod.StatModifier = new StatModifier(mod.BaseValue, ModifierScaling.Flat, duration: mod.Duration, on_triggerConditionRef: mod.TriggerConditionRef, name: mod.ModifierName);
             mod.AddListener();
             target.AddModifier(mod, mergeStrategy);
             target.GetComponent<StatusDebugView>()?.Track(mod);

@@ -89,7 +89,6 @@ public class StatModifier : IStatModifier
         List<GameplayRef> to_triggerReferences = null,
         int duration = 99999,
         TriggerRef on_triggerConditionRef = new(),
-        Stat target = null,
         string name = null
         )
     {
@@ -99,7 +98,6 @@ public class StatModifier : IStatModifier
         To_TriggerGameplayRefs = to_triggerReferences;
         On_TriggerConditionRef = on_triggerConditionRef;
         Duration = duration;
-        TargetStat = target;
     }
     public StatModifier
         (
@@ -118,7 +116,6 @@ public class StatModifier : IStatModifier
         To_TriggerGameplayRefs = gReferences;
         On_TriggerConditionRef = triggerConditionRef;
         Duration = duration;
-        TargetStat = target;
     }
 }
 

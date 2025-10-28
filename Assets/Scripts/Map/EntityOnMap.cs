@@ -22,10 +22,9 @@ public class EntityOnMap : MonoBehaviour
 
     public void Spawn(Vector3Int vector3Int)
     {
-        refTilemap = TilemapUtilityScript.BaseTilemap;
 
         currentCell = vector3Int;
-        transform.position = refTilemap.CellToWorld(currentCell);
+        transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(currentCell);
         SetOccupied(false);
     }
 
@@ -39,7 +38,7 @@ public class EntityOnMap : MonoBehaviour
         if (path != null && path.Count > 0)
         {
             TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
-            moveRoutine = StartCoroutine(FollowPath(path));
+            moveRoutine = StartCoroutine(FollowPath(path,moveSpeed));
         }
         else
         {
@@ -54,7 +53,7 @@ public class EntityOnMap : MonoBehaviour
 
         if (path != null && path.Count > 0)
         {
-            TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
+            TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
             moveRoutine = StartCoroutine(FollowPath(path, speed));
         }
         else
@@ -70,7 +69,7 @@ public class EntityOnMap : MonoBehaviour
         if (path != null && path.Count > 0)
         {
             TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
-            moveRoutine = StartCoroutine(FollowPath(path));
+            moveRoutine = StartCoroutine(FollowPath(path, moveSpeed));
         }
         else
         { 
@@ -81,7 +80,7 @@ public class EntityOnMap : MonoBehaviour
     public void TeleportTo(Vector3Int targetCell)
     {
         SetOccupied(false);
-        Vector3 targetPos = refTilemap.GetCellCenterWorld(targetCell);
+        Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(targetCell);
         transform.position = targetPos;
         currentCell = targetCell;
         SetOccupied(true);

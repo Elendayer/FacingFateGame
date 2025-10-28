@@ -50,6 +50,15 @@ public class CardData
     public Stat repeats_s = new();
     public int Repeats => repeats_u + repeats_s.Value;
 
+    [Header("Range & Area")]
+    public int range_u = 1;
+    public Stat range_s = new();
+    public int Range => Owner.entityStats.RangeIncrease.ApplyFinalValue(range_s.ApplyFinalValue(range_u));
+    public int area_u = 1;
+
+    public Stat area_s = new();
+    public int Area => Owner.entityStats.AreaIncrease.ApplyFinalValue(area_s.ApplyFinalValue(area_u));
+
 
     [Header("Card Target")]
     public TargetingData targetingData = new();
@@ -105,9 +114,12 @@ public class CardData
 
             duration_s = new Stat(),
             repeats_s = new Stat(),
+            
+            range_u = 1,
+            area_u = 1,
 
-            // Targeting-Flags (keine Ziel-Referenzen übernehmen)
-            targetingData = targetingData,
+    // Targeting-Flags (keine Ziel-Referenzen übernehmen)
+    targetingData = targetingData,
 
             // Delegates (zeigen auf dieselben Methoden – gewünscht)
             CardDescription = CardDescription,
@@ -147,7 +159,7 @@ public class CardData
         {
             if (string.IsNullOrEmpty(name)) return;
 
-            if (Enum.TryParse<gameplayRef>(name, out var gref))
+            if (Enum.TryParse<GameplayRef>(name, out var gref))
             {
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
@@ -210,8 +222,6 @@ public class TargetingData
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;
     public CardTargetSelection SelectionType = CardTargetSelection.Single;
-    public int range = 1; 
-    public int area = 1; 
 }
 
 public class CardAiBias

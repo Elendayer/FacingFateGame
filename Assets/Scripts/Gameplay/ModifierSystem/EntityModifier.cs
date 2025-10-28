@@ -63,7 +63,7 @@ public class EntityModifier : IEntityModifier
         List<GameplayRef> to_Trigger_refs = null,
         int duration = 0,
         Stat target = null,
-        Action<StatModifier, Stat, gameplayRef> onRefEventAction = null,
+        Action<StatModifier, Stat, GameplayRef> onRefEventAction = null,
         //StatModifier statModifier = null,
         TriggerRef triggerConditionRef = new TriggerRef()
         )

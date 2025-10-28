@@ -32,8 +32,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
@@ -60,8 +58,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage}, reduces Movement",
@@ -89,8 +85,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
@@ -118,8 +112,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Hit the target twice.",
@@ -146,8 +138,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Push enemy 1 space and deals {d.Damage}.",
@@ -175,8 +165,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Charge and move both 1 space. (TODO: stun)",
@@ -204,8 +192,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Disengage after your attack (step back).",
@@ -232,8 +218,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Deal 1 damage.",
@@ -262,8 +246,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Bite multiple times and apply Bleed over time.",
@@ -278,19 +260,19 @@ public static class NeutralCards
                 var bleed = new EntityModifier(
                     statName: name,
                     baseValue: d.Damage,
-                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    to_Trigger_refs: new() { GameplayRef.onBleed },
                     duration: dur,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, ev) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onBleed },
+                            References = new() { GameplayRef.onBleed },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -303,7 +285,7 @@ public static class NeutralCards
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
-                    References = new() { gameplayRef.onBleed },
+                    References = new() { GameplayRef.onBleed },
                     UserId = User.GetInstanceID(),
                     AffectedEntityId = Target.GetInstanceID()
                 });
@@ -328,8 +310,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Deal 5 damage and apply Poison for 6 turns (immediate tick).",
@@ -341,19 +321,19 @@ public static class NeutralCards
                 var poison = new EntityModifier(
                     statName: name,
                     baseValue: d.Damage,
-                    to_Trigger_refs: new() { gameplayRef.onPoison },
+                    to_Trigger_refs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, ev) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onPoison },
+                            References = new() { GameplayRef.onPoison },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -366,7 +346,7 @@ public static class NeutralCards
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
-                    References = new() { gameplayRef.onPoison },
+                    References = new() { GameplayRef.onPoison },
                     UserId = User.GetInstanceID(),
                     AffectedEntityId = Target.GetInstanceID()
                 });
@@ -390,8 +370,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 3,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Shoot an arrow dealing 3 damage.",
@@ -419,8 +397,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Select,
-                range = 3,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Shoot multiple arrows at selected enemies (2 shots).",
@@ -451,8 +427,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Your next attack is empowered by {d.power_u}.",
@@ -463,8 +437,7 @@ public static class NeutralCards
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
-                    target: stat,
+                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"SoaringDragonElixir_Dmg+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -489,8 +462,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Radius,
-                range = 3,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Demoralize enemies in an area and reduces attack damage by {d.Power}.",
@@ -501,8 +472,7 @@ public static class NeutralCards
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
-                    target: stat,
+                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"GrowlDecrease{d.Power}"
                 );
                 CombatUtility.ApplyDebuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -527,8 +497,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
                 SelectionType = CardTargetSelection.Radius,
-                range = 3,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Bolster allies damage in range by {d.Power} ).",
@@ -539,8 +507,7 @@ public static class NeutralCards
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
-                    target: stat,
+                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"HowlIncrease{d.Power}"
                 );
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -565,8 +532,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Increase your defense until end of turn by {d.Power}.",
@@ -577,8 +542,7 @@ public static class NeutralCards
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { gameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
-                    target: stat,
+                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"ArmourIncrease{d.Power}"
                 );
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -606,8 +570,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Radius, // keep as defined in your file
-                range = 3,
-                area = 1,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Apply Poison 2 for 6 turns (immediate tick).",
@@ -617,19 +579,19 @@ public static class NeutralCards
                 var poison = new EntityModifier(
                     statName: name,
                     baseValue: d.Damage,
-                    to_Trigger_refs: new() { gameplayRef.onPoison },
+                    to_Trigger_refs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, ev) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onPoison },
+                            References = new() { GameplayRef.onPoison },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -642,7 +604,7 @@ public static class NeutralCards
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
-                    References = new() { gameplayRef.onPoison },
+                    References = new() { GameplayRef.onPoison },
                     UserId = User.GetInstanceID(),
                     AffectedEntityId = Target.GetInstanceID()
                 });
@@ -667,8 +629,6 @@ public static class NeutralCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Radius, // keep as defined in your file
-                range = 3,
-                area = 2,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Apply Burn {d.Damage} for {d.Duration} turns.",
@@ -678,19 +638,19 @@ public static class NeutralCards
                 var burn = new EntityModifier(
                     statName: name,
                     baseValue: d.Damage,
-                    to_Trigger_refs: new() { gameplayRef.onBurn },
+                    to_Trigger_refs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, ev) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onBurn },
+                            References = new() { GameplayRef.onBurn },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -703,7 +663,7 @@ public static class NeutralCards
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
-                    References = new() { gameplayRef.onBurn },
+                    References = new() { GameplayRef.onBurn },
                     UserId = User.GetInstanceID(),
                     AffectedEntityId = Target.GetInstanceID()
                 });

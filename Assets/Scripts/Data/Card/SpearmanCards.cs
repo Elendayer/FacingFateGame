@@ -32,8 +32,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Ring,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -65,13 +63,11 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
-                range = 3,
-                area = 2,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Deal {d.Damage} damage to all enemies in a line (range {d.targetingData.range}).";
+                d.cardDescription = $"Deal {d.Damage} damage to all enemies in a line (range {d.Range}).";
             },
 
             CardEffect = (User, Target, d) =>
@@ -97,13 +93,11 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Deal {d.Damage} damage along a short line (range {d.targetingData.range}).";
+                d.cardDescription = $"Deal {d.Damage} damage along a short line (range {d.Range}).";
             },
 
             CardEffect = (User, Target, d) =>
@@ -131,8 +125,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 3,
             },
 
             CardDescription = (User, d) =>
@@ -146,7 +138,7 @@ public static class SpearmanCards
                 var bleed = new EntityModifier(
                     statName: "Bleed",
                     baseValue: d.Damage,
-                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    to_Trigger_refs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
@@ -172,7 +164,7 @@ public static class SpearmanCards
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
-                    References = new() { gameplayRef.onBleed },
+                    References = new() { GameplayRef.onBleed },
                     UserId = User.GetInstanceID(),
                     AffectedEntityId = Target.GetInstanceID()
                 });
@@ -196,8 +188,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Ring,
-                range = 1,
-                area = 3,
             },
 
             CardDescription = (User, d) =>
@@ -228,8 +218,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -260,8 +248,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -293,8 +279,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Ring,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -327,8 +311,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -344,10 +326,9 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },   
-            AffectedEntityId = Target.GetInstanceID()
+                        References = new() { GameplayRef.onTurnStart },   
+                        AffectedEntityId = Target.GetInstanceID()
                     },
-                    target: Target.entityStats.DamageIncrease,             
                     name: $"DamageIncrease#{d.cardID}");                   
 
                 CombatUtility.ApplyBuff(User, Target, Target.entityStats.DamageIncrease, mod,
@@ -372,13 +353,11 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
-                range = 4,
-                area = 4,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Deal {d.Damage} damage along a long line (range {d.targetingData.range}).";
+                d.cardDescription = $"Deal {d.Damage} damage along a long line (range {d.Range}).";
             },
 
             CardEffect = (User, Target, d) =>
@@ -408,8 +387,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -419,31 +396,21 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                foreach (CardClass cls in System.Enum.GetValues(typeof(CardClass)))
-                {
-                    if (!User.entityStats.CardClassStats.ContainsKey((cls, StatAspect.Range)))
-                        continue;
 
-                    var stat = User.entityStats.CardClassStats[(cls, StatAspect.Range)];
+                var mod = new StatModifier(
+                    value: d.Power,
+                    scaling: ModifierScaling.Flat,
+                    duration: d.Duration,
+                    on_triggerConditionRef: new TriggerRef
+                    {
+                        References = new() { GameplayRef.onTurnStart },
+                        AffectedEntityId = User.GetInstanceID()
+                    },
+                    name: $"MeleeRangeIncrease"
+                );
 
-                    var mod = new StatModifier(
-                        value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,  
-                        on_triggerConditionRef: new TriggerRef
-                        {
-                            References = new() { gameplayRef.onTurnStart },
-                            AffectedEntityId = User.GetInstanceID()
-                        },
-                        target: stat,
-                        name: $"EHL_Range+{d.Power}#{cls}" 
-                    );
-
-                    CombatUtility.ApplyBuff(User, User, stat, mod,
-                        ModifierMergeStrategy.RefreshDurationAndMerge);
-                    Debug.Log($"[EHL] Applied +{d.Power} Range to class {cls}. Now = {User.entityStats.GetStatValue(cls, StatAspect.Range)}");
-                }
-            }
+                CombatUtility.ApplyBuff(User, Target, Target.entityStats.RangeIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+            }     
         });
 
         // 110202 – Iron Wall Reversal (Self; fixed melee counter once)
@@ -464,8 +431,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -497,8 +462,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -530,8 +493,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -547,10 +508,9 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
-                    target: Target.entityStats.Armour,
                     name: $"ArmourIncrease#{d.cardID}");
 
                     CombatUtility.ApplyBuff(User, Target, Target.entityStats.DamageIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -576,8 +536,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -609,8 +567,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -626,10 +582,9 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
-                    target: Target.entityStats.Armour,
                     name: $"ArmourIncrease#{d.cardID}");
                 //To-DO Thorns
             }
@@ -655,8 +610,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -673,10 +626,9 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
-                    target: Target.entityStats.Armour,
                     name: $"ArmourIncrease#{d.cardID}");
 
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -703,8 +655,6 @@ public static class SpearmanCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -721,10 +671,9 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
-                    target: Target.entityStats.DamageIncrease,
                     name: $"AttackIncrease#{d.cardID}");
 
                 CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);

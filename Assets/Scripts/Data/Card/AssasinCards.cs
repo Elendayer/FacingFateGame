@@ -34,12 +34,10 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Line: deal {d.Damage} damage to enemies in line (range {d.targetingData.range}).",
+                d.cardDescription = $"Line: deal {d.Damage} damage to enemies in line (range {d.Range}).",
 
             CardEffect = (User, Target, d) =>
             {
@@ -65,8 +63,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Ring,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -95,8 +91,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -127,8 +121,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -140,7 +132,7 @@ public static class AssassinCards
                 int dur = d.Duration > 0 ? d.Duration : 6;
 
                 // Helper zum Erstellen eines DoTs
-                EntityModifier MakeDot(string statName, gameplayRef tickRef)
+                EntityModifier MakeDot(string statName, GameplayRef tickRef)
                 {
                     return new EntityModifier(
                         statName: statName,
@@ -150,9 +142,8 @@ public static class AssassinCards
                         target: Target.entityStats.CurrentHealth,
                         triggerConditionRef: new TriggerRef
                         {
-                            References = new() { GameplayRef.onPoison },
                             UserId = User.GetInstanceID(),
-                            References = new() { gameplayRef.onTurnStart },
+                            References = new() { GameplayRef.onTurnStart },
                             AffectedEntityId = Target.GetInstanceID()
                         },
                         onRefEventAction: (mod, stat, ev) =>
@@ -167,9 +158,9 @@ public static class AssassinCards
                         });
                 }
 
-                var poison = MakeDot("Poison", gameplayRef.onPoison);
-                var burn = MakeDot("Burn", gameplayRef.onBurn);
-                var bleed = MakeDot("Bleed", gameplayRef.onBleed);
+                var poison = MakeDot("Poison", GameplayRef.onPoison);
+                var burn = MakeDot("Burn", GameplayRef.onBurn);
+                var bleed = MakeDot("Bleed", GameplayRef.onBleed);
 
                 // WICHTIG: hier explizit Merge (kein Refresh), damit gleiche Karte nicht verlängert
                 CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.Merge);
@@ -195,8 +186,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -225,12 +214,10 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.LineSelf,
-                range = 3,
-                area = 3, // <= trifft bis zu X Gegner in der Linie
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Line: hit up to {d.targetingData.area} enemies for {d.Damage} each (range {d.targetingData.range}).",
+                d.cardDescription = $"Line: hit up to {d.Area} enemies for {d.Damage} each (range {d.Range}).",
 
             CardEffect = (User, Target, d) =>
             {
@@ -256,8 +243,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Radius,
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -287,8 +272,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 3,   // Reichweite zum ERSTEN Ziel
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -379,8 +362,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Radius, // (du hast Sphere -> Radius bereits korrigiert)
-                range = 2,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -395,19 +376,19 @@ public static class AssassinCards
                 var bleed = new EntityModifier(
                     statName: "Bleed",
                     baseValue: d.Damage, // oder etwas kleiner als d.Damage, falls gewünscht
-                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    to_Trigger_refs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, ev) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onBleed },
+                            References = new() { GameplayRef.onBleed },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -436,8 +417,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
-                range = 3,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -452,12 +431,12 @@ public static class AssassinCards
                 var stun = new EntityModifier(
                     statName: "Stun",
                     baseValue: 1,
-                    to_Trigger_refs: new() { gameplayRef.onStunned },
+                    to_Trigger_refs: new() { GameplayRef.onStunned },
                     duration: Mathf.Max(1, d.Duration),
                     target: Target.entityStats.CurrentHealth, // Träger ist die Entity; Stat selbst egal
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, ev) =>
@@ -465,7 +444,7 @@ public static class AssassinCards
                 // Melde „Stun aktiv“ – Turn/AI sollten bei vorhandenem Stun-Modifier Aktionen überspringen (TODO in Turn/AI)
                 GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onStunned },
+                            References = new() { GameplayRef.onStunned },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -495,8 +474,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Ring,
-                range = 1,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -507,19 +484,19 @@ public static class AssassinCards
                 var bleed = new EntityModifier(
                     statName: "Bleed",
                     baseValue: d.Damage,
-                    to_Trigger_refs: new() { gameplayRef.onBleed },
+                    to_Trigger_refs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, ev) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onBleed },
+                            References = new() { GameplayRef.onBleed },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
@@ -550,8 +527,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -584,8 +559,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -596,7 +569,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                VenomUtility.ArmBurnFromCard(User, d);
+                //VenomUtility.ArmBurnFromCard(User, d);
             }
         });
 
@@ -619,8 +592,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -631,7 +602,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                VenomUtility.ArmPoisonFromCard(User, d);
+                //VenomUtility.ArmPoisonFromCard(User, d);
             }
         });
 
@@ -653,8 +624,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -665,7 +634,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                VenomUtility.ArmStunFromCard(User, d);
+                //VenomUtility.ArmStunFromCard(User, d);
             }
         });
 
@@ -686,8 +655,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, d) =>
@@ -698,7 +665,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                VenomUtility.ReapplyFromCard(User, d); // top-up auf d.Power (Default 3)
+                //VenomUtility.ReapplyFromCard(User, d); // top-up auf d.Power (Default 3)
             }
         });
 
@@ -718,8 +685,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
 
             CardDescription = (User, data) => data.cardDescription = "Increase damage/crit (TODO).",
@@ -750,8 +715,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
             CardDescription = (User, data) => data.cardDescription = "Randomly inflict a negative effect on yourself (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }
@@ -775,8 +738,6 @@ public static class AssassinCards
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
-                range = 0,
-                area = 1,
             },
             CardDescription = (User, data) => data.cardDescription = "Next attack repeats again (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }
