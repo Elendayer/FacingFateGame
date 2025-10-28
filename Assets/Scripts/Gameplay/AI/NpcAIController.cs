@@ -470,6 +470,7 @@ public class NpcAIController
         }
 
         int cardCost = card?.cardData?.Cost ?? 0;
+        Debug.Log(cardCost);
 
         // For each unique candidate tile, compute path and determine affected targets and keep metrics
         var entries = new List<(Vector3Int Tile, PathData PathData, int Frequency, float Distance)>();

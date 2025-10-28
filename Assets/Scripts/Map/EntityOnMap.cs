@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Utility;
 
@@ -38,7 +39,7 @@ public class EntityOnMap : MonoBehaviour
         if (path != null && path.Count > 0)
         {
             TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
-            moveRoutine = StartCoroutine(FollowPath(path,moveSpeed));
+            moveRoutine = StartCoroutine(FollowPath(path, moveSpeed));
         }
         else
         {
@@ -86,7 +87,13 @@ public class EntityOnMap : MonoBehaviour
         SetOccupied(true);
     }
 
-    private IEnumerator FollowPath(List<Vector3Int> path, float speed)
+    public Coroutine StartMove(List<Vector3Int> path)
+    {
+        Coroutine coroutine = StartCoroutine(FollowPath(path, moveSpeed));
+        return coroutine;
+    }
+
+    private IEnumerator FollowPath(List<Vector3Int> path, float speed = 3f)
     {
         SetOccupied(false);
 

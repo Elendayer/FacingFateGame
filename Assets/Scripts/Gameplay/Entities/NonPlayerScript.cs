@@ -61,7 +61,7 @@ public class NonPlayerScript : EntityScript
     // Helper coroutine to wait for MoveToViaPath to finish
     private System.Collections.IEnumerator MoveToViaPathWithCallback(EntityOnMap entityOnMap, List<Vector3Int> path, System.Action onComplete)
     {
-        yield return entityOnMap.StartCoroutine("FollowPath", path);
+        yield return entityOnMap.StartCoroutine("StartMove", path);
         onComplete?.Invoke();
     }
-}
+} 

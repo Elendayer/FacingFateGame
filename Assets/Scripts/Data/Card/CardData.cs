@@ -23,12 +23,12 @@ public class CardData
     [Header("Cost")]
     public int cost_u = 0;
     public Stat cost_s = new();
-    public int Cost => Owner.entityStats.PowerIncrease.ApplyFinalValue(damage_s.ApplyFinalValue(damage_u));
+    public int Cost => Owner.entityStats.PowerIncrease.ApplyFinalValue(damage_s.ApplyFinalValue(cost_u));
 
     [Header("Power")]
     public int power_u = 0;
     public Stat power_s = new();
-    public int Power =>  Owner.entityStats.PowerIncrease.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u));
+    public int Power =>  Owner.entityStats.PowerIncrease.ApplyFinalValue( damage_s.ApplyFinalValue(power_u));
 
     [Header("Damage")]
     public int damage_u = 0;

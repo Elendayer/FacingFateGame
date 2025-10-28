@@ -21,6 +21,5 @@ namespace Utility
             t.localRotation = Quaternion.identity;
             t.localScale = Vector3.one;
         }
-
     }
 }

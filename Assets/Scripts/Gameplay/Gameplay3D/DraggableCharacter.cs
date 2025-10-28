@@ -7,11 +7,12 @@ public class DraggableCharacter : Draggable3D
 {
     public EntityOnMap characterOnMap;
     public EntityScript characterEntity;
-    public Tilemap targetTilemap; // assign the tilemap in the inspector or via code
 
     private void Awake()
     {
         characterEntity = GetComponent<EntityScript>();
+        characterOnMap = GetComponent<EntityOnMap>();
+
     }
 
     public override void OnMouseDown()
@@ -39,12 +40,12 @@ public class DraggableCharacter : Draggable3D
         // Move the character
         if (characterEntity.entityStats.CurrentStamina.Value >= pathData.PathCost)
 {        
-            CombatUtility.ApplyCost(characterEntity, characterOnMap.GetComponent<PlayerScript>().entityStats.CurrentStamina, pathData.PathCost);
+            //CombatUtility.ApplyCost(characterEntity, characterOnMap.GetComponent<PlayerScript>().entityStats.CurrentStamina, pathData.PathCost);
             characterOnMap.MoveTo(dropCell);
         }
 
         // Optionally clear path highlight after move
-        TilemapUtilityScript.ResetMaphightlight(targetTilemap);
+        TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
     }
 
     public override void HandleHover(Vector3Int hoverCell)
@@ -54,7 +55,7 @@ public class DraggableCharacter : Draggable3D
             TilemapUtilityScript.CostInfoScript.costInfoDict[hoverCell].isUnwalkable)
         {
             // Invalid hover → clear highlight
-            TilemapUtilityScript.ResetMaphightlight(targetTilemap);
+            TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
             return;
         }
 

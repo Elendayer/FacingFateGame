@@ -220,7 +220,7 @@ public static class NeutralCards
                 SelectionType = CardTargetSelection.Single,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Deal 1 damage.",
+            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
