@@ -160,7 +160,8 @@ namespace Utility
                 triggerConditionRef: new TriggerRef
                 {
                     References = new() { gameplayRef.onHitLanded },
-                    AffectedEntityId = user.GetInstanceID()
+                    //AffectedEntityId = user.GetInstanceID()
+                     UserId = user.GetInstanceID()
                 },
                 onRefEventAction: (mod, stat, gRef) =>
                 {
@@ -244,7 +245,8 @@ namespace Utility
                 triggerConditionRef: new TriggerRef
                 {
                     References = new() { gameplayRef.onHitLanded },
-                    AffectedEntityId = user.GetInstanceID()
+                    //AffectedEntityId = user.GetInstanceID()
+                     UserId = user.GetInstanceID(),
                 },
 
                 onRefEventAction: (mod, stat, _gRef) =>

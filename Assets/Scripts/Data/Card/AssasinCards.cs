@@ -541,9 +541,6 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison },
 
             cost_u = 0,
-            power_u = 3,     // <- Anzahl Angriffe (charges)
-            damage_u = 2,    // <- Burn Tick
-            duration_u = 3,  // <- DoT Dauer
 
             targetingData = new()
             {
@@ -596,21 +593,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                VenomUtility.SetLastVenom(
-                    user: User,
-                    effectName: "Burn",
-                    tick: d.Damage,
-                    duration: d.Duration,
-                    tickRef: gameplayRef.onBurn
-                );
-
-                CombatUtility.ApplyNextHitStatusWithCharges(
-                    user: User,
-                    duration: d.Duration,
-                    effectName: "Burn",
-                    statusRef: gameplayRef.onBurn,
-                    charges: Mathf.Max(1, d.Power)
-                );
+                VenomUtility.ArmBurnFromCard(User, d);
             }
         });
 
@@ -645,21 +628,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                VenomUtility.SetLastVenom(
-                    user: User,
-                    effectName: "Poison",
-                    tick: d.Damage,
-                    duration: d.Duration,
-                    tickRef: gameplayRef.onPoison
-                );
-
-                CombatUtility.ApplyNextHitStatusWithCharges(
-                    user: User,
-                    duration: d.Duration,
-                    effectName: "Poison",
-                    statusRef: gameplayRef.onPoison,
-                    charges: Mathf.Max(1, d.Power)
-                );
+                VenomUtility.ArmPoisonFromCard(User, d);
             }
         });
 
