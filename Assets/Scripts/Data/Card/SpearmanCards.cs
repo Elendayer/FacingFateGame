@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 
@@ -144,21 +144,21 @@ public static class SpearmanCards
             {
                 string name = $"Bleed#{d.cardID}";
                 var bleed = new EntityModifier(
-                    statName: name,
+                    statName: "Bleed",
                     baseValue: d.Damage,
                     to_Trigger_refs: new() { gameplayRef.onBleed },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
                     triggerConditionRef: new TriggerRef
                     {
-                        References = new() { gameplayRef.onTurnStart },
+                        References = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     onRefEventAction: (mod, stat, ev) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
-                            References = new() { gameplayRef.onBleed },
+                            References = new() { GameplayRef.onBleed },
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });

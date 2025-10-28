@@ -23,64 +23,52 @@ public class CardData
     [Header("Cost")]
     public int cost_u = 0;
     public Stat cost_s = new();
-    public int Cost => cost_u + cost_s.Value + GetValues(StatAspect.Cost);
+    public int Cost => Owner.entityStats.PowerIncrease.ApplyFinalValue(damage_s.ApplyFinalValue(damage_u));
 
     [Header("Power")]
     public int power_u = 0;
     public Stat power_s = new();
-    public int Power =>  power_u + power_s.Value + GetValues(StatAspect.Power);
+    public int Power =>  Owner.entityStats.PowerIncrease.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u));
 
     [Header("Damage")]
     public int damage_u = 0;
     public Stat damage_s = new();
-    public int Damage => Owner.entityStats.DamageIncrease.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u + GetValues(StatAspect.Damage)));
+    public int Damage => Owner.entityStats.DamageIncrease.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u));
 
     [Header("Healing")]
     public int healing_u = 0;
     public Stat healing_s = new();
-    public int Healing => Owner.entityStats.HealingIncrease.ApplyFinalValue( healing_s.ApplyFinalValue(healing_u) + GetValues(StatAspect.Healing));
+    public int Healing => Owner.entityStats.HealingIncrease.ApplyFinalValue( healing_s.ApplyFinalValue(healing_u));
 
     [Header("Duration")]
     public int duration_u = 0;
     public Stat duration_s = new();
-    public int Duration => duration_u + duration_s.Value + GetValues(StatAspect.Duration);
+    public int Duration => Owner.entityStats.HealingIncrease.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u));
 
     [Header("Repeats")]
     public int repeats_u = 0;
     public Stat repeats_s = new();
-    public int Repeats => repeats_u + repeats_s.Value + GetValues(StatAspect.Repeats);
+    public int Repeats => repeats_u + repeats_s.Value;
 
 
     [Header("Card Target")]
     public TargetingData targetingData = new();
 
     [Header("Card Effect Target")]
-    public List<gameplayRef> GameplayReferences { get; internal set; } = new();
+    public List<GameplayRef> GameplayReferences { get; internal set; } = new();
 
     public List<CardType> EffectTargetTypes = new();
     public CardScript TargetCard;
 
-    int GetValues(StatAspect aspect)
-    {
-        int value = 0;
-
-        value =
-            Owner.entityStats.GetStatValue(cardType, aspect)
-            + Owner.entityStats.GetStatValue(cardClass, aspect);
-
-        foreach (CardIdentity ce in cardIdentities)
-        {
-            value += Owner.entityStats.GetStatValue(ce, aspect);
-        }
-
-        return value;
-    }
 
     public Action<EntityScript, CardData> CardDescription =
         (user, data) => Debug.Log($"Not defined Description of {data.cardName}");
 
     public Action<EntityScript, EntityScript, CardData> CardEffect =
         (user, target, data) => Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
+
+    public Action<EntityScript, Vector3Int, CardData> CardEffectGround =
+        (user, target, data) => Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
 
     [Header("AI")]
     public CardAiBias CardAiBias = new();
@@ -106,13 +94,14 @@ public class CardData
             power_u = power_u,
             damage_u = damage_u,
             healing_u = healing_u,
+
             duration_u = duration_u,
             repeats_u = repeats_u,
 
             cost_s = new Stat(),
             power_s = new Stat(),
             damage_s = new Stat(),
-            healing_s = new Stat(),
+            healing_s = new Stat(), 
 
             duration_s = new Stat(),
             repeats_s = new Stat(),
@@ -123,6 +112,7 @@ public class CardData
             // Delegates (zeigen auf dieselben Methoden – gewünscht)
             CardDescription = CardDescription,
             CardEffect = CardEffect,
+            CardEffectGround = CardEffectGround,
 
             // AI
             CardAiBias = CardAiBias,
@@ -139,6 +129,17 @@ public class CardData
         }
         HandManager.Instance.DiscardCard(obj);
     }
+    public void ActivateCard(List<Vector3Int> targetCell, GameObject obj)
+    {
+        GenerateTriggerFromCardData();
+
+        foreach(Vector3Int target in targetCell)
+        {        
+            CardEffectGround?.Invoke(Owner, target, this);
+        }
+        HandManager.Instance.DiscardCard(obj);
+    }
+
     private void GenerateTriggerFromCardData()
     {
         // Lokaler Helfer: versucht einen gameplayRef anhand eines Namens zu feuern
@@ -178,6 +179,7 @@ public enum CardTargetType
 {
     Entity,
     CombatTile,
+    Ground,
 }
 public enum CardTargetAffiliation
 {
@@ -218,7 +220,7 @@ public class CardAiBias
     public Intention Intention = Intention.None;
 
     // Unique ID for lookup
-    public gameplayRef triggerCondition = gameplayRef.None;
+    public GameplayRef triggerCondition = GameplayRef.None;
 
     // Override for Friendly Fire Avoidance
     public CardTargetAffiliation AffiliationBiasOverride = CardTargetAffiliation.None;
@@ -228,7 +230,7 @@ public class CardAiBias
     // Divider for Throughput to scale down high values
     public int throughputScale = 1;
     // Additional Throughput per gameplayRef
-    public Dictionary<gameplayRef, int> throughputBias = new();
+    public Dictionary<GameplayRef, int> throughputBias = new();
 
     public int cooldown = 1;
 
@@ -236,11 +238,11 @@ public class CardAiBias
     public int ThroughputOverride(List<EntityScript> target)
     {
         int OverrideValue = throughputScale;
-        foreach (KeyValuePair<gameplayRef, int> gRef in throughputBias)
+        foreach (KeyValuePair<GameplayRef, int> gRef in throughputBias)
         {
             foreach (EntityScript t in target)
             {
-                if (t.HasReference(gRef.Key))
+                if (t.HasReference(gRef.Key).found)
                 {
                     OverrideValue += gRef.Value;
                 }

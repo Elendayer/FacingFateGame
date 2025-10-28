@@ -1,15 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 using Utility;
 
 public class EntityOnMap : MonoBehaviour
 {
-    [Header("References")]
-    public Tilemap refTilemap;            // Overlay tilemap where character appears
-    public  BasemapHexTile DefaultTile;
-
     [Header("Movement Settings")]
     public float moveSpeed = 3f;              // Units per second
 
@@ -21,13 +16,20 @@ public class EntityOnMap : MonoBehaviour
 
     private void Start()
     {
-        refTilemap =TilemapUtilityScript.BaseTilemap;
-        transform.position = refTilemap.CellToWorld(currentCell);
+        MoveTo(currentCell);
         SetOccupied(true);     
     }
-    /// <summary>
-    /// Move the character to the target cell coordinate using A* pathfinding.
-    /// </summary>
+
+    public void Spawn(Vector3Int vector3Int)
+    {
+        refTilemap = TilemapUtilityScript.BaseTilemap;
+
+        currentCell = vector3Int;
+        transform.position = refTilemap.CellToWorld(currentCell);
+        SetOccupied(false);
+    }
+
+
     public void MoveTo(Vector3Int targetCell)
     {
         if (moveRoutine != null) StopCoroutine(moveRoutine);
@@ -36,36 +38,67 @@ public class EntityOnMap : MonoBehaviour
 
         if (path != null && path.Count > 0)
         {
-            TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
+            TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
             moveRoutine = StartCoroutine(FollowPath(path));
         }
         else
+        {
             Debug.LogWarning("No path found to " + targetCell);
+        }
     }
-    public void MoveToViaPath(List<Vector3Int> path)
+    public void MoveTo(Vector3Int targetCell, float speed)
     {
         if (moveRoutine != null) StopCoroutine(moveRoutine);
+
+        List<Vector3Int> path = TilemapUtilityScript.FindPath(currentCell, targetCell)?.Path;
+
         if (path != null && path.Count > 0)
         {
             TilemapUtilityScript.SetTilesHighlight(path, refTilemap, TilemapUtilityScript.HighlightType.Path);
+            moveRoutine = StartCoroutine(FollowPath(path, speed));
+        }
+        else
+        {
+            Debug.LogWarning("No path found to " + targetCell);
+        }
+    }
+
+    public void MoveToViaPath(List<Vector3Int> path)
+    {
+        if (moveRoutine != null) StopCoroutine(moveRoutine);
+
+        if (path != null && path.Count > 0)
+        {
+            TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
             moveRoutine = StartCoroutine(FollowPath(path));
         }
         else
+        { 
             Debug.LogWarning("No path found to " + targetCell);
+        }
     }
 
-    private IEnumerator FollowPath(List<Vector3Int> path)
+    public void TeleportTo(Vector3Int targetCell)
+    {
+        SetOccupied(false);
+        Vector3 targetPos = refTilemap.GetCellCenterWorld(targetCell);
+        transform.position = targetPos;
+        currentCell = targetCell;
+        SetOccupied(true);
+    }
+
+    private IEnumerator FollowPath(List<Vector3Int> path, float speed)
     {
         SetOccupied(false);
 
         foreach (var cell in path)
         {
-            Vector3 targetPos = refTilemap.GetCellCenterWorld(cell);
+            Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(cell);
 
             // Smooth movement toward target cell
             while (Vector3.Distance(transform.position, targetPos) > 0.05f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
                 yield return null;
             }
 
@@ -79,7 +112,7 @@ public class EntityOnMap : MonoBehaviour
         moveRoutine = null;
         SetOccupied(true);
 
-        TilemapUtilityScript.ResetMaphightlight(path,refTilemap);
+        TilemapUtilityScript.ResetMaphightlight(path);
     }
 
     public void SetOccupied( bool b)
@@ -89,7 +122,7 @@ public class EntityOnMap : MonoBehaviour
 
     public CostInfo GetCostInfo()
     {
-        refTilemap.GetComponent<CostInfoScript>().costInfoDict.TryGetValue(currentCell, out CostInfo costInfo);
+        TilemapUtilityScript.BaseTilemap.GetComponent<CostInfoScript>().costInfoDict.TryGetValue(currentCell, out CostInfo costInfo);
         return costInfo;
     }
     void Update()
@@ -104,8 +137,8 @@ public class EntityOnMap : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int clickedCell = refTilemap.WorldToCell(worldPos);
-            Vector3 cellCenter = refTilemap.GetCellCenterWorld(clickedCell);
+            Vector3Int clickedCell = TilemapUtilityScript.BaseTilemap.WorldToCell(worldPos);
+            Vector3 cellCenter = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(clickedCell);
 
             // Start drag if clicked near the character
             if (Vector3.Distance(cellCenter, transform.position) < 0.5f)
@@ -119,7 +152,7 @@ public class EntityOnMap : MonoBehaviour
         if (isDragging && Input.GetMouseButton(0))
         {
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            targetCell = refTilemap.WorldToCell(worldPos);
+            targetCell = TilemapUtilityScript.BaseTilemap.WorldToCell(worldPos);
         }
 
         // On release, move character to target

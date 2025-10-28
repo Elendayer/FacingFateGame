@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[System.Serializable]
 public class Stat
 {
     public int Value => GetFinalValue();
@@ -101,7 +100,7 @@ public class Stat
             }
         }
 
-        BaseValue = (BaseValue * (100 + percent)) / 100;
+        BaseValue = BaseValue * (100 + percent) / 100;
 
         foreach (var mult in multipliers)
         {
@@ -113,6 +112,7 @@ public class Stat
 
     public int ApplyFinalValue(int value)
     {
+        int baseValue = value;
         int percent = 0;
         List<int> multipliers = new();
 
@@ -132,7 +132,7 @@ public class Stat
                 switch (statMod.ModifierScaling)
                 {
                     case ModifierScaling.Flat:
-                        value += statMod.BaseValue;
+                        baseValue += statMod.BaseValue;
                         break;
                     case ModifierScaling.Percent:
                         percent += statMod.BaseValue;
@@ -144,14 +144,14 @@ public class Stat
             }
         }
 
-        value = (value * (100 + percent)) / 100;
+        baseValue = baseValue * (100 + percent) / 100;
 
         foreach (var mult in multipliers)
         {
-            value = (value * mult) / 100;
+            baseValue = (baseValue * mult) / 100;
         }
 
-        return value;
+        return baseValue;
     }
 
     public List<int> GetAllValues(ModifierScaling? filterType = null)
@@ -163,7 +163,7 @@ public class Stat
             .ToList();
     }
 
-    public bool HasReference(gameplayRef reference)
+    public bool HasReference(GameplayRef reference)
         => statModifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
 
     public IStatModifier GetModifierByName(string name)
@@ -176,23 +176,25 @@ public class Stat
         statModifiers.Add(modifier);
     }
 }
-    // -------------------- Enums --------------------
 
-    public enum ModifierMergeStrategy
-    {
-        AddUnique,
-        Override,
-        Merge,
-        RefreshDurationAndMerge,
-        RefreshDurationAndOverride
-    }
 
-    public enum ModifierScaling
-    {
-        Flat,
-        Percent,
-        Multiplier
-    }
+// -------------------- Enums --------------------
+
+public enum ModifierMergeStrategy
+{
+    AddUnique,
+    Override,
+    Merge,
+    RefreshDurationAndMerge,
+    RefreshDurationAndOverride
+}
+
+public enum ModifierScaling
+{
+    Flat,
+    Percent,
+    Multiplier
+}
 
 public enum StatAspect
 {
@@ -207,10 +209,10 @@ public enum StatAspect
 // -------------------- Referenece Struct --------------------
 public struct TriggerRef
 {
-    public List<gameplayRef> References;
+    public List<GameplayRef> References;
     public int UserId;
     public int AffectedEntityId;
-    public TriggerRef(List<gameplayRef> references = null, int userId = 0, int targetId = 0)
+    public TriggerRef(List<GameplayRef> references = null, int userId = 0, int targetId = 0)
     {
         References = references;
         UserId = userId;

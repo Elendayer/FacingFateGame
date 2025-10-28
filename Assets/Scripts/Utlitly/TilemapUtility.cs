@@ -79,20 +79,27 @@ namespace Utility
             return new(); // No path found
         }
 
-        // Helper for straightLineOnly
-        private static bool IsOnLine(Vector3Int start, Vector3Int end, Vector3Int point)
+        public static PathData FindPathWithMaxLength(Vector3Int start, Vector3Int goal, int maxLength, bool ignoreCost = false, bool walkClose = false)
         {
-            var a = OffsetToCube_PointTop(start, UseOddROffset);
-            var b = OffsetToCube_PointTop(end, UseOddROffset);
-            var p = OffsetToCube_PointTop(point, UseOddROffset);
-            int dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
-            int px = p.x - a.x, py = p.y - a.y, pz = p.z - a.z;
-            // Check if point is on the line from a to b (proportional step)
-            int steps = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
-            if (steps == 0) return point == start;
-            float t = steps == 0 ? 0 : (dx != 0 ? (float)px / dx : (dy != 0 ? (float)py / dy : (float)pz / dz));
-            return Mathf.Approximately(px, t * dx) && Mathf.Approximately(py, t * dy) && Mathf.Approximately(pz, t * dz) && t >= 0 && t <= 1;
+            var pathData = FindPath(start, goal, ignoreCost, true);
+
+            if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
+            {
+                Debug.LogWarning($"[TilemapUtilityScript] No valid path found from {start} to {goal}");
+                return new PathData(); // Return empty path data if no path
+            }
+
+            Debug.Log($"[TilemapUtilityScript] Found path from {start} to {goal} with length {pathData.Path.Count} (max allowed: {maxLength})");
+
+            // Truncate the path if it's longer than maxLength
+            if (pathData.Path.Count > maxLength)
+            {
+                pathData.Path = pathData.Path.Take(maxLength).ToList();
+            }
+
+            return pathData;
         }
+
         private static int Heuristic(Vector3Int a, Vector3Int b)
         {
             // Use cube distance; convert from offset -> cube based on configured Odd/Even-R
@@ -100,16 +107,7 @@ namespace Utility
             var bc = OffsetToCube_PointTop(b, UseOddROffset);
             return (Mathf.Abs(ac.x - bc.x) + Mathf.Abs(ac.y - bc.y) + Mathf.Abs(ac.z - bc.z)) / 2;
         }
-        private static List<Vector3Int> ReconstructPath
-            (
-              Dictionary<Vector3Int, Vector3Int> cameFrom,
-              Vector3Int start,
-              Vector3Int goal,
-              out int totalCost,
-              CostInfoScript costInfoScript,
-              bool ignoreCost,
-            bool walkClose
-            )
+        private static List<Vector3Int> ReconstructPath(Dictionary<Vector3Int, Vector3Int> cameFrom,Vector3Int start,Vector3Int goal,out int totalCost,CostInfoScript costInfoScript,bool ignoreCost,bool walkClose)
         {
             var path = new List<Vector3Int>();
             totalCost = 0;
@@ -354,10 +352,6 @@ namespace Utility
             return reachable;
         }
 
-        /// <summary>
-        /// Returns tiles around a target that are within range for a card to reach.
-        /// This respects the card's targetingData.areaType and range.
-        /// </summary>
         public static List<Vector3Int> GetTilesInRange(Vector3Int targetPos, int range)
         {
             switch (range)
@@ -368,6 +362,12 @@ namespace Utility
             }
         }
 
+        #region ForcedMove Helpers
+
+
+
+
+        #endregion
 
         #region Offset <-> Cube (Point-Top)
         // Odd-R and Even-R conversions per redblobgames
@@ -423,33 +423,33 @@ namespace Utility
                 UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
                 if (img != null)
                 {
-                    img.color = Color.white;
+                    img.color = Color.clear;
                     continue;
                 }
             }
         }
-        public static void ResetMaphightlight(List<Vector3Int> path, Tilemap tilemap)
+        public static void ResetMaphightlight(List<Vector3Int> path)
         {
-            if (tilemap == null) return;
+            if (BaseTilemap == null) return;
 
             foreach (var pos in path)
             {
-                if (!tilemap.HasTile(pos)) continue;
-                GameObject tileObj = tilemap.GetInstantiatedObject(pos);
+                if (!BaseTilemap.HasTile(pos)) continue;
+                GameObject tileObj = BaseTilemap.GetInstantiatedObject(pos);
                 if (tileObj == null) continue;
                 // Reset UI Image color
                 UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
                 if (img != null)
                 {
-                    img.color = Color.white;
+                    img.color = Color.clear;
                     continue;
                 }
             }
         }
 
-        public static void SetTilesHighlight(List<Vector3Int> path, Tilemap tilemap, HighlightType ht)
+        public static void SetTilesHighlight(List<Vector3Int> path, HighlightType ht)
         {
-            Color color = Color.white;
+            Color color = Color.clear;
 
             switch (ht)
             {
@@ -467,7 +467,7 @@ namespace Utility
             foreach (var pos in path)
             {
                 // Get the prefab instance associated with this tile position
-                GameObject tileObj = tilemap.GetInstantiatedObject(pos);
+                GameObject tileObj = BaseTilemap.GetInstantiatedObject(pos);
                 if (tileObj == null) continue;
 
                 // Try Image (UI-based prefab)

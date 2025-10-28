@@ -21,10 +21,10 @@ public static class GameEvents
     public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
 
     // Dictionary: (gameplayRef, Id) -> event
-    private static readonly Dictionary<(gameplayRef, int), Action<TriggerRef>> _refEvents
+    private static readonly Dictionary<(GameplayRef, int), Action<TriggerRef>> _refEvents
         = new();
 
-    public static void Subscribe(gameplayRef type, int id, Action<TriggerRef> listener)
+    public static void Subscribe(GameplayRef type, int id, Action<TriggerRef> listener)
     {
         var key = (type, id);
 
@@ -34,7 +34,7 @@ public static class GameEvents
         _refEvents[key] += listener;
     }
 
-    public static void Unsubscribe(gameplayRef type, int id, Action<TriggerRef> listener)
+    public static void Unsubscribe(GameplayRef type, int id, Action<TriggerRef> listener)
     {
         var key = (type, id);
 
@@ -49,7 +49,7 @@ public static class GameEvents
 
         foreach (var reference in grs.References)
         {
-            Debug.Log($"[GameEvents] - {reference}, {grs.AffectedEntityId}");
+            Debug.Log($"[GameEvents] - {reference}, {grs.UserId} ,  {grs.AffectedEntityId}");
 
             // Notify for TargetId
             if (_refEvents.TryGetValue((reference, grs.AffectedEntityId), out var targetAction))
@@ -58,13 +58,24 @@ public static class GameEvents
     }
 }
 
-public enum gameplayRef
+public enum GameplayRef
 {
     None,
+
+    //Status Effects
     onBurn,
     onBleed,
     onPoison,
+    onDebuffed,
 
+    //Targeting
+    untargetableByAll,
+    untargetableByEnemies,
+    untargetableByAllies,
+
+    taunt,
+
+    //Combat Events
     onDamage,
     onStunned,
     onBlocking,
@@ -75,16 +86,20 @@ public enum gameplayRef
     onSummon,
     onLifesteal,
 
+    //Game Flow
     onTurnStart,
     onTurnEnd,
+    onRoundStart,
     onRoundEnd,
     onCardPlayed,
     onCardDrawn,
+    onCardDiscarded,
     onStatChanged,
     onModifierApplied,
     onModifierExpired,
     onHitLanded,
 
+    //Card Types
     Skill,
     Item,
     Ability,
@@ -93,6 +108,7 @@ public enum gameplayRef
     Blessing,
     Curse,
 
+    //Identites
     Non,
     Physical,
     Fire,
@@ -110,12 +126,15 @@ public enum gameplayRef
     Melee,
     Ranged,
 
+    //Classes
     Spearman,
     Assassin,
     Mystic,
     Physician,
     Neutral,
 
+
+    //Classes Old
     Knight,
     Rogue,
     Wizard,
@@ -127,5 +146,4 @@ public enum gameplayRef
     Barbarian,
     Alchemist,
     Monster,
-    onDebuffed,
 }

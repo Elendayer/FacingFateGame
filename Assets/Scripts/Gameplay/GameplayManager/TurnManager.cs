@@ -8,6 +8,8 @@ public class TurnManager : MonoBehaviour
 
     public List<EntityScript> TurnOrder = new List<EntityScript>();
 
+    public EntityScript CurrentTurnEntity => TurnOrder[CurrentTurnIndex];
+
     public int CurrentTurnIndex = 0;
     private void Awake()
     {
@@ -42,13 +44,13 @@ public class TurnManager : MonoBehaviour
 
     private void OnTurnStart()
     {
-        GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex].GetInstanceID()));
+        GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex].GetInstanceID()));
 
         DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
     }
     private void OnTurnEnd()
     {
-        GameEvents.TriggerRefEvent(new TriggerRef(new() { gameplayRef.onTurnEnd }, 0, TurnOrder[CurrentTurnIndex].GetInstanceID()));
+        GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnEnd }, 0, TurnOrder[CurrentTurnIndex].GetInstanceID()));
         DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
 
         CurrentTurnIndex++;

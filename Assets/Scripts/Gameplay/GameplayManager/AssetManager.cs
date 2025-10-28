@@ -16,6 +16,8 @@ public class AssetManager : MonoBehaviour
     
     private Dictionary<string, GameObject> effectAssetDict;
 
+    [Header("Entity")]
+    public GameObject entityPrefab;
 
     private void Awake()
     {

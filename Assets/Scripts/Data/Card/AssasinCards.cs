@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using Mono.Cecil;
+using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 
@@ -149,6 +150,8 @@ public static class AssassinCards
                         target: Target.entityStats.CurrentHealth,
                         triggerConditionRef: new TriggerRef
                         {
+                            References = new() { GameplayRef.onPoison },
+                            UserId = User.GetInstanceID(),
                             References = new() { gameplayRef.onTurnStart },
                             AffectedEntityId = Target.GetInstanceID()
                         },
