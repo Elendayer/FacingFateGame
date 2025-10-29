@@ -78,7 +78,7 @@ public static class NeutralCards
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
             cost_u = 10,
-            damage_u = 50,
+            damage_u = 30,
 
             targetingData = new()
             {
@@ -132,6 +132,8 @@ public static class NeutralCards
 
             cost_u = 20,
             damage_u = 10,
+            range_u = 2,
+            power_u = 1,
 
             targetingData = new()
             {
@@ -144,6 +146,7 @@ public static class NeutralCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
+                MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, d.Power);
                 // TODO: 1 Feld wegschieben
             }
         });
@@ -157,8 +160,10 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-            cost_u = 5,
-            damage_u = 1,
+            cost_u = 50,
+            damage_u = 60,
+            range_u = 2,
+            power_u = 1,
 
             targetingData = new()
             {
@@ -167,9 +172,11 @@ public static class NeutralCards
                 SelectionType = CardTargetSelection.Single,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Charge and move both 1 space. (TODO: stun)",
+            CardDescription = (User, d) => d.cardDescription = "Charge and move both 1 space.",
             CardEffect = (User, Target, d) =>
             {
+                MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, d.Power);
+                MovementUtility.ForcedMove(ForcedMovementType.Pull, User, Target.GetComponent<EntityOnMap>().currentCell, d.Power);
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
                 // TODO: User/Target bewegen und Stun anwenden
             }
@@ -185,7 +192,7 @@ public static class NeutralCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 2,
-            damage_u = 0,
+            power_u = 1,
 
             targetingData = new()
             {
@@ -197,6 +204,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = "Disengage after your attack (step back).",
             CardEffect = (User, Target, d) =>
             {
+                MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.GetComponent<EntityOnMap>().currentCell, d.Power);
                 // TODO: User 1 Feld rückwärts bewegen
             }
         });
@@ -364,6 +372,7 @@ public static class NeutralCards
 
             cost_u = 60,
             damage_u = 100,
+            range_u = 5,
 
             targetingData = new()
             {
@@ -391,6 +400,7 @@ public static class NeutralCards
             cost_u = 80,
             damage_u = 30,
             repeats_u = 5,
+            range_u = 5,
 
             targetingData = new()
             {
@@ -456,12 +466,14 @@ public static class NeutralCards
             cost_u = 50,
             power_u = 50, 
             duration_u = 2,
+            range_u = 4,
+            area_u = 4,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                SelectionType = CardTargetSelection.Ring,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Demoralize enemies in an area and reduces attack damage by {d.Power}.",
@@ -491,15 +503,17 @@ public static class NeutralCards
             cost_u = 50,
             power_u = 50, // stat buff (non-damage)
             duration_u = 2,
+            range_u = 4,
+            area_u = 4,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Radius,
+                SelectionType = CardTargetSelection.Ring,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Bolster allies damage in range by {d.Power} ).",
+            CardDescription = (User, d) => d.cardDescription = $"Bolster allies damage in range by {d.Power} ).",
             CardEffect = (User, Target, d) =>
             {
                 var stat = Target.entityStats.DamageIncrease;
@@ -564,12 +578,14 @@ public static class NeutralCards
             cost_u = 10,
             damage_u = 20,
             duration_u = 6,
+            range_u = 4,
+            area_u = 2,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius, // keep as defined in your file
+                SelectionType = CardTargetSelection.Radius,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Apply Poison 2 for 6 turns (immediate tick).",
@@ -623,6 +639,8 @@ public static class NeutralCards
             cost_u = 20,
             damage_u = 20,
             duration_u = 6,
+            range_u = 4,
+            area_u = 2,
 
             targetingData = new()
             {

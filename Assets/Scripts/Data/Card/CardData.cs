@@ -106,6 +106,8 @@ public class CardData
 
             duration_u = duration_u,
             repeats_u = repeats_u,
+            range_u = range_u,
+            area_u = area_u,
 
             cost_s = new Stat(),
             power_s = new Stat(),
@@ -114,12 +116,13 @@ public class CardData
 
             duration_s = new Stat(),
             repeats_s = new Stat(),
-            
-            range_u = 1,
-            area_u = 1,
+            range_s = new Stat(),
+            area_s = new Stat(),
 
-    // Targeting-Flags (keine Ziel-Referenzen übernehmen)
-    targetingData = targetingData,
+
+
+            // Targeting-Flags (keine Ziel-Referenzen übernehmen)
+            targetingData = targetingData,
 
             // Delegates (zeigen auf dieselben Methoden – gewünscht)
             CardDescription = CardDescription,

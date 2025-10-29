@@ -28,6 +28,8 @@ public static class AssassinCards
 
             cost_u = 3,
             damage_u = 10,
+            range_u = 2,
+            area_u = 2,
 
             targetingData = new()
             {
@@ -66,7 +68,7 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"AOE (adjacent): deal {d.Damage} damage (x{d.Repeats}).",
+                d.cardDescription = $"AOE: deal {d.Damage} damage (x{d.Repeats}).",
 
             CardEffect = (User, Target, d) =>
             {
@@ -115,6 +117,7 @@ public static class AssassinCards
             cost_u = 60,
             damage_u = 10,     // Tickhöhe
             duration_u = 2,   // Dauer der DoTs
+            range_u = 4,
 
             targetingData = new()
             {
@@ -180,6 +183,7 @@ public static class AssassinCards
 
             cost_u = 80,
             damage_u = 200,
+            range_u = 3,
 
             targetingData = new()
             {
@@ -206,8 +210,10 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 30,
+            cost_u = 60,
             damage_u = 100,
+            range_u = 5,
+            area_u = 3,
 
             targetingData = new()
             {
@@ -237,6 +243,8 @@ public static class AssassinCards
 
             cost_u = 4,
             damage_u = 5,
+            range_u = 5,
+            area_u = 2,
 
             targetingData = new()
             {
@@ -266,6 +274,7 @@ public static class AssassinCards
             cost_u = 3,
             damage_u = 4,
             repeats_u = 2, // Anzahl Bounces (Standard 2, kann per Stat skaliert werden)
+            range_u = 4,
 
             targetingData = new()
             {
@@ -279,7 +288,6 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                // -------- Helpers --------
                 bool IsEnemyOf(EntityScript owner, EntityScript candidate)
                 {
                     if (owner == null || candidate == null) return false;
@@ -353,15 +361,16 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 4,
-            damage_u = 7,
+            cost_u = 60,
+            damage_u = 50,
             duration_u = 6, // Bleed-Dauer
+            range_u = 3,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius, // (du hast Sphere -> Radius bereits korrigiert)
+                SelectionType = CardTargetSelection.Cone, 
             },
 
             CardDescription = (User, d) =>
@@ -411,6 +420,7 @@ public static class AssassinCards
             cost_u = 2,
             damage_u = 6,
             duration_u = 1, // Stun für 1 Zug
+            range_u = 5,
 
             targetingData = new()
             {
@@ -520,12 +530,13 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison },
 
-            cost_u = 0,
+            cost_u = 40,
+            range_u = 5,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Self,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
             },
 

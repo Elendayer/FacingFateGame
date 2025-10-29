@@ -29,6 +29,7 @@ public static class PhysicianCards
             cost_u = 20,
             healing_u = 20,      
             duration_u = 3,   // for 3 turns
+            range_u = 3,
 
             targetingData = new()
             {
@@ -81,6 +82,7 @@ public static class PhysicianCards
 
             cost_u = 10,
             power_u = 1,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -155,6 +157,7 @@ public static class PhysicianCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 2,
+            range_u = 3,
 
             targetingData = new()
             {
@@ -208,7 +211,9 @@ public static class PhysicianCards
             cardClass = CardClass.Physician,
             cardIdentities = new() { CardIdentity.Poison },
 
-            cost_u = 4,      
+            cost_u = 4,    
+            range_u = 2,
+
 
             targetingData = new()
             {
@@ -237,7 +242,7 @@ public static class PhysicianCards
 
             cost_u = 5,
             power_u = 2,
-            duration_u = 1,  
+            duration_u = 2,  
 
             targetingData = new()
             {
@@ -300,7 +305,8 @@ public static class PhysicianCards
             cost_u = 5,
             power_u = 20,     
             duration_u = 2,
-            range_u = 2,
+            range_u = 3,
+            area_u = 2,
 
             targetingData = new()
             {
@@ -339,12 +345,13 @@ public static class PhysicianCards
             cost_u = 30,
             healing_u = 80,
             range_u = 3,
+            area_u = 2,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.LineSelf,
+                SelectionType = CardTargetSelection.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -369,6 +376,7 @@ public static class PhysicianCards
 
             cost_u = 10,
             healing_u = 100,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -398,6 +406,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 3,
             power_u = 100, // +MaxHealth
+            range_u = 2,
 
             targetingData = new()
             {
@@ -435,6 +444,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 0,
             power_u = 100,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -471,6 +481,7 @@ public static class PhysicianCards
 
             cost_u = 1,
             power_u = 150,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -500,6 +511,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 3,
             power_u = 150,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -537,6 +549,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 0,
             power_u = 150,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -573,9 +586,8 @@ public static class PhysicianCards
 
             cost_u = 10,
             duration_u = 1,
-            power_u = 100, 
-
-            range_u = 1,
+            power_u = 100,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -613,6 +625,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 3,
             power_u = 100,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -650,6 +663,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 0,
             power_u = 100,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -687,6 +701,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 1,
             power_u = 100,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -724,6 +739,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 3,
             power_u = 100,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -761,6 +777,7 @@ public static class PhysicianCards
             cost_u = 10,
             duration_u = 0,
             power_u = 100,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -796,7 +813,7 @@ public static class PhysicianCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 10,
-            range_u = 2,
+            range_u = 3,
 
             targetingData = new()
             {
@@ -827,7 +844,8 @@ public static class PhysicianCards
             cost_u = 30,
             damage_u = 2,
             duration_u = 3,
-            range_u = 2,
+            range_u = 4,
+            area_u = 2,
 
             targetingData = new()
             {

@@ -29,8 +29,9 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Soul },
 
-            cost_u = 5,
-            power_u = 10,
+            cost_u = 50,
+            power_u = 70,
+            range_u = 3,
 
             targetingData = new()
             {
@@ -54,8 +55,8 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 5,
-            power_u = 4,
+            cost_u = 20,
+            power_u = 40,
 
             targetingData = new()
             {
@@ -79,8 +80,9 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 3,
-            power_u = 3,
+            cost_u = 30,
+            power_u = 30,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -88,7 +90,7 @@ public static class MysticCards
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
                 SelectionType = CardTargetSelection.Single,
             },
-            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage (absorb mana: TODO).",
+            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage.",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(User, Target, d.Power);
@@ -108,12 +110,12 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 0,
+            cost_u = 10,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Self,
+                CardTargetAffiliation = CardTargetAffiliation.All,
                 SelectionType = CardTargetSelection.Single,
             },
             CardDescription = (User, d) => d.cardDescription = "All entities attack if possible (TODO).",
@@ -150,7 +152,9 @@ public static class MysticCards
             cardType = CardType.Spell,
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.None },
+
             cost_u = 0,
+            range_u = 3,
 
             targetingData = new()
             {
@@ -173,7 +177,8 @@ public static class MysticCards
             cardType = CardType.Spell,
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.None },
-            cost_u = 0,
+
+            cost_u = 80,
 
             targetingData = new()
             {
@@ -194,8 +199,8 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Ranged },
 
-            cost_u = 0,
-
+            cost_u = 50,
+            range_u = 8,
 
             targetingData = new()
             {
@@ -219,8 +224,10 @@ public static class MysticCards
             cardType = CardType.Spell,
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Melee },
+
             cost_u = 0,
-            range_u = 9,
+            power_u = 2,
+            range_u = 5,
 
             targetingData = new()
             {
@@ -231,7 +238,7 @@ public static class MysticCards
             CardDescription = (User, d) => d.cardDescription = "Force the target to move 2 spaces.",
             CardEffect = (User, Target, d) =>
             {
-                MovementUtility.SwapLocations(User, Target);
+                MovementUtility.ForcedMove(ForcedMovementType.Random, Target, Target.GetComponent<EntityOnMap>().currentCell, d.Power);
             }
         });
 
@@ -267,7 +274,9 @@ public static class MysticCards
             cardType = CardType.Spell,
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Melee },
-            cost_u = 0,
+            
+            cost_u = 70,
+            range_u = 5,
 
             targetingData = new()
             {
@@ -278,7 +287,8 @@ public static class MysticCards
             CardDescription = (User, d) => d.cardDescription = "Switch positions with the target.",
             CardEffect = (User, Target, d) =>
             {
-                // TODO: Swap grid positions / transforms of User and Target.
+                MovementUtility.SwapLocations(User, Target);
+                
             }
         });
 
@@ -291,8 +301,8 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Blood },
 
-            cost_u = 3,
-            range_u = 3,
+            cost_u = 30,
+            range_u = 6,
 
             targetingData = new()
             {
@@ -316,8 +326,8 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Poison },
 
-            cost_u = 2,
-            range_u = 3,
+            cost_u = 30,
+            range_u = 6,
 
             targetingData = new()
             {
@@ -341,8 +351,8 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Fire },
 
-            cost_u = 2,
-            range_u = 3,
+            cost_u = 30,
+            range_u = 6,
 
             targetingData = new()
             {
@@ -362,7 +372,8 @@ public static class MysticCards
             cardType = CardType.Spell,
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Ranged },
-            cost_u = 2,
+            
+            cost_u = 50,
 
             targetingData = new()
             {
@@ -385,7 +396,10 @@ public static class MysticCards
             cardType = CardType.Spell,
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Ranged },
-            cost_u = 5,
+            
+            cost_u = 80,
+            range_u = 8,
+            area_u = 2,
 
             targetingData = new()
             {
@@ -409,8 +423,8 @@ public static class MysticCards
             cardClass = CardClass.Mystic,
             cardIdentities = new() { CardIdentity.Fire },
 
-            cost_u = 6,
-            power_u = 6,
+            cost_u = 60,
+            power_u = 80,
             duration_u = 6,
             range_u = 4,
 
@@ -460,7 +474,7 @@ public static class MysticCards
                 CardTargetAffiliation = CardTargetAffiliation.Self,
                 SelectionType = CardTargetSelection.Single,
             },
-            CardDescription = (User, d) => d.cardDescription = "Using spells costs more (TODO).",
+            CardDescription = (User, d) => d.cardDescription = "Using spells costs more.",
             CardEffect = (User, Target, d) => { /* TODO */ }
         });
     }

@@ -24,7 +24,7 @@ namespace Utility
                     entityOnMap.MoveToViaPath(vector3Ints);
                     break;
                 case ForcedMovementType.Push:
-                    entityOnMap.MoveToViaPath(GetCloserPosition(ReferencePos, -Distance, entityOnMap));
+                    entityOnMap.MoveToViaPath(GetFurtherPosition(ReferencePos, Distance, entityOnMap));
                     break;
                 case ForcedMovementType.Pull:
                     entityOnMap.MoveToViaPath(GetCloserPosition(ReferencePos, Distance, entityOnMap));
@@ -56,7 +56,7 @@ namespace Utility
         }
         public static List<Vector3Int> GetFurtherPosition(Vector3Int from, int distance, EntityOnMap entityOnMap)
         {
-            List<Vector3Int> targets = TilemapUtilityScript.GetTilesInRing(entityOnMap.currentCell, distance);
+            List<Vector3Int> targets = TilemapUtilityScript.GetTilesInRing(entityOnMap.currentCell, new List<int> { distance });
             
             // Filter out occupied tiles
             targets = targets

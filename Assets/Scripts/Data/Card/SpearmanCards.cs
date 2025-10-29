@@ -57,6 +57,8 @@ public static class SpearmanCards
 
             cost_u = 25,
             damage_u = 120,
+            range_u = 3,
+            area_u = 3,
 
             targetingData = new()
             {
@@ -87,6 +89,8 @@ public static class SpearmanCards
 
             cost_u = 30,
             damage_u = 85,
+            range_u = 4,
+            power_u = 2,
 
             targetingData = new()
             {
@@ -102,6 +106,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
+                MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.GetComponent<EntityOnMap>().currentCell, d.Power);
                 CombatUtility.ApplyDamage(User, Target, d.Damage);
                 // To-Do: Movement nach Vorne
             }
@@ -119,6 +124,7 @@ public static class SpearmanCards
             cost_u = 50,
             damage_u = 80,
             duration_u = 3,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -212,6 +218,7 @@ public static class SpearmanCards
 
             cost_u = 25,
             damage_u = 50,
+            range_u = 2,
 
             targetingData = new()
             {
@@ -273,6 +280,7 @@ public static class SpearmanCards
 
             cost_u = 100,
             damage_u = 200,
+            area_u = 2,
 
             targetingData = new()
             {
@@ -345,14 +353,16 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 10,
-            damage_u = 4,
+            cost_u = 100,
+            damage_u = 100,
+            range_u = 3,
+            area_u = 3,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.LineSelf,
+                SelectionType = CardTargetSelection.LineFree,
             },
 
             CardDescription = (User, d) =>
