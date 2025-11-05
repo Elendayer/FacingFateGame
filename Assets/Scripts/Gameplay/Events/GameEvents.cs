@@ -50,14 +50,33 @@ public static class GameEvents
         foreach (var reference in grs.References)
         {
             Debug.Log($"[GameEvents] - {reference}, {grs.UserId} ,  {grs.AffectedEntityId}");
+            TimelineManager.AddToTimeline(grs);
 
             // Notify for TargetId
             if (_refEvents.TryGetValue((reference, grs.AffectedEntityId), out var targetAction))
+            {
                 targetAction?.Invoke(grs);
+            }
         }
     }
 }
 
+// -------------------- Referenece Struct --------------------
+public struct TriggerRef
+{
+    public List<GameplayRef> References;
+    public int UserId;
+    public int AffectedEntityId;
+    public CardData CardData;
+
+    public TriggerRef(List<GameplayRef> references = null, int userId = 0, int targetId = 0, CardData cardData = null)
+    {
+        References = references;
+        UserId = userId;
+        AffectedEntityId = targetId;
+        CardData = cardData;
+    }
+}
 public enum GameplayRef
 {
     None,

@@ -42,7 +42,7 @@ public static class MysticCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Power);
+                CombatUtility.ApplyDamage(d, Target, d.Power);
             }
         });
 
@@ -67,7 +67,7 @@ public static class MysticCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} melee damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Power);
+                CombatUtility.ApplyDamage(d, Target, d.Power);
             }
         });
 
@@ -93,7 +93,7 @@ public static class MysticCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Power);
+                CombatUtility.ApplyDamage(d, Target, d.Power);
                 // TODO: absorb resource from target
             }
         });
@@ -165,7 +165,7 @@ public static class MysticCards
             CardDescription = (User, d) => d.cardDescription = "Create a double that draws aggro and attacks once (TODO).",
             CardEffectGround = (User, Target, d) => 
             {
-                CombatUtility.SpawnEntity(User, Target, "0001", EntityAffiliation.Neutral); 
+                CombatUtility.SpawnEntity(d, Target, "0001", EntityAffiliation.Neutral); 
             }
         });
 
@@ -448,9 +448,9 @@ public static class MysticCards
                     onRefEventAction: (mod, stat, refEv) =>
                     {
                         GameEvents.TriggerRefEvent(new TriggerRef { References = new() { GameplayRef.onBurn }, UserId = User.GetInstanceID(), AffectedEntityId = Target.GetInstanceID() });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     });
-                CombatUtility.ApplyEntityModifier(User, Target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 

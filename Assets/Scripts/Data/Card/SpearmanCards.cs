@@ -41,7 +41,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 Debug.Log("Tempest of a Hundred Spears used");
             }
         });
@@ -74,7 +74,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -107,7 +107,7 @@ public static class SpearmanCards
             CardEffect = (User, Target, d) =>
             {
                 MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.GetComponent<EntityOnMap>().currentCell, d.Power);
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 // To-Do: Movement nach Vorne
             }
         });
@@ -160,14 +160,14 @@ public static class SpearmanCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     }
                 );
 
-                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 // immediate tick on play
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
                     References = new() { GameplayRef.onBleed },
@@ -203,7 +203,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -234,7 +234,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -264,7 +264,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 // To-Do Slow
             }
         });
@@ -296,7 +296,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 // Slow all Enemies oder Stun
             }
         });
@@ -339,7 +339,7 @@ public static class SpearmanCards
                     },
                     name: $"DamageIncrease#{d.cardID}");                   
 
-                CombatUtility.ApplyBuff(User, Target, Target.entityStats.DamageIncrease, mod,
+                CombatUtility.ApplyBuff(d, Target, Target.entityStats.DamageIncrease, mod,
                     ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
@@ -372,7 +372,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
     }
@@ -419,7 +419,7 @@ public static class SpearmanCards
                     name: $"MeleeRangeIncrease"
                 );
 
-                CombatUtility.ApplyBuff(User, Target, Target.entityStats.RangeIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, Target.entityStats.RangeIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }     
         });
 
@@ -523,7 +523,7 @@ public static class SpearmanCards
                     },
                     name: $"ArmourIncrease#{d.cardID}");
 
-                    CombatUtility.ApplyBuff(User, Target, Target.entityStats.DamageIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    CombatUtility.ApplyBuff(d, Target, Target.entityStats.DamageIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 // Apply Taunt
             }
         });
@@ -641,7 +641,7 @@ public static class SpearmanCards
                     },
                     name: $"ArmourIncrease#{d.cardID}");
 
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(    d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -686,7 +686,7 @@ public static class SpearmanCards
                     },
                     name: $"AttackIncrease#{d.cardID}");
 
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 
                 // To-Do Increase Aggro
             }

@@ -63,11 +63,11 @@ public static class PhysicianCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyHealing(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyHealing(d, Target, mod.BaseValue);
                     }
                 );
 
-                CombatUtility.ApplyEntityModifier(User, Target, regen, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(  d, Target, regen, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -120,7 +120,7 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyHealing(User, Target, d.Healing);
+                CombatUtility.ApplyHealing(d, Target, d.Healing);
             }
         });
 
@@ -329,7 +329,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"JadeResonance_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -359,7 +359,7 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyHealing(User, Target, d.Healing);
+                CombatUtility.ApplyHealing(d, Target, d.Healing);
             }
         });
     }
@@ -390,7 +390,7 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyHealing(User, Target, d.Healing);
+                CombatUtility.ApplyHealing(d, Target, d.Healing);
             }
         });
 
@@ -428,7 +428,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"MaxHP+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -466,7 +466,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef(), // kein Ablauf-Trigger nötig
                     name: $"MaxHP+{d.Power}_Pill"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -533,7 +533,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"MaxStamina+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -571,7 +571,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef(),
                     name: $"MaxStamina+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -609,7 +609,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"ArmourIncrease+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -647,7 +647,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"ArmourIncrease+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -685,7 +685,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef(),
                     name: $"ArmourIncrease+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -723,7 +723,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"SoaringDragon_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -761,7 +761,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"SoaringDragonElixir_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -799,7 +799,7 @@ public static class PhysicianCards
                     on_triggerConditionRef: new TriggerRef(),
                     name: $"SoaringDragonPill_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -879,10 +879,10 @@ public static class PhysicianCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     });
 
-                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 // ToDO: Posion Cloud sollte länger auf dem Spielfeld und ALLE vergiften die durchgehen wollen
             }

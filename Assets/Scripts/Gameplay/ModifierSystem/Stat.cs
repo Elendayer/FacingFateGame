@@ -206,16 +206,3 @@ public enum StatAspect
     Repeats,
     Range
 }
-// -------------------- Referenece Struct --------------------
-public struct TriggerRef
-{
-    public List<GameplayRef> References;
-    public int UserId;
-    public int AffectedEntityId;
-    public TriggerRef(List<GameplayRef> references = null, int userId = 0, int targetId = 0)
-    {
-        References = references;
-        UserId = userId;
-        AffectedEntityId = targetId;
-    }
-}

@@ -5,22 +5,22 @@ namespace Utility
 {
     public static class CombatUtility
     {
-        public static void ApplyCost(EntityScript user, Stat resourceStat, int cost)
+        public static void ApplyCost(CardData cardData, Stat resourceStat, int cost)
         {
             resourceStat.AddModifier(new StatModifier(-cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { }, user.GetInstanceID()));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { }, cardData.Owner.GetInstanceID(), cardData: cardData));
         }
-        public static void ApplyDamage(EntityScript user, EntityScript target, int rawDamage, bool isAttack = false)
+
+        public static void ApplyDamage(CardData cardData, EntityScript target, int rawDamage, bool isAttack = false)
         {
             if (isAttack)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onAttack }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onAttack }, cardData.Owner.GetInstanceID(), target.GetInstanceID(), cardData));
             }
 
-            // Damage-Basis
             int damage = rawDamage;
 
-            // 1) Pre-Mitigation (Resistenzen o.ä.)
+            // 1) Pre-Mitigation
             damage = target.entityStats.DamageTakenReduction.ApplyFinalValue(damage);
 
             // 2) Armour
@@ -34,7 +34,7 @@ namespace Utility
             int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block.Value);
             if (block > 0 && damage > 0)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBlocking }, cardData.Owner.GetInstanceID(), target.GetInstanceID(), cardData));
                 int blockAbsorb = Mathf.Min(damage, block);
                 target.entityStats.Block.AddModifier(new StatModifier(-blockAbsorb, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
                 damage -= blockAbsorb;
@@ -45,31 +45,30 @@ namespace Utility
             {
                 if (isAttack)
                 {
-                    GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onDamage }, user.GetInstanceID(), target.GetInstanceID()));
+                    GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onDamage }, cardData.Owner.GetInstanceID(), target.GetInstanceID(), cardData));
                 }
 
                 target.entityStats.CurrentHealth.AddModifier(
                     new StatModifier(-damage, ModifierScaling.Flat, name: "BaseValue"),
                     ModifierMergeStrategy.Merge);
 
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHitLanded }, user.GetInstanceID(), target.GetInstanceID()));
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHitLanded }, cardData.Owner.GetInstanceID(), target.GetInstanceID(), cardData));
             }
 
             // 5) Lifesteal
-            if (damage > 0 && user.entityStats.Lifesteal.GetAllValues().Count > 0)
+            if (damage > 0 && cardData.Owner.entityStats.Lifesteal.GetAllValues().Count > 0)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onLifesteal }, user.GetInstanceID(), target.GetInstanceID()));
-                int heal = Mathf.CeilToInt(damage * (user.entityStats.Lifesteal.Value / 100f));
-                ApplyHealing(user, user, heal);
+                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onLifesteal }, cardData.Owner.GetInstanceID(), target.GetInstanceID(), cardData));
+                int heal = Mathf.CeilToInt(damage * (cardData.Owner.entityStats.Lifesteal.Value / 100f));
+                ApplyHealing(cardData, cardData.Owner, heal);
             }
         }
 
-
-        public static void ApplyHealing(EntityScript user, EntityScript target, int healing)
+        public static void ApplyHealing(CardData cardData, EntityScript target, int healing)
         {
             if (healing <= 0) return;
 
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHeal }, user.GetInstanceID(), target.GetInstanceID()));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHeal }, cardData.Owner.GetInstanceID(), target.GetInstanceID(), cardData));
 
             int missing = target.entityStats.MaxHealth.Value - target.entityStats.CurrentHealth.Value;
             int effHeal = Mathf.Clamp(healing, 0, Mathf.Max(0, missing));
@@ -82,10 +81,9 @@ namespace Utility
             }
         }
 
-
-        public static void ApplyBuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyBuff(CardData cardData, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBuffed }, user.GetInstanceID(), target.GetInstanceID()));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBuffed }, cardData.Owner.GetInstanceID(), target.GetInstanceID(), cardData));
 
             targetStat.AddModifier(mod, mergeStrategy);
 
@@ -97,9 +95,10 @@ namespace Utility
                 dbg.SyncDot(label, eff.BaseValue, eff.Duration);
             }
         }
-        public static void ApplyDebuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+
+        public static void ApplyDebuff(CardData cardData, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onDebuffed }, user.GetInstanceID(), target.GetInstanceID()));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onDebuffed }, cardData.Owner.GetInstanceID(), target.GetInstanceID(), cardData));
 
             targetStat.AddModifier(mod, mergeStrategy);
 
@@ -112,26 +111,23 @@ namespace Utility
             }
         }
 
-        public static void ApplyEntityModifier(
-            EntityScript user,
-            EntityScript target,
-            EntityModifier mod,
-            ModifierMergeStrategy mergeStrategy)
+        public static void ApplyEntityModifier(CardData cardData, EntityScript target, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
         {
             if (target == null || mod == null) return;
 
-            //Debug
-            if (mod.StatModifier == null) mod.StatModifier = new StatModifier(mod.BaseValue, ModifierScaling.Flat, duration: mod.Duration, on_triggerConditionRef: mod.TriggerConditionRef, name: mod.ModifierName);
+            if (mod.StatModifier == null)
+                mod.StatModifier = new StatModifier(mod.BaseValue, ModifierScaling.Flat, duration: mod.Duration, on_triggerConditionRef: mod.TriggerConditionRef, name: mod.ModifierName);
+
             mod.AddListener();
             target.AddModifier(mod, mergeStrategy);
             target.GetComponent<StatusDebugView>()?.Track(mod);
         }
 
-        public static void SpawnEntity(EntityScript user, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation )
+        public static void SpawnEntity(CardData cardData, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onSummon }, user.GetInstanceID(), -1));
+            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onSummon }, cardData.Owner.GetInstanceID(), -1, cardData));
 
-            GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, parent: user.transform.parent);
+            GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, parent: cardData.Owner.transform.parent);
             EntityOnMap entityOnMap = SpawnObj.GetComponent<EntityOnMap>();
 
             entityOnMap.Spawn(spawnPosition);
@@ -139,8 +135,7 @@ namespace Utility
             NonPlayerScript spawnedEntity = SpawnObj.GetComponent<NonPlayerScript>();
             spawnedEntity.StartUp();
 
-            Npc npc =  NpcDatabase.GetNpcById(npcID);
-            
+            Npc npc = NpcDatabase.GetNpcById(npcID);
             spawnedEntity.name = npc.name;
             spawnedEntity.entityAffiliation = affiliation;
             spawnedEntity.npcAIBias = npc.aiBias;

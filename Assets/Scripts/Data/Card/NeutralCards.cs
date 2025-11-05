@@ -37,7 +37,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -63,7 +63,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage}, reduces Movement",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 // TODO: Movement-Cost/Range senken
             }
         });
@@ -90,7 +90,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -117,7 +117,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = "Hit the target twice.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -145,7 +145,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = $"Push enemy 1 space and deals {d.Damage}.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, d.Power);
                 // TODO: 1 Feld wegschieben
             }
@@ -177,7 +177,7 @@ public static class NeutralCards
             {
                 MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, d.Power);
                 MovementUtility.ForcedMove(ForcedMovementType.Pull, User, Target.GetComponent<EntityOnMap>().currentCell, d.Power);
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 // TODO: User/Target bewegen und Stun anwenden
             }
         });
@@ -231,7 +231,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -260,7 +260,7 @@ public static class NeutralCards
             CardEffect = (User, Target, d) =>
             {
                 // direct hit (per repeat)
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
 
                 // Bleed DoT + immediate tick
                 int dur = d.Duration > 0 ? d.Duration : 6;
@@ -284,13 +284,13 @@ public static class NeutralCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     });
 
-                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 // immediate tick on play
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
                     References = new() { GameplayRef.onBleed },
@@ -345,13 +345,13 @@ public static class NeutralCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     });
 
-                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 // immediate tick on play
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
                     References = new() { GameplayRef.onPoison },
@@ -384,7 +384,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = "Shoot an arrow dealing 3 damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -412,7 +412,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = "Shoot multiple arrows at selected enemies (2 shots).",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
     }
@@ -450,7 +450,7 @@ public static class NeutralCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"SoaringDragonElixir_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -487,7 +487,7 @@ public static class NeutralCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"GrowlDecrease{d.Power}"
                 );
-                CombatUtility.ApplyDebuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyDebuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -524,7 +524,7 @@ public static class NeutralCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"HowlIncrease{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -559,7 +559,7 @@ public static class NeutralCards
                     on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"ArmourIncrease{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -611,13 +611,13 @@ public static class NeutralCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     });
 
-                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 // immediate tick on play
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
                     References = new() { GameplayRef.onPoison },
@@ -672,13 +672,13 @@ public static class NeutralCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     });
 
-                CombatUtility.ApplyEntityModifier(User, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 // immediate tick on play
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
                     References = new() { GameplayRef.onBurn },

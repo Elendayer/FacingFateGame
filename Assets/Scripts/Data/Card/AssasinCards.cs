@@ -43,7 +43,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -72,7 +72,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -101,7 +101,7 @@ public static class AssassinCards
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Execute-Logik (instant kill) wenn Ziel <10% MaxHP
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -157,7 +157,7 @@ public static class AssassinCards
                                 UserId = User.GetInstanceID(),
                                 AffectedEntityId = Target.GetInstanceID()
                             });
-                            CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                            CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                         });
                 }
 
@@ -166,9 +166,9 @@ public static class AssassinCards
                 var bleed = MakeDot("Bleed", GameplayRef.onBleed);
 
                 // WICHTIG: hier explizit Merge (kein Refresh), damit gleiche Karte nicht verlängert
-                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.Merge);
-                CombatUtility.ApplyEntityModifier(User, Target, burn, ModifierMergeStrategy.Merge);
-                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -197,7 +197,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -227,7 +227,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -258,7 +258,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -331,7 +331,7 @@ public static class AssassinCards
                 }
 
                 // 1) Starttreffer
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
 
                 // 2) Bounces
                 var hitSet = new HashSet<int> { Target.GetInstanceID() };
@@ -345,7 +345,7 @@ public static class AssassinCards
                     var next = FindNextBounceTarget(last, hitSet, hopLimit);
                     if (next == null) break;
 
-                    CombatUtility.ApplyDamage(User, next, d.Damage);
+                    CombatUtility.ApplyDamage(d, next, d.Damage);
                     hitSet.Add(next.GetInstanceID());
                     last = next;
                 }
@@ -379,7 +379,7 @@ public static class AssassinCards
             CardEffect = (User, Target, d) =>
             {
                 // Direktschaden
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
 
                 // Bleed-DoT
                 var bleed = new EntityModifier(
@@ -401,10 +401,10 @@ public static class AssassinCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     });
 
-                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -435,7 +435,7 @@ public static class AssassinCards
             CardEffect = (User, Target, d) =>
             {
                 // Direkter Schaden
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
 
                 // Stun-Modifier (Ein-Zug)
                 var stun = new EntityModifier(
@@ -462,7 +462,7 @@ public static class AssassinCards
                 // Target.entityStats.CurrentStamina?.ApplyFinalValue(0); // <-- nur falls vorhanden/gewünscht
             });
 
-                CombatUtility.ApplyEntityModifier(User, Target, stun, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyEntityModifier(d, Target, stun, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -510,10 +510,10 @@ public static class AssassinCards
                             UserId = User.GetInstanceID(),
                             AffectedEntityId = Target.GetInstanceID()
                         });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     });
 
-                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
