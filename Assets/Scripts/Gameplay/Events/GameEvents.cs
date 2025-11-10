@@ -45,13 +45,11 @@ public static class GameEvents
 
     public static void TriggerRefEvent(TriggerRef grs)
     {
-        if (grs.References == null || grs.References.Count == 0) return;
+        if (grs.OnTriggerReference == null || grs.OnTriggerReference.Count == 0) return;
+        TimelineManager.AddToTimeline(grs);
 
-        foreach (var reference in grs.References)
+        foreach (var reference in grs.OnTriggerReference)
         {
-            Debug.Log($"[GameEvents] - {reference}, {grs.UserId} ,  {grs.AffectedEntityId}");
-            TimelineManager.AddToTimeline(grs);
-
             // Notify for TargetId
             if (_refEvents.TryGetValue((reference, grs.AffectedEntityId), out var targetAction))
             {
@@ -64,14 +62,14 @@ public static class GameEvents
 // -------------------- Referenece Struct --------------------
 public struct TriggerRef
 {
-    public List<GameplayRef> References;
+    public List<GameplayRef> OnTriggerReference;
     public int UserId;
     public int AffectedEntityId;
     public CardData CardData;
 
     public TriggerRef(List<GameplayRef> references = null, int userId = 0, int targetId = 0, CardData cardData = null)
     {
-        References = references;
+        OnTriggerReference = references;
         UserId = userId;
         AffectedEntityId = targetId;
         CardData = cardData;
@@ -117,6 +115,7 @@ public enum GameplayRef
     onModifierApplied,
     onModifierExpired,
     onHitLanded,
+
 
     //Card Types
     Skill,

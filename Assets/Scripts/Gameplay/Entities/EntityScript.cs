@@ -37,7 +37,7 @@ public class EntityScript : MonoBehaviour
     private void TriggerAnimation(TriggerRef triggerRef)
     {
         GameObject effectObj;
-        foreach (GameplayRef gRef in triggerRef.References)
+        foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
         {
             switch (gRef)
             {
@@ -131,7 +131,7 @@ public class EntityScript : MonoBehaviour
     public (bool found, IEntityModifier modifier) HasReference(GameplayRef reference)
     {
         var modifier = entityModifiers
-            .FirstOrDefault(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+            .FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
 
         return (modifier != null, modifier);
     }
@@ -141,7 +141,7 @@ public class EntityScript : MonoBehaviour
 
     public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef)
     {
-        var modifier = entityModifiers.FirstOrDefault(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+        var modifier = entityModifiers.FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
         if (modifier != null)
         {
             modifier.OnRefEventTriggered(triggerRef);

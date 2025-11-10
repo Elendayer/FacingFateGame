@@ -27,8 +27,7 @@ public class TimelineManager : MonoBehaviour
 
     public static void AddToTimeline(TriggerRef triggerRef)
     {
-        Debug.Log($"[TimelineManager] - Adding TriggerRef to Timeline: UserId={triggerRef.UserId}, AffectedEntityId={triggerRef.AffectedEntityId}, CardData={triggerRef.CardData}");
-        Timeline.Insert(0, triggerRef);
+        Timeline.Add(triggerRef);
     }
 
     public static List<TriggerRef> GetDataFromTimeline(int entityId, CardData cardData, int count = 1, bool isUser = true)
@@ -65,12 +64,12 @@ public class TimelineManager : MonoBehaviour
         List<TriggerRef> triggerRefs;
         if (isUser)
         {
-            triggerRefs = Timeline.Where(tr => tr.UserId == entityId && tr.References.Contains(gameplayRef)).Take(count).ToList();
+            triggerRefs = Timeline.Where(tr => tr.UserId == entityId && tr.OnTriggerReference.Contains(gameplayRef)).Take(count).ToList();
             return triggerRefs;
         }
         else
         {
-            triggerRefs = Timeline.Where(tr => tr.AffectedEntityId == entityId && tr.References.Contains(gameplayRef)).Take(count).ToList();
+            triggerRefs = Timeline.Where(tr => tr.AffectedEntityId == entityId && tr.OnTriggerReference.Contains(gameplayRef)).Take(count).ToList();
             return triggerRefs;
         }
     }
@@ -84,7 +83,7 @@ public class TimelineManager : MonoBehaviour
         }
         else
         {
-            triggerRefs = Timeline.Where(tr => tr.AffectedEntityId == entityId && tr.References != null).Take(count).ToList();
+            triggerRefs = Timeline.Where(tr => tr.AffectedEntityId == entityId  && tr.OnTriggerReference != null).Take(count).ToList();
             return triggerRefs;
         }
     }

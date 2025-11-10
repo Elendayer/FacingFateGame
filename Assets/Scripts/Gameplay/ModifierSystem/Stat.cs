@@ -11,7 +11,7 @@ public class Stat
 
     public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
     {
-        Debug.Log($"[Stat] Adding modifier: {modifier.ModifierName} with strategy: {strategy} for {modifier.BaseValue}");
+        //Debug.Log($"[Stat] Adding modifier: {modifier.ModifierName} with strategy: {strategy} for {modifier.BaseValue}");
         var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
 
         switch (strategy)

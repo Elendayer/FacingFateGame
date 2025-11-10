@@ -50,19 +50,19 @@ public class StatModifier : IStatModifier
 
     public void AddListener()
     {
-        if (On_TriggerConditionRef.References == null)
+        if (On_TriggerConditionRef.OnTriggerReference == null)
         {
             return;
         }
 
-        foreach (var Reference in On_TriggerConditionRef.References)
+        foreach (var Reference in On_TriggerConditionRef.OnTriggerReference)
         {
             GameEvents.Subscribe(Reference, On_TriggerConditionRef.AffectedEntityId, On_RefEventTriggered);
         }
     }
     public void OnRemove()
     {
-        foreach (var Reference in On_TriggerConditionRef.References)
+        foreach (var Reference in On_TriggerConditionRef.OnTriggerReference)
         {
             GameEvents.Unsubscribe(Reference, On_TriggerConditionRef.AffectedEntityId, On_RefEventTriggered);
         }

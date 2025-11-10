@@ -144,22 +144,16 @@ public static class SpearmanCards
                 var bleed = new EntityModifier(
                     statName: "Bleed",
                     baseValue: d.Damage,
-                    to_Trigger_refs: new() { GameplayRef.onBleed },
+                    toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef
+                    onTriggerConditionRef: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
-                    onRefEventAction: (mod, stat, ev) =>
+                    onTriggerEventAction: (mod, stat, ev) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef
-                        {
-                            References = new() { GameplayRef.onBleed },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
                         CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
                     }
                 );
@@ -170,7 +164,7 @@ public static class SpearmanCards
                 CombatUtility.ApplyDamage(d, Target, d.Damage);
                 GameEvents.TriggerRefEvent(new TriggerRef
                 {
-                    References = new() { GameplayRef.onBleed },
+                    OnTriggerReference = new() { GameplayRef.onBleed },
                     UserId = User.GetInstanceID(),
                     AffectedEntityId = Target.GetInstanceID()
                 });
@@ -334,7 +328,7 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },   
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },   
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     name: $"DamageIncrease#{d.cardID}");                   
@@ -413,7 +407,7 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = User.GetInstanceID()
                     },
                     name: $"MeleeRangeIncrease"
@@ -518,7 +512,7 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     name: $"ArmourIncrease#{d.cardID}");
@@ -592,7 +586,7 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     name: $"ArmourIncrease#{d.cardID}");
@@ -636,7 +630,7 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     name: $"ArmourIncrease#{d.cardID}");
@@ -681,7 +675,7 @@ public static class SpearmanCards
                     duration: d.Duration,
                     on_triggerConditionRef: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntityId = Target.GetInstanceID()
                     },
                     name: $"AttackIncrease#{d.cardID}");

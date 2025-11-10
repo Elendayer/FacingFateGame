@@ -52,7 +52,7 @@ public class NonPlayerScript : EntityScript
                 //bool cardComplete = false;
                 // If ActivateCard is async, you should hook a callback/event here. For now, just yield for pacing.
                 action.Card.cardData.ActivateCard(action.Targets, gameObject);
-                yield return new WaitForSeconds(1f); // pacing for readability
+                yield return new WaitForSeconds(2f); // pacing for readability
             }
         }
         EventManager.Instance.Endturn();

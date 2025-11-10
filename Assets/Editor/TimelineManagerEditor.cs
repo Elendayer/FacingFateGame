@@ -24,27 +24,33 @@ public class TimelineManagerEditor : Editor
         for (int i = 0; i < TimelineManager.Timeline.Count; i++)
         {
             var triggerRef = TimelineManager.Timeline[i];
+            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.BeginVertical("box");
             EditorGUILayout.LabelField($"Trigger {i}", EditorStyles.boldLabel);
 
             EditorGUILayout.LabelField("User ID", triggerRef.UserId.ToString());
             EditorGUILayout.LabelField("Affected Entity ID", triggerRef.AffectedEntityId.ToString());
 
+            EditorGUILayout.EndVertical();
+
+            // Display CardData and References
+
+            EditorGUILayout.BeginVertical("box");
             // Display CardData as text instead of ObjectField
-            EditorGUILayout.LabelField("Card Data", triggerRef.CardData != null ? triggerRef.CardData.ToString() : "null");
+            EditorGUILayout.LabelField("Card Data", triggerRef.CardData != null ? triggerRef.CardData.cardName : "null");
 
             EditorGUILayout.LabelField("Gameplay References:");
-            if (triggerRef.References != null && triggerRef.References.Count > 0)
+            if (triggerRef.OnTriggerReference != null && triggerRef.OnTriggerReference.Count > 0)
             {
                 EditorGUI.indentLevel++;
-                for (int r = 0; r < triggerRef.References.Count; r++)
+                for (int r = 0; r < triggerRef.OnTriggerReference.Count; r++)
                 {
-                    EditorGUILayout.LabelField($"Ref {r}: {triggerRef.References[r].ToString() ?? "null"}");
+                    EditorGUILayout.LabelField($"Ref {r}: {triggerRef.OnTriggerReference[r].ToString() ?? "null"}");
                 }
                 EditorGUI.indentLevel--;
             }
-
             EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
         }
 

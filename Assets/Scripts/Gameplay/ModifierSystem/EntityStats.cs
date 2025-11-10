@@ -60,5 +60,10 @@ public class EntityStats
         CurrentHealth.AddModifier(new StatModifier(MaxHealth.Value, ModifierScaling.Flat, name: "BaseValue"));
         CurrentStamina.AddModifier(new StatModifier(MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"));
 
+        GameEvents.Subscribe(GameplayRef.onTurnStart, Owner.GetInstanceID(), OnTurnStart);
+    }
+    private void OnTurnStart(TriggerRef reference)
+    {
+        CurrentStamina.AddModifier(new StatModifier( MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Override);
     }
 }

@@ -103,7 +103,7 @@ public class NpcAIController
         foreach (var card in hand)
         {
             var scoredCard = EvaluateCardForTurn(card, stamina, virtualPosition);
-            Debug.Log($"[NpcAI] {scoredCard.Targets.Count} Targets and {scoredCard.Score} Score");
+            //Debug.Log($"[NpcAI] {scoredCard.Targets.Count} Targets and {scoredCard.Score} Score");
             if (scoredCard.Score <= 0) continue;
 
             if (scoredCard != null && scoredCard.Score > 0)

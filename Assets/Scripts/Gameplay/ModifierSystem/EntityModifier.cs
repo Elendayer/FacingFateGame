@@ -8,7 +8,9 @@ public interface IEntityModifier
     int BaseValue { get; set; }
     StatModifier StatModifier { get; set; }
     int Duration { get; set; }
-    List<GameplayRef> To_TriggerGameplayRefs { get; }
+    List<GameplayRef> ToTriggerGameplayRefs { get; }
+    TriggerRef OnTriggerConditionRef { get; }
+
     bool IsExpired { get; }
     void AddListener();
     void OnRefEventTriggered(TriggerRef reference);
@@ -39,19 +41,21 @@ public class EntityModifier : IEntityModifier
 
     public StatModifier StatModifier { get; set; }
     public int Duration { get; set; }
-    public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
+
+    public List<GameplayRef> ToTriggerGameplayRefs { get; private set; }
+    public TriggerRef OnTriggerConditionRef { get; private set; } = new TriggerRef();
+
     public bool IsExpired => Duration <= 0;
 
     private Action<StatModifier, Stat, GameplayRef> OnRefEventAction;
-    public TriggerRef TriggerConditionRef { get; private set; } = new TriggerRef();
     public Stat TargetStat { get; private set; }
     public void AddListener()
     {
-        if ( TriggerConditionRef.References != null)
+        if ( OnTriggerConditionRef.OnTriggerReference != null)
         {
-            foreach (var Reference in TriggerConditionRef.References)
+            foreach (var Reference in OnTriggerConditionRef.OnTriggerReference)
             {
-                GameEvents.Subscribe(Reference, TriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
+                GameEvents.Subscribe(Reference, OnTriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
             }
         }
     }
@@ -60,30 +64,26 @@ public class EntityModifier : IEntityModifier
         (
         string statName,
         int baseValue = 0,
-        List<GameplayRef> to_Trigger_refs = null,
+        List<GameplayRef> toTriggerRefs = null,
+        TriggerRef onTriggerConditionRef = new TriggerRef(),
         int duration = 0,
         Stat target = null,
-        Action<StatModifier, Stat, GameplayRef> onRefEventAction = null,
-        //StatModifier statModifier = null,
-        TriggerRef triggerConditionRef = new TriggerRef()
+        Action<StatModifier, Stat, GameplayRef> onTriggerEventAction = null
         )
     {
         ModifierName = statName;
         BaseValue = baseValue;
-        //StatModifier = statModifier;
-        To_TriggerGameplayRefs = to_Trigger_refs;
+        ToTriggerGameplayRefs = toTriggerRefs;
+        OnTriggerConditionRef = onTriggerConditionRef;
         Duration = duration;
         TargetStat = target;
-        this.OnRefEventAction = onRefEventAction;
-        TriggerConditionRef = triggerConditionRef;
     }
 
     public int GetRemainingDuration() => Duration;
-
     public void OnRefEventTriggered(TriggerRef trigger)
     {
         {
-            foreach (GameplayRef gRef in To_TriggerGameplayRefs)
+            foreach (GameplayRef gRef in ToTriggerGameplayRefs)
             {
                 OnRefEventAction?.Invoke(StatModifier, TargetStat, gRef);
             }
@@ -102,7 +102,7 @@ public class EntityModifier : IEntityModifier
     }
     public void OnManuelTrigger()
     {
-        foreach (GameplayRef gRef in To_TriggerGameplayRefs)
+        foreach (GameplayRef gRef in ToTriggerGameplayRefs)
         {
             OnRefEventAction?.Invoke(StatModifier, TargetStat, gRef);
         }
@@ -118,9 +118,9 @@ public class EntityModifier : IEntityModifier
     }
     public void OnRemove()
     {
-        foreach (var Reference in TriggerConditionRef.References)
+        foreach (var Reference in OnTriggerConditionRef.OnTriggerReference)
         {
-            GameEvents.Unsubscribe(Reference, TriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
+            GameEvents.Unsubscribe(Reference, OnTriggerConditionRef.AffectedEntityId, OnRefEventTriggered);
         }
         TargetStat.RemoveModifier(StatModifier);
     }

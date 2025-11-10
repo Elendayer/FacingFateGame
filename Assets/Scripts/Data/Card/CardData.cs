@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -136,8 +137,6 @@ public class CardData
 
     public void ActivateCard(List<EntityScript> targetEntity, GameObject obj)
     {
-        GenerateTriggerFromCardData();
-
         foreach (EntityScript target in targetEntity)
         {
             CardEffect?.Invoke(Owner, target, this);
@@ -146,50 +145,14 @@ public class CardData
     }
     public void ActivateCard(List<Vector3Int> targetCell, GameObject obj)
     {
-        GenerateTriggerFromCardData();
-
         foreach(Vector3Int target in targetCell)
         {        
             CardEffectGround?.Invoke(Owner, target, this);
         }
         HandManager.Instance.DiscardCard(obj);
     }
-
-    private void GenerateTriggerFromCardData()
-    {
-        // Lokaler Helfer: versucht einen gameplayRef anhand eines Namens zu feuern
-        void TryTrigger(string name, int userId)
-        {
-            if (string.IsNullOrEmpty(name)) return;
-
-            if (Enum.TryParse<GameplayRef>(name, out var gref))
-            {
-                GameEvents.TriggerRefEvent(new TriggerRef
-                {
-                    References = new() { gref },
-                    UserId = userId
-                });
-            }
-            else
-            {
-                Debug.Log($"[CardData] gameplayRef '{name}' not found. Skipping trigger.");
-            }
-        }
-
-        // UserId vom Kartenbesitzer (falls vorhanden)
-        int uid = Owner != null ? Owner.GetInstanceID() : 0;
-
-        // Klasse, Typ und Identities probieren
-        TryTrigger(cardClass.ToString(), uid);
-        TryTrigger(cardType.ToString(), uid);
-
-        if (cardIdentities != null)
-        {
-            foreach (var id in cardIdentities)
-                TryTrigger(id.ToString(), uid);
-        }
-    }
 }
+
 public enum CardTargetType
 {
     Entity,
