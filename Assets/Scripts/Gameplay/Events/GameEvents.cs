@@ -20,6 +20,8 @@ public static class GameEvents
     public static void TriggerCombatStart() => OnCombatStart?.Invoke();
     public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
 
+
+
     // Dictionary: (gameplayRef, Id) -> event
     private static readonly Dictionary<(GameplayRef, int), Action<TriggerRef>> _refEvents
         = new();

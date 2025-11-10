@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+
 public class TimelineManager : MonoBehaviour
 {
     public static TimelineManager Instance { get; private set; }
 
-    public static List<TriggerRef> Timeline = new();
+    public static Dictionary<string,List<TriggerRef>> Timeline = new();
 
     private void Awake()
     {
@@ -27,64 +28,66 @@ public class TimelineManager : MonoBehaviour
 
     public static void AddToTimeline(TriggerRef triggerRef)
     {
-        Timeline.Add(triggerRef);
+        if (triggerRef.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+        {
+            Timeline.Add($"{TurnManager.Instance.CurrentRoundIndex}_{triggerRef.UserId}", new() { triggerRef });
+        }
+        else
+        {
+            Timeline.Last().Value.Add(triggerRef);
+        }
     }
+    public static List<TriggerRef> GetDataFromTimeline(
+        int entityId,
+        TimelineFilter filter,
+        object filterValue = null,
+        int turnsAgo = int.MaxValue,
+        bool isUser = true)
+    {
+        // Flatten Timeline into a list with turn index
+        var flatTimeline = Timeline
+            .Select(kvp => new { Key = kvp.Key, Triggers = kvp.Value })
+            .SelectMany(t =>
+            {
+                // Extract turn index from key
+                var split = t.Key.Split('_');
+                int turnIndex = int.Parse(split.First());
+                return t.Triggers.Select(tr => new { Trigger = tr, Turn = turnIndex });
+            })
+            .OrderByDescending(x => x.Turn) // Start from the most recent turn
+            .ToList();
 
-    public static List<TriggerRef> GetDataFromTimeline(int entityId, CardData cardData, int count = 1, bool isUser = true)
-    {
-        List<TriggerRef> triggerRefs;
-        if (isUser)
-        {
-            triggerRefs = Timeline.Where(tr => tr.UserId == entityId && tr.CardData == cardData).Take(count).ToList();
-            return triggerRefs;
-        }
-        else
-        {
-            triggerRefs = Timeline.Where(tr => tr.AffectedEntityId == entityId && tr.CardData == cardData).Take(count).ToList();
-            return triggerRefs;
-        }
-    }
-    public static List<TriggerRef> GetDataFromTimeline(int entityId, CardIdentity cardIdentity, int count = 1, bool isUser = true)
-    {
-        List<TriggerRef> triggerRefs;
-        if (isUser)
-        {
-            triggerRefs = Timeline.Where(tr => tr.UserId == entityId && tr.CardData.cardIdentities.Contains(cardIdentity)).Take(count).ToList();
-            return triggerRefs;
-        }
-        else
-        {
-            triggerRefs = Timeline.Where(tr => tr.AffectedEntityId == entityId && tr.CardData.cardIdentities.Contains(cardIdentity)).Take(count).ToList();
-            return triggerRefs;
-        }
-    }
+        var result = new List<TriggerRef>();
 
-    public static List<TriggerRef> GetDataFromTimeline(int entityId, GameplayRef gameplayRef, int count = 1, bool isUser = true)
-    {
-        List<TriggerRef> triggerRefs;
-        if (isUser)
+        foreach (var entry in flatTimeline)
         {
-            triggerRefs = Timeline.Where(tr => tr.UserId == entityId && tr.OnTriggerReference.Contains(gameplayRef)).Take(count).ToList();
-            return triggerRefs;
+            if (TurnManager.Instance.CurrentRoundIndex - entry.Turn > turnsAgo)
+                break; // Stop if we exceeded the turn range
+
+            var tr = entry.Trigger;
+
+            bool matches = filter switch
+            {
+                TimelineFilter.User => isUser ? tr.UserId == entityId : tr.AffectedEntityId == entityId,
+                TimelineFilter.CardData => tr.CardData == filterValue as CardData,
+                TimelineFilter.CardIdentity => tr.CardData.cardIdentities.Contains((CardIdentity)filterValue),
+                TimelineFilter.CardClass => tr.CardData.cardClass == (CardClass)filterValue,
+                TimelineFilter.CardType => tr.CardData.cardType == (CardType)filterValue,
+                _ => false
+            };
+
+            if (matches)
+                result.Add(tr);
         }
-        else
-        {
-            triggerRefs = Timeline.Where(tr => tr.AffectedEntityId == entityId && tr.OnTriggerReference.Contains(gameplayRef)).Take(count).ToList();
-            return triggerRefs;
-        }
+
+        return result;
     }
-    public static List<TriggerRef> GetDataFromTimeline(int entityId, int count = 1, bool isUser = true)
+    public enum TimelineFilter
     {
-        List<TriggerRef> triggerRefs;
-        if (isUser)
-        {
-            triggerRefs = Timeline.Where(tr => tr.UserId == entityId).Take(count).ToList();
-            return triggerRefs;
-        }
-        else
-        {
-            triggerRefs = Timeline.Where(tr => tr.AffectedEntityId == entityId  && tr.OnTriggerReference != null).Take(count).ToList();
-            return triggerRefs;
-        }
+        User,
+        CardClass,
+        CardIdentity,
+        CardType,
+        CardData
     }
 }

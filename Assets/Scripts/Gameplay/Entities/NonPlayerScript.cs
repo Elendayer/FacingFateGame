@@ -44,14 +44,17 @@ public class NonPlayerScript : EntityScript
                 StartCoroutine(MoveToViaPathWithCallback(entityOnMap, action.Path, onMoveComplete));
                 while (!moveComplete)
                     yield return null;
-                yield return new WaitForSeconds(1f); // pacing for readability
+                yield return new WaitForSeconds(2f); // pacing for readability
             }
             else if (action.Type == PlannedAction.ActionType.PlayCard)
             {
                 Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on {string.Join(", ", action.Targets.Select(t => t.name))}");
-                //bool cardComplete = false;
-                // If ActivateCard is async, you should hook a callback/event here. For now, just yield for pacing.
-                action.Card.cardData.ActivateCard(action.Targets, gameObject);
+
+                bool cardComplete = false;
+                System.Action onMoveComplete = () => cardComplete = true;
+                StartCoroutine(PlayCardWithCallback(action, () => cardComplete = true));
+                while (!cardComplete)
+                    yield return null;
                 yield return new WaitForSeconds(2f); // pacing for readability
             }
         }
@@ -63,5 +66,12 @@ public class NonPlayerScript : EntityScript
     {
         yield return entityOnMap.StartCoroutine("StartMove", path);
         onComplete?.Invoke();
+    }
+    private System.Collections.IEnumerator PlayCardWithCallback(PlannedAction action, System.Action onComplete)
+    {
+        action.Card.cardData.ActivateCard(action.Targets, gameObject);
+        // Assuming ActivateCard is synchronous for this example
+        onComplete?.Invoke();
+        yield return null;
     }
 } 

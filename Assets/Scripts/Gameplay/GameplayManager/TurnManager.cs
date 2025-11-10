@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,6 +12,7 @@ public class TurnManager : MonoBehaviour
     public EntityScript CurrentTurnEntity => TurnOrder[CurrentTurnIndex];
 
     public int CurrentTurnIndex = 0;
+    public int CurrentRoundIndex = 1;
     private void Awake()
     {
         // Singleton enforcement
@@ -25,15 +27,24 @@ public class TurnManager : MonoBehaviour
 
     public void StartUp()
     {
-        SetTurnOrder();
-
         AddListeners();
     }
     public void AddListeners()
     {
         GameEvents.OnTurnStart += OnTurnStart;
         GameEvents.OnTurnEnd += OnTurnEnd;
+        GameEvents.OnCombatStart += GameEvents_OnCombatStart;
     }
+
+    private void GameEvents_OnCombatStart()
+    {
+        SetTurnOrder();
+        CurrentTurnIndex = 0;
+        CurrentRoundIndex = 1;
+
+        GameEvents.TriggerTurnStart();
+    }
+
     private void SetTurnOrder()
     {
         // Find all PlayerCharacter entities
@@ -44,16 +55,20 @@ public class TurnManager : MonoBehaviour
 
     private void OnTurnStart()
     {
-        GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnStart },0, TurnOrder[CurrentTurnIndex].GetInstanceID()));
+        GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex].GetInstanceID(), TurnOrder[CurrentTurnIndex].GetInstanceID()));
 
         DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
     }
     private void OnTurnEnd()
     {
-        GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnEnd }, 0, TurnOrder[CurrentTurnIndex].GetInstanceID()));
+        GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex].GetInstanceID(), TurnOrder[CurrentTurnIndex].GetInstanceID()));
         DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
 
         CurrentTurnIndex++;
-        CurrentTurnIndex %= TurnOrder.Count;
+        if (CurrentTurnIndex >= TurnOrder.Count)
+        {
+            CurrentTurnIndex = 0;
+            CurrentRoundIndex++;
+        }
     }
 }

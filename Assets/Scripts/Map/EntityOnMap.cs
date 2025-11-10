@@ -17,13 +17,12 @@ public class EntityOnMap : MonoBehaviour
 
     private void Start()
     {
-        MoveTo(currentCell);
+        TeleportTo(currentCell);
         SetOccupied(true);     
     }
 
     public void Spawn(Vector3Int vector3Int)
     {
-
         currentCell = vector3Int;
         transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(currentCell);
         SetOccupied(false);

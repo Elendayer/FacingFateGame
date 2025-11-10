@@ -19,7 +19,9 @@ public class StartupManager : MonoBehaviour
     }
     private void HandleStartup()
     {
+
         AiBiasDatabase.RegisterAll();
+        NpcDatabase.RegisterAll();
 
         DeckManager.Instance.StartUp();
         TurnManager.Instance.StartUp();
