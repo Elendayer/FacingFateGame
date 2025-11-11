@@ -138,27 +138,21 @@ public static class AssassinCards
                 EntityModifier MakeDot(string statName, GameplayRef tickRef)
                 {
                     return new EntityModifier(
-                        statName: statName,
+                        modifierName: statName,
                         baseValue: tick,
                         toTriggerRefs: new() { tickRef },
                         duration: dur,
                         target: Target.entityStats.CurrentHealth,
                         onTriggerConditionRef: new TriggerRef
                         {
-                            UserId = User.GetInstanceID(),
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            AffectedEntityId = Target.GetInstanceID()
+                            AffectedEntity = Target,
+                            UserEntity = User
                         },
-                        onTriggerEventAction: (mod, stat, ev) =>
-                        {
-                            GameEvents.TriggerRefEvent(new TriggerRef
-                            {
-                                OnTriggerReference = new() { tickRef },
-                                UserId = User.GetInstanceID(),
-                                AffectedEntityId = Target.GetInstanceID()
-                            });
-                            CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
-                        });
+                    onTriggerEventAction: (data) =>
+                    {
+                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                    });
                 }
 
                 var poison = MakeDot("Poison", GameplayRef.onPoison);
@@ -383,25 +377,19 @@ public static class AssassinCards
 
                 // Bleed-DoT
                 var bleed = new EntityModifier(
-                    statName: "Bleed",
+                    modifierName: "Bleed",
                     baseValue: d.Damage, // oder etwas kleiner als d.Damage, falls gewünscht
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
                     target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
-                        OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
+                        AffectedEntity = Target,
+                        UserEntity = User
                     },
-                    onTriggerEventAction: (mod, stat, ev) =>
+                    onTriggerEventAction: (data) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef
-                        {
-                            OnTriggerReference = new() { GameplayRef.onBleed },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
-                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -439,7 +427,7 @@ public static class AssassinCards
 
                 // Stun-Modifier (Ein-Zug)
                 var stun = new EntityModifier(
-                    statName: "Stun",
+                    modifierName: "Stun",
                     baseValue: 1,
                     toTriggerRefs: new() { GameplayRef.onStunned },
                     duration: Mathf.Max(1, d.Duration),
@@ -447,17 +435,18 @@ public static class AssassinCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
+                        AffectedEntity = Target,
+                        UserEntity = User
                     },
-                    onTriggerEventAction: (mod, stat, ev) =>
+                    onTriggerEventAction: (data) =>
                     {
                 // Melde „Stun aktiv“ – Turn/AI sollten bei vorhandenem Stun-Modifier Aktionen überspringen (TODO in Turn/AI)
                 GameEvents.TriggerRefEvent(new TriggerRef
                         {
                             OnTriggerReference = new() { GameplayRef.onStunned },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
+                    AffectedEntity = Target,
+                    UserEntity = User
+                });
                 // Optional: hier könntest du AP/Stamina auf 0 setzen, falls dein System so arbeitet.
                 // Target.entityStats.CurrentStamina?.ApplyFinalValue(0); // <-- nur falls vorhanden/gewünscht
             });
@@ -492,7 +481,7 @@ public static class AssassinCards
             CardEffect = (User, Target, d) =>
             {
                 var bleed = new EntityModifier(
-                    statName: "Bleed",
+                    modifierName: "Bleed",
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
@@ -500,17 +489,12 @@ public static class AssassinCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
+                        AffectedEntity = Target,
+                        UserEntity = User
                     },
-                    onTriggerEventAction: (mod, stat, ev) =>
+                    onTriggerEventAction: (data) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef
-                        {
-                            OnTriggerReference = new() { GameplayRef.onBleed },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
-                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(null,data.TriggerReference.AffectedEntity,data.Value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);

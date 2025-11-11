@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,12 +30,16 @@ public class EntityScript : MonoBehaviour
     }
     private void AddListeners()
     {
-        GameEvents.Subscribe(GameplayRef.onTurnStart, GetInstanceID(), GameEvents_OnTurnStart);
-
-        GameEvents.Subscribe(GameplayRef.onBurn, GetInstanceID(), TriggerAnimation);
-        GameEvents.Subscribe(GameplayRef.onDamage, GetInstanceID(), TriggerAnimation);
+        GameEvents.OnGameplayReference += TriggerAnimation;
     }
     private void TriggerAnimation(TriggerRef triggerRef)
+    {
+        if (GameEvents.CheckIfRelevantTrigger(triggerRef, new TriggerRef{AffectedEntity = this, OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage }}))
+        {
+            PlayEffectAnimation(triggerRef);
+        }
+    }
+    public void PlayEffectAnimation(TriggerRef triggerRef)
     {
         GameObject effectObj;
         foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
@@ -44,19 +49,16 @@ public class EntityScript : MonoBehaviour
                 default: break;
                 case GameplayRef.onBurn:
                     effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
-                    Debug.Log("Tried to Add Burn Effect");
                     Instantiate(effectObj, EntityVisual.transform);
                     break;
 
                 case GameplayRef.onDamage:
                     effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
-                    Debug.Log("Tried to Add Damage Effect");
                     Instantiate(effectObj, EntityVisual.transform);
                     break;
             }
         }
     }
-
 
     [Header("Modifier System")]
     [SerializeField]
@@ -114,13 +116,6 @@ public class EntityScript : MonoBehaviour
         }
         modifier.AddListener();
     }
-    private void GameEvents_OnTurnStart(TriggerRef trigger)
-    {
-        if (trigger.UserId == this.GetInstanceID())
-        {
-            entityStats.CurrentStamina.AddModifier(new StatModifier(entityStats.MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Override);
-        }
-    }
     public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
     public void AddOrReplaceModifier(IEntityModifier modifier)
     {
@@ -144,7 +139,7 @@ public class EntityScript : MonoBehaviour
         var modifier = entityModifiers.FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
         if (modifier != null)
         {
-            modifier.OnRefEventTriggered(triggerRef);
+            modifier.OnManuelTrigger(triggerRef);
             return true;
         }
         return false;

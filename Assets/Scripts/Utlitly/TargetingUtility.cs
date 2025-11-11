@@ -30,11 +30,11 @@ namespace Utility
                     targets = GetEntitiesFromTiles(ringTiles, allEntities);
                     break;
                 case CardTargetSelection.LineFree:
-                    var lineFreeTiles = TilemapUtilityScript.GetTilesInLine(pos, pos, card.cardData.Range);
+                    var lineFreeTiles = TilemapUtilityScript.GetTilesInLineSelf(pos, pos, card.cardData.Range);
                     targets = GetEntitiesFromTiles(lineFreeTiles, allEntities);
                     break;
                 case CardTargetSelection.LineSelf:
-                    var lineSelfTiles = TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, pos, card.cardData.Range);
+                    var lineSelfTiles = TilemapUtilityScript.GetTilesInLineSelf(owner.GetComponent<EntityOnMap>().currentCell, pos, card.cardData.Range);
                     targets = GetEntitiesFromTiles(lineSelfTiles, allEntities);
                     break;
                 case CardTargetSelection.Cone:
@@ -149,11 +149,11 @@ namespace Utility
                 case CardTargetSelection.Ring:
                     return TilemapUtilityScript.GetTilesInRing(centerTile, card.cardData.Area);
                 case CardTargetSelection.LineFree:
-                    return TilemapUtilityScript.GetTilesInLine(centerTile, centerTile, card.cardData.Area);
+                    return TilemapUtilityScript.GetTilesInLineFree(centerTile, centerTile, card.cardData.Range, card.cardData.Area);
                 case CardTargetSelection.LineSelf:
-                    return TilemapUtilityScript.GetTilesInLine(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.Range);
+                    return TilemapUtilityScript.GetTilesInLineSelf(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.Range);
                 case CardTargetSelection.Cone:
-                    return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.Range, card.cardData.Range);
+                    return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.Range, card.cardData.Area);
                 case CardTargetSelection.All:
                     return TilemapUtilityScript.GetAllValidTiles();
                 default:

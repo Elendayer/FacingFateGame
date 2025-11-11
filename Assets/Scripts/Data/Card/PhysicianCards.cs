@@ -45,7 +45,7 @@ public static class PhysicianCards
             {
                 // Heal-over-time as positive “on turn start” tick
                 var regen = new EntityModifier(
-                    statName: "Regeneration",
+                    modifierName: "Regeneration",
                     baseValue: d.Healing,
                     toTriggerRefs: new() { GameplayRef.onHeal },
                     duration: d.Duration,
@@ -53,11 +53,12 @@ public static class PhysicianCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
+                        AffectedEntity = Target,
+                        UserEntity = User
                     },
-                    onTriggerEventAction: (mod, stat, ev) =>
+                    onTriggerEventAction: (data) =>
                     {
-                        CombatUtility.ApplyHealing(d, Target, mod.BaseValue);
+                        CombatUtility.ApplyHealing(null, data.TriggerReference.AffectedEntity, data.Value);
                     }
                 );
 
@@ -315,12 +316,18 @@ public static class PhysicianCards
             CardEffect = (User, Target, d) =>
             {
                 // Buff DamageIncrease on each affected ally
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Percent,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    on_triggerConditionRef: new TriggerRef 
+                    {
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        AffectedEntity = Target,
+                        UserEntity = User 
+                    },
                     name: $"JadeResonance_Dmg+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -416,10 +423,11 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.MaxHealth;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, UserEntity = User, AffectedEntity = Target },
                     name: $"MaxHP+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -454,6 +462,7 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.MaxHealth;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration, // 0 => indefinite in deinem System
@@ -521,10 +530,16 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.MaxStamina;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    on_triggerConditionRef: new TriggerRef 
+                    { 
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        AffectedEntity = Target, 
+                        UserEntity = User
+                    },
                     name: $"MaxStamina+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -559,6 +574,7 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.MaxStamina;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
@@ -595,12 +611,13 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
                     name: $"ArmourIncrease+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -635,10 +652,16 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.Armour;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    on_triggerConditionRef: new TriggerRef
+                    {
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        AffectedEntity = Target,
+                        UserEntity = User
+                    },
                     name: $"ArmourIncrease+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -673,6 +696,7 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.Armour;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
@@ -709,13 +733,19 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
-                    name: $"SoaringDragon_Dmg+{d.Power}"
+                    on_triggerConditionRef: new TriggerRef 
+                    { 
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        AffectedEntity = Target,
+                        UserEntity = User
+                        },
+                        name: $"SoaringDragon_Dmg+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
@@ -747,12 +777,13 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
+                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
                     name: $"SoaringDragonElixir_Dmg+{d.Power}"
                 );
                 CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -785,8 +816,9 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
@@ -855,7 +887,7 @@ public static class PhysicianCards
             {
                 string name = $"Poison#{d.cardID}";
                 var poison = new EntityModifier(
-                    statName: name,
+                    modifierName: name,
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
@@ -863,11 +895,12 @@ public static class PhysicianCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
+                        AffectedEntity = Target,
+                        UserEntity = User
                     },
-                    onTriggerEventAction: (mod, stat, ev) =>
+                    onTriggerEventAction: (data) =>
                     {
-                        CombatUtility.ApplyDamage(d, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(null,data.TriggerReference.AffectedEntity,data.Value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);

@@ -30,7 +30,7 @@ public class TimelineManager : MonoBehaviour
     {
         if (triggerRef.OnTriggerReference.Contains(GameplayRef.onTurnStart))
         {
-            Timeline.Add($"{TurnManager.Instance.CurrentRoundIndex}_{triggerRef.UserId}", new() { triggerRef });
+            Timeline.TryAdd($"{TurnManager.Instance.CurrentRoundIndex}_{triggerRef.UserId}", new() { triggerRef });
         }
         else
         {

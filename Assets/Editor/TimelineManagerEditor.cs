@@ -2,7 +2,6 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 [CustomEditor(typeof(TimelineManager))]
 public class TimelineManagerEditor : Editor
@@ -16,32 +15,8 @@ public class TimelineManagerEditor : Editor
     // Cache of solid color textures for backgrounds
     private readonly Dictionary<Color, Texture2D> colorCache = new Dictionary<Color, Texture2D>();
 
-    private GUIStyle turnHeaderStyle;
-    private GUIStyle triggerBoxStyle;
-
     public override void OnInspectorGUI()
     {
-        // Initialize GUIStyles safely inside OnInspectorGUI
-        if (turnHeaderStyle == null)
-        {
-            turnHeaderStyle = new GUIStyle(EditorStyles.boldLabel)
-            {
-                fontSize = 12,
-                fontStyle = FontStyle.Bold,
-                normal = { textColor = new Color(0.8f, 0.9f, 1f) }
-            };
-        }
-
-        if (triggerBoxStyle == null)
-        {
-            triggerBoxStyle = new GUIStyle(EditorStyles.helpBox)
-            {
-                padding = new RectOffset(10, 10, 8, 8),
-                margin = new RectOffset(6, 6, 4, 4),
-                fontSize = 11
-            };
-        }
-
         DrawDefaultInspector();
 
         EditorGUILayout.Space(10);
@@ -68,7 +43,7 @@ public class TimelineManagerEditor : Editor
             GUI.backgroundColor = Color.white;
 
             foldouts[key] = EditorGUILayout.Foldout(foldouts[key],
-                $"▶ Turn {key} ({triggerList.Count} triggers)", true, turnHeaderStyle);
+                $"▶ Turn {key} ({triggerList.Count} triggers)", true, EditorStyles.foldoutHeader);
 
             if (foldouts[key])
             {
@@ -98,7 +73,7 @@ public class TimelineManagerEditor : Editor
 
     private void DrawTriggerBox(TriggerRef triggerRef, Color bgColor)
     {
-        var boxStyle = new GUIStyle(triggerBoxStyle)
+        var boxStyle = new GUIStyle()
         {
             normal = { background = GetColorTexture(bgColor) }
         };
@@ -106,7 +81,7 @@ public class TimelineManagerEditor : Editor
         EditorGUILayout.BeginHorizontal(boxStyle);
         {
             // Left Column: Basic Info
-            EditorGUILayout.BeginVertical();
+            EditorGUILayout.BeginVertical(boxStyle);
             EditorGUILayout.LabelField($"User ID: {triggerRef.UserId}");
             EditorGUILayout.LabelField($"Affected Entity ID: {triggerRef.AffectedEntityId}");
             EditorGUILayout.Space(4);

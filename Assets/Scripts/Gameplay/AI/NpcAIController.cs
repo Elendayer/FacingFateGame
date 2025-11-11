@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utility;
+using static UnityEngine.GraphicsBuffer;
 
 public class NpcAIController
 {
@@ -237,9 +238,15 @@ public class NpcAIController
 
             // only subtract stamina if there's an actual card with a cost
             int staminaCost = bestAction.Card?.cardData?.Cost ?? bestAction.MovementCost;
-            entity.entityStats.CurrentStamina.AddModifier(
-                new StatModifier(-staminaCost, ModifierScaling.Flat, name: "BaseValue"),
-                ModifierMergeStrategy.Merge);
+            var stat = entity.entityStats.CurrentStamina;
+            var mod = new StatModifier
+                (
+                stat: stat,
+                value: -staminaCost,
+                ModifierScaling.Flat,
+                name: "BaseValue"
+                );
+            stat.AddModifier(mod, ModifierMergeStrategy.Merge);
         }
     }
 
@@ -258,7 +265,15 @@ public class NpcAIController
             });
             Debug.Log($"[NpcAI] -> PLAY {bestAction.Card.cardData.cardName} on {string.Join(", ", bestAction.Targets.Select(t => t.name))}");
 
-            entity.entityStats.CurrentStamina.AddModifier(new StatModifier(-bestAction.Card.cardData.Cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
+            var stat = entity.entityStats.CurrentStamina;
+            var mod = new StatModifier
+                (
+                stat: stat,
+                value: -bestAction.Card.cardData.Cost,
+                ModifierScaling.Flat,
+                name: "BaseValue"
+                );
+            stat.AddModifier(mod, ModifierMergeStrategy.Merge);
 
             hand.Remove(bestAction.Card); // Assume card is played and removed from hand
         }

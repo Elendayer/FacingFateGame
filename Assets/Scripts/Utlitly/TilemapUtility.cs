@@ -198,14 +198,14 @@ namespace Utility
             }
             return results;
         }
-        public static List<Vector3Int> GetTilesInLine(Vector3Int start, Vector3Int end, int maxLength)
+        public static List<Vector3Int> GetTilesInLineSelf(Vector3Int start, Vector3Int target, int maxLength)
         {
             var tiles = new List<Vector3Int>();
             tiles.Add(start);
 
             // Convert start/end to cube coordinates
             Vector3Int startCube = OffsetToCube_PointTop(start, UseOddROffset);
-            Vector3Int endCube = OffsetToCube_PointTop(end, UseOddROffset);
+            Vector3Int endCube = OffsetToCube_PointTop(target, UseOddROffset);
 
             // Determine vector toward end
             Vector3Int delta = endCube - startCube;
@@ -234,6 +234,15 @@ namespace Utility
 
             return tiles;
         }
+
+        public static List<Vector3Int> GetTilesInLineFree(Vector3Int start, Vector3Int end, int maxRange, int maxLength)
+        {
+
+            // Wip
+
+            return new List<Vector3Int>();
+        }
+
         public static List<Vector3Int> GetTilesInCone(Vector3Int start, Vector3Int direction, int length, int area)
         {
             var results = new HashSet<Vector3Int>();

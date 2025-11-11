@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 [CustomEditor(typeof(EntityScript), true)] // ✅ Works for all subclasses
 public class EntityScriptEditor : Editor
@@ -51,12 +51,12 @@ public class EntityScriptEditor : Editor
 
             // === Combat Modifiers ===
             EditorGUILayout.LabelField("⚔️ Combat Modifiers", EditorStyles.boldLabel);
-            DrawStat("Damage Increase", entity.entityStats.DamageIncrease);
-            DrawStat("Damage Reduction", entity.entityStats.DamageTakenReduction);
-            DrawStat("Healing Increase", entity.entityStats.HealingIncrease);
-            DrawStat("Cost Increase", entity.entityStats.CostIncrease);
-            DrawStat("Power Increase", entity.entityStats.PowerIncrease);
-            DrawStat("Duration Increase", entity.entityStats.DurationIncrease);
+            DrawStat("Damage Increase", entity.entityStats.DamageOutModifier);
+            DrawStat("Damage Reduction", entity.entityStats.DamageTakenModifier);
+            DrawStat("Healing Increase", entity.entityStats.HealingOutModifier);
+            DrawStat("Cost Increase", entity.entityStats.CostModifier);
+            DrawStat("Power Increase", entity.entityStats.PowerModifier);
+            DrawStat("Duration Increase", entity.entityStats.DurationModifier);
             DrawStat("Ignore Armour", entity.entityStats.IgnoreArmour);
             DrawStat("Ignore Block", entity.entityStats.IgnoreBlock);
             DrawStat("Lifesteal", entity.entityStats.Lifesteal);
@@ -109,12 +109,13 @@ public class EntityScriptEditor : Editor
         }
 
         int count = 0;
-        foreach (var mod in list)
+        foreach (IEntityModifier mod in list)
         {
             if (mod == null) continue;
             count++;
 
             string name = mod.ModifierName ?? "<Unnamed>";
+            GameplayRef condition = mod.OnTriggerConditionRef.OnTriggerReference.First();
             string valueStr = "";
 
             // Try to read "BaseValue" or "Value" if they exist
@@ -130,8 +131,13 @@ public class EntityScriptEditor : Editor
                 valueStr = valueProp.GetValue(mod)?.ToString();
 
             EditorGUILayout.BeginHorizontal("box");
-            EditorGUILayout.LabelField($"{count}. {name}", GUILayout.Width(180));
+            EditorGUILayout.BeginVertical("Box");
+            EditorGUILayout.LabelField($"{count}. {name}", EditorStyles.boldLabel);
             EditorGUILayout.LabelField($"Value: {valueStr}", EditorStyles.boldLabel);
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.BeginVertical("Box");
+            EditorGUILayout.LabelField($"Condition: {condition}", EditorStyles.boldLabel);
+            EditorGUILayout.EndVertical();
             EditorGUILayout.EndHorizontal();
         }
 

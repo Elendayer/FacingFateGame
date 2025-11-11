@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class GameEvents
@@ -11,6 +12,8 @@ public static class GameEvents
     public static event Action OnCombatStart;
     public static event Action OnCombatEnd;
 
+    public static event Action<TriggerRef> OnGameplayReference;
+
     public static void TriggerTurnStart() => OnTurnStart?.Invoke();
     public static void TriggerTurnEnd() => OnTurnEnd?.Invoke();
 
@@ -20,44 +23,24 @@ public static class GameEvents
     public static void TriggerCombatStart() => OnCombatStart?.Invoke();
     public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
 
-
-
-    // Dictionary: (gameplayRef, Id) -> event
-    private static readonly Dictionary<(GameplayRef, int), Action<TriggerRef>> _refEvents
-        = new();
-
-    public static void Subscribe(GameplayRef type, int id, Action<TriggerRef> listener)
-    {
-        var key = (type, id);
-
-        if (!_refEvents.ContainsKey(key))
-            _refEvents[key] = delegate { };
-
-        _refEvents[key] += listener;
-    }
-
-    public static void Unsubscribe(GameplayRef type, int id, Action<TriggerRef> listener)
-    {
-        var key = (type, id);
-
-        if (_refEvents.ContainsKey(key))
-            _refEvents[key] -= listener;
-    }
-
+    public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());
 
     public static void TriggerRefEvent(TriggerRef grs)
     {
-        if (grs.OnTriggerReference == null || grs.OnTriggerReference.Count == 0) return;
         TimelineManager.AddToTimeline(grs);
-
-        foreach (var reference in grs.OnTriggerReference)
+        OnGameplayReference?.Invoke(grs);
+    }
+    public static bool CheckIfRelevantTrigger(TriggerRef sendReference, TriggerRef checkReference)
+    {
+        if (sendReference.AffectedEntityId == checkReference.AffectedEntityId)
         {
-            // Notify for TargetId
-            if (_refEvents.TryGetValue((reference, grs.AffectedEntityId), out var targetAction))
+            if (sendReference.OnTriggerReference == null || sendReference.OnTriggerReference.Count == 0)
             {
-                targetAction?.Invoke(grs);
+                return false;
             }
+            return sendReference.OnTriggerReference.Any(gr => checkReference.OnTriggerReference.Contains(gr));
         }
+        return false;
     }
 }
 
@@ -65,18 +48,28 @@ public static class GameEvents
 public struct TriggerRef
 {
     public List<GameplayRef> OnTriggerReference;
-    public int UserId;
-    public int AffectedEntityId;
+    public EntityScript UserEntity;
+    public EntityScript AffectedEntity;
+
+    public int UserId => UserEntity.GetInstanceID();
+    public int AffectedEntityId => AffectedEntity.GetInstanceID();
+
     public CardData CardData;
 
-    public TriggerRef(List<GameplayRef> references = null, int userId = 0, int targetId = 0, CardData cardData = null)
+    public TriggerRef(
+        List<GameplayRef> references = null, 
+        EntityScript userEntity = null,
+        EntityScript affectedEntity = null,
+        CardData cardData = null)
     {
         OnTriggerReference = references;
-        UserId = userId;
-        AffectedEntityId = targetId;
+        UserEntity = userEntity;
+        AffectedEntity = affectedEntity;
         CardData = cardData;
     }
 }
+
+// -------------------- Gameplay References Enum --------------------
 public enum GameplayRef
 {
     None,

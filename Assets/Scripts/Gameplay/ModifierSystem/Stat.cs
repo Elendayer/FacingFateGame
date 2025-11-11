@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Stat
 {
+    public EntityScript owner;
     public int Value => GetFinalValue();
 
     private readonly List<IStatModifier> statModifiers = new();
@@ -61,7 +62,6 @@ public class Stat
                 break;
 
         }
-        modifier.AddListener();
     }
 
     public void RemoveModifier(IStatModifier modifier) => statModifiers.Remove(modifier);

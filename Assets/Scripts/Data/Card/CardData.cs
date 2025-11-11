@@ -24,27 +24,27 @@ public class CardData
     [Header("Cost")]
     public int cost_u = 0;
     public Stat cost_s = new();
-    public int Cost => Owner.entityStats.PowerIncrease.ApplyFinalValue(damage_s.ApplyFinalValue(cost_u));
+    public int Cost => Owner.entityStats.PowerModifier.ApplyFinalValue(damage_s.ApplyFinalValue(cost_u));
 
     [Header("Power")]
     public int power_u = 0;
     public Stat power_s = new();
-    public int Power =>  Owner.entityStats.PowerIncrease.ApplyFinalValue( damage_s.ApplyFinalValue(power_u));
+    public int Power =>  Owner.entityStats.PowerModifier.ApplyFinalValue( damage_s.ApplyFinalValue(power_u));
 
     [Header("Damage")]
     public int damage_u = 0;
     public Stat damage_s = new();
-    public int Damage => Owner.entityStats.DamageIncrease.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u));
+    public int Damage => Owner.entityStats.DamageOutModifier.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u));
 
     [Header("Healing")]
     public int healing_u = 0;
     public Stat healing_s = new();
-    public int Healing => Owner.entityStats.HealingIncrease.ApplyFinalValue( healing_s.ApplyFinalValue(healing_u));
+    public int Healing => Owner.entityStats.HealingOutModifier.ApplyFinalValue( healing_s.ApplyFinalValue(healing_u));
 
     [Header("Duration")]
     public int duration_u = 0;
     public Stat duration_s = new();
-    public int Duration => Owner.entityStats.HealingIncrease.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u));
+    public int Duration => Owner.entityStats.HealingOutModifier.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u));
 
     [Header("Repeats")]
     public int repeats_u = 0;
@@ -54,11 +54,11 @@ public class CardData
     [Header("Range & Area")]
     public int range_u = 1;
     public Stat range_s = new();
-    public int Range => Owner.entityStats.RangeIncrease.ApplyFinalValue(range_s.ApplyFinalValue(range_u));
+    public int Range => Owner.entityStats.RangeModifier.ApplyFinalValue(range_s.ApplyFinalValue(range_u));
     public int area_u = 1;
 
     public Stat area_s = new();
-    public int Area => Owner.entityStats.AreaIncrease.ApplyFinalValue(area_s.ApplyFinalValue(area_u));
+    public int Area => Owner.entityStats.AreaModifier.ApplyFinalValue(area_s.ApplyFinalValue(area_u));
 
 
     [Header("Card Target")]
@@ -187,7 +187,7 @@ public class TargetingData
 {
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;
-    public CardTargetSelection SelectionType = CardTargetSelection.Single;
+    public CardTargetSelection SelectionType;
 }
 
 public class CardAiBias

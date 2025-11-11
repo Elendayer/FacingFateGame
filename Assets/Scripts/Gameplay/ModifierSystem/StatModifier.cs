@@ -10,8 +10,8 @@ public interface IStatModifier
     int Duration { get; set; }
     List<GameplayRef> To_TriggerGameplayRefs { get; }
     bool IsExpired { get; }
-    void AddListener();
     void On_RefEventTriggered(TriggerRef reference);
+    Stat Stat { get; }
 
 }
 
@@ -40,33 +40,15 @@ public class StatModifier : IStatModifier
 
     public ModifierScaling ModifierScaling { get; private set; }
     public int Duration { get; set; }
+    public bool Condition { get; }
     public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
-    public TriggerRef On_TriggerConditionRef { get; private set; }
-    public TriggerRef LastTriggerRef { get; internal set; } = new TriggerRef();
-
     public bool IsExpired => Duration <= 0;
-    public Stat TargetStat;
     public int GetRemainingDuration() => Duration;
+    public Stat Stat { get; }
 
-    public void AddListener()
-    {
-        if (On_TriggerConditionRef.OnTriggerReference == null)
-        {
-            return;
-        }
-
-        foreach (var Reference in On_TriggerConditionRef.OnTriggerReference)
-        {
-            GameEvents.Subscribe(Reference, On_TriggerConditionRef.AffectedEntityId, On_RefEventTriggered);
-        }
-    }
     public void OnRemove()
     {
-        foreach (var Reference in On_TriggerConditionRef.OnTriggerReference)
-        {
-            GameEvents.Unsubscribe(Reference, On_TriggerConditionRef.AffectedEntityId, On_RefEventTriggered);
-        }
-        TargetStat.RemoveModifier(this);
+        Stat.RemoveModifier(this);
     }
     public void On_RefEventTriggered(TriggerRef trigger)
     {
@@ -83,39 +65,45 @@ public class StatModifier : IStatModifier
     }
 
     public StatModifier
-        (    
+        (
+        Stat stat,
         int value,
         ModifierScaling scaling,
         List<GameplayRef> to_triggerReferences = null,
         int duration = 99999,
         TriggerRef on_triggerConditionRef = new(),
-        string name = null
+        string name = null,
+        bool condition = true
         )
     {
         ModifierName = name;
         StaticValue = value;
         ModifierScaling = scaling;
         To_TriggerGameplayRefs = to_triggerReferences;
-        On_TriggerConditionRef = on_triggerConditionRef;
         Duration = duration;
+        Condition = condition;
+        Stat = stat;
     }
     public StatModifier
         (
+        Stat stat,
         Func<int> value,
         ModifierScaling scaling,
         List<GameplayRef> gReferences = null,
         int duration = 99999,
         TriggerRef triggerConditionRef = new(),
         Stat target = null,
-        string name = null
+        string name = null,
+        bool condition = true
         )
     {
         ModifierName = name;
         DynamicValueFunc = value;
         ModifierScaling = scaling;
         To_TriggerGameplayRefs = gReferences;
-        On_TriggerConditionRef = triggerConditionRef;
         Duration = duration;
+        Condition = condition;
+        Stat = stat;
     }
 }
 
@@ -165,35 +153,27 @@ public class ConditionalStatModifier : IStatModifier
     public int Uses { get; set; } = 1;
     public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
     public bool IsExpired => Duration <= 0;
-    public Stat TargetStat;
     public int GetRemainingDuration() => Duration;
+    public Stat Stat { get; }
 
     public void OnRemove()
     {
-        TargetStat.RemoveModifier(this);
+        Stat.RemoveModifier(this);
     }
+
     public void AddListener() { }
-   
+
     public void On_RefEventTriggered(TriggerRef trigger)
     {
-        if (Duration < 9999)
-        {
-            Duration--;
-            Debug.Log($"StatModifier duration: {Duration}");
+        if( GameEvents.CheckIfRelevantTrigger(trigger, new TriggerRef(new List<GameplayRef> { GameplayRef.onTurnStart }, Stat.owner)))
+        {       
+            if (Duration < 9999)
+            {
+                Duration--;
+                Debug.Log($"StatModifier duration: {Duration}");
+            }
         }
 
-        if (IsExpired)
-        {
-            OnRemove();
-        }
-    }
-    public void On_RefEventTriggered()
-    {
-        if (Duration < 9999)
-        {
-            Duration--;
-            Debug.Log($"StatModifier duration: {Duration}");
-        }
         if (IsExpired)
         {
             OnRemove();
@@ -202,13 +182,13 @@ public class ConditionalStatModifier : IStatModifier
 
     public ConditionalStatModifier
         (
+        Stat stat,
         int value,
-       bool condition,
+        bool condition,
         ModifierScaling scaling,
         int duration = 99999,
         List<GameplayRef> gReferences = null,
         TriggerRef on_triggerConditionRef = new(),
-        Stat target = null,
         string name = null
         )
     {
@@ -217,17 +197,17 @@ public class ConditionalStatModifier : IStatModifier
         ModifierScaling = scaling;
         To_TriggerGameplayRefs = gReferences;
         Duration = duration;
-        TargetStat = target;
+        Stat = stat;
     }
     public ConditionalStatModifier
         (
+        Stat stat,
         Func<int> value,
          bool condition,
         ModifierScaling scaling,
         int duration = 99999,
         List<GameplayRef> gReferences = null,
         TriggerRef triggerConditionRef = new(),
-        Stat target = null,
         string name = null
         )
     {
@@ -236,36 +216,36 @@ public class ConditionalStatModifier : IStatModifier
         ModifierScaling = scaling;
         To_TriggerGameplayRefs = gReferences;
         Duration = duration;
-        TargetStat = target;
+        Stat = stat;
     }
     public ConditionalStatModifier
-    (
-    int value,
-    Func<bool> condition,
-    ModifierScaling scaling,
-    int duration = 99999,
-    List<GameplayRef> gReferences = null,
-    TriggerRef on_triggerConditionRef = new(),
-    Stat target = null,
-    string name = null
-    )
+        (
+        Stat target,
+        int value,
+        Func<bool> condition,
+        ModifierScaling scaling,
+        int duration = 99999,
+        List<GameplayRef> gReferences = null,
+        TriggerRef on_triggerConditionRef = new(),
+        string name = null
+        )
     {
         ModifierName = name;
         StaticValue = value;
         ModifierScaling = scaling;
         To_TriggerGameplayRefs = gReferences;
         Duration = duration;
-        TargetStat = target;
+        Stat = target;
     }
     public ConditionalStatModifier
         (
+        Stat stat,
         Func<int> value,
         Func<bool> condition,
         ModifierScaling scaling,
         int duration = 99999,
         List<GameplayRef> gReferences = null,
         TriggerRef triggerConditionRef = new(),
-        Stat target = null,
         string name = null
         )
     {
@@ -274,6 +254,6 @@ public class ConditionalStatModifier : IStatModifier
         ModifierScaling = scaling;
         To_TriggerGameplayRefs = gReferences;
         Duration = duration;
-        TargetStat = target;
+        Stat = stat;
     }
 }
