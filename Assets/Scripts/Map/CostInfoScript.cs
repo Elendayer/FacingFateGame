@@ -7,20 +7,24 @@ public class CostInfoScript : MonoBehaviour
 }
 public class CostInfo
 {
-    public int cost => 1 +
-(isUnwalkable ?  9999: 0) +
-(isOccupied ? 9999 : 0) +
-(highAvoidance ? 10 :
-mediumAvoidance ? 5 :
-lowAvoidance ? 2 : 0);
+    public string materialId = "Grass";
+    [Min(1)] public int costUnobstructed = 1;  
+    public bool isUnwalkable = false;
 
-    public int costUnobstructed = 1;
 
-    [Header("Cost Calc")]
     public bool lowAvoidance = false;
     public bool mediumAvoidance = false;
     public bool highAvoidance = false;
+    public bool isOccupied = false;    
 
-    public bool isUnwalkable = false;
-    public bool isOccupied = false;
+
+    public int cost
+    {
+        get
+        {
+            int avoidance = highAvoidance ? 10 : (mediumAvoidance ? 5 : (lowAvoidance ? 2 : 0));
+            int hard = (isUnwalkable ? 9999 : 0) + (isOccupied ? 9999 : 0);
+            return costUnobstructed + avoidance + hard;
+        }
+    }
 }
