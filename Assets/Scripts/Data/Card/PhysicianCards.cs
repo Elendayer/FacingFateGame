@@ -20,7 +20,7 @@ public static class PhysicianCards
         // 140101 – Jade Needle Acupuncture – HoT on ally
         CardDatabase.RegisterCard(new CardData()
         {
-            cardID = 140201,
+            cardID = 140101,
             cardName = "Jade Needle Acupuncture",
             cardType = CardType.Technique,
             cardClass = CardClass.Physician,
@@ -98,7 +98,7 @@ public static class PhysicianCards
         // 140103 – Formation of the Hundred Remedies – Heal allies in ring
         CardDatabase.RegisterCard(new CardData()
         {
-            cardID = 140203,
+            cardID = 140103,
             cardName = "Formation of the Hundred Remedies",
             cardType = CardType.Technique,
             cardClass = CardClass.Physician,
@@ -296,7 +296,7 @@ public static class PhysicianCards
         // 140301 – Jade Needle Resonance – Buff allies in area (Damage up)
         CardDatabase.RegisterCard(new CardData()
         {
-            cardID = 140101,
+            cardID = 140301,
             cardName = "Jade Needle Resonance",
             cardType = CardType.Spell,
             cardClass = CardClass.Physician,
@@ -336,7 +336,7 @@ public static class PhysicianCards
         // 140302 – Breath of the Jade Lotus – Heals everyone in a line
         CardDatabase.RegisterCard(new CardData()
         {
-            cardID = 140102,
+            cardID = 140302,
             cardName = "Breath of the Jade Lotus",
             cardType = CardType.Spell,
             cardClass = CardClass.Physician,
