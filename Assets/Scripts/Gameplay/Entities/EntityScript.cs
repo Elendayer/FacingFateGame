@@ -10,6 +10,7 @@ public class EntityScript : MonoBehaviour
     public EntityAffiliation entityAffiliation = EntityAffiliation.Neutral;
 
     [Header("Deck Settings")]
+    [SerializeField]
     public List<int> deckCardIDs = new List<int>();  // Populate with card IDs
 
     [Header("Entity Stats")]
@@ -24,7 +25,6 @@ public class EntityScript : MonoBehaviour
         
         entityStats = new();
         entityStats.StartUp(this);
-        //entityStats.PostStartUp();
 
         AddListeners();
     }

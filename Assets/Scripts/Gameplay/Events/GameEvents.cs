@@ -60,7 +60,8 @@ public struct TriggerRef
         List<GameplayRef> references = null, 
         EntityScript userEntity = null,
         EntityScript affectedEntity = null,
-        CardData cardData = null)
+        CardData cardData = null
+        )
     {
         OnTriggerReference = references;
         UserEntity = userEntity;
@@ -97,6 +98,7 @@ public enum GameplayRef
     onDeath,
     onSummon,
     onLifesteal,
+    onCounter,
 
     //Game Flow
     onTurnStart,
@@ -110,6 +112,9 @@ public enum GameplayRef
     onModifierApplied,
     onModifierExpired,
     onHitLanded,
+
+    //Misc
+    onMove,
 
 
     //Card Types

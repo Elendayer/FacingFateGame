@@ -124,7 +124,7 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 30,
+            cost_u = 10,
             damage_u = 80,
             duration_u = 3,
             range_u = 2,
@@ -435,7 +435,8 @@ public static class SpearmanCards
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 2,
-            damage_u = 10,
+            damage_u = 100,
+            duration_u = 2,
 
             targetingData = new()
             {
@@ -446,7 +447,7 @@ public static class SpearmanCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"On next melee hit taken this turn, counter for {d.Damage}.";
+                d.cardDescription = $"On next hit taken this turn, counter for {d.Damage}.";
             },
 
             CardEffect = (User, Target, d) =>
@@ -454,7 +455,7 @@ public static class SpearmanCards
                 var mod = new EntityModifier(
                     modifierName: "SpearmanIronWallReversalCounter",
                     baseValue: d.Damage,
-                    toTriggerRefs: new() { },
+                    toTriggerRefs: new() { GameplayRef.onCounter },
                     duration: d.Duration,
                     onTriggerConditionRef: new TriggerRef
                     {
@@ -464,9 +465,10 @@ public static class SpearmanCards
                     },
                     onTriggerEventAction: (data) =>
                     {
-                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                        CombatUtility.ApplyDamage(null, data.TriggerReference.UserEntity, data.Value);
                     }
                 );
+                CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 

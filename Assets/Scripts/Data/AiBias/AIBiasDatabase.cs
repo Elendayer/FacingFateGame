@@ -51,5 +51,28 @@ public class AiBiasDatabase : MonoBehaviour
 
             RepositionCondition = RepositionCondition.surrounded
         });
-    } 
+        RegisterBias(new NpcAiBias()
+        {
+            id = "Balanced",
+
+            intentionBias = new Dictionary<Intention, int>(),
+            refBias = new Dictionary<GameplayRef, int>(),
+            identityBias = new Dictionary<CardIdentity, int>(),
+
+            RepositionCondition = RepositionCondition.lowHealth
+        });
+        RegisterBias(new NpcAiBias()
+        {
+            id = "Aggressive",
+            intentionBias = new Dictionary<Intention, int>(),
+            refBias = new Dictionary<GameplayRef, int>(),
+            identityBias = new Dictionary<CardIdentity, int>()
+            {
+                { CardIdentity.Ranged, 50}
+            },
+
+            RepositionCondition = RepositionCondition.preferRanged
+        });
+
+    }
 }

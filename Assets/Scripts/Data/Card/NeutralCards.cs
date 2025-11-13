@@ -218,7 +218,7 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-            cost_u = 20,
+            cost_u = 10,
             damage_u = 50,
 
             targetingData = new()
@@ -283,15 +283,6 @@ public static class NeutralCards
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
-
-                // immediate tick on play
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
-                GameEvents.TriggerRefEvent(new TriggerRef
-                {
-                    OnTriggerReference = new() { GameplayRef.onBleed },
-                    AffectedEntity = Target,
-                    UserEntity = User
-                });
             }
         });
 
@@ -340,15 +331,6 @@ public static class NeutralCards
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
-
-                // immediate tick on play
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
-                GameEvents.TriggerRefEvent(new TriggerRef
-                {
-                    OnTriggerReference = new() { GameplayRef.onPoison },
-                    AffectedEntity = Target,
-                    UserEntity = User
-                });
             }
         });
 
@@ -361,7 +343,7 @@ public static class NeutralCards
             cardClass = CardClass.Neutral,
             cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
 
-            cost_u = 60,
+            cost_u = 30,
             damage_u = 100,
             range_u = 5,
 
@@ -372,7 +354,7 @@ public static class NeutralCards
                 SelectionType = CardTargetSelection.Single,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Shoot an arrow dealing 3 damage.",
+            CardDescription = (User, d) => d.cardDescription = $"Shoot an arrow dealing {d.Damage} damage.",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(d, Target, d.Damage);

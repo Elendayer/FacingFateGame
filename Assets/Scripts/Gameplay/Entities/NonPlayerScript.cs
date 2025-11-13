@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class NonPlayerScript : EntityScript
 {
     [Header("AI")]
+    public string NpcID = "0001";
     public NpcAIController npcAIController;
 
     public NpcAiBias npcAIBias = new();
@@ -17,7 +19,14 @@ public class NonPlayerScript : EntityScript
         base.StartUp();
 
         npcAIController = new NpcAIController(this);
+        
+        Npc npc = NpcDatabase.GetNpcById(NpcID,this);
+        npcAIBias = npc.aiBias;
+        name = npc.name;
+        deckCardIDs = npc.cardIds;
+
         Debug.Log($"[NonPlayerScript] Setup complete for {name}");
+        DeckManager.Instance.BuildDeckFromIDs(this);
     }
     public void TakeTurn()
     {
@@ -37,6 +46,12 @@ public class NonPlayerScript : EntityScript
             if (action.Type == PlannedAction.ActionType.Move)
             {
                 Debug.Log($"[NPC] {name} moves to {action.TargetCell}");
+                GameEvents.TriggerRefEvent(new TriggerRef
+                {
+                    OnTriggerReference = new() { GameplayRef.onMove },
+                    UserEntity = this,
+                    AffectedEntity = this
+                });
                 var entityOnMap = GetComponent<EntityOnMap>();
                 bool moveComplete = false;
                 // Start the move and wait for completion

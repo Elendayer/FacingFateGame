@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utility;
-using static UnityEngine.GraphicsBuffer;
 
 public class NpcAIController
 {
@@ -221,8 +220,7 @@ public class NpcAIController
         return null;
     }
 
-    private void ApplyMoveActionToPlan(List<PlannedAction> plan, ScoredCard bestAction,
-                                       ref Vector3Int virtualPosition, EntityScript entity)
+    private void ApplyMoveActionToPlan(List<PlannedAction> plan, ScoredCard bestAction,ref Vector3Int virtualPosition, EntityScript entity)
     {
         if (bestAction?.MovementPath != null && bestAction.MovementPath.Count > 1)
         {
@@ -485,7 +483,6 @@ public class NpcAIController
         }
 
         int cardCost = card?.cardData?.Cost ?? 0;
-        Debug.Log(cardCost);
 
         // For each unique candidate tile, compute path and determine affected targets and keep metrics
         var entries = new List<(Vector3Int Tile, PathData PathData, int Frequency, float Distance)>();
@@ -497,14 +494,9 @@ public class NpcAIController
 
             // Pathfinding from currentCell to candidate tile
             PathData pathData = new();
-            if (card.cardData.Range == 1)
-            {
-                pathData = TilemapUtilityScript.FindPath(currentCell, tile, walkClose: true);
-            }
-            else
-            {
-                pathData = TilemapUtilityScript.FindPath(currentCell, tile);
-            }
+
+            pathData = TilemapUtilityScript.FindPath(currentCell, tile, walkClose: true);
+
             if (pathData == null)
             {
                 Debug.Log($"[NpcAI] No path to tile {tile}");
@@ -647,6 +639,7 @@ public class NpcAIController
         int cost = Mathf.Max(1, card.cardData.Cost + moveCost);
         int efficiency = throughput / cost;
 
+        Debug.Log($"[NpcAI] EvaluateCardScore: card={card.cardData.cardName}, efficiency={efficiency}");
         return efficiency;
     }
 

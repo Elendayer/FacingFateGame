@@ -89,7 +89,6 @@ public class EntityModifier : IEntityModifier
     {
         if (GameEvents.CheckIfRelevantTrigger(trigger, OnTriggerConditionRef))
         {
-
             onTriggerEventAction?.Invoke(new TriggerActionData(trigger,StatModifier,TargetStat,BaseValue));
 
             GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, OnTriggerConditionRef.UserEntity, OnTriggerConditionRef.AffectedEntity));

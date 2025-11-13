@@ -19,7 +19,7 @@ public class StartupManager : MonoBehaviour
     }
     private void HandleStartup()
     {
-
+        CardDatabase.RegisterAll();
         AiBiasDatabase.RegisterAll();
         NpcDatabase.RegisterAll();
 
