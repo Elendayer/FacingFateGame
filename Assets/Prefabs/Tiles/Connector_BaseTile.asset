@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 048150964b6f0ee4f94d1f7406508a75, type: 3}
+  m_Name: Connector_BaseTile
+  m_EditorClassIdentifier: Assembly-CSharp::BasemapHexTile
+  m_DefaultSprite: {fileID: 0}
+  m_DefaultGameObject: {fileID: 7296814453781152512, guid: ab2110a26abb29d458441207bf0f7f84, type: 3}
+  m_DefaultColliderType: 1
+  m_TilingRules: []
+  m_FlatTop: 0
+  materialId: Bridge
+  baseMoveCost: 2
+  unwalkable: 0
