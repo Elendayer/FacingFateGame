@@ -42,7 +42,7 @@ public class CardScript : MonoBehaviour
             cost.text = $"{cardData.Cost}";
             descriptionText.text = cardData.cardDescription;
 
-            switch (cardData.targetingData.SelectionType)
+            switch (cardData.targetingData.cardSelectionType)
             {
                 case CardTargetSelection.Single:
                     switch (cardData.targetingData.CardTargetAffiliation)

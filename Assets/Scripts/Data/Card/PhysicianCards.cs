@@ -35,7 +35,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -83,7 +83,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Turn target's Poison into Bleed.",
@@ -107,7 +107,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -135,7 +135,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Worsen target's Poison (TBD: add stacks / increase tick).",
@@ -158,7 +158,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Cleanse ally (remove negative effects).",
@@ -185,7 +185,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.None,
-                SelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -214,7 +214,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.None, 
-                SelectionType = CardTargetSelection.Single,                
+                cardSelectionType = CardTargetSelection.Single,                
             },
 
             CardDescription = (User, d) =>
@@ -243,7 +243,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -272,7 +272,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -307,7 +307,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetSelection.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -352,7 +352,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Cone,
+                cardSelectionType = CardTargetSelection.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -383,7 +383,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -413,7 +413,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -452,7 +452,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -490,7 +490,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -520,7 +520,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -564,7 +564,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -603,7 +603,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -642,7 +642,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -686,7 +686,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -725,7 +725,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -769,7 +769,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -808,7 +808,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -845,7 +845,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetSelection.Radius,
 
             },
 
@@ -877,7 +877,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetSelection.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -928,7 +928,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetSelection.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -958,7 +958,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetSelection.Radius,
             },
 
             CardDescription = (User, d) =>

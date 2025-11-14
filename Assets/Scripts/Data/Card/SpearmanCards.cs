@@ -1,6 +1,5 @@
 using UnityEngine;
 using Utility;
-using static UnityEngine.GraphicsBuffer;
 
 public static class SpearmanCards
 {
@@ -33,7 +32,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -67,7 +66,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.LineSelf,
+                cardSelectionType = CardTargetSelection.LineSelf,
             },
 
             CardDescription = (User, d) =>
@@ -99,7 +98,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.LineSelf,
+                cardSelectionType = CardTargetSelection.LineSelf,
             },
 
             CardDescription = (User, d) =>
@@ -133,7 +132,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -151,7 +150,7 @@ public static class SpearmanCards
                     target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
-                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        OnTriggerReference = new(),
                         AffectedEntity = Target,
                         UserEntity = User
                     },
@@ -162,6 +161,12 @@ public static class SpearmanCards
                 );
 
                 CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                bleed.OnManuelTrigger(new TriggerRef
+                {
+                    OnTriggerReference = new(),
+                    AffectedEntity = Target,
+                    UserEntity = User
+                });
             }
         });
 
@@ -183,7 +188,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -215,7 +220,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -247,7 +252,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -271,17 +276,17 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 100,
+            cost_u = 40,
             damage_u = 200,
-            area_u = 2,
 
-            range_u = 2,
+            range_u = 3,
+            area_u = 2,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -313,7 +318,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -354,14 +359,14 @@ public static class SpearmanCards
             cost_u = 10,
             damage_u = 100,
 
-            range_u = 3,
-            area_u = 3,
+            range_u = 2,
+            area_u = 2,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetSelection.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -395,7 +400,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -436,13 +441,14 @@ public static class SpearmanCards
 
             cost_u = 2,
             damage_u = 100,
-            duration_u = 2,
+            duration_u = 1,
+            charges_u = 1,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -457,6 +463,7 @@ public static class SpearmanCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onCounter },
                     duration: d.Duration,
+                    charges: d.Charges,
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onDamage },
@@ -489,7 +496,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -520,7 +527,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -565,7 +572,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -616,7 +623,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetSelection.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -679,7 +686,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>
@@ -726,7 +733,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) =>

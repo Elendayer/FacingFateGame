@@ -150,9 +150,9 @@ public class ConditionalStatModifier : IStatModifier
 
     public ModifierScaling ModifierScaling { get; private set; }
     public int Duration { get; set; }
-    public int Uses { get; set; } = 1;
-    public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
     public bool IsExpired => Duration <= 0;
+    public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
+
     public int GetRemainingDuration() => Duration;
     public Stat Stat { get; }
 

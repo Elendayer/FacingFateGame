@@ -589,7 +589,7 @@ public class NpcAIController
             var affectedTargets = TargetingUtility.GetEntitiesFromPosition(card, npcPosition, allEntities, npc);
 
             if (affectedTargets.Count == 0) continue;
-            if (card.cardData.targetingData.SelectionType == CardTargetSelection.Single)
+            if (card.cardData.targetingData.cardSelectionType == CardTargetSelection.Single)
                 affectedTargets = new List<EntityScript> { affectedTargets.First() };
 
             int score = EvaluateCardScore(card, affectedTargets, candidate.PathCost);

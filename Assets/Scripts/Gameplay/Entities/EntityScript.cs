@@ -134,12 +134,12 @@ public class EntityScript : MonoBehaviour
     public bool HasModifier(string name)
         => entityModifiers.Any(m => m.ModifierName == name && !m.IsExpired);
 
-    public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef)
+    public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef, bool consumeCharges = false)
     {
         var modifier = entityModifiers.FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
         if (modifier != null)
         {
-            modifier.OnManuelTrigger(triggerRef);
+            modifier.OnManuelTrigger(triggerRef, consumeCharges);
             return true;
         }
         return false;

@@ -60,6 +60,9 @@ public class CardData
     public Stat area_s = new();
     public int Area => Owner.entityStats.AreaModifier.ApplyFinalValue(area_s.ApplyFinalValue(area_u));
 
+    [Header("Charges")]
+    public int charges_u = 0;
+    public int Charges => charges_u;
 
     [Header("Card Target")]
     public TargetingData targetingData = new();
@@ -109,6 +112,8 @@ public class CardData
             repeats_u = repeats_u,
             range_u = range_u,
             area_u = area_u,
+
+            charges_u = charges_u,
 
             cost_s = new Stat(),
             power_s = new Stat(),
@@ -187,7 +192,7 @@ public class TargetingData
 {
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;
-    public CardTargetSelection SelectionType;
+    public CardTargetSelection cardSelectionType;
 }
 
 public class CardAiBias

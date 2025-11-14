@@ -9,6 +9,8 @@ public interface IEntityModifier
     StatModifier StatModifier { get; set; }
     int Duration { get; set; }
     bool IsExpired { get; }
+    int Charges { get; set; }
+
 
     // Triggering
     List<GameplayRef> ToTriggerGameplayRefs { get; }
@@ -17,7 +19,7 @@ public interface IEntityModifier
 
     void AddListener();
     void OnRefEventTriggered(TriggerRef reference);
-    void OnManuelTrigger(TriggerRef trigger);
+    void OnManuelTrigger(TriggerRef trigger, bool consumeCharges = false);
 }
 
 [System.Serializable]
@@ -47,6 +49,9 @@ public class EntityModifier : IEntityModifier
     public int Duration { get; set; }
     public bool IsExpired => Duration <= 0;
 
+    public int Charges { get; set; } = 0;
+    public bool IsSpend => Charges <= 0;
+
     // Associated StatModifier
     public StatModifier StatModifier { get; set; }
     public Stat TargetStat { get; private set; }
@@ -65,7 +70,8 @@ public class EntityModifier : IEntityModifier
     int baseValue = 0,
     List<GameplayRef> toTriggerRefs = null,
     TriggerRef onTriggerConditionRef = new TriggerRef(),
-    int duration = 0,
+    int duration = 99999,
+    int charges = 99999,
     Stat target = null,
     Action<TriggerActionData> onTriggerEventAction = null
     )
@@ -75,6 +81,7 @@ public class EntityModifier : IEntityModifier
         ToTriggerGameplayRefs = toTriggerRefs;
         OnTriggerConditionRef = onTriggerConditionRef;
         Duration = duration;
+        Charges = charges;
         TargetStat = target;
         this.onTriggerEventAction = onTriggerEventAction;
     }
@@ -89,30 +96,40 @@ public class EntityModifier : IEntityModifier
     {
         if (GameEvents.CheckIfRelevantTrigger(trigger, OnTriggerConditionRef))
         {
-            onTriggerEventAction?.Invoke(new TriggerActionData(trigger,StatModifier,TargetStat,BaseValue));
-
-            GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, OnTriggerConditionRef.UserEntity, OnTriggerConditionRef.AffectedEntity));
-
-            if (Duration < 9999)
+            onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, TargetStat, BaseValue));
+            GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntity));
+   
+            if (Charges < 99999)
+            {
+                Charges--;
+                Debug.Log($"FunctionModifier charges left: {Charges}");
+            }
+        }
+        if (trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+        {
+            if (Duration < 99999)
             {
                 Duration--;
                 Debug.Log($"FunctionModifier duration: {Duration}");
             }
         }
-        if (IsExpired)
+        if (IsExpired || IsSpend)
         {
             OnRemove();
         }
     }
-    public void OnManuelTrigger(TriggerRef trigger)
+    public void OnManuelTrigger(TriggerRef trigger, bool consumeCharges = false)
     {
         onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, TargetStat, BaseValue));
         GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntity));
-
-        if (Duration < 9999)
+        
+        if (consumeCharges)
         {
-            Duration--;
-            Debug.Log($"FunctionModifier duration: {Duration}");
+            if (Charges < 99999)
+            {
+                Duration--;
+                Debug.Log($"FunctionModifier duration: {Duration}");
+            }
         }
         if (IsExpired)
         {

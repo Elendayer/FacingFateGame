@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -100,6 +101,75 @@ namespace Utility
             return pathData;
         }
 
+        public static PathData FindLine(Vector3Int start, Vector3Int goal)
+        {
+            var openSet = new PriorityQueue<Vector3Int>();
+            openSet.Enqueue(start, 0);
+
+            var cameFrom = new Dictionary<Vector3Int, Vector3Int>();
+            var gScore = new Dictionary<Vector3Int, int> { [start] = 0 };
+            PathData pathData = new PathData();
+
+            while (openSet.Count > 0)
+            {
+                var current = openSet.Dequeue();
+
+                if (current == goal)
+                {
+                    var path = ReconstructLine(cameFrom, start, goal);
+
+                    pathData = new()
+                    {
+                        Start = start,
+                        End = goal,
+                        Path = path,
+                        PathCost = 0,
+                    };
+                    return pathData;
+                }
+
+                var currentCube = OffsetToCube_PointTop(current, UseOddROffset);
+                for (int dir = 0; dir < CubeDirs.Length; dir++)
+                {
+                    var neighborCube = currentCube + CubeDirs[dir];
+                    var neighbor = CubeToOffset_PointTop(neighborCube, UseOddROffset);
+
+                    // If ignoreCost, all tiles have cost 1
+                    int tentativeGScore = gScore[current] + 1;
+
+                    if (!gScore.ContainsKey(neighbor) || tentativeGScore < gScore[neighbor])
+                    {
+                        cameFrom[neighbor] = current;
+                        gScore[neighbor] = tentativeGScore;
+                        int fScore = tentativeGScore + Heuristic(neighbor, goal);
+                        openSet.Enqueue(neighbor, fScore);
+                    }
+                }
+            }
+            return new(); // No Line found
+        }
+
+        public static PathData FindLineFromToWithLength(Vector3Int start, Vector3Int goal, int maxLength)
+        {
+            var pathData = FindLine(start, goal);
+
+            if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
+            {
+                Debug.LogWarning($"[TilemapUtilityScript] No valid Line found from {start} to {goal}");
+                return new PathData(); // Return empty path data if no path
+            }
+
+            Debug.Log($"[TilemapUtilityScript] Found Line from {start} to {goal} with length {pathData.Path.Count} (max allowed: {maxLength})");
+
+            // Truncate the path if it's longer than maxLength
+            if (pathData.Path.Count > maxLength)
+            {
+                pathData.Path = pathData.Path.Take(maxLength).ToList();
+            }
+
+            return pathData;
+        }
+
         private static int Heuristic(Vector3Int a, Vector3Int b)
         {
             // Use cube distance; convert from offset -> cube based on configured Odd/Even-R
@@ -137,7 +207,24 @@ namespace Utility
             }
             return path;
         }
+        private static List<Vector3Int> ReconstructLine(Dictionary<Vector3Int, Vector3Int> cameFrom,Vector3Int start, Vector3Int goal)
+        {
+            var path = new List<Vector3Int>();
 
+            // Start from the goal and walk backwards
+            Vector3Int current = goal;
+            
+            path.Add(current);
+            while (cameFrom.ContainsKey(current))
+            {
+                var prev = cameFrom[current];
+                current = prev;
+
+                path.Insert(0, current);
+            }
+            return path;
+        }
+        
         #region Tile Queries
         public static List<Vector3Int> GetTilesInRadius(Vector3Int center, int radius)
         {
@@ -156,24 +243,33 @@ namespace Utility
             }
             return results;
         }
-        public static List<Vector3Int> GetTilesInRing(Vector3Int center, int distance)
+        public static List<Vector3Int> GetTilesInRingFromSelf(Vector3Int center, int distance, int size)
         {
-            var results = new List<Vector3Int>();
-            if (distance <= 0) return results;
+            var results = new HashSet<Vector3Int>(); // avoid duplicates
+            if (distance <= 0 || size <= 0)
+                return results.ToList();
 
             var cCenter = OffsetToCube_PointTop(center, UseOddROffset);
-            // start at one cube direction * distance
-            var cube = cCenter + CubeDirs[4] * distance; // arbitrary starting edge
-            for (int side = 0; side < 6; side++)
+
+            // For each ring layer from distance → distance + size - 1
+            for (int d = distance; d < distance + size; d++)
             {
-                for (int step = 0; step < distance; step++)
+                // Starting cube coordinate: direction 4, moved d steps
+                var cube = cCenter + CubeDirs[4] * d;
+
+                // Walk the 6 sides
+                for (int side = 0; side < 6; side++)
                 {
-                    var off = CubeToOffset_PointTop(cube, UseOddROffset);
-                    results.Add(off);
-                    cube += CubeDirs[side];
+                    for (int step = 0; step < d; step++)
+                    {
+                        var off = CubeToOffset_PointTop(cube, UseOddROffset);
+                        results.Add(off);
+                        cube += CubeDirs[side];
+                    }
                 }
             }
-            return results;
+
+            return results.ToList();
         }
         public static List<Vector3Int> GetTilesInRing(Vector3Int center, List<int> distances)
         {
@@ -198,10 +294,9 @@ namespace Utility
             }
             return results;
         }
-        public static List<Vector3Int> GetTilesInLineSelf(Vector3Int start, Vector3Int target, int maxLength)
+        public static List<Vector3Int> GetTilesInLineFromSelf(Vector3Int start, Vector3Int target, int maxLength)
         {
             var tiles = new List<Vector3Int>();
-            tiles.Add(start);
 
             // Convert start/end to cube coordinates
             Vector3Int startCube = OffsetToCube_PointTop(start, UseOddROffset);
@@ -224,8 +319,10 @@ namespace Utility
             }
 
             // Extend line along that direction
-            Vector3Int currentCube = startCube;
-            for (int i = 0; i < maxLength; i++)
+            Vector3Int currentCube = endCube;
+
+            tiles.Add(target);
+            for (int i = 0; i < maxLength-1; i++)
             {
                 currentCube += bestDir;
                 Vector3Int offset = CubeToOffset_PointTop(currentCube, UseOddROffset);
@@ -234,15 +331,17 @@ namespace Utility
 
             return tiles;
         }
-
-        public static List<Vector3Int> GetTilesInLineFree(Vector3Int start, Vector3Int end, int maxRange, int maxLength)
+        public static List<Vector3Int> GetTilesInLineFree(List<Vector3Int> positions, int maxRange, int maxLength)
         {
+            if (positions == null || positions.Count < 2)
+            { 
+                return new List<Vector3Int>();
+            }
 
-            // Wip
+            PathData pathData = FindLineFromToWithLength(positions[0], positions[1], maxLength);
 
-            return new List<Vector3Int>();
+            return pathData.Path;
         }
-
         public static List<Vector3Int> GetTilesInCone(Vector3Int start, Vector3Int direction, int length, int area)
         {
             var results = new HashSet<Vector3Int>();
@@ -302,8 +401,6 @@ namespace Utility
             results.Add(start);
             return results.ToList();
         }
-
-
         public static List<EntityScript> GetEntitiesOnTiles(List<Vector3Int> tiles, List<EntityScript> entities)
         {
             return entities.Where(entitity => tiles.Contains(entitity.GetComponent<EntityOnMap>().currentCell)).ToList();
@@ -345,7 +442,7 @@ namespace Utility
                     if (costInfoScript != null &&
                         costInfoScript.costInfoDict.TryGetValue(neighbor, out CostInfo costInfo))
                     {
-                        if (costInfo.isOccupied) continue; // can�t move here
+                        if (costInfo.isOccupied) continue; // can’t move here
                         tileCost = Mathf.Max(1, costInfo.cost);
                     }
 
@@ -370,13 +467,6 @@ namespace Utility
                     return TilemapUtilityScript.GetTilesInRadius(targetPos, range);
             }
         }
-
-        #region ForcedMove Helpers
-
-
-
-
-        #endregion
 
         #region Offset <-> Cube (Point-Top)
         // Odd-R and Even-R conversions per redblobgames
@@ -455,8 +545,7 @@ namespace Utility
                 }
             }
         }
-
-        public static void SetTilesHighlight(List<Vector3Int> path, HighlightType ht)
+        public static void SetTilesHighlight(List<Vector3Int> tiles, HighlightType ht)
         {
             Color color = Color.clear;
 
@@ -471,24 +560,32 @@ namespace Utility
                 case HighlightType.Selected:
                     color = Color.yellow;
                     break;
+                case HighlightType.Range:
+                    color = Color.green;
+                    break;
+                    case HighlightType.Line:
+                    color = Color.blueViolet;
+                    break;
             }
 
-            foreach (var pos in path)
+            if (tiles != null)
             {
-                // Get the prefab instance associated with this tile position
-                GameObject tileObj = BaseTilemap.GetInstantiatedObject(pos);
-                if (tileObj == null) continue;
-
-                // Try Image (UI-based prefab)
-                UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
-                if (img != null)
+                foreach (var pos in tiles)
                 {
-                    img.color = color;
-                    continue;
+                    // Get the prefab instance associated with this tile position
+                    GameObject tileObj = BaseTilemap.GetInstantiatedObject(pos);
+                    if (tileObj == null) continue;
+
+                    // Try Image (UI-based prefab)
+                    UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
+                    if (img != null)
+                    {
+                        img.color = color;
+                        continue;
+                    }
                 }
             }
         }
-
         internal static List<Vector3Int> GetAllValidTiles()
         {
             var tilemap = BaseTilemap;
@@ -509,7 +606,9 @@ namespace Utility
         {
             Path,
             Target,
-            Selected
+            Selected,
+            Range,
+            Line
         }
         #endregion
     }

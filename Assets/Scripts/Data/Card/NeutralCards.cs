@@ -31,7 +31,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
@@ -57,7 +57,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage}, reduces Movement",
@@ -84,7 +84,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
@@ -111,7 +111,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Hit the target twice.",
@@ -139,7 +139,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Push enemy 1 space and deals {d.Damage}.",
@@ -169,7 +169,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Charge and move both 1 space.",
@@ -198,7 +198,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Disengage after your attack (step back).",
@@ -225,7 +225,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
@@ -253,7 +253,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Bite multiple times and apply Bleed over time.",
@@ -303,7 +303,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Deal 5 damage and apply Poison for 6 turns (immediate tick).",
@@ -351,7 +351,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Shoot an arrow dealing {d.Damage} damage.",
@@ -379,7 +379,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Select,
+                cardSelectionType = CardTargetSelection.Select,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Shoot multiple arrows at selected enemies (2 shots).",
@@ -409,7 +409,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Your next attack is empowered by {d.power_u}.",
@@ -447,7 +447,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.Ring,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Demoralize enemies in an area and reduces attack damage by {d.Power}.",
@@ -485,7 +485,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.Ring,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Bolster allies damage in range by {d.Power} ).",
@@ -521,7 +521,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Increase your defense until end of turn by {d.Power}.",
@@ -562,7 +562,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetSelection.Radius,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Apply Poison 2 for 6 turns",
@@ -608,7 +608,7 @@ public static class NeutralCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius, // keep as defined in your file
+                cardSelectionType = CardTargetSelection.Radius, // keep as defined in your file
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Apply Burn {d.Damage} for {d.Duration} turns.",
