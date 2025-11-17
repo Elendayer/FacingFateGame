@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sand_BaseTile
   m_EditorClassIdentifier: Assembly-CSharp::BasemapHexTile
   m_DefaultSprite: {fileID: 0}
-  m_DefaultGameObject: {fileID: 0}
+  m_DefaultGameObject: {fileID: 4870199876836130939, guid: c7341c24506777c4e8b660e09be57845, type: 3}
   m_DefaultColliderType: 1
   m_TilingRules: []
   m_FlatTop: 0
