@@ -17,6 +17,6 @@ MonoBehaviour:
   m_DefaultColliderType: 1
   m_TilingRules: []
   m_FlatTop: 0
-  materialId: Dirt
+  materialId: Grass
   baseMoveCost: 1
   unwalkable: 0

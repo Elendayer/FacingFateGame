@@ -532,7 +532,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 066c0a60af08e124696a712389daadf8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2239,7 +2239,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: 100001
+      value: 100101
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
@@ -3128,11 +3128,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapTile: {fileID: 11400000, guid: f09c8d8b1a8b6f04db1eca3967806574, type: 2}
   OverlayTile: {fileID: 11400000, guid: 397298b5b94ad5e4d9710c4d2b260cfd, type: 2}
-  costInfoScript: {fileID: 1854110843}
   BaseMap: {fileID: 1854110839}
   OverlayMap: {fileID: 469480539}
+  hexLayout: 0
+  costInfoScript: {fileID: 1854110843}
   SizeX: 30
   SizeY: 20
+  terrainMode: 1
+  voronoiSites: 16
+  siteJitter: 0.251
+  noiseScale: 0.08
+  seed: 1338
+  terrainBands:
+  - tile: {fileID: 11400000, guid: 1405c1d7f467ff344bb756657e311232, type: 2}
+    threshold: 0.481
+  - tile: {fileID: 11400000, guid: f09c8d8b1a8b6f04db1eca3967806574, type: 2}
+    threshold: 1
+  ensureConnectivity: 1
+  connectorTile: {fileID: 11400000, guid: 68accdee94f4d574cad779e64e5d6436, type: 2}
+  bridgeableMaterials:
+  - Water
+  waterCrossPenalty: 20
+  enableShoreline: 1
+  shorelineMode: 1
+  shorelineTile: {fileID: 11400000, guid: da8f026b75d49aa40b4d24794bc1b99b, type: 2}
+  shorelineWidth: 1
+  shorelineFromMaterialIds:
+  - Water
+  shorelineOnLandMaterialIds:
+  - Grass
 --- !u!224 &1457707190
 RectTransform:
   m_ObjectHideFlags: 0

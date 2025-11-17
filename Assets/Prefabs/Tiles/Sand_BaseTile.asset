@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 048150964b6f0ee4f94d1f7406508a75, type: 3}
-  m_Name: Mud_BaseTile
+  m_Name: Sand_BaseTile
   m_EditorClassIdentifier: Assembly-CSharp::BasemapHexTile
   m_DefaultSprite: {fileID: 0}
-  m_DefaultGameObject: {fileID: 4870199876836130939, guid: b7ee888a414af724a92b4332c7351e99, type: 3}
+  m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules: []
   m_FlatTop: 0
-  materialId: Mud
-  baseMoveCost: 2
+  materialId: Sand
+  baseMoveCost: 3
   unwalkable: 0
