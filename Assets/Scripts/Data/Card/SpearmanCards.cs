@@ -155,7 +155,6 @@ public static class SpearmanCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new(),
@@ -351,7 +350,7 @@ public static class SpearmanCards
                     },
                     name: $"DamageIncrease#{d.cardID}");                   
 
-                CombatUtility.ApplyBuff(d, Target, stat, mod,
+                CombatUtility.ApplyBuff(d, Target, mod,
                     ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
@@ -435,7 +434,7 @@ public static class SpearmanCards
                     name: $"MeleeRangeIncrease"
                 );
 
-                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -560,7 +559,7 @@ public static class SpearmanCards
                     },
                     name: $"ArmourIncrease#{d.cardID}");
 
-                    CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 // Apply Taunt
             }
         });
@@ -642,9 +641,8 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.Armour;
                 var mod = new StatModifier(
-                    stat: stat,
+                    stat: Target.entityStats.Armour,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
@@ -655,22 +653,25 @@ public static class SpearmanCards
                         UserEntity = User
                     },
                     name: $"ArmourIncrease#{d.cardID}");
-                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
 
-                var stat2 = Target.entityStats.CurrentHealth;
-                var mod2 = new StatModifier(
-                    stat: stat2,
-                    value: d.Damage,
-                    scaling: ModifierScaling.Flat,
-                    duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef
-                    {
-                        OnTriggerReference = new() { GameplayRef.onTurnStart, GameplayRef.onDamage },
-                        AffectedEntity = Target,
-                        UserEntity = User
-                    },
-                    name: $"Thorns#{d.cardID}");
-                CombatUtility.ApplyBuff(d, Target, stat2, mod2, ModifierMergeStrategy.RefreshDurationAndMerge);
+                var thornsBuff = new EntityModifier(
+                                   modifierName: "SpearmanSkyRendingReversalCounter",
+                                   baseValue: d.Damage,
+                                   toTriggerRefs: new() { },
+                                   duration: d.Duration,
+                                   onTriggerConditionRef: new TriggerRef
+                                   {
+                                       OnTriggerReference = new() { GameplayRef.onDamage },
+                                       AffectedEntity = Target,
+                                       UserEntity = User
+                                   },
+                                   onTriggerEventAction: (data) =>
+                                   {
+                                       CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                                   }
+                               );
+                CombatUtility.ApplyEntityModifier(d, Target, thornsBuff, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -719,7 +720,7 @@ public static class SpearmanCards
                     },
                     name: $"ArmourReducution#{d.cardID}");
 
-                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -766,7 +767,7 @@ public static class SpearmanCards
                     },
                     name: $"AttackIncrease#{d.cardID}");
 
-                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 
                 // To-Do Increase Aggro
             }

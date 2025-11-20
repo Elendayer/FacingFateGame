@@ -270,7 +270,6 @@ public static class NeutralCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: dur,
-                    target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -317,7 +316,6 @@ public static class NeutralCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -424,7 +422,7 @@ public static class NeutralCards
                     on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
                     name: $"SoaringDragonElixir_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -435,7 +433,7 @@ public static class NeutralCards
             cardName = "Growl",
             cardType = CardType.Ability,
             cardClass = CardClass.Neutral,
-            cardIdentities = new() { CardIdentity.None },
+            cardIdentities = new() { CardIdentity.None },   
 
             cost_u = 50,
             power_u = 50, 
@@ -500,7 +498,7 @@ public static class NeutralCards
                     on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
                     name: $"HowlIncrease{d.Power}"
                 );
-                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -536,7 +534,7 @@ public static class NeutralCards
                     on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
                     name: $"ArmourIncrease{d.Power}"
                 );
-                CombatUtility.ApplyBuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -573,7 +571,6 @@ public static class NeutralCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -620,7 +617,6 @@ public static class NeutralCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart, GameplayRef.onModifierApplied },

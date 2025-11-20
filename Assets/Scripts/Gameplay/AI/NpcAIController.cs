@@ -26,12 +26,12 @@ public class NpcAIController
         hand = GetHandCards();
         Vector3Int virtualPosition = mover.currentCell;
 
-        while (npcScript.entityStats.CurrentStamina.Value > 0)
+        while (npcScript.entityStats.CurrentStamina > 0)
         {
             var actionCandidates = new List<ScoredCard>();
 
             // Evaluate hand cards
-            actionCandidates.AddRange(EvaluateHandActions(hand, npcScript.entityStats.CurrentStamina.Value, virtualPosition));
+            actionCandidates.AddRange(EvaluateHandActions(hand, npcScript.entityStats.CurrentStamina, virtualPosition));
 
             // Evaluate flee or reposition
             var fleeCandidate = TryGetFleeCandidate(virtualPosition, allEntities);
@@ -46,11 +46,11 @@ public class NpcAIController
             }
 
             // Select best action within stamina
-            var bestAction = SelectBestActionCandidate(actionCandidates, npcScript.entityStats.CurrentStamina.Value);
+            var bestAction = SelectBestActionCandidate(actionCandidates, npcScript.entityStats.CurrentStamina);
             if (bestAction == null || bestAction.Score <= 0) break;
 
             int totalCost = (bestAction.MovementCost) + (bestAction.Card?.cardData.Cost ?? 0);
-            if (totalCost > npcScript.entityStats.CurrentStamina.Value) break;
+            if (totalCost > npcScript.entityStats.CurrentStamina) break;
 
             ApplyActionToPlan(plan, bestAction, ref virtualPosition, npcScript);
         }
@@ -232,7 +232,7 @@ public class NpcAIController
                 }
                 break;
             case RepositionCondition.lowHealth:
-                if (npcScript.entityStats.CurrentHealth.Value < npcScript.entityStats.MaxHealth.Value * 0.3f)
+                if (npcScript.entityStats.CurrentHealth < npcScript.entityStats.MaxHealth.Value * 0.3f)
                 {
                     moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npcScript);
                     if (moveOption_Flee != null)
@@ -284,7 +284,7 @@ public class NpcAIController
             return null;
         }
 
-        if (pathData.Path.Count > 1 && pathData.Path.Count <= npcScript.entityStats.CurrentStamina.Value)
+        if (pathData.Path.Count > 1 && pathData.Path.Count <= npcScript.entityStats.CurrentStamina)
         {
             return new ScoredCard
             {
@@ -317,7 +317,7 @@ public class NpcAIController
         }
 
         // Cap flee distance by number of hostiles (but not above stamina)
-        int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina.Value, hostileCount);
+        int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina, hostileCount);
 
         // Delegate the search and scoring
         ScoredCard bestTarget = EvaluateFleeCandidates(virtualPosition, allEntities, entity, maxFleeDistance);
@@ -353,7 +353,7 @@ public class NpcAIController
                     continue;
 
                 int moveCost = pathData.PathCost;
-                if (moveCost == 0 || moveCost > entity.entityStats.CurrentStamina.Value)
+                if (moveCost == 0 || moveCost > entity.entityStats.CurrentStamina)
                     continue;
 
                 // Determine minimum distance to any hostile

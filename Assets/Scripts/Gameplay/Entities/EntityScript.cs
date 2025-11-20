@@ -147,7 +147,7 @@ public class EntityScript : MonoBehaviour
 
         switch (condititon)
         {
-            case GameplayCondition.isDamaged: c = entityStats.CurrentHealth.Value < entityStats.MaxHealth.Value; break;
+            case GameplayCondition.isDamaged: c = entityStats.CurrentHealth < entityStats.MaxHealth.Value; break;
         }
         return c;
     }

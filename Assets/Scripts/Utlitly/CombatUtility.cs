@@ -35,14 +35,13 @@ namespace Utility
             }
 
             // 3) Block
-            int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block.Value);
+            int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block);
             if (block > 0 && damage > 0)
             {
                 refs.Add(GameplayRef.onBlocking);
 
                 int blockAbsorb = Mathf.Min(damage, block);
-                target.entityStats.Block.AddModifier(new StatModifier(stat: target.entityStats.Block, -blockAbsorb, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
-                damage -= blockAbsorb;
+                target.entityStats.Block -= blockAbsorb;
             }
 
             // 4) Health
@@ -50,9 +49,7 @@ namespace Utility
             {
                 refs.Add(GameplayRef.onDamage);
 
-                target.entityStats.CurrentHealth.AddModifier(
-                    new StatModifier(stat: target.entityStats.CurrentHealth, -damage, ModifierScaling.Flat, name: "BaseValue"),
-                    ModifierMergeStrategy.Merge);
+                target.entityStats.CurrentHealth -= damage;
             }
 
             if (cardData != null)
@@ -77,31 +74,29 @@ namespace Utility
 
             refs.Add(GameplayRef.onHeal);
 
-            int missing = target.entityStats.MaxHealth.Value - target.entityStats.CurrentHealth.Value;
+            int missing = target.entityStats.MaxHealth.Value - target.entityStats.CurrentHealth;
             int effHeal = Mathf.Clamp(healing, 0, Mathf.Max(0, missing));
 
             if (effHeal > 0)
             {
-                target.entityStats.CurrentHealth.AddModifier(
-                    new StatModifier( target.entityStats.CurrentHealth,+effHeal, ModifierScaling.Flat, name: "BaseValue"),
-                    ModifierMergeStrategy.Merge);
+                target.entityStats.CurrentHealth += effHeal;
             }
             HandleTrigger( refs, target, cardData);
         }
 
-        public static void ApplyBuff(CardData cardData, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyBuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
             List<GameplayRef> refs = new();
 
             refs.Add(GameplayRef.onBuffed);
 
-            targetStat.AddModifier(mod, mergeStrategy);
+            mod.Stat.AddModifier(mod, mergeStrategy);
 
             var dbg = target.GetComponent<StatusDebugView>();
             if (dbg != null)
             {
                 var label = string.IsNullOrEmpty(mod.ModifierName) ? "BUFF" : mod.ModifierName;
-                var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
+                var eff = mod.Stat.GetModifierByName(mod.ModifierName) ?? mod;
                 dbg.SyncDot(label, eff.BaseValue, eff.Duration);
             }
             HandleTrigger( refs, target, cardData);

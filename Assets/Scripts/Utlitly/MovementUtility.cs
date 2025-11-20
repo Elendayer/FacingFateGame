@@ -92,7 +92,7 @@ namespace Utility
                 return new List<Vector3Int> { virtualPosition };
             }
 
-            int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina.Value, hostileCount);
+            int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina, hostileCount);
 
             List<Vector3Int> bestPath = null;
             float bestScore = float.MinValue;
@@ -113,7 +113,7 @@ namespace Utility
                         continue;
 
                     int moveCost = pathData.PathCost;
-                    if (moveCost == 0 || moveCost > entity.entityStats.CurrentStamina.Value)
+                    if (moveCost == 0 || moveCost > entity.entityStats.CurrentStamina)
                         continue;
 
                     // Minimum distance to any hostile

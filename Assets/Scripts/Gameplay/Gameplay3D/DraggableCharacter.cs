@@ -38,7 +38,7 @@ public class DraggableCharacter : Draggable3D
         }
 
         // Move the character
-        if (characterEntity.entityStats.CurrentStamina.Value >= pathData.PathCost)
+        if (characterEntity.entityStats.CurrentStamina >= pathData.PathCost)
 {        
             //CombatUtility.ApplyCost(characterEntity, characterOnMap.GetComponent<PlayerScript>().entityStats.CurrentStamina, pathData.PathCost);
             characterOnMap.MoveTo(dropCell);

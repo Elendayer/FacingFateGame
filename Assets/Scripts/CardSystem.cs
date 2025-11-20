@@ -18,7 +18,7 @@ public static class CardSystem
 
         var data = cardUI.cardData;
         int cost = data.Cost;
-        if (user.entityStats.CurrentStamina.Value < cost)
+        if (user.entityStats.CurrentStamina < cost)
         {
             reason = "Not enough Stamina";
             return false;

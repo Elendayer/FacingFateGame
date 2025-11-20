@@ -142,7 +142,6 @@ public static class AssassinCards
                         baseValue: tick,
                         toTriggerRefs: new() { tickRef },
                         duration: dur,
-                        target: Target.entityStats.CurrentHealth,
                         onTriggerConditionRef: new TriggerRef
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -381,7 +380,6 @@ public static class AssassinCards
                     baseValue: d.Damage, // oder etwas kleiner als d.Damage, falls gewünscht
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
                         AffectedEntity = Target,
@@ -431,7 +429,6 @@ public static class AssassinCards
                     baseValue: 1,
                     toTriggerRefs: new() { GameplayRef.onStunned },
                     duration: Mathf.Max(1, d.Duration),
-                    target: Target.entityStats.CurrentHealth, // Träger ist die Entity; Stat selbst egal
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -485,7 +482,6 @@ public static class AssassinCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },

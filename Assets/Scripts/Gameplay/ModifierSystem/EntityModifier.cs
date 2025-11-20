@@ -54,7 +54,6 @@ public class EntityModifier : IEntityModifier
 
     // Associated StatModifier
     public StatModifier StatModifier { get; set; }
-    public Stat TargetStat { get; private set; }
 
     // Triggering
     public List<GameplayRef> ToTriggerGameplayRefs { get; private set; }
@@ -72,7 +71,7 @@ public class EntityModifier : IEntityModifier
     TriggerRef onTriggerConditionRef = new TriggerRef(),
     int duration = 99999,
     int charges = 99999,
-    Stat target = null,
+    Stat targetStat = null,
     Action<TriggerActionData> onTriggerEventAction = null
     )
     {
@@ -82,7 +81,6 @@ public class EntityModifier : IEntityModifier
         OnTriggerConditionRef = onTriggerConditionRef;
         Duration = duration;
         Charges = charges;
-        TargetStat = target;
         this.onTriggerEventAction = onTriggerEventAction;
     }
 
@@ -96,7 +94,7 @@ public class EntityModifier : IEntityModifier
     {
         if (GameEvents.CheckIfRelevantTrigger(trigger, OnTriggerConditionRef))
         {
-            onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, TargetStat, BaseValue));
+            onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue));
             GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntity));
 
             if (Charges < 99999)
@@ -120,7 +118,7 @@ public class EntityModifier : IEntityModifier
     }
     public void OnManuelTrigger(TriggerRef trigger, bool consumeCharges = false)
     {
-        onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, TargetStat, BaseValue));
+        onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue));
         GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntity));
         
         if (consumeCharges)
@@ -150,15 +148,13 @@ public struct TriggerActionData
 {
     public TriggerRef TriggerReference;
     public StatModifier StatModifier;
-    public Stat TargetStat;
 
     public int Value;
 
-    public TriggerActionData(TriggerRef triggerReference, StatModifier statModifier, Stat targetStat, int value)
+    public TriggerActionData(TriggerRef triggerReference, StatModifier statModifier, int value)
     {
         TriggerReference = triggerReference;
         StatModifier = statModifier;
-        TargetStat = targetStat;
         Value = value;
     }
 }

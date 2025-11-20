@@ -87,6 +87,13 @@ public class EntityScriptEditor : Editor
         EditorGUILayout.LabelField(stat.Value.ToString(), EditorStyles.boldLabel);
         EditorGUILayout.EndHorizontal();
     }
+    private void DrawStat(string label, int stat)
+    {
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField(label, GUILayout.Width(160));
+        EditorGUILayout.LabelField(stat.ToString(), EditorStyles.boldLabel);
+        EditorGUILayout.EndHorizontal();
+    }
 
     private void DrawEntityModifiers(EntityScript entity)
     {

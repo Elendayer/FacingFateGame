@@ -8,10 +8,10 @@ public class HealthbarSlider : MonoBehaviour
     public EntityScript eM;
 
     float maxHealth => eM.entityStats.MaxHealth.Value;
-    float currentHealth => eM.entityStats.CurrentHealth.Value;
+    float currentHealth => eM.entityStats.CurrentHealth;
 
     float maxStamina => eM.entityStats.MaxStamina.Value;
-    float currentStamina => eM.entityStats.CurrentStamina.Value;
+    float currentStamina => eM.entityStats.CurrentStamina;
 
     public MeshRenderer healthRenderer;
     public MeshRenderer staminaRenderer;   

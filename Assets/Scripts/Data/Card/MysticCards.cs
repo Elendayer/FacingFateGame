@@ -443,7 +443,6 @@ public static class MysticCards
                     baseValue: d.Power,
                     toTriggerRefs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
                     onTriggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target },
                     onTriggerEventAction: (data) =>
                     {

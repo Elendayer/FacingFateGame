@@ -8,12 +8,12 @@ public class EntityStats
     [Header("Base Stats")]
     [SerializeField]
     public Stat MaxHealth = new();
-    public Stat CurrentHealth = new();
+    public int CurrentHealth;
     public Stat MaxStamina = new();
-    public Stat CurrentStamina = new();
+    public int CurrentStamina;
 
     [Header("Defense")]
-    public Stat Block = new();
+    public int Block = new();
     public Stat Armour = new();
 
     [Header("Attributes")]
@@ -56,16 +56,15 @@ public class EntityStats
         MaxHealth.AddModifier(new StatModifier(stat: MaxHealth, value: () => Tenacity.Value * 50, ModifierScaling.Flat, name: "BaseValue"));
         MaxStamina.AddModifier(new StatModifier(stat: MaxStamina, value: () => Endurance.Value * 5, ModifierScaling.Flat, name: "BaseValue"));
 
-        CurrentHealth.AddModifier(new StatModifier(stat: CurrentHealth, MaxHealth.Value, ModifierScaling.Flat, name: "BaseValue"));
-        CurrentStamina.AddModifier(new StatModifier(stat: CurrentStamina, MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"));
-
+        CurrentHealth = MaxHealth.Value;
+        CurrentStamina = MaxStamina.Value;
         GameEvents.OnGameplayReference += OnTurnStart;
     }
     private void OnTurnStart(TriggerRef reference)
     {
         if (GameEvents.CheckIfRelevantTrigger(reference, new TriggerRef(new() { GameplayRef.onTurnStart }, Owner, Owner)))
         {
-            CurrentStamina.AddModifier(new StatModifier(stat: CurrentStamina, MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Override);
+            CurrentStamina = MaxStamina.Value;
         }
     }
 }
