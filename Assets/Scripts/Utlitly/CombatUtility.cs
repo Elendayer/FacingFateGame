@@ -150,10 +150,9 @@ namespace Utility
             NonPlayerScript spawnedEntity = SpawnObj.GetComponent<NonPlayerScript>();
             spawnedEntity.StartUp();
 
-            Npc npc = NpcDatabase.GetNpcById(npcID,spawnedEntity);
+            NpcData npc = NpcDatabase.GetNpcById(npcID,spawnedEntity);
             spawnedEntity.name = npc.name;
             spawnedEntity.entityAffiliation = affiliation;
-            spawnedEntity.npcAIBias = npc.aiBias;
 
             HandleTrigger( refs, spawnedEntity, cardData);
         }

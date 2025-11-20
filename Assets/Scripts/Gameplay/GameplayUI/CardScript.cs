@@ -126,6 +126,25 @@ public class CardScript : MonoBehaviour
                         }
                     }
                     break;
+
+                case CardTargetSelection.Cone:
+                    {
+                        switch (cardData.targetingData.CardTargetAffiliation)
+                        {
+                            case CardTargetAffiliation.Ally:
+                                range.text = $"Cone from Self, Ally Targets, {cardData.Range} by {cardData.Area}";
+                                break;
+                                case CardTargetAffiliation.Enemy:
+                                range.text = $"Cone from Self, Enemy Targets, {cardData.Range} by {cardData.Area}";
+                                break;
+                                default:
+                                range.text = $"Cone from Self, {cardData.Range} by {cardData.Area}";
+                                break;
+
+                        }
+                    }
+                    break;
+
                 case CardTargetSelection.All:
                     {
                         switch (cardData.targetingData.CardTargetAffiliation)

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 using Utility;
 
 public static class SpearmanCards
@@ -32,12 +33,12 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.All,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Twice deal {d.Damage} damage to adjacent enemies.";
+                d.cardDescription = $"Deal {d.Damage} damage {d.Repeats} times";
             },
 
             CardEffect = (User, Target, d) =>
@@ -124,15 +125,22 @@ public static class SpearmanCards
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
             cost_u = 10,
-            damage_u = 80,
+            damage_u = 20,
             duration_u = 3,
-            range_u = 2,
+
+            range_u = 4,
+            area_u = 3,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetSelection.Select,
+            },
+
+            CardAiBias = new()
+            {
+                DamageOverride = 80
             },
 
             CardDescription = (User, d) =>
@@ -179,16 +187,17 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 70,
+            cost_u = 20,
             damage_u = 250,
 
-            range_u = 2,
+            range_u = 5,
+            area_u = 4,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetSelection.LineFree,
             },
 
             CardDescription = (User, d) =>
@@ -276,7 +285,7 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 40,
+            cost_u = 1,
             damage_u = 200,
 
             range_u = 3,
@@ -579,7 +588,7 @@ public static class SpearmanCards
             {
                 d.cardDescription = $"On next hit this turn, counter for {d.Damage}.";
             },
-
+             
             CardEffect = (User, Target, d) =>
             {
                 var mod = new EntityModifier(

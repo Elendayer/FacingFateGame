@@ -2,7 +2,9 @@
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
+using static UnityEngine.GraphicsBuffer;
 
 namespace Utility
 {
@@ -66,6 +68,8 @@ namespace Utility
                     var neighbor = CubeToOffset_PointTop(neighborCube, UseOddROffset);
 
                     // If ignoreCost, all tiles have cost 1
+                    if (!CostInfoScript.costInfoDict.ContainsKey(neighbor))
+                        continue;
                     int tentativeGScore = gScore[current] + (ignoreCost ? CostInfoScript.costInfoDict[current].costUnobstructed : CostInfoScript.costInfoDict[current].cost);
 
                     if (!gScore.ContainsKey(neighbor) || tentativeGScore < gScore[neighbor])
@@ -158,9 +162,6 @@ namespace Utility
                 Debug.LogWarning($"[TilemapUtilityScript] No valid Line found from {start} to {goal}");
                 return new PathData(); // Return empty path data if no path
             }
-
-            Debug.Log($"[TilemapUtilityScript] Found Line from {start} to {goal} with length {pathData.Path.Count} (max allowed: {maxLength})");
-
             // Truncate the path if it's longer than maxLength
             if (pathData.Path.Count > maxLength)
             {
@@ -230,6 +231,7 @@ namespace Utility
         {
             var results = new List<Vector3Int>();
             var cCenter = OffsetToCube_PointTop(center, UseOddROffset);
+            radius -= 1;
 
             for (int dx = -radius; dx <= radius; dx++)
             {
@@ -401,6 +403,33 @@ namespace Utility
             results.Add(start);
             return results.ToList();
         }
+        public static List<Vector3Int> GetTilesInStar(Vector3Int start, int length)
+        {
+            List<Vector3Int> tiles = new List<Vector3Int>();
+
+            // Convert the center to cube space
+            Vector3Int centerCube = OffsetToCube_PointTop(start, UseOddROffset);
+
+            // Always include the center tile
+            tiles.Add(start);
+
+            // For each of the 6 cube directions
+            foreach (var dir in CubeDirs)
+            {
+                Vector3Int currentCube = centerCube;
+
+                // Step outward maxLength times
+                for (int i = 0; i < length; i++)
+                {
+                    currentCube += dir;
+                    Vector3Int offset = CubeToOffset_PointTop(currentCube, UseOddROffset);
+
+                    tiles.Add(offset);
+                }
+            }
+
+            return tiles;
+        }
         public static List<EntityScript> GetEntitiesOnTiles(List<Vector3Int> tiles, List<EntityScript> entities)
         {
             return entities.Where(entitity => tiles.Contains(entitity.GetComponent<EntityOnMap>().currentCell)).ToList();
@@ -519,10 +548,10 @@ namespace Utility
                 if (tileObj == null) continue;
 
                 // Reset UI Image color
-                UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
-                if (img != null)
+                SpriteRenderer sr = tileObj.GetComponentInChildren<SpriteRenderer>();
+                if (sr != null)
                 {
-                    img.color = Color.clear;
+                    sr.color = Color.clear;
                     continue;
                 }
             }
@@ -537,7 +566,7 @@ namespace Utility
                 GameObject tileObj = BaseTilemap.GetInstantiatedObject(pos);
                 if (tileObj == null) continue;
                 // Reset UI Image color
-                UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
+                SpriteRenderer img = tileObj.GetComponentInChildren<SpriteRenderer>();
                 if (img != null)
                 {
                     img.color = Color.clear;
@@ -577,10 +606,10 @@ namespace Utility
                     if (tileObj == null) continue;
 
                     // Try Image (UI-based prefab)
-                    UnityEngine.UI.Image img = tileObj.GetComponentInChildren<UnityEngine.UI.Image>();
-                    if (img != null)
+                    SpriteRenderer sr = tileObj.GetComponentInChildren<SpriteRenderer>();
+                    if (sr != null)
                     {
-                        img.color = color;
+                        sr.color = color;
                         continue;
                     }
                 }

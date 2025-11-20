@@ -197,54 +197,127 @@ public class TargetingData
 
 public class CardAiBias
 {
-    // General Intention of the Card
-    public Intention Intention = Intention.None;
-
     // Unique ID for lookup
-    public GameplayRef triggerCondition = GameplayRef.None;
+    public Func<EntityScript, bool> triggerConditionTargets = (entity) => true;
+    public Func<EntityScript, bool> triggerConditionUser = (entity) => true;
 
     // Override for Friendly Fire Avoidance
     public CardTargetAffiliation AffiliationBiasOverride = CardTargetAffiliation.None;
 
     // Additional Throughput
-    public int throughputBase = 0;
+    public int DamageOverride = 0;
+    public int HealingOverride = 0;
+    public int PowerOverride = 0;
+
     // Divider for Throughput to scale down high values
-    public int throughputScale = 1;
-    // Additional Throughput per gameplayRef
-    public Dictionary<GameplayRef, int> throughputBias = new();
+    public float DamageBiasMultipier = 1;
+    public float HealingBiasMultipier = 1;
+    public float PowerBiasMultipier = 1;
 
     public int cooldown = 1;
 
 
-    public int ThroughputOverride(List<EntityScript> target)
+    public int ThroughputOverride(NpcAiBias aiBias, CardData cardData, List<EntityScript> target)
     {
-        int OverrideValue = throughputScale;
-        foreach (KeyValuePair<GameplayRef, int> gRef in throughputBias)
+        float DamageRef = cardData.Damage;
+        float HealingRef = cardData.Healing;
+        float PowerRef = cardData.Power;
+
+        List<EntityScript> ValidTargets = new();
+        List<EntityScript> InValidTargets = new();
+
+        if (!triggerConditionUser(cardData.Owner))
         {
-            foreach (EntityScript t in target)
+            Debug.Log("user condition was false");
+            return 0;
+        }
+
+        float total = 0;
+
+        total += (DamageRef + DamageOverride) * Math.Max(1, DamageBiasMultipier);
+        total += (HealingRef + HealingOverride) * Math.Max(1, HealingBiasMultipier);
+        total += (PowerRef + PowerOverride) * Math.Max(1, PowerBiasMultipier);
+
+        total *= 100;
+
+        // Apply GameplayRef Biases
+        foreach (var reference in aiBias.cardReferenceBias)
+        {
+            if (cardData.GameplayReferences.Contains(reference.Key))
             {
-                if (t.HasReference(gRef.Key).found)
-                {
-                    OverrideValue += gRef.Value;
-                }
+                total = total * Math.Max(1, reference.Value);
             }
         }
-        return OverrideValue;
+
+        foreach (var identity in aiBias.identityBias)
+        {
+            if (cardData.cardIdentities.Contains(identity.Key))
+            {
+                total = total * Math.Max(1, identity.Value);
+            }
+        }
+
+        // Apply Affiliation Biases
+        foreach (var t in target)
+        {
+            if (!triggerConditionTargets(t)) { continue; }
+
+            switch (AffiliationBiasOverride)
+            {
+                case CardTargetAffiliation.Self:
+                    if (t == cardData.Owner )
+                    {
+                        ValidTargets.Add(t);
+                    }
+                    else
+                    {
+                        InValidTargets.Add(t);
+                    }
+                    break;
+                    case CardTargetAffiliation.Ally:
+                    if (t.entityAffiliation == cardData.Owner.entityAffiliation && t != cardData.Owner)
+                    {
+                        ValidTargets.Add(t);
+                    }
+                    else
+                    {
+                        InValidTargets.Add(t);
+                    }
+                    break;
+                    case CardTargetAffiliation.Enemy:
+                    if (t.entityAffiliation != cardData.Owner.entityAffiliation)
+                    {
+                        ValidTargets.Add(t);
+                    }
+                    else
+                    {
+                        InValidTargets.Add(t);
+                    }
+                    break;
+                    default:
+                    ValidTargets.Add(t);
+                    break;
+            }
+        }
+
+        float validScore = 0;
+        foreach (var t in ValidTargets)
+        {
+            foreach(var a in aiBias.targetReferenceBias)
+            {
+                if (t.HasReference(a.Key).found)
+                {
+                    validScore = total * Math.Max(1, a.Value);
+                    break;
+                }
+            }
+            validScore += total;
+        }
+
+        float inValidScore = (total/2)*InValidTargets.Count;
+        total = validScore - inValidScore;
+        return (int)total;
     }
-}
-
-
-public enum Intention
-{
-    None,
-    Damage,
-    Block,
-    Heal,
-    Buff,
-    Debuff,
-    BuffDebuff,
-    Summon,
-    Other,
 }
 
 // If Updated needs to update GameplayReference as well
@@ -280,7 +353,6 @@ public enum CardIdentity
 // If Updated needs to update GameplayReference as well
 public enum CardClass
 {
-
     Spearman,
     Assassin,
     Mystic,

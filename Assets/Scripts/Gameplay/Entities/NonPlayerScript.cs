@@ -1,7 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class NonPlayerScript : EntityScript
 {
@@ -9,84 +9,103 @@ public class NonPlayerScript : EntityScript
     public string NpcID = "0001";
     public NpcAIController npcAIController;
 
-    public NpcAiBias npcAIBias = new();
-
     [SerializeField]
-    private List<PlannedAction> plan;
+    private List<PlannedAction> plan = new();
 
     public override void StartUp()
     {
         base.StartUp();
 
-        npcAIController = new NpcAIController(this);
-        
-        Npc npc = NpcDatabase.GetNpcById(NpcID,this);
-        npcAIBias = npc.aiBias;
-        name = npc.name;
-        deckCardIDs = npc.cardIds;
+        // Load NPC data and initialize AI
+        NpcData npcData = NpcDatabase.GetNpcById(NpcID, this);
+        npcAIController = new NpcAIController(this, npcData);
+
+        name = $"{entityAffiliation}_{npcData.name}";
+
+        // Load Cards from NpcData
+        deckCardIDs = npcData.cardIds;
+        DeckManager.Instance.BuildDeckFromIDs(this);
 
         Debug.Log($"[NonPlayerScript] Setup complete for {name}");
-        DeckManager.Instance.BuildDeckFromIDs(this);
     }
+
     public void TakeTurn()
     {
         plan.Clear();
-
-        Debug.Log("-------------------------------------------------------------------------------------------------------");
+        Debug.Log($" ---------{name}'s Turn ----------------------------------------------------------------------------------------------");
 
         plan = npcAIController.BuildTurnPlan();
 
         StartCoroutine(ExecutePlan(plan));
     }
 
-    private System.Collections.IEnumerator ExecutePlan(List<PlannedAction> plan)
+    private IEnumerator ExecutePlan(List<PlannedAction> plan)
     {
         foreach (PlannedAction action in plan)
         {
-            if (action.Type == PlannedAction.ActionType.Move)
+            switch (action.Type)
             {
-                Debug.Log($"[NPC] {name} moves to {action.TargetCell}");
-                GameEvents.TriggerRefEvent(new TriggerRef
-                {
-                    OnTriggerReference = new() { GameplayRef.onMove },
-                    UserEntity = this,
-                    AffectedEntity = this
-                });
-                var entityOnMap = GetComponent<EntityOnMap>();
-                bool moveComplete = false;
-                // Start the move and wait for completion
-                System.Action onMoveComplete = () => moveComplete = true;
-                StartCoroutine(MoveToViaPathWithCallback(entityOnMap, action.Path, onMoveComplete));
-                while (!moveComplete)
-                    yield return null;
-                yield return new WaitForSeconds(2f); // pacing for readability
-            }
-            else if (action.Type == PlannedAction.ActionType.PlayCard)
-            {
-                Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on {string.Join(", ", action.Targets.Select(t => t.name))}");
+                case PlannedAction.ActionType.Move:
+                    yield return ExecuteMove(action);
+                    break;
 
-                bool cardComplete = false;
-                System.Action onMoveComplete = () => cardComplete = true;
-                StartCoroutine(PlayCardWithCallback(action, () => cardComplete = true));
-                while (!cardComplete)
-                    yield return null;
-                yield return new WaitForSeconds(2f); // pacing for readability
+                case PlannedAction.ActionType.PlayCard:
+                    yield return ExecuteCard(action);
+                    break;
             }
+
+            // Optional pacing for readability
+            yield return new WaitForSeconds(1f);
         }
+
         EventManager.Instance.Endturn();
     }
 
-    // Helper coroutine to wait for MoveToViaPath to finish
-    private System.Collections.IEnumerator MoveToViaPathWithCallback(EntityOnMap entityOnMap, List<Vector3Int> path, System.Action onComplete)
+    private IEnumerator ExecuteMove(PlannedAction action)
+    {
+        Debug.Log($"[NPC] {name} moves to {action.TargetCell} because {action.Name}");
+
+        GameEvents.TriggerRefEvent(new TriggerRef
+        {
+            OnTriggerReference = new() { GameplayRef.onMove },
+            UserEntity = this,
+            AffectedEntity = this
+        });
+
+        var entityOnMap = GetComponent<EntityOnMap>();
+        bool moveComplete = false;
+
+        // Start the move coroutine
+        StartCoroutine(MoveToViaPathWithCallback(entityOnMap, action.Path, () => moveComplete = true));
+
+        // Wait until movement finishes
+        while (!moveComplete)
+            yield return null;
+    }
+
+    private IEnumerator ExecuteCard(PlannedAction action)
+    {
+        Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on {string.Join(", ", action.Targets.Select(t => t.name))}");
+
+        bool cardComplete = false;
+
+        StartCoroutine(PlayCardWithCallback(action, () => cardComplete = true));
+
+        while (!cardComplete)
+            yield return null;
+    }
+
+    private IEnumerator MoveToViaPathWithCallback(EntityOnMap entityOnMap, List<Vector3Int> path, System.Action onComplete)
     {
         yield return entityOnMap.StartCoroutine("StartMove", path);
         onComplete?.Invoke();
     }
-    private System.Collections.IEnumerator PlayCardWithCallback(PlannedAction action, System.Action onComplete)
+
+    private IEnumerator PlayCardWithCallback(PlannedAction action, System.Action onComplete)
     {
+        // Activate card effects
         action.Card.cardData.ActivateCard(action.Targets, gameObject);
-        // Assuming ActivateCard is synchronous for this example
         onComplete?.Invoke();
         yield return null;
     }
-} 
+}

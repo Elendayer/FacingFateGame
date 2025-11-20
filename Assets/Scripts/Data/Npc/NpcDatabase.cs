@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class NpcDatabase : MonoBehaviour
 {
-    private static Dictionary<string, Npc> NpcLookup = new Dictionary<string, Npc>();
+    private static Dictionary<string, NpcData> NpcLookup = new Dictionary<string, NpcData>();
 
-    public static void RegisterNpc(Npc npc)
+    public static void RegisterNpc(NpcData npc)
     {
         if (!NpcLookup.ContainsKey(npc.id))
         {
@@ -17,19 +17,19 @@ public class NpcDatabase : MonoBehaviour
             Debug.LogWarning($"Duplicate card ID detected: {npc.id}");
         }
     }
-    public static Npc GetNpcById(string id, EntityScript entity)
+    public static NpcData GetNpcById(string id, EntityScript entity)
     {
         if (!NpcLookup.TryGetValue(id, out var blueprint) || blueprint == null)
             return null;
 
-        Npc npc = blueprint.Clone(entity);
+        NpcData npc = blueprint.Clone(entity);
 
         return npc;
     }
 
-    public static List<Npc> GetAllNpcs()
+    public static List<NpcData> GetAllNpcs()
     {
-        return new List<Npc>(NpcLookup.Values);
+        return new List<NpcData>(NpcLookup.Values);
     }
 
     public static void RegisterAll()
@@ -39,47 +39,78 @@ public class NpcDatabase : MonoBehaviour
 
     private static void RegisterNpcs()
     {
-        RegisterNpc(new Npc()
+        RegisterNpc(new NpcData()
         {
-            id = "0001",
-            name = "Enemy_Wolfgang",
+            id = "0000",
+            name = "Heal",
             aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
 
             cardIds = new List<int>()
             {
-                110202
+                140201
             }
 
         });
-        RegisterNpc(new Npc()
+
+        RegisterNpc(new NpcData()
         {
-            id = "0002",
-            name = "Enemy_Boss_Jens",
-            aiBias = AiBiasDatabase.GetBiasById("Aggressive"),
+            id = "0001",
+            name = "ConeTargets",
+            aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
+
             cardIds = new List<int>()
             {
-                100111,
-                100111,
-                100111
+                110108,
+            }
+
+        });
+        RegisterNpc(new NpcData()
+        {
+            id = "0002",
+            name = "AllTargets",
+            aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
+            cardIds = new List<int>()
+            {
+                110101
             }
             });
 
-        RegisterNpc(new Npc()
+        RegisterNpc(new NpcData()
         {
             id = "0003",
-            name = "Ally_Sophia",
-            aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+            name = "Selection",
+            aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
             cardIds = new List<int>()
             {
-                100108,
-                110104
+                110104,
             }
         });
+        RegisterNpc(new NpcData()
+        {
+            id = "0004",
+            name = "LineSelf",
+            aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
+            cardIds = new List<int>()
+            {
+                110102
+            }
+        });
+        RegisterNpc(new NpcData()
+        {
+            id = "0005",
+            name = "LineFree",
+            aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
+            cardIds = new List<int>()
+            {
+                110105
+            }
+        });
+
     }
 }
 
 
-public class Npc
+public class NpcData
 {
     public string id;
     public string name;
@@ -87,9 +118,9 @@ public class Npc
 
     public List<int> cardIds = new();
 
-    public Npc Clone(EntityScript entity)
+    public NpcData Clone(EntityScript entity)
     {
-        return new Npc
+        return new NpcData
         {
             id = this.id,
             name = $"{this.name}_{entity.GetInstanceID()}",

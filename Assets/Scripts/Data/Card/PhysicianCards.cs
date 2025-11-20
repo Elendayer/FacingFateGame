@@ -38,6 +38,11 @@ public static class PhysicianCards
                 cardSelectionType = CardTargetSelection.Single,
             },
 
+            CardAiBias = new()
+            {
+                triggerConditionTargets = (entitiy) => entitiy.HasCondition(GameplayCondition.isDamaged)
+            },
+
             CardDescription = (User, d) =>
                 d.cardDescription = $"Apply a regeneration of {d.Power} for {d.Duration} turns.",
 

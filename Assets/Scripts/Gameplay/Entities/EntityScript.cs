@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,30 +34,37 @@ public class EntityScript : MonoBehaviour
     }
     private void TriggerAnimation(TriggerRef triggerRef)
     {
-        if (GameEvents.CheckIfRelevantTrigger(triggerRef, new TriggerRef{AffectedEntity = this, OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage }}))
+        if (GameEvents.CheckIfRelevantTrigger(triggerRef, new TriggerRef{AffectedEntity = this, OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed }}))
         {
             PlayEffectAnimation(triggerRef);
         }
     }
     public void PlayEffectAnimation(TriggerRef triggerRef)
     {
-        GameObject effectObj;
         foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
         {
             switch (gRef)
             {
                 default: break;
                 case GameplayRef.onBurn:
-                    effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
-                    Instantiate(effectObj, EntityVisual.transform);
+                    CreateFX("BurnEffect");
                     break;
-
                 case GameplayRef.onDamage:
-                    effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
-                    Instantiate(effectObj, EntityVisual.transform);
+                    CreateFX("DamageEffect");
+                    break;
+                case GameplayRef.onBleed:
+                    CreateFX("BloodEffect");
                     break;
             }
         }
+    }
+
+    private void CreateFX(string name)
+    {
+        GameObject effectObj;
+
+        effectObj = AssetManager.Instance.GetEffectPrefab(name);
+        var CreatedObj = Instantiate(effectObj, EntityVisual.transform);
     }
 
     [Header("Modifier System")]
@@ -134,6 +141,17 @@ public class EntityScript : MonoBehaviour
     public bool HasModifier(string name)
         => entityModifiers.Any(m => m.ModifierName == name && !m.IsExpired);
 
+    public bool HasCondition(GameplayCondition condititon)
+    {
+        bool c = false;
+
+        switch (condititon)
+        {
+            case GameplayCondition.isDamaged: c = entityStats.CurrentHealth.Value < entityStats.MaxHealth.Value; break;
+        }
+        return c;
+    }
+
     public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef, bool consumeCharges = false)
     {
         var modifier = entityModifiers.FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
@@ -170,4 +188,9 @@ public enum EntityAffiliation
     Neutral,
     Player,
     Enemy
+}
+
+public enum GameplayCondition
+{
+    isDamaged,
 }

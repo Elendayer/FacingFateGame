@@ -98,20 +98,20 @@ public class EntityModifier : IEntityModifier
         {
             onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, TargetStat, BaseValue));
             GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntity));
-   
+
             if (Charges < 99999)
             {
                 Charges--;
-                Debug.Log($"FunctionModifier charges left: {Charges}");
             }
         }
-        if (trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+
+        if (GameEvents.CheckIfRelevantTrigger(trigger, new TriggerRef(new() { GameplayRef.onTurnStart}, OnTriggerConditionRef.UserEntity, OnTriggerConditionRef.UserEntity)))
         {
             if (Duration < 99999)
             {
                 Duration--;
-                Debug.Log($"FunctionModifier duration: {Duration}");
             }
+
         }
         if (IsExpired || IsSpend)
         {

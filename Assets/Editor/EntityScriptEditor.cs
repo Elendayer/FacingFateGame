@@ -115,8 +115,9 @@ public class EntityScriptEditor : Editor
             count++;
 
             string name = mod.ModifierName ?? "<Unnamed>";
-            GameplayRef condition = mod.OnTriggerConditionRef.OnTriggerReference.First();
+            GameplayRef condition = mod.OnTriggerConditionRef.OnTriggerReference.FirstOrDefault();
             string valueStr = "";
+            int duration = mod.Duration; 
 
             // Try to read "BaseValue" or "Value" if they exist
             var baseValField = mod.GetType().GetField("BaseValue", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -137,6 +138,7 @@ public class EntityScriptEditor : Editor
             EditorGUILayout.EndVertical();
             EditorGUILayout.BeginVertical("Box");
             EditorGUILayout.LabelField($"Condition: {condition}", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"Duration: {duration}", EditorStyles.boldLabel);
             EditorGUILayout.EndVertical();
             EditorGUILayout.EndHorizontal();
         }
