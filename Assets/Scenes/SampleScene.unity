@@ -3969,6 +3969,8 @@ MonoBehaviour:
     prefab: {fileID: 100014, guid: 5332791ebce075d4a9e56f4581e7fb47, type: 3}
   - name: BloodEffect
     prefab: {fileID: 4129305601270934853, guid: 2803732618e0be946aa42c5f36adbe89, type: 3}
+  - name: SpearFx
+    prefab: {fileID: 4129305601270934853, guid: 3aa4020aec9701149b9a1393a5fa7c30, type: 3}
   entityPrefab: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
 --- !u!4 &1266654712
 Transform:

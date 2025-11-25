@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using static UnityEngine.GraphicsBuffer;
 
 namespace Utility
 {
@@ -245,7 +242,7 @@ namespace Utility
             }
             return results;
         }
-        public static List<Vector3Int> GetTilesInRingFromSelf(Vector3Int center, int distance, int size)
+        public static List<Vector3Int> GetTilesInRing(Vector3Int center, int distance, int size)
         {
             var results = new HashSet<Vector3Int>(); // avoid duplicates
             if (distance <= 0 || size <= 0)
@@ -273,29 +270,7 @@ namespace Utility
 
             return results.ToList();
         }
-        public static List<Vector3Int> GetTilesInRing(Vector3Int center, List<int> distances)
-        {
-            var results = new List<Vector3Int>();
 
-            foreach (var distance in distances)
-            {
-                if (distance <= 0) return results;
-
-                var cCenter = OffsetToCube_PointTop(center, UseOddROffset);
-                // start at one cube direction * distance
-                var cube = cCenter + CubeDirs[4] * distance; // arbitrary starting edge
-                for (int side = 0; side < 6; side++)
-                {
-                    for (int step = 0; step < distance; step++)
-                    {
-                        var off = CubeToOffset_PointTop(cube, UseOddROffset);
-                        results.Add(off);
-                        cube += CubeDirs[side];
-                    }
-                }
-            }
-            return results;
-        }
         public static List<Vector3Int> GetTilesInLineFromSelf(Vector3Int start, Vector3Int target, int maxLength)
         {
             var tiles = new List<Vector3Int>();

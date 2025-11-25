@@ -1,7 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 public class CardScript : MonoBehaviour
 {
@@ -76,8 +74,25 @@ public class CardScript : MonoBehaviour
                                 range.text = $"Ring {cardData.Area}, in {cardData.Range} Tiles";
                                 break;
                         }
-                        break;
                     }
+                        break;
+                    
+                    case CardTargetSelection.RingSelf:
+                    {
+                        switch (cardData.targetingData.CardTargetAffiliation)
+                        {
+                            case CardTargetAffiliation.Ally:
+                                range.text = $"Ring {cardData.Area} from Self, Ally Targets";
+                                break;
+                            case CardTargetAffiliation.Enemy:
+                                range.text = $"Ring {cardData.Area} from Self, Enemy Targets";
+                                break;
+                            default:
+                                range.text = $"Ring {cardData.Area} from Self";
+                                break;
+                        }
+                    }
+                    break;
                 case CardTargetSelection.Radius:
                     {
                         switch (cardData.targetingData.CardTargetAffiliation)
@@ -126,7 +141,6 @@ public class CardScript : MonoBehaviour
                         }
                     }
                     break;
-
                 case CardTargetSelection.Cone:
                     {
                         switch (cardData.targetingData.CardTargetAffiliation)
@@ -144,7 +158,21 @@ public class CardScript : MonoBehaviour
                         }
                     }
                     break;
+                case CardTargetSelection.Select:
+                    switch (cardData.targetingData.CardTargetAffiliation)
+                    {
+                        case CardTargetAffiliation.Ally:
+                            range.text = $"Select, Ally Targets, {cardData.Area} targets within {cardData.Range} Tiles";
+                            break;
+                        case CardTargetAffiliation.Enemy:
+                            range.text = $"Select, Enemy Targets, {cardData.Area} targets within {cardData.Range} Tiles";
+                            break;
+                        default:
+                            range.text = $"Select, {cardData.Area} targets within {cardData.Range} Tiles";
+                            break;
 
+                    }
+                    break;
                 case CardTargetSelection.All:
                     {
                         switch (cardData.targetingData.CardTargetAffiliation)

@@ -35,21 +35,21 @@ public class NpcAIController
 
             // Evaluate flee or reposition
             var fleeCandidate = TryGetFleeCandidate(virtualPosition, allEntities);
-            if (fleeCandidate != null && fleeCandidate.Score > 0)
+            if (fleeCandidate != null && fleeCandidate.score > 0)
                 actionCandidates.Add(fleeCandidate);
 
             if (actionCandidates.Count == 0)
             {
                 var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities);
-                if (chaseCandidate != null && chaseCandidate.Score > 0)
+                if (chaseCandidate != null && chaseCandidate.score > 0)
                     actionCandidates.Add(chaseCandidate);
             }
 
             // Select best action within stamina
             var bestAction = SelectBestActionCandidate(actionCandidates, npcScript.entityStats.CurrentStamina);
-            if (bestAction == null || bestAction.Score <= 0) break;
+            if (bestAction == null || bestAction.score <= 0) break;
 
-            int totalCost = (bestAction.MovementCost) + (bestAction.Card?.cardData.Cost ?? 0);
+            int totalCost = (bestAction.movementCost) + (bestAction.card?.cardData.Cost ?? 0);
             if (totalCost > npcScript.entityStats.CurrentStamina) break;
 
             ApplyActionToPlan(plan, bestAction, ref virtualPosition, npcScript);
@@ -66,7 +66,7 @@ public class NpcAIController
         foreach (var card in hand)
         {
             var scored = EvaluateCard(card, stamina, virtualPosition);
-            if (scored != null && scored.Score > 0)
+            if (scored != null && scored.score > 0)
                 candidates.Add(scored);
         }
         return candidates;
@@ -94,27 +94,27 @@ public class NpcAIController
     {
         ScoredCard best = new()
         {
-            Card = card,
-            Score = 0,
-            MovementCost = int.MaxValue
+            card = card,
+            score = 0,
+            movementCost = int.MaxValue
         };
 
         foreach (var move in reachableMoves)
         {
             foreach (var data in modeData)
             {
-                if (data.TargetedEntities == null || data.TargetedEntities.Count == 0) continue;
+                if (data.targetedEntities == null || data.targetedEntities.Count == 0) continue;
 
-                int score = EvaluateCardScore(card, data.TargetedEntities, move.PathCost);
+                int score = EvaluateCardScore(card, data.targetedEntities, move.PathCost);
 
-                if (score > best.Score || (score == best.Score && move.PathCost < best.MovementCost))
+                if (score > best.score || (score == best.score && move.PathCost < best.movementCost))
                 {
-                    best.Score = score;
-                    best.Targets = data.TargetedEntities;
-                    best.TargetCells = data.TargetedTiles;
-                    best.MovementPath = move.Path;
-                    best.MovementCost = move.PathCost;
-                    best.ExecutionOption = CardExecutionOption.PlayCard;
+                    best.score = score;
+                    best.targets = data.targetedEntities;
+                    best.targetingModeData = data;
+                    best.movementPath = move.Path;
+                    best.movementCost = move.PathCost;
+                    best.executionOption = CardExecutionOption.PlayCard;
                 }
             }
         }
@@ -128,7 +128,7 @@ public class NpcAIController
     {
         if (bestAction == null) return;
 
-        switch (bestAction.ExecutionOption)
+        switch (bestAction.executionOption)
         {
             case CardExecutionOption.PlayCard:
                 ApplyMoveActionToPlan(plan, bestAction, ref virtualPosition, entity);
@@ -145,37 +145,36 @@ public class NpcAIController
 
     private void ApplyMoveActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, ref Vector3Int virtualPosition, EntityScript entity)
     {
-        if (bestAction?.MovementPath == null || bestAction.MovementPath.Count <= 1) return;
+        if (bestAction?.movementPath == null || bestAction.movementPath.Count <= 1) return;
 
         plan.Add(new PlannedAction
         {
             Type = PlannedAction.ActionType.Move,
             Name = bestAction.pseudoName + "_Move",
-            TargetCell = bestAction.TargetCells,
-            Path = bestAction.MovementPath
+            TargetingModeData = bestAction.targetingModeData,
+            Path = bestAction.movementPath
         });
 
-        virtualPosition = bestAction.MovementPath.Last();
+        virtualPosition = bestAction.movementPath.Last();
 
         //entity.entityStats.CurrentStamina.Value -= bestAction.MovementCost;
     }
 
     private void ApplyCardActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, EntityScript entity)
     {
-        if (bestAction?.Card == null) return;
+        if (bestAction?.card == null) return;
 
         plan.Add(new PlannedAction
         {
             Type = PlannedAction.ActionType.PlayCard,
-            Name = bestAction.Card.name,
-            Card = bestAction.Card,
-            Targets = bestAction.Targets,
-            TargetCell = bestAction.TargetCells,
-            Path = bestAction.MovementPath
+            Name = bestAction.card.name,
+            Card = bestAction.card,
+            TargetingModeData = bestAction.targetingModeData,
+            Path = bestAction.movementPath
         });
 
         //entity.entityStats.CurrentStamina.Value -= bestAction.Card.cardData.Cost;
-        hand.Remove(bestAction.Card);
+        hand.Remove(bestAction.card);
     }
     #endregion
 
@@ -184,11 +183,11 @@ public class NpcAIController
     {
         if (actionCandidates == null || actionCandidates.Count == 0) return null;
 
-        var ordered = actionCandidates.OrderByDescending(a => a.Score).ToList();
+        var ordered = actionCandidates.OrderByDescending(a => a.score).ToList();
 
         foreach (var candidate in ordered)
         {
-            int totalCost = candidate.MovementCost + (candidate.Card?.cardData.Cost ?? 0);
+            int totalCost = candidate.movementCost + (candidate.card?.cardData.Cost ?? 0);
             if (totalCost <= stamina) return candidate;
         }
 
@@ -226,7 +225,7 @@ public class NpcAIController
                     moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npcScript);
                     if (moveOption_Flee != null)
                     {
-                        moveOption_Flee.Score = 1;
+                        moveOption_Flee.score = 1;
                         moveOption_Flee.pseudoName = "Surrounded Flee";
                     }
                 }
@@ -237,7 +236,7 @@ public class NpcAIController
                     moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npcScript);
                     if (moveOption_Flee != null)
                     {
-                        moveOption_Flee.Score = 1;
+                        moveOption_Flee.score = 1;
                         moveOption_Flee.pseudoName = "Low Health Flee";
                     }
                 }
@@ -252,7 +251,7 @@ public class NpcAIController
                     moveOption_Flee = DetermineFleeTarget(virtualPosition, allEntities, npcScript);
                     if (moveOption_Flee != null)
                     {
-                        moveOption_Flee.Score = 1;
+                        moveOption_Flee.score = 1;
                         moveOption_Flee.pseudoName = "Prefer-Range Flee";
                     }
                 }
@@ -288,12 +287,12 @@ public class NpcAIController
         {
             return new ScoredCard
             {
-                Card = null,
+                card = null,
                 pseudoName = "Reposition",
-                TargetCells = new() { targetCell },
-                MovementPath = pathData.Path,
-                MovementCost = pathData.PathCost,
-                Score = 1 // scoring can be improved later
+                targetingModeData = new() { castingPosition = targetCell },
+                movementPath = pathData.Path,
+                movementCost = pathData.PathCost,
+                score = 1 // scoring can be improved later
             };
         }
 
@@ -308,11 +307,11 @@ public class NpcAIController
             // No enemies — stay in place
             return new ScoredCard
             {
-                TargetCells = new() { virtualPosition },
                 pseudoName = "No Enemies Move",
-                MovementPath = new List<Vector3Int> { virtualPosition },
-                MovementCost = 0,
-                Score = 0
+                targetingModeData = new() {castingPosition = virtualPosition },
+                movementPath = new List<Vector3Int> { virtualPosition },
+                movementCost = 0,
+                score = 0
             };
         }
 
@@ -326,10 +325,10 @@ public class NpcAIController
         return bestTarget ?? new ScoredCard
         {
             pseudoName = "No Move",
-            TargetCells = new() { virtualPosition },
-            MovementPath = new List<Vector3Int> { virtualPosition },
-            MovementCost = 0,
-            Score = 0
+            targetingModeData = new() {castingPosition = virtualPosition },
+            movementPath = new List<Vector3Int> { virtualPosition },
+            movementCost = 0,
+            score = 0
         };
     }
     private ScoredCard EvaluateFleeCandidates(Vector3Int virtualPosition, List<EntityScript> allEntities, EntityScript entity, int maxFleeDistance)
@@ -382,10 +381,10 @@ public class NpcAIController
                     bestTarget = new ScoredCard
                     {
                         pseudoName = "Flee",
-                        TargetCells = new() { candidate },
-                        MovementPath = pathData.Path,
-                        MovementCost = moveCost,
-                        Score = Mathf.RoundToInt(score)
+                        targetingModeData = new() { castingPosition = candidate },
+                        movementPath = pathData.Path,
+                        movementCost = moveCost,
+                        score = Mathf.RoundToInt(score)
                     };
                 }
             }
@@ -396,34 +395,34 @@ public class NpcAIController
     #endregion
 }
 
-    #region Additonal Types
-    public class ScoredCard
-    {
-        public CardScript Card;
-        public string pseudoName;
-        public List<EntityScript> Targets;
-        public int Score;
-        public int MovementCost;
-        public List<Vector3Int> MovementPath;
-        public List<Vector3Int> TargetCells;
-        public CardExecutionOption ExecutionOption;
-    }
-    public enum CardExecutionOption
-    {
-        PlayCard,
-        MoveOnly,
-        Flee,
-        Reposition
-    }
+#region Additonal Types
+public class ScoredCard
+{
+    public CardScript card;
+    public string pseudoName;
+    public List<EntityScript> targets;
+    public int score;
+    public int movementCost;
+    public List<Vector3Int> movementPath;
+    public TargetingModeData targetingModeData = new();
+    public CardExecutionOption executionOption;
+}
+public enum CardExecutionOption
+{
+    PlayCard,
+    MoveOnly,
+    Flee,
+    Reposition
+}
 
-    public class PlannedAction
-    {
-        public enum ActionType { Move, PlayCard }
-        public string Name;
-        public ActionType Type;
-        public CardScript Card;
-        public List<EntityScript> Targets;
-        public List<Vector3Int> TargetCell; // used if Type == Move or aim point for card
-        public List<Vector3Int> Path;
-    }
+public class PlannedAction
+{
+    public enum ActionType { Move, PlayCard }
+    public string Name;
+    public ActionType Type;
+    public CardScript Card;
+    public TargetingModeData TargetingModeData = new();
+
+    public List<Vector3Int> Path;
+}
     #endregion

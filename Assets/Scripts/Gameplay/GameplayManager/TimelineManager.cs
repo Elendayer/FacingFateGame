@@ -68,7 +68,7 @@ public class TimelineManager : MonoBehaviour
 
             bool matches = filter switch
             {
-                TimelineFilter.User => isUser ? tr.UserId == entityId : tr.AffectedEntityId == entityId,
+                TimelineFilter.User => isUser ? tr.UserId == entityId : tr.AffectedEntitiesIds.Contains(entityId),
                 TimelineFilter.CardData => tr.CardData == filterValue as CardData,
                 TimelineFilter.CardIdentity => tr.CardData.cardIdentities.Contains((CardIdentity)filterValue),
                 TimelineFilter.CardClass => tr.CardData.cardClass == (CardClass)filterValue,

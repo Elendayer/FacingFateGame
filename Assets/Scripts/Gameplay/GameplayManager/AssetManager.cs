@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Utility;
 
 public class AssetManager : MonoBehaviour
 {
@@ -49,5 +50,20 @@ public class AssetManager : MonoBehaviour
 
         Debug.LogError($"Prefab with name '{name}' not found!");
         return null;
+    }
+    public void CreateFX(string name, Vector3Int positon)
+    {
+        GameObject effectObj;
+        Vector3 pos = TilemapUtilityScript.BaseTilemap.CellToWorld( positon);
+
+        effectObj = AssetManager.Instance.GetEffectPrefab(name);
+        var CreatedObj = Instantiate(effectObj, pos, new());
+    }
+    public void CreateFX(string name, GameObject host)
+    {
+        GameObject effectObj;
+
+        effectObj = AssetManager.Instance.GetEffectPrefab(name);
+        var CreatedObj = Instantiate(effectObj, host.transform);
     }
 }

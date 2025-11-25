@@ -43,7 +43,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
             }
         });
 
@@ -72,7 +72,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
             }
         });
 
@@ -101,7 +101,7 @@ public static class AssassinCards
             CardEffect = (User, Target, d) =>
             {
                 // TODO: Execute-Logik (instant kill) wenn Ziel <10% MaxHP
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
             }
         });
 
@@ -145,12 +145,12 @@ public static class AssassinCards
                         onTriggerConditionRef: new TriggerRef
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            AffectedEntity = Target,
+                            AffectedEntities = { Target },
                             UserEntity = User
                         },
-                    onTriggerEventAction: (data) =>
+                    onTriggerEventAction: (data, target) =>
                     {
-                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
                     });
                 }
 
@@ -190,7 +190,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
             }
         });
 
@@ -220,7 +220,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
             }
         });
 
@@ -251,7 +251,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
             }
         });
 
@@ -324,7 +324,7 @@ public static class AssassinCards
                 }
 
                 // 1) Starttreffer
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
 
                 // 2) Bounces
                 var hitSet = new HashSet<int> { Target.GetInstanceID() };
@@ -338,7 +338,7 @@ public static class AssassinCards
                     var next = FindNextBounceTarget(last, hitSet, hopLimit);
                     if (next == null) break;
 
-                    CombatUtility.ApplyDamage(d, next, d.Damage);
+                    CombatUtility.ApplyDamage(d, next);
                     hitSet.Add(next.GetInstanceID());
                     last = next;
                 }
@@ -372,7 +372,7 @@ public static class AssassinCards
             CardEffect = (User, Target, d) =>
             {
                 // Direktschaden
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
 
                 // Bleed-DoT
                 var bleed = new EntityModifier(
@@ -382,12 +382,12 @@ public static class AssassinCards
                     duration: d.Duration,
                     onTriggerConditionRef: new TriggerRef
                     {
-                        AffectedEntity = Target,
+                        AffectedEntities = { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data) =>
+                    onTriggerEventAction: (data,target) =>
                     {
-                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -421,7 +421,7 @@ public static class AssassinCards
             CardEffect = (User, Target, d) =>
             {
                 // Direkter Schaden
-                CombatUtility.ApplyDamage(d, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
 
                 // Stun-Modifier (Ein-Zug)
                 var stun = new EntityModifier(
@@ -432,21 +432,21 @@ public static class AssassinCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntity = Target,
+                        AffectedEntities = { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data) =>
+                    onTriggerEventAction: (data, target) =>
                     {
-                // Melde „Stun aktiv“ – Turn/AI sollten bei vorhandenem Stun-Modifier Aktionen überspringen (TODO in Turn/AI)
-                GameEvents.TriggerRefEvent(new TriggerRef
+                        // Melde „Stun aktiv“ – Turn/AI sollten bei vorhandenem Stun-Modifier Aktionen überspringen (TODO in Turn/AI)
+                        GameEvents.TriggerRefEvent(new TriggerRef
                         {
                             OnTriggerReference = new() { GameplayRef.onStunned },
-                    AffectedEntity = Target,
-                    UserEntity = User
-                });
-                // Optional: hier könntest du AP/Stamina auf 0 setzen, falls dein System so arbeitet.
-                // Target.entityStats.CurrentStamina?.ApplyFinalValue(0); // <-- nur falls vorhanden/gewünscht
-            });
+                            AffectedEntities = { Target },
+                            UserEntity = User
+                        });
+                        // Optional: hier könntest du AP/Stamina auf 0 setzen, falls dein System so arbeitet.
+                        // Target.entityStats.CurrentStamina?.ApplyFinalValue(0); // <-- nur falls vorhanden/gewünscht
+                    });
 
                 CombatUtility.ApplyEntityModifier(d, Target, stun, ModifierMergeStrategy.Merge);
             }
@@ -485,12 +485,12 @@ public static class AssassinCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntity = Target,
+                        AffectedEntities = { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data) =>
+                    onTriggerEventAction: (data ,target) =>
                     {
-                        CombatUtility.ApplyDamage(null,data.TriggerReference.AffectedEntity,data.Value);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);

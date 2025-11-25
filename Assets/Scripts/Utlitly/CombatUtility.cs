@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Utility
 {
@@ -13,16 +12,19 @@ namespace Utility
             resourceStat.AddModifier(new StatModifier(resourceStat, -cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
         }
 
-        public static void ApplyDamage(CardData cardData, EntityScript target, int rawDamage, bool isAttack = false)
+        public static void ApplyDamage(CardData cardData, EntityScript target, int rawDamage = 0)
         {
-            List<GameplayRef> refs = new();
-
-            if (isAttack)
+            List<GameplayRef> refs = new() { GameplayRef.onHitLanded };
+          
+            int damage;
+            if (cardData != null)
             {
-                refs.Add(GameplayRef.onAttack);
+                damage = cardData.Damage;
             }
-
-            int damage = rawDamage;
+            else
+            {
+                damage = rawDamage;
+            }
 
             // 1) Pre-Mitigation
             damage = target.entityStats.DamageTakenModifier.ApplyFinalValue(damage);
@@ -47,7 +49,7 @@ namespace Utility
             // 4) Health
             if (damage > 0)
             {
-                refs.Add(GameplayRef.onDamage);
+                refs.Add(GameplayRef.onDamageRecieved);
 
                 target.entityStats.CurrentHealth -= damage;
             }
@@ -63,7 +65,7 @@ namespace Utility
                     ApplyHealing(cardData, cardData.Owner, heal);
                 }
             }
-            HandleTrigger(refs, target, cardData);
+            HandlePostCombatTrigger(refs, target, cardData, damage);
         }
 
         public static void ApplyHealing(CardData cardData, EntityScript target, int healing)
@@ -72,7 +74,7 @@ namespace Utility
 
             if (healing <= 0) return;
 
-            refs.Add(GameplayRef.onHeal);
+            refs.Add(GameplayRef.onHealRecieved);
 
             int missing = target.entityStats.MaxHealth.Value - target.entityStats.CurrentHealth;
             int effHeal = Mathf.Clamp(healing, 0, Mathf.Max(0, missing));
@@ -81,14 +83,14 @@ namespace Utility
             {
                 target.entityStats.CurrentHealth += effHeal;
             }
-            HandleTrigger( refs, target, cardData);
+            HandlePostCombatTrigger( refs, target, cardData, effHeal);
         }
 
-        public static void ApplyBuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyStatBuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
             List<GameplayRef> refs = new();
 
-            refs.Add(GameplayRef.onBuffed);
+            refs.Add(GameplayRef.onBuffRecieved);
 
             mod.Stat.AddModifier(mod, mergeStrategy);
 
@@ -99,13 +101,13 @@ namespace Utility
                 var eff = mod.Stat.GetModifierByName(mod.ModifierName) ?? mod;
                 dbg.SyncDot(label, eff.BaseValue, eff.Duration);
             }
-            HandleTrigger( refs, target, cardData);
+            HandlePostCombatTrigger( refs, target, cardData , mod.BaseValue);
         }
 
-        public static void ApplyDebuff(CardData cardData, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyStatDebuff(CardData cardData, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
             List<GameplayRef> refs = new();
-            refs.Add(GameplayRef.onDebuffed);
+            refs.Add(GameplayRef.onDebuffRecieved);
 
             targetStat.AddModifier(mod, mergeStrategy);
 
@@ -116,20 +118,23 @@ namespace Utility
                 var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
                 dbg.SyncDot(label, eff.BaseValue, eff.Duration);
             }
-            HandleTrigger( refs, target, cardData);
-            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, target, cardData));
+            HandlePostCombatTrigger( refs, target, cardData);
+            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, new() { target }, cardData));
         }
 
         public static void ApplyEntityModifier(CardData cardData, EntityScript target, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
         {
+            Debug.Log($"Applying Modifier {mod.ModifierName} to {target.name}");
             List<GameplayRef> refs = new();
+            refs.Add(GameplayRef.onModifierApplied);
 
             if (target == null || mod == null) return;
 
             target.AddModifier(mod, mergeStrategy);
             target.GetComponent<StatusDebugView>()?.Track(mod);
 
-            HandleTrigger( refs, target, cardData);
+            Debug.Log($"Applied Modifier {mod.ModifierName} to {target.name}");
+            HandlePostCombatTrigger( refs, target, cardData);
         }
 
         public static void SpawnEntity(CardData cardData, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation)
@@ -149,23 +154,30 @@ namespace Utility
             spawnedEntity.name = npc.name;
             spawnedEntity.entityAffiliation = affiliation;
 
-            HandleTrigger( refs, spawnedEntity, cardData);
+            HandlePostCombatTrigger( refs, spawnedEntity, cardData);
         }
 
-        public static void HandleTrigger( List<GameplayRef> gameplayRefs, EntityScript target, CardData cardData)
+        public static void HandlePreCombatTrigger(List<EntityScript> targets, CardData cardData)
+        {
+            if (cardData == null) return;
+            List<GameplayRef> refs = new();
+            refs.AddRange(cardData.cardIdentities.Select(c => (GameplayRef)Enum.Parse(typeof(GameplayRef), c.ToString())).ToList());
+
+            GameplayRef classRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData. cardClass.ToString());
+            refs.Add(classRef);
+
+            GameplayRef typeRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData.cardType.ToString());
+            refs.Add(typeRef);
+
+            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, targets, cardData, cardData.CardAiBias.ThroughputOverride(null, cardData, targets)));
+        }
+        public static void HandlePostCombatTrigger(List<GameplayRef> gameplayRefs, EntityScript target, CardData cardData, int throughput = 0)
         {
             if (cardData == null) return;
 
             List<GameplayRef> refs = gameplayRefs;
 
-            refs.AddRange(cardData.cardIdentities.Select(c => (GameplayRef)Enum.Parse(typeof(GameplayRef), c.ToString())).ToList());
-            GameplayRef classRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData. cardClass.ToString());
-            GameplayRef typeRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData.cardType.ToString());
-
-            refs.Add(classRef);
-            refs.Add(typeRef);
-
-            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, target, cardData));
+            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, affectedEntities: new() { target }, cardData, throughput));
         }
     }
 }

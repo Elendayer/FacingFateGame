@@ -231,7 +231,7 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(d, Target, d.Damage, isAttack:true);
+                CombatUtility.ApplyDamage(d, Target, d.Damage);
             }
         });
 
@@ -273,12 +273,12 @@ public static class NeutralCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntity = Target,
+                        AffectedEntities = { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data) =>
+                    onTriggerEventAction: (data, target) =>
                     {
-                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -319,12 +319,12 @@ public static class NeutralCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntity = Target,
+                        AffectedEntities = { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data) =>
+                    onTriggerEventAction: (data, target) =>
                     {
-                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
 
                     });
 
@@ -419,10 +419,10 @@ public static class NeutralCards
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
                     stat: stat,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
+                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntities = { Target }, UserEntity = User },
                     name: $"SoaringDragonElixir_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -457,10 +457,10 @@ public static class NeutralCards
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
+                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntities = { Target }, UserEntity = User },
                     name: $"GrowlDecrease{d.Power}"
                 );
-                CombatUtility.ApplyDebuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatDebuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -495,10 +495,10 @@ public static class NeutralCards
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
+                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntities = { Target }, UserEntity = User },
                     name: $"HowlIncrease{d.Power}"
                 );
-                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -531,10 +531,10 @@ public static class NeutralCards
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target, UserEntity = User },
+                    on_triggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntities = { Target }, UserEntity = User },
                     name: $"ArmourIncrease{d.Power}"
                 );
-                CombatUtility.ApplyBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -574,12 +574,12 @@ public static class NeutralCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntity = Target,
+                        AffectedEntities = { Target },
                         UserEntity = User
                        },
-                    onTriggerEventAction: (data) =>
+                    onTriggerEventAction: (data, target) =>
                     {
-                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -620,13 +620,13 @@ public static class NeutralCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart, GameplayRef.onModifierApplied },
-                        AffectedEntity = Target,
+                        AffectedEntities = { Target },
                         UserEntity = User
 
                     },
-                    onTriggerEventAction: (data) =>
+                    onTriggerEventAction: (data, target) =>
                     {
-                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);

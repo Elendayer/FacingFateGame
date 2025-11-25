@@ -67,7 +67,7 @@ public static class MysticCards
             CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} melee damage.",
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(d, Target, d.Power);
+                CombatUtility.ApplyDamage(d, Target);
             }
         });
 
@@ -443,10 +443,10 @@ public static class MysticCards
                     baseValue: d.Power,
                     toTriggerRefs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntity = Target },
-                    onTriggerEventAction: (data) =>
+                    onTriggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntities = { Target }},
+                    onTriggerEventAction: (data, target) =>
                     {
-                        CombatUtility.ApplyDamage(null, data.TriggerReference.AffectedEntity, data.Value);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
                     });
                 CombatUtility.ApplyEntityModifier(d, Target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
             }

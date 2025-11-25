@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Utility;
 
 
 [System.Serializable]
@@ -65,7 +67,7 @@ public class CardData
     public int Charges => charges_u;
 
     [Header("Card Target")]
-    public TargetingData targetingData = new();
+    public CardTargetingData targetingData = new();
 
     [Header("Card Effect Target")]
     public List<GameplayRef> GameplayReferences { get; internal set; } = new();
@@ -139,22 +141,22 @@ public class CardData
             CardAiBias = CardAiBias,
         };
     }
-
-    public void ActivateCard(List<EntityScript> targetEntity, GameObject obj)
+    public void ActivateCardEffect(TargetingModeData targetingModeData, GameObject cardObj)
     {
-        foreach (EntityScript target in targetEntity)
+        CombatUtility.HandlePreCombatTrigger(targetingModeData.targetedEntities,this);
+
+        foreach (EntityScript target in targetingModeData.targetedEntities)
         {
             CardEffect?.Invoke(Owner, target, this);
         }
-        HandManager.Instance.DiscardCard(obj);
-    }
-    public void ActivateCard(List<Vector3Int> targetCell, GameObject obj)
-    {
-        foreach(Vector3Int target in targetCell)
-        {        
-            CardEffectGround?.Invoke(Owner, target, this);
+
+        foreach (Vector3Int target in targetingModeData.targetedTiles)
+        {
+            //CardEffectGround?.Invoke(Owner, target, this);
         }
-        HandManager.Instance.DiscardCard(obj);
+
+        //Discard
+        HandManager.Instance.DiscardCard(cardObj);
     }
 }
 
@@ -184,11 +186,12 @@ public enum CardTargetSelection
     LineSelf,
     Cone,
     Select,
-    All
+    All,
+    RingSelf
 }
 
 [System.Serializable]
-public class TargetingData
+public class CardTargetingData
 {
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;
@@ -240,23 +243,26 @@ public class CardAiBias
 
         total *= 100;
 
-        // Apply GameplayRef Biases
-        foreach (var reference in aiBias.cardReferenceBias)
+        if (aiBias != null)
         {
-            if (cardData.GameplayReferences.Contains(reference.Key))
+            // Apply GameplayRef Biases
+            foreach (var reference in aiBias.cardReferenceBias)
             {
-                total = total * Math.Max(1, reference.Value);
+                if (cardData.GameplayReferences.Contains(reference.Key))
+                {
+                    total = total * Math.Max(1, reference.Value);
+                }
+            }
+
+            foreach (var identity in aiBias.identityBias)
+            {
+                if (cardData.cardIdentities.Contains(identity.Key))
+                {
+                    total = total * Math.Max(1, identity.Value);
+                }
             }
         }
-
-        foreach (var identity in aiBias.identityBias)
-        {
-            if (cardData.cardIdentities.Contains(identity.Key))
-            {
-                total = total * Math.Max(1, identity.Value);
-            }
-        }
-
+   
         // Apply Affiliation Biases
         foreach (var t in target)
         {
@@ -303,15 +309,24 @@ public class CardAiBias
         float validScore = 0;
         foreach (var t in ValidTargets)
         {
-            foreach(var a in aiBias.targetReferenceBias)
+            if (aiBias != null)
             {
-                if (t.HasReference(a.Key).found)
+                foreach (var ab in aiBias.targetReferenceBias)
                 {
-                    validScore = total * Math.Max(1, a.Value);
-                    break;
+                    if (t.HasReference(ab.Key).found)
+                    {
+                        validScore = total * Math.Max(1, ab.Value);
+                    }
+                    else
+                    {
+                        validScore += total;
+                    }
                 }
             }
-            validScore += total;
+            else
+            {
+                validScore += total;
+            }
         }
 
         float inValidScore = (total/2)*InValidTargets.Count;

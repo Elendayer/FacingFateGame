@@ -83,7 +83,18 @@ public class TimelineManagerEditor : Editor
             // Left Column: Basic Info
             EditorGUILayout.BeginVertical(boxStyle);
             EditorGUILayout.LabelField($"User ID: {triggerRef.UserId}");
-            EditorGUILayout.LabelField($"Affected Entity ID: {triggerRef.AffectedEntityId}");
+            EditorGUILayout.LabelField("Affected Entity ID", EditorStyles.boldLabel);
+            if (triggerRef.AffectedEntitiesIds != null && triggerRef.AffectedEntitiesIds.Count > 0)
+            {
+                EditorGUI.indentLevel++;
+                foreach (var id in triggerRef.AffectedEntitiesIds)
+                    EditorGUILayout.LabelField($"• {id}");
+                EditorGUI.indentLevel--;
+            }
+            else
+            {
+                EditorGUILayout.LabelField("— None —");
+            }
             EditorGUILayout.Space(4);
             EditorGUILayout.LabelField("Card Data:", EditorStyles.boldLabel);
             EditorGUILayout.LabelField(triggerRef.CardData != null ? triggerRef.CardData.cardName : "null");
@@ -103,6 +114,9 @@ public class TimelineManagerEditor : Editor
             {
                 EditorGUILayout.LabelField("— None —");
             }
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField($"Throughput {triggerRef.Throughput}", EditorStyles.boldLabel);
+            EditorGUILayout.EndVertical();
             EditorGUILayout.EndVertical();
         }
         EditorGUILayout.EndHorizontal();

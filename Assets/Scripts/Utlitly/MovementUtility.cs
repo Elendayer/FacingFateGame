@@ -7,7 +7,7 @@ namespace Utility
 {
     public static class MovementUtility
     {
-        public static void ForcedMove(ForcedMovementType type, EntityScript entity, Vector3Int ReferencePos, int Distance = 0)
+        public static void ForcedMove(ForcedMovementType type, EntityScript entity, Vector3Int ReferencePos, int Distance = 0, float speed = 3f)
         {
             EntityOnMap entityOnMap = entity.GetComponent<EntityOnMap>();
 
@@ -45,7 +45,7 @@ namespace Utility
         #region Force Movement Types 
         public static Vector3Int GetRandomInRange(Vector3Int pos, int distance)
         {
-            List<Vector3Int> possiblePositions = TilemapUtilityScript.GetTilesInRing(pos, new List<int> { distance });
+            List<Vector3Int> possiblePositions = TilemapUtilityScript.GetTilesInRing(pos,  distance, 1 );
 
             return possiblePositions.Where(pos => TilemapUtilityScript.CostInfoScript.costInfoDict[pos].isOccupied == false).First();
         }
@@ -56,7 +56,7 @@ namespace Utility
         }
         public static List<Vector3Int> GetFurtherPosition(Vector3Int from, int distance, EntityOnMap entityOnMap)
         {
-            List<Vector3Int> targets = TilemapUtilityScript.GetTilesInRing(entityOnMap.currentCell, new List<int> { distance });
+            List<Vector3Int> targets = TilemapUtilityScript.GetTilesInRing(entityOnMap.currentCell,  distance , 1);
             
             // Filter out occupied tiles
             targets = targets

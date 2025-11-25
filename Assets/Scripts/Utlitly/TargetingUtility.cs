@@ -64,7 +64,6 @@ namespace Utility
         {
             foreach (GameObject hoveredObject in eventData.hovered)
             {
-                Debug.Log(hoveredObject.name);
                 if (hoveredObject.TryGetComponent(out DraggableTarget dt) && dt.draggableTargetType == DraggableTargetType.CombatTile)
                 {
                     return TilemapUtilityScript.BaseTilemap.WorldToCell(hoveredObject.transform.position);
@@ -86,35 +85,73 @@ namespace Utility
             return TilemapUtilityScript.InvalidPosition;
         }
 
-            public static List<Vector3Int> GetEffectAreaTiles(CardScript card, Vector3Int centerTile, EntityScript owner, List<Vector3Int> selectedTiles = null)
-            {
-                switch (card.cardData.targetingData.cardSelectionType)
-                {
-                    case CardTargetSelection.Radius:
-                        return TilemapUtilityScript.GetTilesInRadius(centerTile, card.cardData.Area);
-                    case CardTargetSelection.Ring:
-                        return TilemapUtilityScript.GetTilesInRingFromSelf(centerTile, card.cardData.Range, card.cardData.Area);
-                    case CardTargetSelection.LineFree:
-                        return selectedTiles != null ? TilemapUtilityScript.GetTilesInLineFree(selectedTiles, card.cardData.Range, card.cardData.Area) : new List<Vector3Int>();
-                    case CardTargetSelection.LineSelf:
-                        return TilemapUtilityScript.GetTilesInLineFromSelf(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.Area);
-                    case CardTargetSelection.Cone:
-                        return TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, centerTile, card.cardData.Range, card.cardData.Area);
-                    case CardTargetSelection.All:
-                        return TilemapUtilityScript.GetAllValidTiles();
-                    case CardTargetSelection.Select:
-                        return TilemapUtilityScript.GetTilesInRange(centerTile, card.cardData.Range);
-                    default:
-                        return new List<Vector3Int> { centerTile };
-                }
-            }
-            #endregion
+        public static TargetingModeData GetAffected(CardScript card, Vector3Int aimTile, EntityScript owner, List<Vector3Int> selectedTiles = null, bool isVetted = false)
+        {
+            List<EntityScript> allEntities = Object.FindObjectsByType<EntityScript>(0).ToList();
+            List<EntityScript> entities = new();
+            List<Vector3Int> tiles = new();
 
-            #region Path & Reachable Candidates
-            /// <summary>
-            /// Returns reachable PathData for a card and its potential targets based on available stamina.
-            /// </summary>
-            public static List<PathData> GetReachablePathCandidates(CardScript card, List<EntityScript> targets, int stamina, Vector3Int currentCell)
+            TargetingModeData targetingModeData = new TargetingModeData();
+
+            switch (card.cardData.targetingData.cardSelectionType)
+            {
+                case CardTargetSelection.Radius:
+                    tiles = TilemapUtilityScript.GetTilesInRadius(aimTile, card.cardData.Area);
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+                case CardTargetSelection.Ring:
+                    tiles = TilemapUtilityScript.GetTilesInRing(aimTile, card.cardData.Range, card.cardData.Area);
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+                case CardTargetSelection.RingSelf:
+                    tiles = TilemapUtilityScript.GetTilesInRing(owner.GetComponent<EntityOnMap>().currentCell, card.cardData.Range, card.cardData.Area);
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+                case CardTargetSelection.LineFree:
+                    tiles = TilemapUtilityScript.GetTilesInLineFree(selectedTiles, card.cardData.Range, card.cardData.Area);
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+                case CardTargetSelection.LineSelf:
+                    tiles = TilemapUtilityScript.GetTilesInLineFromSelf(owner.GetComponent<EntityOnMap>().currentCell, aimTile, card.cardData.Area);
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+                case CardTargetSelection.Cone:
+                    tiles = TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, aimTile, card.cardData.Range, card.cardData.Area);
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+                case CardTargetSelection.All:
+                    tiles = TilemapUtilityScript.GetAllValidTiles();
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+                case CardTargetSelection.Select:
+                    tiles = TilemapUtilityScript.GetTilesInRange(aimTile, card.cardData.Range);
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+                default:
+                    tiles.Add(aimTile);
+                    entities = GetEntitiesFromTiles(tiles, allEntities);
+                    break;
+
+            }
+            targetingModeData.targetedTiles = tiles;
+            if (isVetted)
+            {
+                targetingModeData.targetedEntities = GetValidTargets(card, owner, entities);
+            }
+            else
+            {
+                targetingModeData.targetedEntities = entities;
+            }
+
+            return targetingModeData;
+        }
+        #endregion
+
+        #region Path & Reachable Candidates
+        /// <summary>
+        /// Returns reachable PathData for a card and its potential targets based on available stamina.
+        /// </summary>
+        public static List<PathData> GetReachablePathCandidates(CardScript card, List<EntityScript> targets, int stamina, Vector3Int currentCell)
             {
                 if (card == null || targets == null || targets.Count == 0) return new List<PathData>();
 
@@ -127,13 +164,13 @@ namespace Utility
             foreach (var md in modeDataList)
             {
 
-                if (!tileFrequency.ContainsKey(md.CastingPosition))
-                    tileFrequency[md.CastingPosition] = 0;
-                tileFrequency[md.CastingPosition]++;
+                if (!tileFrequency.ContainsKey(md.castingPosition))
+                    tileFrequency[md.castingPosition] = 0;
+                tileFrequency[md.castingPosition]++;
 
 
-                if (md.TargetedEntities != null)
-                    foreach (var e in md.TargetedEntities)
+                if (md.targetedEntities != null)
+                    foreach (var e in md.targetedEntities)
                         hitEntitiesSet.Add(e);
             }
 
@@ -225,13 +262,13 @@ public static class TargetingModeFactory
 public class TargetingModeData
 {
     // Tile the agent should move to in order to use this targeting option (null if none)
-    public Vector3Int CastingPosition { get; set; }
+    public Vector3Int castingPosition { get; set; }
 
     // Tiles that will be aimed/affected when using the card from WhereToGo
-    public List<Vector3Int> TargetedTiles { get; set; } = new();
+    public List<Vector3Int> targetedTiles { get; set; } = new();
 
     // Entities that will be hit when using the card from WhereToGo and aiming at WhereToAim
-    public List<EntityScript> TargetedEntities { get; set; } = new();
+    public List<EntityScript> targetedEntities { get; set; } = new();
 }
 public abstract class BaseTargetingMode : ITargetingMode
 {
@@ -268,15 +305,7 @@ public class SingleTargetingMode : BaseTargetingMode
         {
             var cell = t.GetComponent<EntityOnMap>().currentCell;
 
-            var aimTiles = TargetingUtility.GetEffectAreaTiles(card, cell, owner, null) ?? new List<Vector3Int> { cell };
-            var hitEntities = GetEntitiesFromTiles(aimTiles, targets);
 
-            results.Add(new TargetingModeData
-            {
-                CastingPosition = cell,
-                TargetedTiles = aimTiles,
-                TargetedEntities = hitEntities
-            });
         }
 
         return results;
@@ -298,15 +327,7 @@ public class RadiusTargetingMode : BaseTargetingMode
 
             foreach (var tile in tiles)
             {
-                var aimTiles = TargetingUtility.GetEffectAreaTiles(card, tile, owner, null) ?? new List<Vector3Int> { tile };
-                var hitEntities = GetEntitiesFromTiles(aimTiles, targets);
-
-                results.Add(new TargetingModeData
-                {
-                    CastingPosition = tile,
-                    TargetedTiles = aimTiles,
-                    TargetedEntities = hitEntities
-                });
+                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
             }
         }
 
@@ -324,19 +345,11 @@ public class RingTargetingMode : BaseTargetingMode
         foreach (var t in targets)
         {
             var center = t.GetComponent<EntityOnMap>().currentCell;
-            var tiles = TilemapUtilityScript.GetTilesInRingFromSelf(center, card.cardData.Range, card.cardData.Area);
+            var tiles = TilemapUtilityScript.GetTilesInRing(center, card.cardData.Range, card.cardData.Area);
 
             foreach (var tile in tiles)
             {
-                var aimTiles = TargetingUtility.GetEffectAreaTiles(card, tile, owner, null) ?? new List<Vector3Int> { tile };
-                var hitEntities = GetEntitiesFromTiles(aimTiles, targets);
-
-                results.Add(new TargetingModeData
-                {
-                    CastingPosition = tile,
-                    TargetedTiles = aimTiles,
-                    TargetedEntities = hitEntities
-                });
+                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
             }
         }
 
@@ -360,15 +373,7 @@ public class LineSelfTargetingMode : BaseTargetingMode
 
             foreach (var tile in tiles)
             {
-                var aimTiles = TargetingUtility.GetEffectAreaTiles(card, tile, owner, null) ?? new List<Vector3Int> { tile };
-                var hitEntities = GetEntitiesFromTiles(aimTiles, targets);
-
-                results.Add(new TargetingModeData
-                {
-                    CastingPosition = tile,
-                    TargetedTiles = aimTiles,
-                    TargetedEntities = hitEntities
-                });
+                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
             }
         }
 
@@ -404,9 +409,9 @@ public class LineFreeTargetingMode : BaseTargetingMode
                 {
                     results.Add(new TargetingModeData
                     {
-                        CastingPosition = tile,
-                        TargetedTiles = linePathData.Path,
-                        TargetedEntities = hitEntities
+                        castingPosition = tile,
+                        targetedTiles = linePathData.Path,
+                        targetedEntities = hitEntities
                     });
                 }
             }
@@ -437,9 +442,9 @@ public class ConeTargetingMode : BaseTargetingMode
                 {
                     results.Add(new TargetingModeData
                     {
-                        CastingPosition = ct,
-                        TargetedTiles = coneTiles,
-                        TargetedEntities = hitEntities
+                        castingPosition = ct,
+                        targetedTiles = coneTiles,
+                        targetedEntities = hitEntities
                     });
                 }
             }
@@ -462,15 +467,7 @@ public class SelectionTargetingMode : BaseTargetingMode
 
             foreach (var tile in tiles)
             {
-                var aimTiles = TargetingUtility.GetEffectAreaTiles(card, tile, owner, null) ?? new List<Vector3Int> { tile };
-                var hitEntities = GetEntitiesFromTiles(aimTiles, targets);
-
-                results.Add(new TargetingModeData
-                {
-                    CastingPosition = tile,
-                    TargetedTiles = aimTiles,
-                    TargetedEntities = hitEntities
-                });
+                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
             }
         }
 
@@ -492,15 +489,7 @@ public class AllTilesTargetingMode : BaseTargetingMode
 
             foreach (var tile in tiles)
             {
-                var aimTiles = TargetingUtility.GetEffectAreaTiles(card, tile, owner, null) ?? new List<Vector3Int> { tile };
-                var hitEntities = GetEntitiesFromTiles(aimTiles, targets);
-
-                results.Add(new TargetingModeData
-                {
-                    CastingPosition = tile,
-                    TargetedTiles = aimTiles,
-                    TargetedEntities = hitEntities
-                });
+                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
             }
         }
 
