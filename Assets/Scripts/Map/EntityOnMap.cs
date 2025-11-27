@@ -17,16 +17,16 @@ public class EntityOnMap : MonoBehaviour
 
     private void Start()
     {
-        MoveTo(currentCell);
-        SetOccupied(true);     
+        Vector3Int spawnCell = GetNearestWalkableCell(currentCell);
+        //TeleportTo(spawnCell);   
+        MoveTo(spawnCell);
     }
 
-    public void Spawn(Vector3Int vector3Int)
+    public void Spawn(Vector3Int desiredCell)
     {
 
-        currentCell = vector3Int;
-        transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(currentCell);
-        SetOccupied(false);
+        Vector3Int spawnCell = GetNearestWalkableCell(desiredCell);
+        TeleportTo(spawnCell);
     }
 
 
@@ -87,6 +87,58 @@ public class EntityOnMap : MonoBehaviour
         SetOccupied(true);
     }
 
+    private Vector3Int GetNearestWalkableCell(Vector3Int desiredCell)
+    {
+        var costInfoScript = TilemapUtilityScript.BaseTilemap.GetComponent<CostInfoScript>();
+        if (costInfoScript == null || costInfoScript.costInfoDict == null || costInfoScript.costInfoDict.Count == 0)
+        {
+            Debug.LogWarning("EntityOnMap: No CostInfoScript / empty costInfoDict found. Using desiredCell as spawn.");
+            return desiredCell;
+        }
+
+        var dict = costInfoScript.costInfoDict;
+
+        if (dict.TryGetValue(desiredCell, out var info) &&
+            !info.isUnwalkable &&
+            !info.isOccupied)
+        {
+            return desiredCell;
+        }
+
+        bool found = false;
+        Vector3Int bestCell = desiredCell;
+        float bestDistSq = float.MaxValue;
+
+        foreach (var kvp in dict)
+        {
+            var cell = kvp.Key;
+            var ci = kvp.Value;
+
+            // Nur wirklich begehbare und nicht besetzte Tiles
+            if (ci.isUnwalkable || ci.isOccupied) continue;
+
+            float dx = cell.x - desiredCell.x;
+            float dy = cell.y - desiredCell.y;
+            float distSq = dx * dx + dy * dy;
+
+            if (distSq < bestDistSq)
+            {
+                bestDistSq = distSq;
+                bestCell = cell;
+                found = true;
+            }
+        }
+
+        if (!found)
+        {
+            Debug.LogWarning($"EntityOnMap: No walkable cell found near {desiredCell}, staying in place.");
+            return desiredCell;
+        }
+
+        return bestCell;
+    }
+
+
     public Coroutine StartMove(List<Vector3Int> path)
     {
         Coroutine coroutine = StartCoroutine(FollowPath(path, moveSpeed));
@@ -123,7 +175,11 @@ public class EntityOnMap : MonoBehaviour
 
     public void SetOccupied( bool b)
     {
-        GetCostInfo().isOccupied = b;
+        var info = GetCostInfo();
+        if (info != null)
+        {
+            info.isOccupied = b;
+        }
     }
 
     public CostInfo GetCostInfo()

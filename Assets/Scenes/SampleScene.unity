@@ -3270,12 +3270,12 @@ MonoBehaviour:
   hexLayout: 0
   costInfoScript: {fileID: 1854110843}
   SizeX: 30
-  SizeY: 20
+  SizeY: 30
   terrainMode: 1
   voronoiSites: 16
   siteJitter: 0.228
   noiseScale: 0.81
-  seed: 1256
+  seed: 1959
   terrainBands:
   - tile: {fileID: 11400000, guid: da8f026b75d49aa40b4d24794bc1b99b, type: 2}
     threshold: 0.202
@@ -4137,6 +4137,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7540707036617351832, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8935636570208141450, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_UseWorldSpace
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9001171521745787760, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: currentCell.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9020706638173528162, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}

@@ -74,11 +74,29 @@ public class MapGenMaster : MonoBehaviour
 
     void Awake()
     {
+        StartCoroutine(GenerateMapCoroutine());
+    }
+
+    private System.Collections.IEnumerator GenerateMapCoroutine()
+    {
         MapGen();
-        if (enableShoreline && shorelineMode != ShorelineMode.None) ApplyShoreline(); // NEU
-        if (ensureConnectivity) EnsureConnectivity();
+        yield return null;   
+
+        if (enableShoreline && shorelineMode != ShorelineMode.None)
+        {
+            ApplyShoreline();
+            yield return null;
+        }
+
+        if (ensureConnectivity)
+        {
+            EnsureConnectivity();
+            yield return null;
+        }
+
         OverlayGen();
     }
+
 
 
     private void MapGen()
