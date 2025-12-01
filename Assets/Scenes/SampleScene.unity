@@ -3275,7 +3275,7 @@ MonoBehaviour:
   voronoiSites: 16
   siteJitter: 0.228
   noiseScale: 0.81
-  seed: 1959
+  seed: 3773
   terrainBands:
   - tile: {fileID: 11400000, guid: da8f026b75d49aa40b4d24794bc1b99b, type: 2}
     threshold: 0.202
@@ -4113,7 +4113,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3567744316417343318, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: curveResolution
-      value: 5
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 3567744316417343318, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: arrowHeightOffset

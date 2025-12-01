@@ -18,8 +18,8 @@ public class EntityOnMap : MonoBehaviour
     private void Start()
     {
         Vector3Int spawnCell = GetNearestWalkableCell(currentCell);
-        //TeleportTo(spawnCell);   
-        MoveTo(spawnCell);
+        TeleportTo(spawnCell);   
+        //MoveTo(spawnCell);
     }
 
     public void Spawn(Vector3Int desiredCell)
@@ -30,7 +30,7 @@ public class EntityOnMap : MonoBehaviour
     }
 
 
-    public void MoveTo(Vector3Int targetCell)
+    public void MoveTo(Vector3Int targetCell, bool isTeleport = false)
     {
         if (moveRoutine != null) StopCoroutine(moveRoutine);
 

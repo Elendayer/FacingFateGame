@@ -65,6 +65,9 @@ namespace Utility
                     var neighbor = CubeToOffset_PointTop(neighborCube, UseOddROffset);
 
                     // If ignoreCost, all tiles have cost 1
+                    if (!CostInfoScript.costInfoDict.ContainsKey(neighbor))
+                        continue;
+
                     int tentativeGScore = gScore[current] + (ignoreCost ? CostInfoScript.costInfoDict[current].costUnobstructed : CostInfoScript.costInfoDict[current].cost);
 
                     if (!gScore.ContainsKey(neighbor) || tentativeGScore < gScore[neighbor])
