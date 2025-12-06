@@ -24,13 +24,16 @@ public class EntityStats
     public Stat Endurance = new();
     public Stat Tenacity = new();
 
+    [Header("Other Stats")]
+    public Stat MovementCostModifier = new();
+
     [Header("Combat Modifiers")]
     public Stat DamageTakenModifier = new();
     public Stat HealingTakenModifier = new();
 
     public Stat DamageOutModifier = new();
     public Stat HealingOutModifier = new();
-    public Stat CostModifier = new();
+    public Stat CardCostModifier = new();
     public Stat PowerModifier = new();
     public Stat DurationModifier = new();
 
@@ -41,6 +44,8 @@ public class EntityStats
 
     public Stat RangeModifier = new();
     public Stat AreaModifier = new();
+    public Stat RadiusModifier = new();
+    public Stat MaxTargetModifier = new();
 
     public void StartUp(EntityScript entityScript)
     {
@@ -53,18 +58,18 @@ public class EntityStats
         Endurance.AddModifier(new StatModifier(stat: Endurance, value: 10, ModifierScaling.Flat, name: "BaseValue"));
         Tenacity.AddModifier(new StatModifier(stat: Tenacity, value: 10, ModifierScaling.Flat, name: "BaseValue"));
 
-        MaxHealth.AddModifier(new StatModifier(stat: MaxHealth, value: () => Tenacity.Value * 50, ModifierScaling.Flat, name: "BaseValue"));
-        MaxStamina.AddModifier(new StatModifier(stat: MaxStamina, value: () => Endurance.Value * 5, ModifierScaling.Flat, name: "BaseValue"));
+        MaxHealth.AddModifier(new StatModifier(stat: MaxHealth, value: () => Tenacity.Value() * 50, ModifierScaling.Flat, name: "BaseValue"));
+        MaxStamina.AddModifier(new StatModifier(stat: MaxStamina, value: () => Endurance.Value() * 5, ModifierScaling.Flat, name: "BaseValue"));
 
-        CurrentHealth = MaxHealth.Value;
-        CurrentStamina = MaxStamina.Value;
+        CurrentHealth = MaxHealth.Value();
+        CurrentStamina = MaxStamina.Value();
         GameEvents.OnGameplayReference += OnTurnStart;
     }
     private void OnTurnStart(TriggerRef reference)
     {
-        if (GameEvents.CheckIfRelevantTrigger(reference, new TriggerRef(new() { GameplayRef.onTurnStart }, Owner, Owner)))
+        if (GameEvents.CheckIfRelevantTrigger(reference, new TriggerRef(new() { GameplayRef.onTurnStart }, Owner, new() { Owner })))
         {
-            CurrentStamina = MaxStamina.Value;
+            CurrentStamina = MaxStamina.Value();
         }
     }
 }

@@ -1,12 +1,15 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Stat
 {
     public EntityScript owner;
-    public int Value => GetFinalValue();
+
+    public int Value(EntityScript entityScript = null, CardData cardData = null) => GetFinalValue(entityScript, cardData);
 
     private readonly List<IStatModifier> statModifiers = new();
 
@@ -66,7 +69,46 @@ public class Stat
 
     public void RemoveModifier(IStatModifier modifier) => statModifiers.Remove(modifier);
 
-    private int GetFinalValue()
+    public int GetFlatValue()
+    {
+        int baseValue = 0;
+        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+        {
+            if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Flat)
+            {
+                baseValue += statMod.BaseValue;
+            }
+        }
+        return baseValue;
+    }
+    public int GetPercentValue()
+    {
+        int percentValue = 0;
+        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+        {
+            if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Percent)
+            {
+                percentValue += statMod.BaseValue;
+            }
+        }
+        return percentValue;
+    }
+    public List<int> GetMultiplierValues()
+    {
+        List<int> multipliers = new();
+        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+        {
+            if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Multiplier)
+            {
+                multipliers.Add(statMod.BaseValue);
+            }
+        }
+        return multipliers;
+
+    }
+
+
+    private int GetFinalValue(EntityScript entityScript = null, CardData cardData = null)
     {
         int BaseValue = 0;
         int percent = 0;
@@ -74,28 +116,30 @@ public class Stat
 
         foreach (var mod in statModifiers.Where(m => !m.IsExpired))
         {
-            // Check for conditional modifier and its condition
-            if (mod is ConditionalStatModifier conditional)
+            if (mod.ModifierName == "MeleeRangeIncrease")
             {
-                if (!conditional.Condition)
-                {
-                    break;
-                }
+                Debug.Log($"[Stat] Applying modifier: {mod.ModifierName} with value: {mod.BaseValue}");
+                Debug.Log(mod.Condition(entityScript, cardData));
             }
-            // Apply modifier based on its scaling type
-            if (mod is StatModifier statMod)
+
+            // Check for conditional modifier and its condition
+            if (mod.Condition(entityScript, cardData))
             {
-                switch (statMod.ModifierScaling)
+                // Apply modifier based on its scaling type
+                if (mod is StatModifier statMod)
                 {
-                    case ModifierScaling.Flat:
-                        BaseValue += statMod.BaseValue;
-                        break;
-                    case ModifierScaling.Percent:
-                        percent += statMod.BaseValue;
-                        break;
-                    case ModifierScaling.Multiplier:
-                        multipliers.Add(statMod.BaseValue);
-                        break;
+                    switch (statMod.ModifierScaling)
+                    {
+                        case ModifierScaling.Flat:
+                            BaseValue += statMod.BaseValue;
+                            break;
+                        case ModifierScaling.Percent:
+                            percent += statMod.BaseValue;
+                            break;
+                        case ModifierScaling.Multiplier:
+                            multipliers.Add(statMod.BaseValue);
+                            break;
+                    }
                 }
             }
         }
@@ -104,42 +148,46 @@ public class Stat
 
         foreach (var mult in multipliers)
         {
-            BaseValue = (BaseValue * mult) / 100;
+            float pMulti = (float)mult / 100f;
+
+            BaseValue = (int)((float)BaseValue * pMulti);
         }
 
         return BaseValue;
     }
 
-    public int ApplyFinalValue(int value)
+    public int ApplyFinalValue(int value, EntityScript entityScript = null, CardData cardData = null)
     {
         int baseValue = value;
         int percent = 0;
         List<int> multipliers = new();
 
-        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+        foreach (IStatModifier mod in statModifiers.Where(m => !m.IsExpired))
         {
-            // Check for conditional modifier and its condition
-            if (mod is ConditionalStatModifier conditional)
+            if (mod.ModifierName == "MeleeRangeIncrease")
             {
-                if (!conditional.Condition)
-                {
-                    break;
-                }
+                Debug.Log($"[Stat] Applying modifier: {mod.ModifierName} with value: {mod.BaseValue}");
+                Debug.Log(mod.Condition(entityScript,cardData));
             }
-            // Apply modifier based on its scaling type
-            if (mod is StatModifier statMod)
+
+            // Check for conditional modifier and its condition
+            if (mod.Condition(entityScript, cardData))
             {
-                switch (statMod.ModifierScaling)
+                // Apply modifier based on its scaling type
+                if (mod is StatModifier statMod)
                 {
-                    case ModifierScaling.Flat:
-                        baseValue += statMod.BaseValue;
-                        break;
-                    case ModifierScaling.Percent:
-                        percent += statMod.BaseValue;
-                        break;
-                    case ModifierScaling.Multiplier:
-                        multipliers.Add(statMod.BaseValue);
-                        break;
+                    switch (statMod.ModifierScaling)
+                    {
+                        case ModifierScaling.Flat:
+                            baseValue += statMod.BaseValue;
+                            break;
+                        case ModifierScaling.Percent:
+                            percent += statMod.BaseValue;
+                            break;
+                        case ModifierScaling.Multiplier:
+                            multipliers.Add(statMod.BaseValue);
+                            break;
+                    }
                 }
             }
         }

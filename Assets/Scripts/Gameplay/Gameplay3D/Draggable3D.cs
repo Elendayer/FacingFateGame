@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using System.Collections.Generic;
 using Utility;
 
 [RequireComponent(typeof(Collider))]
@@ -15,10 +14,12 @@ public class Draggable3D : MonoBehaviour
     protected Vector3 startPosition;
     protected Vector3Int lastHoveredTile = TilemapUtilityScript.InvalidPosition;
 
+    public Stat moveCostModifer;
 
     public virtual void OnMouseDown()
     {
         isDragging = true;
+
         startPosition = transform.position;
 
         if (lineRenderer != null)
@@ -38,9 +39,10 @@ public class Draggable3D : MonoBehaviour
 
         // Trigger drag-end event
         Vector3Int dropCell = lastHoveredTile;
-        PathData pathData = TilemapUtilityScript.FindPath(
+        PathData pathData = MovementUtility.FindPath(
             Vector3Int.RoundToInt(startPosition),
-            dropCell
+            dropCell,
+            movementCostModifier:  moveCostModifer
         );
 
         Debug.Log($"[Draggable3D] Drag ended on tile: {dropCell}");
@@ -84,7 +86,7 @@ public class Draggable3D : MonoBehaviour
                 {
                     Vector3Int vector3Int = Vector3Int.RoundToInt(startPosition);
                     TilemapUtilityScript.SetTilesHighlight(
-                        TilemapUtilityScript.FindPath(vector3Int, hoveredTile).Path,
+                        MovementUtility.FindPath(vector3Int, hoveredTile).Path,
                         TilemapUtilityScript.HighlightType.Path
                     );
                 }

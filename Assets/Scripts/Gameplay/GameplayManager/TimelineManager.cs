@@ -28,7 +28,9 @@ public class TimelineManager : MonoBehaviour
 
     public static void AddToTimeline(TriggerRef triggerRef)
     {
-        if (triggerRef.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+        if(triggerRef.OnTriggerReference == null) return;
+
+        if ( triggerRef.OnTriggerReference.Contains(GameplayRef.onTurnStart))
         {
             Timeline.TryAdd($"{TurnManager.Instance.CurrentRoundIndex}_{triggerRef.UserId}", new() { triggerRef });
         }

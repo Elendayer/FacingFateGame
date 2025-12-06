@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Utility;
 
@@ -26,41 +24,49 @@ public class CardData
     [Header("Cost")]
     public int cost_u = 0;
     public Stat cost_s = new();
-    public int Cost => Owner.entityStats.PowerModifier.ApplyFinalValue(damage_s.ApplyFinalValue(cost_u));
+    public int Cost => Owner.entityStats.PowerModifier.ApplyFinalValue(cost_s.ApplyFinalValue(cost_u,Owner,this),Owner,this);
 
     [Header("Power")]
     public int power_u = 0;
     public Stat power_s = new();
-    public int Power =>  Owner.entityStats.PowerModifier.ApplyFinalValue( damage_s.ApplyFinalValue(power_u));
+    public int Power =>  Owner.entityStats.PowerModifier.ApplyFinalValue( power_s.ApplyFinalValue(power_u,Owner,this),Owner,this);
 
     [Header("Damage")]
     public int damage_u = 0;
     public Stat damage_s = new();
-    public int Damage => Owner.entityStats.DamageOutModifier.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u));
+    public int Damage => Owner.entityStats.DamageOutModifier.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u,Owner,this),Owner,this);
 
     [Header("Healing")]
     public int healing_u = 0;
     public Stat healing_s = new();
-    public int Healing => Owner.entityStats.HealingOutModifier.ApplyFinalValue( healing_s.ApplyFinalValue(healing_u));
+    public int Healing => Owner.entityStats.HealingOutModifier.ApplyFinalValue(healing_s.ApplyFinalValue(healing_u, Owner, this), Owner, this);
 
     [Header("Duration")]
     public int duration_u = 0;
     public Stat duration_s = new();
-    public int Duration => Owner.entityStats.HealingOutModifier.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u));
+    public int Duration => Owner.entityStats.HealingOutModifier.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u, Owner, this), Owner, this);
 
     [Header("Repeats")]
     public int repeats_u = 0;
     public Stat repeats_s = new();
-    public int Repeats => repeats_u + repeats_s.Value;
+    public int Repeats => repeats_u + repeats_s.Value(Owner,this);
 
-    [Header("Range & Area")]
+    [Header("Area of Effect")]
     public int range_u = 1;
     public Stat range_s = new();
-    public int Range => Owner.entityStats.RangeModifier.ApplyFinalValue(range_s.ApplyFinalValue(range_u));
-    public int area_u = 1;
+    public int Range => Owner.entityStats.RangeModifier.ApplyFinalValue(range_s.ApplyFinalValue(range_u, Owner, this), Owner, this);
 
+    public int area_u = 1;
     public Stat area_s = new();
-    public int Area => Owner.entityStats.AreaModifier.ApplyFinalValue(area_s.ApplyFinalValue(area_u));
+    public int Area => Owner.entityStats.AreaModifier.ApplyFinalValue(area_s.ApplyFinalValue(area_u, Owner, this), Owner, this);
+
+    public int radius_u = 1;
+    public Stat radius_s = new();
+    public int Radius => Owner.entityStats.RadiusModifier.ApplyFinalValue(radius_s.ApplyFinalValue(radius_u, Owner, this), Owner, this);
+
+    public int maxtarget_u = 1;
+    public Stat maxTarget_s = new();
+    public int MaxTarget => Owner.entityStats.MaxTargetModifier.ApplyFinalValue(maxTarget_s.ApplyFinalValue(maxtarget_u, Owner, this), Owner, this);
 
     [Header("Charges")]
     public int charges_u = 0;
@@ -114,6 +120,8 @@ public class CardData
             repeats_u = repeats_u,
             range_u = range_u,
             area_u = area_u,
+            radius_u = radius_u,
+            maxtarget_u = maxtarget_u,
 
             charges_u = charges_u,
 
@@ -122,11 +130,13 @@ public class CardData
             damage_s = new Stat(),
             healing_s = new Stat(), 
 
+
             duration_s = new Stat(),
             repeats_s = new Stat(),
             range_s = new Stat(),
             area_s = new Stat(),
-
+            radius_s = new Stat(),
+            maxTarget_s = new Stat(),
 
 
             // Targeting-Flags (keine Ziel-Referenzen übernehmen)
@@ -152,52 +162,13 @@ public class CardData
 
         foreach (Vector3Int target in targetingModeData.targetedTiles)
         {
-            //CardEffectGround?.Invoke(Owner, target, this);
+            CardEffectGround?.Invoke(Owner, target, this);
         }
 
         //Discard
         HandManager.Instance.DiscardCard(cardObj);
     }
 }
-
-public enum CardTargetType
-{
-    Entity,
-    CombatTile,
-    Ground,
-}
-public enum CardTargetAffiliation
-{
-    None,
-    All,
-    Self,
-    Ally,
-    AllyNeutral,
-    Enemy,
-    EnemyNeutral,
-    AllyEnemy,
-}
-public enum CardTargetSelection
-{
-    Single,
-    Radius,
-    Ring,
-    LineFree,
-    LineSelf,
-    Cone,
-    Select,
-    All,
-    RingSelf
-}
-
-[System.Serializable]
-public class CardTargetingData
-{
-    public CardTargetType CardTargetType;
-    public CardTargetAffiliation CardTargetAffiliation;
-    public CardTargetSelection cardSelectionType;
-}
-
 public class CardAiBias
 {
     // Unique ID for lookup
@@ -219,121 +190,135 @@ public class CardAiBias
 
     public int cooldown = 1;
 
-
-    public int ThroughputOverride(NpcAiBias aiBias, CardData cardData, List<EntityScript> target)
+    public int ThroughputOverride(NpcAiBias aiBias, CardData cardData, List<EntityScript> targets)
     {
-        float DamageRef = cardData.Damage;
-        float HealingRef = cardData.Healing;
-        float PowerRef = cardData.Power;
-
-        List<EntityScript> ValidTargets = new();
-        List<EntityScript> InValidTargets = new();
-
         if (!triggerConditionUser(cardData.Owner))
         {
             Debug.Log("user condition was false");
             return 0;
         }
 
-        float total = 0;
+        float baseTotal = ComputeBaseTotal(cardData);
+        baseTotal = ApplyCardBiases(baseTotal, aiBias, cardData);
 
-        total += (DamageRef + DamageOverride) * Math.Max(1, DamageBiasMultipier);
-        total += (HealingRef + HealingOverride) * Math.Max(1, HealingBiasMultipier);
-        total += (PowerRef + PowerOverride) * Math.Max(1, PowerBiasMultipier);
+        float validScore = 0f;
+        float invalidScore = 0f;
 
-        total *= 100;
-
-        if (aiBias != null)
+        foreach (var t in targets)
         {
-            // Apply GameplayRef Biases
-            foreach (var reference in aiBias.cardReferenceBias)
-            {
-                if (cardData.GameplayReferences.Contains(reference.Key))
-                {
-                    total = total * Math.Max(1, reference.Value);
-                }
-            }
+            if (!triggerConditionTargets(t)) { continue; };
+            bool isValid = IsValidAffiliationTarget(t, cardData.Owner, AffiliationBiasOverride);
 
-            foreach (var identity in aiBias.identityBias)
+            if (isValid)
             {
-                if (cardData.cardIdentities.Contains(identity.Key))
-                {
-                    total = total * Math.Max(1, identity.Value);
-                }
-            }
-        }
-   
-        // Apply Affiliation Biases
-        foreach (var t in target)
-        {
-            if (!triggerConditionTargets(t)) { continue; }
-
-            switch (AffiliationBiasOverride)
-            {
-                case CardTargetAffiliation.Self:
-                    if (t == cardData.Owner )
-                    {
-                        ValidTargets.Add(t);
-                    }
-                    else
-                    {
-                        InValidTargets.Add(t);
-                    }
-                    break;
-                    case CardTargetAffiliation.Ally:
-                    if (t.entityAffiliation == cardData.Owner.entityAffiliation && t != cardData.Owner)
-                    {
-                        ValidTargets.Add(t);
-                    }
-                    else
-                    {
-                        InValidTargets.Add(t);
-                    }
-                    break;
-                    case CardTargetAffiliation.Enemy:
-                    if (t.entityAffiliation != cardData.Owner.entityAffiliation)
-                    {
-                        ValidTargets.Add(t);
-                    }
-                    else
-                    {
-                        InValidTargets.Add(t);
-                    }
-                    break;
-                    default:
-                    ValidTargets.Add(t);
-                    break;
-            }
-        }
-
-        float validScore = 0;
-        foreach (var t in ValidTargets)
-        {
-            if (aiBias != null)
-            {
-                foreach (var ab in aiBias.targetReferenceBias)
-                {
-                    if (t.HasReference(ab.Key).found)
-                    {
-                        validScore = total * Math.Max(1, ab.Value);
-                    }
-                    else
-                    {
-                        validScore += total;
-                    }
-                }
+                validScore += ApplyTargetBiases(baseTotal, aiBias, t);
             }
             else
             {
-                validScore += total;
+                invalidScore += baseTotal * 0.5f;  // penalty
             }
         }
 
-        float inValidScore = (total/2)*InValidTargets.Count;
-        total = validScore - inValidScore;
-        return (int)total;
+        float finalScore = validScore - invalidScore;
+        return (int)finalScore;
+    }
+    private float ComputeBaseTotal(CardData card)
+    {
+        float total = 0;
+
+        total += (card.Damage + DamageOverride) * Math.Max(1, DamageBiasMultipier);
+        total += (card.Healing + HealingOverride) * Math.Max(1, HealingBiasMultipier);
+        total += (card.Power + PowerOverride) * Math.Max(1, PowerBiasMultipier);
+
+        return total * 100f;
+    }
+    private float ApplyCardBiases(float total, NpcAiBias bias, CardData card)
+    {
+        if (bias == null) return total;
+
+        foreach (var reference in bias.cardReferenceBias)
+        {
+            if (card.GameplayReferences.Contains(reference.Key))
+                total *= Math.Max(1, reference.Value);
+        }
+
+        foreach (var identity in bias.identityBias)
+        {
+            if (card.cardIdentities.Contains(identity.Key))
+                total *= Math.Max(1, identity.Value);
+        }
+
+        return total;
+    }
+    private bool IsValidAffiliationTarget(EntityScript target, EntityScript owner, CardTargetAffiliation mode)
+    {
+        return mode switch
+        {
+            CardTargetAffiliation.Self => target == owner,
+            CardTargetAffiliation.Ally => target.entityAffiliation == owner.entityAffiliation && target != owner,
+            CardTargetAffiliation.Enemy => target.entityAffiliation != owner.entityAffiliation,
+            _ => true
+        };
+    }
+    private float ApplyTargetBiases(float total, NpcAiBias bias, EntityScript target)
+    {
+        if (bias == null) return total;
+        if (bias.targetReferenceBias.Count == 0) return total;
+
+        float score = 0;
+
+        foreach (var tb in bias.targetReferenceBias)
+        {
+            if (target.HasReference(tb.Key).found)
+            {
+                score += total * Math.Max(1, tb.Value); 
+            }
+            else
+            {
+                score += total;
+            }
+        }
+        return score;
     }
 }
+[System.Serializable]
+public class CardTargetingData
+{
+    public CardTargetType CardTargetType;
+    public CardTargetAffiliation CardTargetAffiliation;
+    public CardTargetingModeType cardSelectionType;
+}
+
+public enum CardTargetType
+{
+    Entity,
+    CombatTile,
+    Ground,
+}
+public enum CardTargetAffiliation
+{
+    None,
+    All,
+    Self,
+    Ally,
+    AllyNeutral,
+    Enemy,
+    EnemyNeutral,
+    AllyEnemy,
+}
+public enum CardTargetingModeType
+{
+    Single,
+    Radius,
+    Ring,
+    LineFree,
+    LineSelf,
+    Cone,
+    Select,
+    All,
+}
+
+
 
 // If Updated needs to update GameplayReference as well
 public enum CardType
@@ -349,6 +334,8 @@ public enum CardType
 public enum CardIdentity
 {
     None,
+
+    // Elements
     Physical,
     Fire,
     Ice,
@@ -362,8 +349,23 @@ public enum CardIdentity
     Soul,
     Divine,
     Occult,
+
+    //Attack Types
     Ranged,
-    Melee
+    Melee,
+    Magic,
+    Summon,
+    Healing,
+    Buff,
+    Debuff,
+
+    //Alchemy 
+    Alchemical,
+    Potion,
+    Brew,
+    Tonic,
+
+    Mechanical,
 }
 // If Updated needs to update GameplayReference as well
 public enum CardClass
@@ -373,7 +375,7 @@ public enum CardClass
     Mystic,
     Physician,
     Neutral,
-    
+
     Knight,
     Rogue,
     Wizard,

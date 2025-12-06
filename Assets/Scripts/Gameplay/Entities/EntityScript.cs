@@ -34,8 +34,16 @@ public class EntityScript : MonoBehaviour
     }
     private void TriggerAnimation(TriggerRef triggerRef)
     {
-        if (GameEvents.CheckIfRelevantTrigger(triggerRef, new TriggerRef{AffectedEntity = this, OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed }}))
+        var checkTrigger = new TriggerRef
         {
+            UserEntity = this,
+            AffectedEntities = new() { this },
+            OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed }
+        };
+
+        if (GameEvents.CheckIfRelevantTrigger(triggerRef, checkTrigger))
+        {
+            Debug.Log("Playing Effect Animation for " + this.name);
             PlayEffectAnimation(triggerRef);
         }
     }
@@ -88,7 +96,7 @@ public class EntityScript : MonoBehaviour
                 break;
 
             case ModifierMergeStrategy.Merge:
-                if (existing is StatModifier existingMod && modifier is StatModifier newMod)
+                if (existing is EntityModifier existingMod && modifier is EntityModifier newMod)
                 {
                     existingMod.BaseValue += newMod.BaseValue;
                 }
@@ -97,8 +105,9 @@ public class EntityScript : MonoBehaviour
                     entityModifiers.Add(modifier);
                 }
                 break;
+
             case ModifierMergeStrategy.RefreshDurationAndMerge:
-                if (existing is StatModifier existingRefresh && modifier is StatModifier newRefresh)
+                if (existing is EntityModifier existingRefresh && modifier is EntityModifier newRefresh)
                 {
                     existingRefresh.BaseValue += newRefresh.BaseValue;
                     existingRefresh.Duration = Math.Max(existingRefresh.GetRemainingDuration(), newRefresh.GetRemainingDuration());
@@ -110,7 +119,7 @@ public class EntityScript : MonoBehaviour
                 break;
 
             case ModifierMergeStrategy.RefreshDurationAndOverride:
-                if (existing is StatModifier existingRefreshDuration && modifier is StatModifier newRefreshDuration)
+                if (existing is EntityModifier existingRefreshDuration && modifier is EntityModifier newRefreshDuration)
                 {
                     existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
                     existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
@@ -121,8 +130,10 @@ public class EntityScript : MonoBehaviour
                 }
                 break;
         }
+
         modifier.AddListener();
     }
+
     public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
     public void AddOrReplaceModifier(IEntityModifier modifier)
     {
@@ -132,8 +143,15 @@ public class EntityScript : MonoBehaviour
     }
     public (bool found, IEntityModifier modifier) HasReference(GameplayRef reference)
     {
-        var modifier = entityModifiers
-            .FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+        if (entityModifiers == null || entityModifiers.Count == 0)
+            return (false, null);
+
+        var modifier = entityModifiers.FirstOrDefault(m =>
+            m != null &&
+            m.ToTriggerGameplayRefs != null &&
+            m.ToTriggerGameplayRefs.Contains(reference) &&
+            !m.IsExpired
+        );
 
         return (modifier != null, modifier);
     }
@@ -147,7 +165,7 @@ public class EntityScript : MonoBehaviour
 
         switch (condititon)
         {
-            case GameplayCondition.isDamaged: c = entityStats.CurrentHealth < entityStats.MaxHealth.Value; break;
+            case GameplayCondition.isDamaged: c = entityStats.CurrentHealth < entityStats.MaxHealth.Value(); break;
         }
         return c;
     }

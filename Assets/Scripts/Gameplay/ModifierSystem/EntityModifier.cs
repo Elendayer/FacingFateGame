@@ -43,7 +43,7 @@ public class EntityModifier : IEntityModifier
         }
     }
     private int? StaticValue = 0;
-    private Func<int> DynamicValueFunc;
+    private Func<int> DynamicValueFunc = null;
 
     // Duration in number of triggers
     public int Duration { get; set; }
@@ -60,7 +60,7 @@ public class EntityModifier : IEntityModifier
     public TriggerRef OnTriggerConditionRef { get; private set; } = new TriggerRef();
 
     // Action to perform on trigger
-    public Action<TriggerActionData> onTriggerEventAction;
+    public Action<TriggerActionData, EntityScript> onTriggerEventAction;
 
     // Constructor
     public EntityModifier
@@ -72,7 +72,7 @@ public class EntityModifier : IEntityModifier
     int duration = 99999,
     int charges = 99999,
     Stat targetStat = null,
-    Action<TriggerActionData> onTriggerEventAction = null
+    Action<TriggerActionData, EntityScript> onTriggerEventAction = null
     )
     {
         ModifierName = modifierName;
@@ -94,16 +94,27 @@ public class EntityModifier : IEntityModifier
     {
         if (GameEvents.CheckIfRelevantTrigger(trigger, OnTriggerConditionRef))
         {
-            onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue));
-            GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntity));
+            onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
 
-            if (Charges < 99999)
+            if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
+            {
+                GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, null, BaseValue));
+            }
+
+            if (Charges < 9999)
             {
                 Charges--;
             }
         }
 
-        if (GameEvents.CheckIfRelevantTrigger(trigger, new TriggerRef(new() { GameplayRef.onTurnStart}, OnTriggerConditionRef.UserEntity, OnTriggerConditionRef.UserEntity)))
+        TriggerRef DurationTrigger = new TriggerRef
+            ( 
+            references: new() { GameplayRef.onTurnStart },
+            userEntity: OnTriggerConditionRef.UserEntity,
+            affectedEntities: new() { OnTriggerConditionRef.UserEntity 
+            });
+
+        if (GameEvents.CheckIfRelevantTrigger(trigger, DurationTrigger))
         {
             if (Duration < 99999)
             {
@@ -118,8 +129,9 @@ public class EntityModifier : IEntityModifier
     }
     public void OnManuelTrigger(TriggerRef trigger, bool consumeCharges = false)
     {
-        onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue));
-        GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntity));
+        Debug.Log($"EntityModifier {ModifierName} manually triggered action. By {trigger.UserEntity} at {trigger.AffectedEntities[0]}");
+        onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
+        GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, trigger.CardData, trigger.Throughput));
         
         if (consumeCharges)
         {
@@ -140,7 +152,7 @@ public class EntityModifier : IEntityModifier
         {
             GameEvents.OnGameplayReference -= OnRefEventTriggered;
         }
-        OnTriggerConditionRef.AffectedEntity.RemoveModifier(this);
+        OnTriggerConditionRef.AffectedEntities[0].RemoveModifier(this);
     }
 }
 
@@ -151,7 +163,7 @@ public struct TriggerActionData
 
     public int Value;
 
-    public TriggerActionData(TriggerRef triggerReference, StatModifier statModifier, int value)
+    public TriggerActionData(TriggerRef triggerReference, StatModifier statModifier,  int value)
     {
         TriggerReference = triggerReference;
         StatModifier = statModifier;

@@ -67,11 +67,11 @@ public class NpcDatabase : MonoBehaviour
         RegisterNpc(new NpcData()
         {
             id = "0002",
-            name = "AllTargets",
+            name = "Test",
             aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
             cardIds = new List<int>()
             {
-                110101
+                110105
             }
             });
 

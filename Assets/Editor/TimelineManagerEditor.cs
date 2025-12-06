@@ -1,7 +1,10 @@
 ﻿// Editor/TimelineManagerEditor.cs
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic;
+using static UnityEngine.EventSystems.EventTrigger;
 
 [CustomEditor(typeof(TimelineManager))]
 public class TimelineManagerEditor : Editor
@@ -10,7 +13,7 @@ public class TimelineManagerEditor : Editor
     private Vector2 scrollPos;
 
     // Tracks which turn entries are expanded
-    private Dictionary<string, bool> foldouts = new Dictionary<string, bool>();
+    private Dictionary<int, bool> foldouts = new Dictionary<int, bool>();
 
     // Cache of solid color textures for backgrounds
     private readonly Dictionary<Color, Texture2D> colorCache = new Dictionary<Color, Texture2D>();
@@ -31,7 +34,8 @@ public class TimelineManagerEditor : Editor
         int entryIndex = 0;
         foreach (var kvp in TimelineManager.Timeline)
         {
-            string key = kvp.Key; // Example: "UserId_TurnIndex"
+
+            int key = int.Parse(kvp.Key.Split('_').Last()); // Example: "UserId_TurnIndex"
             var triggerList = kvp.Value;
 
             if (!foldouts.ContainsKey(key))
@@ -47,17 +51,48 @@ public class TimelineManagerEditor : Editor
 
             if (foldouts[key])
             {
+                Color bgColor = Color.white;
+
                 EditorGUI.indentLevel++;
                 foreach (var triggerRef in triggerList)
                 {
-                    bool isUserTurn = key.EndsWith(triggerRef.UserId.ToString());
+                    var affected = triggerRef.AffectedEntities ?? new List<EntityScript>();
 
-                    // Green if user’s own turn, red otherwise
-                    Color bgColor = isUserTurn ? new Color(0.35f, 0.55f, 0.35f, 0.8f)
-                                               : new Color(0.6f, 0.3f, 0.3f, 0.8f);
+
+                    // if no affected entities, gray
+                    if (affected.Count == 0)
+                    {
+                        bgColor = Color.gray;
+                    }
+                    else if (affected.Count == 1 && affected[0] == triggerRef.UserEntity)
+                    {
+                        bgColor = Color.cyan;
+                    }
+                    // Green if all allies affected
+                    else if (affected.All(e => e.entityAffiliation == triggerRef.UserEntity.entityAffiliation))
+                    {
+                        bgColor = Color.green;
+                    }
+                    // Red if all enemies affected
+                    else if (affected.All(e => e.entityAffiliation != triggerRef.UserEntity.entityAffiliation))
+                    {
+                        bgColor = Color.red;
+                    }
+                    // cyan if only self affected
+                    else if (affected.Count == 1 && affected[0] == triggerRef.UserEntity)
+                    {
+                        bgColor = Color.cyan;
+                    }
+                    // Yellow if mixed
+                    else
+                    {
+                        bgColor = Color.yellow;
+                    }
+
+                    bgColor.a = 0.1f;
 
                     DrawTriggerBox(triggerRef, bgColor);
-                    GUILayout.Space(4);
+                    GUILayout.Space(4); 
                 }
                 EditorGUI.indentLevel--;
             }
@@ -75,51 +110,85 @@ public class TimelineManagerEditor : Editor
     {
         var boxStyle = new GUIStyle()
         {
-            normal = { background = GetColorTexture(bgColor) }
+            normal = { background = GetColorTexture(bgColor) },
+            padding = new RectOffset(8, 8, 8, 8)
         };
 
         EditorGUILayout.BeginHorizontal(boxStyle);
+        try
         {
-            // Left Column: Basic Info
-            EditorGUILayout.BeginVertical(boxStyle);
-            EditorGUILayout.LabelField($"User ID: {triggerRef.UserId}");
-            EditorGUILayout.LabelField("Affected Entity ID", EditorStyles.boldLabel);
-            if (triggerRef.AffectedEntitiesIds != null && triggerRef.AffectedEntitiesIds.Count > 0)
+            // LEFT COLUMN
+            EditorGUILayout.BeginVertical();
+            try
             {
-                EditorGUI.indentLevel++;
-                foreach (var id in triggerRef.AffectedEntitiesIds)
-                    EditorGUILayout.LabelField($"• {id}");
-                EditorGUI.indentLevel--;
-            }
-            else
-            {
-                EditorGUILayout.LabelField("— None —");
-            }
-            EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField("Card Data:", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField(triggerRef.CardData != null ? triggerRef.CardData.cardName : "null");
-            EditorGUILayout.EndVertical();
+                string userIdSafe = triggerRef.UserEntity != null
+                    ? triggerRef.UserId.ToString()
+                    : "(null UserEntity)";
 
-            // Right Column: Gameplay References
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField("Gameplay References:", EditorStyles.boldLabel);
-            if (triggerRef.OnTriggerReference != null && triggerRef.OnTriggerReference.Count > 0)
-            {
-                EditorGUI.indentLevel++;
-                foreach (var reference in triggerRef.OnTriggerReference)
-                    EditorGUILayout.LabelField($"• {reference}");
-                EditorGUI.indentLevel--;
+                EditorGUILayout.LabelField($"User ID: {userIdSafe}");
+
+                EditorGUILayout.LabelField("Affected Entity ID", EditorStyles.boldLabel);
+
+                if (triggerRef.AffectedEntitiesIds != null && triggerRef.AffectedEntitiesIds.Count > 0)
+                {
+                    EditorGUI.indentLevel++;
+                    foreach (var id in triggerRef.AffectedEntitiesIds)
+                        EditorGUILayout.LabelField($"• {id}");
+                    EditorGUI.indentLevel--;
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("— None —");
+                }
+
+                EditorGUILayout.Space(4);
+                EditorGUILayout.LabelField("Card Data:", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(triggerRef.CardData != null ? triggerRef.CardData.cardName : "null");
             }
-            else
+            finally
             {
-                EditorGUILayout.LabelField("— None —");
+                EditorGUILayout.EndVertical();
             }
+
+            // RIGHT COLUMN
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField($"Throughput {triggerRef.Throughput}", EditorStyles.boldLabel);
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.EndVertical();
+            try
+            {
+                EditorGUILayout.LabelField("Gameplay References:", EditorStyles.boldLabel);
+
+                if (triggerRef.OnTriggerReference != null && triggerRef.OnTriggerReference.Count > 0)
+                {
+                    EditorGUI.indentLevel++;
+                    foreach (var reference in triggerRef.OnTriggerReference)
+                        EditorGUILayout.LabelField($"• {reference}");
+                    EditorGUI.indentLevel--;
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("— None —");
+                }
+
+                EditorGUILayout.Space(4);
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                try
+                {
+                    EditorGUILayout.LabelField($"Throughput {triggerRef.Throughput}", EditorStyles.boldLabel);
+                }
+                finally
+                {
+                    EditorGUILayout.EndVertical();
+                }
+            }
+            finally
+            {
+                EditorGUILayout.EndVertical();
+            }
         }
-        EditorGUILayout.EndHorizontal();
+        finally
+        {
+            EditorGUILayout.EndHorizontal();
+        }
     }
 
     private Texture2D GetColorTexture(Color color)

@@ -7,7 +7,7 @@ public class CostInfoScript : MonoBehaviour
 }
 public class CostInfo
 {
-    public int cost => 1 +
+    public int cost => 3 +
 (isUnwalkable ?  9999: 0) +
 (isOccupied ? 9999 : 0) +
 (highAvoidance ? 10 :

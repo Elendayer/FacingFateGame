@@ -29,8 +29,8 @@ public class DraggableCard : DraggableUI
         {
             int maxTargets = cardScript.cardData.targetingData.cardSelectionType switch
             {
-                CardTargetSelection.Select => cardScript.cardData.Area,
-                CardTargetSelection.LineFree => 2,
+                CardTargetingModeType.Select => cardScript.cardData.MaxTarget,
+                CardTargetingModeType.LineFree => 2,
                 _ => 1
             };
 
@@ -64,35 +64,72 @@ public class DraggableCard : DraggableUI
         List<EntityScript> allEntities = FindObjectsByType<EntityScript>(0).ToList();
 
         dropCell = TargetingUtility.GetHoveredTile(eventData) ?? InvalidPosition;
-        targetingModeData = TargetingUtility.GetAffected(cardScript, dropCell, cardScript.cardData.Owner, selectedTilesDuringDrag, true);
+        if (dropCell == InvalidPosition) { return; }
 
-        Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on {string.Join(", ", targetingModeData.targetedEntities.Select(t => t.name))}");
-        cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
+        Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+        List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRange(currentCell, cardScript.cardData.Range);
 
+        if (validTiles.Contains(dropCell))
+        {
+            targetingModeData = TargetingUtility.GetAffected(cardScript, dropCell, cardScript.cardData.Owner, selectedTilesDuringDrag, true);
+
+            //Check if Cost can be paid
+            if (cardScript.cardData.Cost > cardScript.cardData.Owner.entityStats.CurrentStamina)
+            {
+                Debug.Log($"[DraggableCard] Cannot pay cost for card {cardScript.cardData.cardName}");
+                return;
+            }
+
+            Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on {string.Join(", ", targetingModeData.targetedEntities.Select(t => t.name))}");
+            cardScript.cardData.Owner.entityStats.CurrentStamina -= cardScript.cardData.Cost;
+            cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
+        }
     }
 
     private void HighlightCardEffectArea(Vector3Int? hoveredTile)
     {
-        if (hoveredTile == null || hoveredTile == InvalidPosition || hoveredTile == lastHighlightedTile) return;
+        if (hoveredTile == null || hoveredTile == InvalidPosition) return;
 
         Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
 
         List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRange(currentCell, cardScript.cardData.Range);
-        if (!validTiles.Contains(hoveredTile.Value)) return;
-
-        TargetingModeData tmd = TargetingUtility.GetAffected(cardScript, hoveredTile.Value, cardScript.cardData.Owner, selectedTilesDuringDrag, false);
 
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
-        TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
-        TilemapUtilityScript.SetTilesHighlight(selectedTilesDuringDrag, TilemapUtilityScript.HighlightType.Selected);
 
-        if (cardScript.cardData.targetingData.cardSelectionType == CardTargetSelection.LineFree)
+        // Show Range for SelectionTypes
+        switch (cardScript.cardData.targetingData.cardSelectionType)
         {
-            TilemapUtilityScript.SetTilesHighlight(tmd.targetedTiles, TilemapUtilityScript.HighlightType.Line);
+            case CardTargetingModeType.LineSelf:
+                {
+                    var starTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
+                    TilemapUtilityScript.SetTilesHighlight(starTiles, TilemapUtilityScript.HighlightType.Range);
+                }
+                break;
+
+            case CardTargetingModeType.Cone:
+                {
+                    var starTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
+                    TilemapUtilityScript.SetTilesHighlight(starTiles, TilemapUtilityScript.HighlightType.Range);
+                }
+                break;
+
+            default:
+                {
+                    var radiusTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
+                    TilemapUtilityScript.SetTilesHighlight(radiusTiles, TilemapUtilityScript.HighlightType.Range);
+                }
+                break;
         }
 
-        TilemapUtilityScript.SetTilesHighlight(tmd.targetedTiles, TilemapUtilityScript.HighlightType.Target);
+        if (!validTiles.Contains(hoveredTile.Value)) 
+        {
+            return; 
+        }
+        
+        var targetingData = TargetingUtility.GetAffected(cardScript, hoveredTile.Value, cardScript.cardData.Owner, selectedTilesDuringDrag);
 
+        TilemapUtilityScript.SetTilesHighlight(targetingData.targetedTiles, TilemapUtilityScript.HighlightType.Target);
+        
         lastHighlightedTile = hoveredTile;
     }
 }

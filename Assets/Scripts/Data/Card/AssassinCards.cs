@@ -35,7 +35,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.LineSelf,
+                cardSelectionType = CardTargetingModeType.LineSelf,
             },
 
             CardDescription = (User, d) =>
@@ -64,7 +64,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetingModeType.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -92,7 +92,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -123,7 +123,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -145,7 +145,7 @@ public static class AssassinCards
                         onTriggerConditionRef: new TriggerRef
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            AffectedEntities = { Target },
+                            AffectedEntities = new() { Target },
                             UserEntity = User
                         },
                     onTriggerEventAction: (data, target) =>
@@ -182,7 +182,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -212,7 +212,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.LineSelf,
+                cardSelectionType = CardTargetingModeType.LineSelf,
             },
 
             CardDescription = (User, d) =>
@@ -243,7 +243,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Radius,
+                cardSelectionType = CardTargetingModeType.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -273,7 +273,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -291,7 +291,7 @@ public static class AssassinCards
 
                 int StepsBetween(Vector3Int from, Vector3Int to)
                 {
-                    var p = TilemapUtilityScript.FindPath(from, to, ignoreCost: true);
+                    var p = MovementUtility.FindPath(from, to, ignoreCost: true);
                     // Path.Count = Anzahl Knoten; Schritte = Knoten - 1
                     return (p.Path == null || p.Path.Count == 0) ? int.MaxValue : Mathf.Max(0, p.Path.Count - 1);
                 }
@@ -363,7 +363,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Cone, 
+                cardSelectionType = CardTargetingModeType.Cone, 
             },
 
             CardDescription = (User, d) =>
@@ -382,7 +382,7 @@ public static class AssassinCards
                     duration: d.Duration,
                     onTriggerConditionRef: new TriggerRef
                     {
-                        AffectedEntities = { Target },
+                        AffectedEntities = new() { Target },
                         UserEntity = User
                     },
                     onTriggerEventAction: (data,target) =>
@@ -412,7 +412,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -432,7 +432,7 @@ public static class AssassinCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = { Target },
+                        AffectedEntities = new() { Target },
                         UserEntity = User
                     },
                     onTriggerEventAction: (data, target) =>
@@ -441,7 +441,7 @@ public static class AssassinCards
                         GameEvents.TriggerRefEvent(new TriggerRef
                         {
                             OnTriggerReference = new() { GameplayRef.onStunned },
-                            AffectedEntities = { Target },
+                            AffectedEntities = new() { Target },
                             UserEntity = User
                         });
                         // Optional: hier könntest du AP/Stamina auf 0 setzen, falls dein System so arbeitet.
@@ -469,7 +469,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Ring,
+                cardSelectionType = CardTargetingModeType.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -485,7 +485,7 @@ public static class AssassinCards
                     onTriggerConditionRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = { Target },
+                        AffectedEntities = new() { Target },
                         UserEntity = User
                     },
                     onTriggerEventAction: (data ,target) =>
@@ -517,7 +517,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -549,7 +549,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -582,7 +582,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -614,7 +614,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -645,7 +645,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, d) =>
@@ -675,7 +675,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
 
             CardDescription = (User, data) => data.cardDescription = "Increase damage/crit (TODO).",
@@ -705,7 +705,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
             CardDescription = (User, data) => data.cardDescription = "Randomly inflict a negative effect on yourself (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }
@@ -728,7 +728,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetSelection.Single,
+                cardSelectionType = CardTargetingModeType.Single,
             },
             CardDescription = (User, data) => data.cardDescription = "Next attack repeats again (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }

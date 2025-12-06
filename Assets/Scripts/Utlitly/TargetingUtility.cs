@@ -6,53 +6,53 @@ using Utility;
 
 namespace Utility
 {
-        public static class TargetingUtility
+    public static class TargetingUtility
+    {
+        #region Entity Validation
+        public static List<EntityScript> GetValidTargets(CardScript card, EntityScript owner, List<EntityScript> candidates)
         {
-            #region Entity Validation
-            public static List<EntityScript> GetValidTargets(CardScript card, EntityScript owner, List<EntityScript> candidates)
+            if (card == null || owner == null || candidates == null) return new List<EntityScript>();
+
+            return candidates.Where(target => target != null && IsTargetValid(card, owner, target)).ToList();
+        }
+
+        private static bool IsTargetValid(CardScript card, EntityScript owner, EntityScript target)
+        {
+            var targeting = card.cardData.targetingData;
+            var targetAff = target.entityAffiliation;
+            var ownerAff = owner.entityAffiliation;
+
+            if (target.HasReference(GameplayRef.untargetableByAll).found)
+                return false;
+
+            bool baseValid = targeting.CardTargetAffiliation switch
             {
-                if (card == null || owner == null || candidates == null) return new List<EntityScript>();
+                CardTargetAffiliation.Ally => targetAff == ownerAff,
+                CardTargetAffiliation.Enemy => targetAff != ownerAff,
+                CardTargetAffiliation.Self => target == owner,
+                CardTargetAffiliation.All => true,
+                CardTargetAffiliation.AllyNeutral => targetAff == ownerAff || targetAff == EntityAffiliation.Neutral,
+                CardTargetAffiliation.EnemyNeutral => targetAff != ownerAff || targetAff == EntityAffiliation.Neutral,
+                CardTargetAffiliation.AllyEnemy => targetAff != EntityAffiliation.Neutral,
+                _ => false
+            };
 
-                return candidates.Where(target => target != null && IsTargetValid(card, owner, target)).ToList();
-            }
+            if (!baseValid) return false;
 
-            private static bool IsTargetValid(CardScript card, EntityScript owner, EntityScript target)
-            {
-                var targeting = card.cardData.targetingData;
-                var targetAff = target.entityAffiliation;
-                var ownerAff = owner.entityAffiliation;
+            bool isEnemyTarget = targetAff != ownerAff && targetAff != EntityAffiliation.Neutral;
+            bool isAllyTarget = targetAff == ownerAff && targetAff != EntityAffiliation.Neutral;
 
-                if (target.HasReference(GameplayRef.untargetableByAll).found)
-                    return false;
+            if (isEnemyTarget && target.HasReference(GameplayRef.untargetableByEnemies).found)
+                return false;
 
-                bool baseValid = targeting.CardTargetAffiliation switch
-                {
-                    CardTargetAffiliation.Ally => targetAff == ownerAff && targetAff != EntityAffiliation.Neutral,
-                    CardTargetAffiliation.Enemy => targetAff != ownerAff && targetAff != EntityAffiliation.Neutral,
-                    CardTargetAffiliation.Self => target == owner,
-                    CardTargetAffiliation.All => true,
-                    CardTargetAffiliation.AllyNeutral => targetAff == ownerAff || targetAff == EntityAffiliation.Neutral,
-                    CardTargetAffiliation.EnemyNeutral => targetAff != ownerAff || targetAff == EntityAffiliation.Neutral,
-                    CardTargetAffiliation.AllyEnemy => targetAff != EntityAffiliation.Neutral,
-                    _ => false
-                };
+            if (isAllyTarget && target.HasReference(GameplayRef.untargetableByAllies).found)
+                return false;
 
-                if (!baseValid) return false;
-
-                bool isEnemyTarget = targetAff != ownerAff && targetAff != EntityAffiliation.Neutral;
-                bool isAllyTarget = targetAff == ownerAff && targetAff != EntityAffiliation.Neutral;
-
-                if (isEnemyTarget && target.HasReference(GameplayRef.untargetableByEnemies).found)
-                    return false;
-
-                if (isAllyTarget && target.HasReference(GameplayRef.untargetableByAllies).found)
-                    return false;
-
-                return true;
-            }
+            return true;
+        }
         #endregion
 
-            #region Entity / Tile Conversion
+        #region Entity / Tile Conversion
         public static List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles, List<EntityScript> allEntities)
         {
             if (tiles == null || allEntities == null) return new List<EntityScript>();
@@ -76,7 +76,6 @@ namespace Utility
         {
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                Debug.Log($"[TargetingUtility] Raycast hit: {hit.collider.name}"); // Check if the hit object is a draggable target of type CombatTile
                 if (hit.collider.TryGetComponent<DraggableTarget>(out var dt) && dt.draggableTargetType == DraggableTargetType.CombatTile)
                 { // Convert world position to tilemap cell
                     return TilemapUtilityScript.BaseTilemap.WorldToCell(hit.collider.transform.position);
@@ -93,46 +92,58 @@ namespace Utility
 
             TargetingModeData targetingModeData = new TargetingModeData();
 
-            switch (card.cardData.targetingData.cardSelectionType)
-            {
-                case CardTargetSelection.Radius:
-                    tiles = TilemapUtilityScript.GetTilesInRadius(aimTile, card.cardData.Area);
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
-                case CardTargetSelection.Ring:
-                    tiles = TilemapUtilityScript.GetTilesInRing(aimTile, card.cardData.Range, card.cardData.Area);
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
-                case CardTargetSelection.RingSelf:
-                    tiles = TilemapUtilityScript.GetTilesInRing(owner.GetComponent<EntityOnMap>().currentCell, card.cardData.Range, card.cardData.Area);
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
-                case CardTargetSelection.LineFree:
-                    tiles = TilemapUtilityScript.GetTilesInLineFree(selectedTiles, card.cardData.Range, card.cardData.Area);
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
-                case CardTargetSelection.LineSelf:
-                    tiles = TilemapUtilityScript.GetTilesInLineFromSelf(owner.GetComponent<EntityOnMap>().currentCell, aimTile, card.cardData.Area);
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
-                case CardTargetSelection.Cone:
-                    tiles = TilemapUtilityScript.GetTilesInCone(owner.GetComponent<EntityOnMap>().currentCell, aimTile, card.cardData.Range, card.cardData.Area);
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
-                case CardTargetSelection.All:
-                    tiles = TilemapUtilityScript.GetAllValidTiles();
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
-                case CardTargetSelection.Select:
-                    tiles = TilemapUtilityScript.GetTilesInRange(aimTile, card.cardData.Range);
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
-                default:
-                    tiles.Add(aimTile);
-                    entities = GetEntitiesFromTiles(tiles, allEntities);
-                    break;
+            CardData cardData = card.cardData;
+            Vector3Int currentCell = owner.GetComponent<EntityOnMap>().currentCell;
 
+            switch (cardData.targetingData.cardSelectionType)
+            {
+                case CardTargetingModeType.Select:
+                    {
+                        tiles = selectedTiles;
+                        entities = GetEntitiesFromTiles(tiles, allEntities);
+                    }
+                    break;
+                case CardTargetingModeType.LineFree:
+                    {
+                        tiles = TilemapUtilityScript.GetTilesInLineFree(selectedTiles, cardData.Range, cardData.Area);
+                        entities = GetEntitiesFromTiles(tiles, allEntities);
+                    }
+                    break;
+                case CardTargetingModeType.Cone:
+                    {
+                        tiles = TilemapUtilityScript.GetTilesInCone(currentCell, aimTile, cardData.Range, cardData.Area);
+                        entities = GetEntitiesFromTiles(tiles, allEntities);
+                    }
+                    break;
+                case CardTargetingModeType.LineSelf:
+                    {
+                        tiles = TilemapUtilityScript.GetTilesInLineFromSelf(currentCell, aimTile, cardData.Range);
+                        entities = GetEntitiesFromTiles(tiles, allEntities);
+                    }
+                    break;
+                case CardTargetingModeType.Ring:
+                    {
+                        tiles = TilemapUtilityScript.GetTilesInRing(aimTile, cardData.Radius, cardData.Area);
+                        entities = GetEntitiesFromTiles(tiles, allEntities);
+                    }
+                    break;
+                case CardTargetingModeType.Radius:
+                    {
+                        tiles = TilemapUtilityScript.GetTilesInRadius(aimTile, cardData.Radius);
+                        entities = GetEntitiesFromTiles(tiles, allEntities);
+                    }
+                    break;
+                case CardTargetingModeType.Single:
+                    {
+                        tiles.Add(aimTile);
+                        entities = GetEntitiesFromTiles(tiles, allEntities);
+                    }
+                    break;
             }
+
+
+            targetingModeData.castingPosition = aimTile;
+
             targetingModeData.targetedTiles = tiles;
             if (isVetted)
             {
@@ -151,348 +162,434 @@ namespace Utility
         /// <summary>
         /// Returns reachable PathData for a card and its potential targets based on available stamina.
         /// </summary>
-        public static List<PathData> GetReachablePathCandidates(CardScript card, List<EntityScript> targets, int stamina, Vector3Int currentCell)
+        public static List<(PathData pathdata,TargetingModeData targetingMode)> GetReachableCandidates(
+        CardScript card,
+        List<TargetingModeData> templates,
+        int stamina,
+        Vector3Int virtualPosition)
+        {
+            var results = new List<(PathData, TargetingModeData)>();
+
+            foreach (var template in templates)
             {
-                if (card == null || targets == null || targets.Count == 0) return new List<PathData>();
+                var castTile = template.castingPosition;
 
-                var targetingMode = TargetingModeFactory.Create(card);
-                var modeDataList = targetingMode.GetTargetingData(card, targets, card.cardData.Owner);
+                var path = MovementUtility.FindPath(virtualPosition, castTile, movementCostModifier: card.cardData.Owner.entityStats.MovementCostModifier);
 
-                var tileFrequency = new Dictionary<Vector3Int, int>();
-                var hitEntitiesSet = new HashSet<EntityScript>();
-
-            foreach (var md in modeDataList)
-            {
-
-                if (!tileFrequency.ContainsKey(md.castingPosition))
-                    tileFrequency[md.castingPosition] = 0;
-                tileFrequency[md.castingPosition]++;
-
-
-                if (md.targetedEntities != null)
-                    foreach (var e in md.targetedEntities)
-                        hitEntitiesSet.Add(e);
-            }
-
-                return RankPathRecords(BuildPathRecords(tileFrequency, hitEntitiesSet.ToList(), stamina, card.cardData.Cost, currentCell));
-            }
-
-            private static List<PathRecord> BuildPathRecords(Dictionary<Vector3Int, int> tileFreq, List<EntityScript> hitEntities, int stamina, int cardCost, Vector3Int currentCell)
-            {
-                var records = new List<PathRecord>();
-
-                foreach (var kvp in tileFreq)
+                if (path == null)
                 {
-                    Vector3Int tile = kvp.Key;
-                    int freq = kvp.Value;
-
-                    var path = TilemapUtilityScript.FindPath(currentCell, tile, walkClose: true);
-                    if (path == null || path.Path == null || path.Path.Count == 0) continue;
-
-                    int totalCost = path.PathCost + cardCost;
-                    if (totalCost > stamina) continue;
-                    if (hitEntities == null || hitEntities.Count == 0) continue;
-
-                    records.Add(new PathRecord
-                    {
-                        Tile = tile,
-                        Frequency = freq,
-                        Distance = Vector3Int.Distance(currentCell, tile),
-                        PathData = new PathData
-                        {
-                            Start = currentCell,
-                            End = tile,
-                            Path = path.Path,
-                            PathCost = path.PathCost
-                        }
-                    });
+                    continue;
                 }
 
-                return records;
+                // If no movement is needed, check if the card can be cast with current stamina
+                if (path.Path.Count == 0)
+                {
+                    if (card.cardData.Cost < stamina)
+                    {
+                        results.Add((new PathData { Start = path.Start, End = path.End, Path = path.Path, PathCost = 0 }, template));
+                    }
+                    continue;
+                }
+
+                int totalCost = path.PathCost + card.cardData.Cost;
+                if (totalCost > stamina)
+                {
+                    continue;
+                }
+                results.Add((new PathData { Start = path.Start, End = path.End, Path = path.Path, PathCost = path.PathCost }, template));
             }
-
-            private static List<PathData> RankPathRecords(List<PathRecord> records)
-            {
-                if (records == null || records.Count == 0) return new List<PathData>();
-
-                int maxFreq = records.Max(r => r.Frequency);
-
-                return records
-                    .Where(r => r.Frequency >= maxFreq - 1)
-                    .OrderByDescending(r => r.Frequency)
-                    .ThenBy(r => r.PathData.PathCost)
-                    .ThenBy(r => r.Distance)
-                    .Select(r => r.PathData)
-                    .ToList();
-            }
-            #endregion
+  
+            return results;
         }
+        #endregion
     }
 
     public interface ITargetingMode
-{
-    List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner);
-}
-public class PathRecord
-{
-    public Vector3Int Tile;       // The tile being considered
-    public int Frequency;         // How often this tile is "targeted" by candidate positions
-    public float Distance;        // Distance from NPC's current position
-    public PathData PathData;     // Path information to reach this tile
-}
-
-public static class TargetingModeFactory
-{
-    public static ITargetingMode Create(CardScript card)
     {
-        return card.cardData.targetingData.cardSelectionType switch
+        List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner);
+    }
+
+    public class TargetingModeData
+    {
+        public Vector3Int castingPosition { get; set; }
+        public List<Vector3Int> targetedTiles { get; set; } = new();
+        public List<EntityScript> targetedEntities { get; set; } = new();
+    }
+
+    public static class TargetingModeFactory
+    {
+        public static ITargetingMode Create(CardScript card)
         {
-            CardTargetSelection.Radius => new RadiusTargetingMode(),
-            CardTargetSelection.Ring => new RingTargetingMode(),
-            CardTargetSelection.LineSelf => new LineSelfTargetingMode(),
-            CardTargetSelection.LineFree => new LineFreeTargetingMode(),
-            CardTargetSelection.Cone => new ConeTargetingMode(),
-            CardTargetSelection.Select => new SelectionTargetingMode(),
-            CardTargetSelection.All => new AllTilesTargetingMode(),
-            CardTargetSelection.Single => new SingleTargetingMode(),
-            _ => new SingleTargetingMode(),
-        };
-    }
-}
-public class TargetingModeData
-{
-    // Tile the agent should move to in order to use this targeting option (null if none)
-    public Vector3Int castingPosition { get; set; }
-
-    // Tiles that will be aimed/affected when using the card from WhereToGo
-    public List<Vector3Int> targetedTiles { get; set; } = new();
-
-    // Entities that will be hit when using the card from WhereToGo and aiming at WhereToAim
-    public List<EntityScript> targetedEntities { get; set; } = new();
-}
-public abstract class BaseTargetingMode : ITargetingMode
-{
-    public abstract List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner);
-
-    protected List<EntityScript> GetValidEntities(CardScript card, List<EntityScript> entities, EntityScript owner)
-    {
-        return TargetingUtility.GetValidTargets(card, owner, entities);
-    }
-
-    protected void AddTiles(Dictionary<Vector3Int, int> dict, List<Vector3Int> tiles)
-    {
-        foreach (var tile in tiles)
-        {
-            if (!dict.ContainsKey(tile)) dict[tile] = 0;
-            dict[tile]++;
-        }
-    }
-
-    protected List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles, List<EntityScript> allEntities)
-    {
-        return TargetingUtility.GetEntitiesFromTiles(tiles, allEntities);
-    }
-}
-
-public class SingleTargetingMode : BaseTargetingMode
-{
-    public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
-    {
-        var results = new List<TargetingModeData>();
-        targets = GetValidEntities(card, targets, owner);
-
-        foreach (var t in targets)
-        {
-            var cell = t.GetComponent<EntityOnMap>().currentCell;
-
-
-        }
-
-        return results;
-    }
-}
-
-public class RadiusTargetingMode : BaseTargetingMode
-{
-    public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
-    {
-        var results = new List<TargetingModeData>();
-
-        targets = GetValidEntities(card, targets, owner);
-
-        foreach (var t in targets)
-        {
-            var center = t.GetComponent<EntityOnMap>().currentCell;
-            var tiles = TilemapUtilityScript.GetTilesInRadius(center, card.cardData.Area);
-
-            foreach (var tile in tiles)
+            return card.cardData.targetingData.cardSelectionType switch
             {
-                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
+                CardTargetingModeType.Radius => new RadiusTargetingMode(),
+                CardTargetingModeType.Ring => new RingTargetingMode(),
+                CardTargetingModeType.LineSelf => new LineSelfTargetingMode(),
+                CardTargetingModeType.LineFree => new LineFreeTargetingMode(),
+                CardTargetingModeType.Cone => new ConeTargetingMode(),
+                CardTargetingModeType.Select => new SelectionTargetingMode(),
+                CardTargetingModeType.All => new AllTilesTargetingMode(),
+                CardTargetingModeType.Single => new SingleTargetingMode(),
+                _ => new SingleTargetingMode(),
+            };
+        }
+    }
+
+    public abstract class BaseTargetingMode : ITargetingMode
+    {
+        public abstract List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner);
+
+        protected List<EntityScript> GetValidEntities(CardScript card, List<EntityScript> entities, EntityScript owner)
+        {
+            return TargetingUtility.GetValidTargets(card, owner, entities);
+        }
+
+        protected List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles, List<EntityScript> allEntities, int maxTargets = 9999)
+        {
+            return TargetingUtility.GetEntitiesFromTiles(tiles, allEntities).Take(maxTargets).ToList();
+        }
+        protected Vector3Int FindCastingPosition(Vector3Int start, Vector3Int key, int range)
+        {
+            if (range <= 1)
+            {
+                return key;
+            }
+            else
+            {
+                return TilemapUtilityScript.GetReachableTileWithinRangeOfTarget(start, key, range);
             }
         }
-
-        return results;
     }
-}
 
-public class RingTargetingMode : BaseTargetingMode
-{
-    public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+    /* -----------------------------------------------------------
+     * SINGLE TARGET
+     * -----------------------------------------------------------*/
+    public class SingleTargetingMode : BaseTargetingMode
     {
-        var results = new List<TargetingModeData>();
-        targets = GetValidEntities(card, targets, owner);
-
-        foreach (var t in targets)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
         {
-            var center = t.GetComponent<EntityOnMap>().currentCell;
-            var tiles = TilemapUtilityScript.GetTilesInRing(center, card.cardData.Range, card.cardData.Area);
+            var results = new List<TargetingModeData>();
+            targets = GetValidEntities(card, targets, owner);
 
-            foreach (var tile in tiles)
+            foreach (var t in targets)
             {
-                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
-            }
-        }
+                var currenttile = t.GetComponent<EntityOnMap>().currentCell;
+                var tiles = TilemapUtilityScript.GetTilesInRadius(currenttile, card.cardData.Range);
 
-        return results;
-    }
-}
-
-public class LineSelfTargetingMode : BaseTargetingMode
-{
-    public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
-    {
-        var results = new List<TargetingModeData>();
-        targets = GetValidEntities(card, targets, owner);
-
-        var ownerCell = owner.GetComponent<EntityOnMap>().currentCell;
-
-        foreach (var t in targets)
-        {
-            var targetCell = t.GetComponent<EntityOnMap>().currentCell;
-            var tiles = TilemapUtilityScript.GetTilesInLineFromSelf(ownerCell, targetCell, card.cardData.Area);
-
-            foreach (var tile in tiles)
-            {
-                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
-            }
-        }
-
-        return results;
-    }
-}
-
-public class LineFreeTargetingMode : BaseTargetingMode
-{
-    public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
-    {
-        var results = new List<TargetingModeData>();
-        var allHitsByCandidate = new Dictionary<Vector3Int, HashSet<EntityScript>>();
-
-        // Collect all entity positions up front
-        List<Vector3Int> cells = GetValidEntities(card, targets, owner)
-            .Select(t => t.GetComponent<EntityOnMap>().currentCell)
-            .ToList();
-
-
-        foreach (var t in targets)
-        {
-            var startTargetCell = t.GetComponent<EntityOnMap>().currentCell;
-
-            foreach (var t2 in targets)
-            {
-                var endTargetCell = t2.GetComponent<EntityOnMap>().currentCell;
-                var linePathData = TilemapUtilityScript.FindLineFromToWithLength(startTargetCell, endTargetCell, card.cardData.Area);
-                var hitEntities = GetEntitiesFromTiles(linePathData.Path, targets);
-
-                var tiles = TilemapUtilityScript.GetTilesInRadius(startTargetCell, card.cardData.Range).Intersect(TilemapUtilityScript.GetTilesInRadius(endTargetCell, card.cardData.Range));
                 foreach (var tile in tiles)
                 {
                     results.Add(new TargetingModeData
                     {
                         castingPosition = tile,
-                        targetedTiles = linePathData.Path,
-                        targetedEntities = hitEntities
+                        targetedTiles = new List<Vector3Int>() { currenttile },
+                        targetedEntities = new List<EntityScript>() { t },
                     });
                 }
             }
+            return results;
         }
-        return results;
     }
-}
 
-
-public class ConeTargetingMode : BaseTargetingMode
-{
-    public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+    /* -----------------------------------------------------------
+     * RADIUS
+     * -----------------------------------------------------------*/
+    public class RadiusTargetingMode : BaseTargetingMode
     {
-        var results = new List<TargetingModeData>();
-        targets = GetValidEntities(card, targets, owner);
-
-        foreach (var t in targets)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
         {
-            var targetCell = t.GetComponent<EntityOnMap>().currentCell;
-            var candidateTiles = TilemapUtilityScript.GetTilesInStar(targetCell, card.cardData.Range);
+            var results = new List<TargetingModeData>();
+            Dictionary<Vector3Int, int> options = new();
+            targets = GetValidEntities(card, targets, owner);
 
-            foreach (var ct in candidateTiles)
+            foreach (var t in targets)
             {
-                var coneTiles = TilemapUtilityScript.GetTilesInCone(ct, targetCell, card.cardData.Range, card.cardData.Area);
-                var hitEntities = GetEntitiesFromTiles(coneTiles, targets);
+                var center = t.GetComponent<EntityOnMap>().currentCell;
+                var preTiles = TilemapUtilityScript.GetTilesInRadius(center, card.cardData.Radius);
 
-                if (hitEntities.Count > 0)
+                foreach (var tile in preTiles)
                 {
-                    results.Add(new TargetingModeData
+                    if (!options.ContainsKey(tile))
                     {
-                        castingPosition = ct,
-                        targetedTiles = coneTiles,
-                        targetedEntities = hitEntities
-                    });
+                        options.Add(tile, 0);
+                    }
+                    else
+                    {
+                        options[tile]++;
+                    }
                 }
             }
-        }
-        return results;
-    }
-}
 
-public class SelectionTargetingMode : BaseTargetingMode
-{
-    public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
-    {
-        var results = new List<TargetingModeData>();
-        targets = GetValidEntities(card, targets, owner);
-
-        foreach (var t in targets)
-        {
-            var center = t.GetComponent<EntityOnMap>().currentCell;
-            var tiles = TilemapUtilityScript.GetTilesInRadius(center, card.cardData.Area);
-
-            foreach (var tile in tiles)
+            foreach (var option in options)
             {
-                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
-            }
-        }
+                var tiles = TilemapUtilityScript.GetTilesInRadius(option.Key, card.cardData.Radius);
 
-        return results;
+                results.Add(new TargetingModeData
+                {
+                    castingPosition = FindCastingPosition(owner.GetComponent<EntityOnMap>().currentCell, option.Key,card.cardData.Range),
+                    targetedTiles = tiles,
+                    targetedEntities = GetEntitiesFromTiles(tiles, targets)
+                });
+            }
+
+            return results;
+        }
     }
-}
 
-public class AllTilesTargetingMode : BaseTargetingMode
-{
-    public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+    /* -----------------------------------------------------------
+     * RING
+     * -----------------------------------------------------------*/
+    public class RingTargetingMode : BaseTargetingMode
     {
-        var results = new List<TargetingModeData>();
-        targets = GetValidEntities(card,targets, owner);
-
-        foreach (var t in targets)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
         {
-            var center = t.GetComponent<EntityOnMap>().currentCell;
-            var tiles = TilemapUtilityScript.GetTilesInRadius(center, card.cardData.Area);
+            var results = new List<TargetingModeData>();
+            Dictionary<Vector3Int, int> options = new();
+            targets = GetValidEntities(card, targets, owner);
 
-            foreach (var tile in tiles)
+            foreach (var t in targets)
             {
-                results.Add(TargetingUtility.GetAffected(card, tile, owner, null, true));
-            }
-        }
+                var center = t.GetComponent<EntityOnMap>().currentCell;
+                var preTiles = TilemapUtilityScript.GetTilesInRing(center, card.cardData.Radius, card.cardData.Area);
 
-        return results;
+                foreach (var tile in preTiles)
+                {
+                    if (!options.ContainsKey(tile))
+                    {
+                        options.Add(tile, 0);
+                    }
+                    else
+                    {
+                        options[tile]++;
+                    }
+                }
+            }
+
+            foreach (var option in options)
+            {
+                var tiles = TilemapUtilityScript.GetTilesInRing(option.Key, card.cardData.Radius, card.cardData.Area);
+
+                results.Add(new TargetingModeData
+                {
+                    castingPosition = FindCastingPosition(owner.GetComponent<EntityOnMap>().currentCell, option.Key, card.cardData.Range),
+                    targetedTiles = tiles,
+                    targetedEntities = GetEntitiesFromTiles(tiles, targets)
+                });
+            }
+
+            return results;
+        }
+    }
+
+    /* -----------------------------------------------------------
+     * LINE SELF
+     * -----------------------------------------------------------*/
+    public class LineSelfTargetingMode : BaseTargetingMode
+    {
+        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        {
+            var results = new List<TargetingModeData>();
+            targets = GetValidEntities(card, targets, owner);
+
+            var candidatePositions = new Dictionary<Vector3Int, int>();
+
+            // Step 1: Generate candidate positions
+            foreach (var t in targets)
+            {
+                var targetCell = t.GetComponent<EntityOnMap>().currentCell;
+
+                for (int dir = 0; dir < 6; dir++)
+                {
+                    var directionVector = TilemapUtilityScript.CubeDirs[dir];
+
+                    // Step backward from target up to range
+                    for (int step = 1; step <= card.cardData.Range; step++)
+                    {
+                        Vector3Int candidatePos = targetCell - directionVector * step;
+
+                        if (!candidatePositions.ContainsKey(candidatePos))
+                            candidatePositions[candidatePos] = 0;
+                    }
+                }
+            }
+
+            var ownerCell = owner.GetComponent<EntityOnMap>().currentCell;
+
+            // Step 2: Evaluate each candidate
+            foreach (var pos in candidatePositions.Keys.ToList())
+            {
+                for (int dir = 0; dir < 6; dir++)
+                {
+                    var directionVector = TilemapUtilityScript.CubeDirs[dir];
+                    var lineTiles = TilemapUtilityScript.GetTilesInLineFromSelf(pos, pos + directionVector, card.cardData.Range);
+
+                    var hitEntities = GetEntitiesFromTiles(lineTiles, targets);
+                    int hitCount = hitEntities.Count;
+
+                    if (hitCount > 0)
+                    {
+                        results.Add(new TargetingModeData
+                        {
+                            castingPosition = pos,
+                            targetedTiles = lineTiles,
+                            targetedEntities = hitEntities
+                        });
+
+                        candidatePositions[pos] = Mathf.Max(candidatePositions[pos], hitCount); 
+                    }
+                }
+            }
+
+            // Step 3: Sort by max targets hit descending
+            results = results
+                .OrderByDescending(r => r.targetedEntities.Count)
+                .ThenBy(r => Vector3Int.Distance(ownerCell, r.castingPosition))
+                .ToList();
+
+            return results;
+        }
+    }
+
+    /* -----------------------------------------------------------
+     * LINE FREE
+     * -----------------------------------------------------------*/
+    public class LineFreeTargetingMode : BaseTargetingMode
+    {
+        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        {
+            var results = new List<TargetingModeData>();
+
+            targets = GetValidEntities(card, targets, owner);
+
+            foreach (var start in targets)
+            {
+                var startCell = start.GetComponent<EntityOnMap>().currentCell;
+
+                foreach (var end in targets)
+                {
+                    var endCell = end.GetComponent<EntityOnMap>().currentCell;
+
+                    var lineData = MovementUtility.FindLineFromToWithLength(startCell, endCell, card.cardData.Area);
+                    var hitEntities = GetEntitiesFromTiles(lineData.Path, targets);
+
+                    var castPositions = TilemapUtilityScript.GetTilesInRadius(startCell, card.cardData.Range)
+                        .Intersect(TilemapUtilityScript.GetTilesInRadius(endCell, card.cardData.Range));
+
+                    foreach (var castPosition in castPositions)
+                    {
+                        results.Add(new TargetingModeData
+                        {
+                            castingPosition = castPosition,
+                            targetedTiles = lineData.Path,
+                            targetedEntities = hitEntities
+                        });
+                    }
+                }
+            }
+            return results;
+        }
+    }
+
+    /* -----------------------------------------------------------
+     * CONE
+     * -----------------------------------------------------------*/
+    public class ConeTargetingMode : BaseTargetingMode
+    {
+        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        {
+            var results = new List<TargetingModeData>();
+            targets = GetValidEntities(card, targets, owner);
+
+            foreach (var t in targets)
+            {
+                var targetCell = t.GetComponent<EntityOnMap>().currentCell;
+                var castCandidates = TilemapUtilityScript.GetTilesInStar(targetCell, card.cardData.Range);
+
+                foreach (var cast in castCandidates)
+                {
+                    var coneTiles = TilemapUtilityScript.GetTilesInCone(cast, targetCell, card.cardData.Range, card.cardData.Area);
+                    var hitEntities = GetEntitiesFromTiles(coneTiles, targets);
+
+                    if (hitEntities.Count > 0)
+                    {
+                        results.Add(new TargetingModeData
+                        {
+                            castingPosition = cast,
+                            targetedTiles = coneTiles,
+                            targetedEntities = hitEntities
+                        });
+                    }
+                }
+            }
+            return results;
+        }
+    }
+
+    /* -----------------------------------------------------------
+     * SELECTION
+     * -----------------------------------------------------------*/
+    public class SelectionTargetingMode : BaseTargetingMode
+    {
+        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        {
+            var results = new List<TargetingModeData>();
+            Dictionary<Vector3Int, int> options = new();
+            targets = GetValidEntities(card, targets, owner);
+
+            foreach (var t in targets)
+            {
+                var center = t.GetComponent<EntityOnMap>().currentCell;
+                var preTiles = TilemapUtilityScript.GetTilesInRadius(center, card.cardData.Range);
+
+                foreach (var tile in preTiles)
+                {
+                    if (!options.ContainsKey(tile))
+                    {
+                        options.Add(tile, 0);
+                    }
+                    else
+                    {
+                        options[tile]++;
+                    }
+                }
+            }
+
+            foreach (var option in options)
+            {
+                var tiles = TilemapUtilityScript.GetTilesInRadius(option.Key, card.cardData.Range);
+                var entities = GetEntitiesFromTiles(tiles, targets);
+                var tilesWithEntities = entities.Select(e => e.GetComponent<EntityOnMap>().currentCell).ToList();
+
+
+                results.Add(new TargetingModeData
+                {
+                    castingPosition = option.Key,
+                    targetedTiles = tilesWithEntities,
+                    targetedEntities = entities
+                });
+            }
+
+            return results;
+        }
+    }
+
+    /* -----------------------------------------------------------
+     * ALL TILES
+     * -----------------------------------------------------------*/
+    public class AllTilesTargetingMode : BaseTargetingMode
+    {
+        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        {
+            targets = GetValidEntities(card, targets, owner);
+            var tiles = TilemapUtilityScript.GetTilesInRadius(new(), 999);
+
+            TargetingModeData result = new TargetingModeData
+            {
+                castingPosition = card.cardData.Owner.GetComponent<EntityOnMap>().currentCell,
+                targetedTiles = tiles,
+                targetedEntities = GetEntitiesFromTiles(tiles,targets,card.cardData.MaxTarget),
+            };
+            
+            return new List<TargetingModeData>() { result };
+        }
     }
 }

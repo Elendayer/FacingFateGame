@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -40,158 +41,90 @@ public class CardScript : MonoBehaviour
             cost.text = $"{cardData.Cost}";
             descriptionText.text = cardData.cardDescription;
 
-            switch (cardData.targetingData.cardSelectionType)
-            {
-                case CardTargetSelection.Single:
-                    switch (cardData.targetingData.CardTargetAffiliation)
-                    {
-                        case CardTargetAffiliation.Ally:
-                            range.text = $"Single Ally in {cardData.Range} Tiles";
-                            break;
-                        case CardTargetAffiliation.Enemy:
-                            range.text = $"Single Enemy in {cardData.Range} Tiles";
-                            break;
-                        case CardTargetAffiliation.Self:
-                            range.text = "Self Target";
-                            break;
-                        default:
-                            range.text = $"Single Target in {cardData.Range} Tiles";
-                            break;
-                    }
-                    break;
-
-                case CardTargetSelection.Ring:
-                    {
-                        switch (cardData.targetingData.CardTargetAffiliation)
-                        {
-                            case CardTargetAffiliation.Ally:
-                                range.text = $"Ring {cardData.Area}, Ally Targets in {cardData.Range} Tiles";
-                                break;
-                            case CardTargetAffiliation.Enemy:
-                                range.text = $"Ring {cardData.Area}, Enemy Targets in {cardData.Range} Tiles";
-                                break;
-                            default:
-                                range.text = $"Ring {cardData.Area}, in {cardData.Range} Tiles";
-                                break;
-                        }
-                    }
-                        break;
-                    
-                    case CardTargetSelection.RingSelf:
-                    {
-                        switch (cardData.targetingData.CardTargetAffiliation)
-                        {
-                            case CardTargetAffiliation.Ally:
-                                range.text = $"Ring {cardData.Area} from Self, Ally Targets";
-                                break;
-                            case CardTargetAffiliation.Enemy:
-                                range.text = $"Ring {cardData.Area} from Self, Enemy Targets";
-                                break;
-                            default:
-                                range.text = $"Ring {cardData.Area} from Self";
-                                break;
-                        }
-                    }
-                    break;
-                case CardTargetSelection.Radius:
-                    {
-                        switch (cardData.targetingData.CardTargetAffiliation)
-                        {
-                            case CardTargetAffiliation.Ally:
-                                range.text = $"Radius {cardData.Area}, Ally Targets in {cardData.Range} Tiles";
-                                break;
-                            case CardTargetAffiliation.Enemy:
-                                range.text = $"Radius {cardData.Area}, Enemy Targets in {cardData.Range} Tiles";
-                                break;
-                            default:
-                                range.text = $"Radius {cardData.Area}, in {cardData.Range} Tiles";
-                                break;
-                        }
-                    }
-                    break;
-                case CardTargetSelection.LineFree:
-                    {
-                        switch (cardData.targetingData.CardTargetAffiliation)
-                        {
-                            case CardTargetAffiliation.Ally:
-                                range.text = $"Line Free, Ally Targets, up to {cardData.Range} Tiles";
-                                break;
-                            case CardTargetAffiliation.Enemy:
-                                range.text = $"Line Free, Enemy Targets, up to {cardData.Range} Tiles";
-                                break;
-                            default:
-                                range.text = $"Line Free, up to {cardData.Range} Tiles";
-                                break;
-                        }
-                    }
-                    break;
-                case CardTargetSelection.LineSelf:
-                    {
-                        switch (cardData.targetingData.CardTargetAffiliation)
-                        {
-                            case CardTargetAffiliation.Ally:
-                                range.text = $"Line from Self, Ally Targets, up to {cardData.Range} Tiles";
-                                break;
-                            case CardTargetAffiliation.Enemy:
-                                range.text = $"Line from Self, Enemy Targets, up to {cardData.Range} Tiles";
-                                break;
-                            default:
-                                range.text = $"Line from Self, up to {cardData.Range} Tiles";
-                                break;
-                        }
-                    }
-                    break;
-                case CardTargetSelection.Cone:
-                    {
-                        switch (cardData.targetingData.CardTargetAffiliation)
-                        {
-                            case CardTargetAffiliation.Ally:
-                                range.text = $"Cone from Self, Ally Targets, {cardData.Range} by {cardData.Area}";
-                                break;
-                                case CardTargetAffiliation.Enemy:
-                                range.text = $"Cone from Self, Enemy Targets, {cardData.Range} by {cardData.Area}";
-                                break;
-                                default:
-                                range.text = $"Cone from Self, {cardData.Range} by {cardData.Area}";
-                                break;
-
-                        }
-                    }
-                    break;
-                case CardTargetSelection.Select:
-                    switch (cardData.targetingData.CardTargetAffiliation)
-                    {
-                        case CardTargetAffiliation.Ally:
-                            range.text = $"Select, Ally Targets, {cardData.Area} targets within {cardData.Range} Tiles";
-                            break;
-                        case CardTargetAffiliation.Enemy:
-                            range.text = $"Select, Enemy Targets, {cardData.Area} targets within {cardData.Range} Tiles";
-                            break;
-                        default:
-                            range.text = $"Select, {cardData.Area} targets within {cardData.Range} Tiles";
-                            break;
-
-                    }
-                    break;
-                case CardTargetSelection.All:
-                    {
-                        switch (cardData.targetingData.CardTargetAffiliation)
-                        {
-                            case CardTargetAffiliation.Ally:
-                                range.text = $"All Ally Targets";
-                                break;
-                            case CardTargetAffiliation.Enemy:
-                                range.text = $"All Enemy Targets";
-                                break;
-                            default:
-                                range.text = $"All Targets";
-                                break;
-                        }
-                    }
-                    break;
-            }
+            range.text = GetRangeText(cardData);
         }
     }
+    public static string GetRangeText(CardData cardData)
+    {
+        var t = cardData.targetingData;
+
+        List<string> parts = new();
+
+        switch (t.cardSelectionType)
+        {
+            case CardTargetingModeType.Single:
+                parts.Add("Single Target");
+                break;
+
+            case CardTargetingModeType.Ring:
+                parts.Add($"Ring, {cardData.Radius} by {cardData.Area}");
+                break;
+
+            case CardTargetingModeType.Radius:
+                parts.Add($"Radius, {cardData.Radius}");
+                break;
+
+            case CardTargetingModeType.LineFree:
+                parts.Add($"Line Free, with maximum length {cardData.Area}");
+                break;
+
+            case CardTargetingModeType.LineSelf:
+                parts.Add($"Line from Self, {cardData.Range}");
+                break;
+
+            case CardTargetingModeType.Cone:
+                parts.Add($"Cone from Self, {cardData.Range} by {cardData.Area}");
+                break;
+
+            case CardTargetingModeType.Select:
+                parts.Add($"Select, {cardData.MaxTarget} targets");
+                break;
+
+            case CardTargetingModeType.All:
+                parts.Add("All");
+                break;
+        }
+
+        //
+        // 2. Affiliation if applicable
+        //
+        if (t.CardTargetAffiliation != CardTargetAffiliation.Self)
+        {
+            if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
+                parts.Add("Ally Targets");
+            else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
+                parts.Add("Enemy Targets");
+            else
+                parts.Add("");
+        }
+        else
+        {
+            // Special case: Self-target overrides everything else.
+            if (t.cardSelectionType == CardTargetingModeType.Single)
+                return "Self Target";
+
+            parts.Add("Self Target");
+        }
+
+        //
+        // 3. Range (only if mode uses range)
+        //
+        if (t.cardSelectionType is not CardTargetingModeType.All)
+        {
+            if (t.cardSelectionType == CardTargetingModeType.LineFree ||
+                t.cardSelectionType == CardTargetingModeType.LineSelf)
+                parts.Add($"up to {cardData.Range} Tiles");
+            else if (t.cardSelectionType != CardTargetingModeType.Cone) // cone already included its own dimensions
+                parts.Add($"in {cardData.Range} Tiles");
+        }
+
+        //
+        // 4. Final join
+        //
+        return string.Join(", ", parts);
+    }
+
+
 
     public void ResetCard()
     {

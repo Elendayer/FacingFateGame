@@ -36,6 +36,7 @@ public class NonPlayerScript : EntityScript
 
         plan = npcAIController.BuildTurnPlan();
 
+        Debug.Log($"[NonPlayerScript] {name} has planned {plan.Count} actions for this turn.");
         StartCoroutine(ExecutePlan(plan));
     }
 
@@ -51,6 +52,8 @@ public class NonPlayerScript : EntityScript
 
                 case PlannedAction.ActionType.PlayCard:
                     yield return ExecuteCard(action);
+                    yield return new WaitForSeconds(0.5f);
+
                     break;
             }
 
@@ -63,13 +66,11 @@ public class NonPlayerScript : EntityScript
 
     private IEnumerator ExecuteMove(PlannedAction action)
     {
-        Debug.Log($"[NPC] {name} moves to {action.TargetCell} because {action.Name}");
-
         GameEvents.TriggerRefEvent(new TriggerRef
         {
             OnTriggerReference = new() { GameplayRef.onMove },
             UserEntity = this,
-            AffectedEntity = this
+            AffectedEntities = new() { this }
         });
 
         var entityOnMap = GetComponent<EntityOnMap>();
@@ -85,7 +86,7 @@ public class NonPlayerScript : EntityScript
 
     private IEnumerator ExecuteCard(PlannedAction action)
     {
-        Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on {string.Join(", ", action.Targets.Select(t => t.name))}");
+        Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on {string.Join(", ", action.TargetingModeData.targetedEntities.Select(t => t.name))}");
 
         bool cardComplete = false;
 
@@ -104,7 +105,7 @@ public class NonPlayerScript : EntityScript
     private IEnumerator PlayCardWithCallback(PlannedAction action, System.Action onComplete)
     {
         // Activate card effects
-        action.Card.cardData.ActivateCard(action.Targets, gameObject);
+        action.Card.cardData.ActivateCardEffect(action.TargetingModeData, gameObject);
         onComplete?.Invoke();
         yield return null;
     }

@@ -39,6 +39,10 @@ public class EntityScriptEditor : Editor
             DrawStat("Block", entity.entityStats.Block);
             EditorGUILayout.Space(5);
 
+            // === Movement ===
+            EditorGUILayout.LabelField("🏃 Movement", EditorStyles.boldLabel);
+            DrawStat("Movement Cost", entity.entityStats.MovementCostModifier);
+
             // === Attributes ===
             EditorGUILayout.LabelField("💪 Attributes", EditorStyles.boldLabel);
             DrawStat("Strength", entity.entityStats.Strength);
@@ -54,7 +58,7 @@ public class EntityScriptEditor : Editor
             DrawStat("Damage Increase", entity.entityStats.DamageOutModifier);
             DrawStat("Damage Reduction", entity.entityStats.DamageTakenModifier);
             DrawStat("Healing Increase", entity.entityStats.HealingOutModifier);
-            DrawStat("Cost Increase", entity.entityStats.CostModifier);
+            DrawStat("Cost Increase", entity.entityStats.CardCostModifier);
             DrawStat("Power Increase", entity.entityStats.PowerModifier);
             DrawStat("Duration Increase", entity.entityStats.DurationModifier);
             DrawStat("Ignore Armour", entity.entityStats.IgnoreArmour);
@@ -82,15 +86,61 @@ public class EntityScriptEditor : Editor
             return;
         }
 
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField(label, GUILayout.Width(160));
-        EditorGUILayout.LabelField(stat.Value.ToString(), EditorStyles.boldLabel);
+        // Column widths for clean alignment
+        float colLabel = 120f;
+        float colValue = 60f;
+        float colFlat = 50f;
+        float colPercent = 50f;
+        float colMult = 50f;
+
+        int final = stat.Value();
+        int flat = stat.GetFlatValue();
+        int percent = stat.GetPercentValue();
+        List<int> multipliers = stat.GetMultiplierValues();
+
+        // Header Row
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+        EditorGUILayout.LabelField("Final", GUILayout.Width(colValue));
+        EditorGUILayout.LabelField("Flat", GUILayout.Width(colFlat));
+        EditorGUILayout.LabelField("%", GUILayout.Width(colPercent));
+        EditorGUILayout.LabelField("xMult", GUILayout.Width(colMult));
         EditorGUILayout.EndHorizontal();
+
+        // Main Row (first multiplier if present)
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty because label already shown above
+        EditorGUILayout.LabelField(final.ToString(), GUILayout.Width(colValue));
+        EditorGUILayout.LabelField(flat.ToString(), GUILayout.Width(colFlat));
+        EditorGUILayout.LabelField(percent.ToString(), GUILayout.Width(colPercent));
+
+        if (multipliers.Count > 0)
+            EditorGUILayout.LabelField(multipliers[0].ToString(), GUILayout.Width(colMult));
+        else
+            EditorGUILayout.LabelField("-", GUILayout.Width(colMult));
+
+        EditorGUILayout.EndHorizontal();
+
+        // Additional multiplier rows
+        for (int i = 1; i < multipliers.Count; i++)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty column
+            EditorGUILayout.LabelField("", GUILayout.Width(colValue));
+            EditorGUILayout.LabelField("", GUILayout.Width(colFlat));
+            EditorGUILayout.LabelField("", GUILayout.Width(colPercent));
+            EditorGUILayout.LabelField(multipliers[i].ToString(), GUILayout.Width(colMult));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        EditorGUILayout.Space(6);
     }
     private void DrawStat(string label, int stat)
     {
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField(label, GUILayout.Width(160));
+        float colLabel = 120f;
+
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
         EditorGUILayout.LabelField(stat.ToString(), EditorStyles.boldLabel);
         EditorGUILayout.EndHorizontal();
     }

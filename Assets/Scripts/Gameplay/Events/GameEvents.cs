@@ -32,13 +32,13 @@ public static class GameEvents
     }
     public static bool CheckIfRelevantTrigger(TriggerRef sendReference, TriggerRef checkReference)
     {
-        if (sendReference.AffectedEntityId == checkReference.AffectedEntityId)
+        if (checkReference.AffectedEntitiesIds.Any(id => sendReference.AffectedEntitiesIds.Contains(id)))
         {
             if (sendReference.OnTriggerReference == null || sendReference.OnTriggerReference.Count == 0)
             {
                 return false;
             }
-            return sendReference.OnTriggerReference.Any(gr => checkReference.OnTriggerReference.Contains(gr));
+            return sendReference.OnTriggerReference.Any(tr => checkReference.OnTriggerReference.Contains(tr));
         }
         return false;
     }
@@ -49,24 +49,26 @@ public struct TriggerRef
 {
     public List<GameplayRef> OnTriggerReference;
     public EntityScript UserEntity;
-    public EntityScript AffectedEntity;
-
-    public int UserId => UserEntity.GetInstanceID();
-    public int AffectedEntityId => AffectedEntity.GetInstanceID();
-
+    public List<EntityScript> AffectedEntities;
     public CardData CardData;
+    public int Throughput;
+    public int UserId => UserEntity.GetInstanceID();
+    public List<int> AffectedEntitiesIds => AffectedEntities.Select(ae => ae.GetInstanceID()).ToList(); 
+
 
     public TriggerRef(
-        List<GameplayRef> references = null, 
-        EntityScript userEntity = null,
-        EntityScript affectedEntity = null,
-        CardData cardData = null
+        List<GameplayRef> references, 
+        EntityScript userEntity,
+        List<EntityScript> affectedEntities,
+        CardData cardData = null,
+        int throughput = 0
         )
     {
         OnTriggerReference = references;
         UserEntity = userEntity;
-        AffectedEntity = affectedEntity;
+        AffectedEntities = affectedEntities;
         CardData = cardData;
+        Throughput = throughput;
     }
 }
 
@@ -79,7 +81,23 @@ public enum GameplayRef
     onBurn,
     onBleed,
     onPoison,
+    onThorns,
     onDebuffed,
+    onSlowed,
+    onStunned,
+    onRooted,
+    onSilenced,
+    onWeakened,
+    onEmpowered,
+    onShielded,
+    onHasted,
+    onFreeze,
+    onTaunted,
+    onInvisible,
+    onCharmed,
+    onCleansed,
+    onRevived,
+    onEnraged,
 
     //Targeting
     untargetableByAll,
@@ -90,7 +108,6 @@ public enum GameplayRef
 
     //Combat Events
     onDamage,
-    onStunned,
     onBlocking,
     onBuffed,
     onAttack,
@@ -98,8 +115,12 @@ public enum GameplayRef
     onDeath,
     onSummon,
     onLifesteal,
-    onCounter,
-
+    onCounterRecieved,
+    onDamageRecieved,
+    onHealRecieved,
+    onBuffRecieved,
+    onDebuffRecieved,
+    
     //Game Flow
     onTurnStart,
     onTurnEnd,
@@ -115,7 +136,6 @@ public enum GameplayRef
 
     //Misc
     onMove,
-
 
     //Card Types
     Skill,
