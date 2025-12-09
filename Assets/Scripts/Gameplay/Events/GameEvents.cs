@@ -32,13 +32,16 @@ public static class GameEvents
     }
     public static bool CheckIfRelevantTrigger(TriggerRef sendReference, TriggerRef checkReference)
     {
-        if (checkReference.AffectedEntitiesIds.Any(id => sendReference.AffectedEntitiesIds.Contains(id)))
+        if (sendReference.AffectedEntities != null && checkReference.AffectedEntities != null)
         {
-            if (sendReference.OnTriggerReference == null || sendReference.OnTriggerReference.Count == 0)
+            if (checkReference.AffectedEntities.Any(entity => sendReference.AffectedEntities.Contains(entity)))
             {
-                return false;
+                if (sendReference.OnTriggerReference == null || sendReference.OnTriggerReference.Count == 0)
+                {
+                    return false;
+                }
+                return sendReference.OnTriggerReference.Any(tr => checkReference.OnTriggerReference.Contains(tr));
             }
-            return sendReference.OnTriggerReference.Any(tr => checkReference.OnTriggerReference.Contains(tr));
         }
         return false;
     }
@@ -52,9 +55,6 @@ public struct TriggerRef
     public List<EntityScript> AffectedEntities;
     public CardData CardData;
     public int Throughput;
-    public int UserId => UserEntity.GetInstanceID();
-    public List<int> AffectedEntitiesIds => AffectedEntities.Select(ae => ae.GetInstanceID()).ToList(); 
-
 
     public TriggerRef(
         List<GameplayRef> references, 

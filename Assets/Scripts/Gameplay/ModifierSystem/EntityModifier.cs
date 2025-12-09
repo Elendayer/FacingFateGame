@@ -11,15 +11,15 @@ public interface IEntityModifier
     bool IsExpired { get; }
     int Charges { get; set; }
 
-
     // Triggering
     List<GameplayRef> ToTriggerGameplayRefs { get; }
-    TriggerRef OnTriggerConditionRef { get; }
-
+    TriggerRef OnRef_Trigger { get; }
 
     void AddListener();
-    void OnRefEventTriggered(TriggerRef reference);
-    void OnManuelTrigger(TriggerRef trigger, bool consumeCharges = false);
+    void OnRef_ActionCall(TriggerRef reference);
+    void OnApply_ActionTrigger();
+    void onRemove_ActionTrigger();
+    void OnManuel_ActionTrigger(TriggerRef trigger, bool consumeCharges = false);
 }
 
 [System.Serializable]
@@ -57,10 +57,14 @@ public class EntityModifier : IEntityModifier
 
     // Triggering
     public List<GameplayRef> ToTriggerGameplayRefs { get; private set; }
-    public TriggerRef OnTriggerConditionRef { get; private set; } = new TriggerRef();
+    public TriggerRef OnRef_Trigger { get; private set; } = new TriggerRef();
+    public TriggerRef OnRemove_Trigger { get; private set; } = new TriggerRef();
+    public TriggerRef OnApply_Trigger { get; private set; } = new TriggerRef();
 
     // Action to perform on trigger
-    public Action<TriggerActionData, EntityScript> onTriggerEventAction;
+    public Action<TriggerActionData, EntityScript> OnRef_Action;
+    public Action<TriggerActionData, EntityScript> OnApply_Action;
+    public Action<TriggerActionData, EntityScript> OnRemove_Action;
 
     // Constructor
     public EntityModifier
@@ -68,70 +72,114 @@ public class EntityModifier : IEntityModifier
     string modifierName,
     int baseValue = 0,
     List<GameplayRef> toTriggerRefs = null,
-    TriggerRef onTriggerConditionRef = new TriggerRef(),
+    TriggerRef onRef_Trigger = new TriggerRef(),
+    TriggerRef onApply_Trigger = new TriggerRef(),
+    TriggerRef onRemove_Trigger = new TriggerRef(),
     int duration = 99999,
     int charges = 99999,
     Stat targetStat = null,
-    Action<TriggerActionData, EntityScript> onTriggerEventAction = null
+    Action<TriggerActionData, EntityScript> onRef_Action = null,
+    Action<TriggerActionData, EntityScript> onApply_Action = null,
+    Action<TriggerActionData, EntityScript> onRemove_Action = null
     )
     {
         ModifierName = modifierName;
         BaseValue = baseValue;
         ToTriggerGameplayRefs = toTriggerRefs;
-        OnTriggerConditionRef = onTriggerConditionRef;
+        OnRef_Trigger = onRef_Trigger;
+        OnApply_Trigger = onApply_Trigger;
+        OnRemove_Trigger = onRemove_Trigger;
         Duration = duration;
         Charges = charges;
-        this.onTriggerEventAction = onTriggerEventAction;
+        OnRef_Action = onRef_Action;
+        OnApply_Action = onApply_Action;
+        OnRemove_Action = onRemove_Action;
     }
 
     // Methods
     public void AddListener()
     {
-        GameEvents.OnGameplayReference += OnRefEventTriggered;
+        GameEvents.OnGameplayReference += OnRef_ActionCall;
     }
     public int GetRemainingDuration() => Duration;
-    public void OnRefEventTriggered(TriggerRef trigger)
+
+    public void OnRef_ActionCall(TriggerRef trigger)
     {
-        if (GameEvents.CheckIfRelevantTrigger(trigger, OnTriggerConditionRef))
+
+        if (GameEvents.CheckIfRelevantTrigger(trigger, OnRef_Trigger))
         {
-            onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
+            OnRef_Action?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
 
             if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
             {
                 GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, null, BaseValue));
             }
 
+            // Consume Charge if it has Charges
             if (Charges < 9999)
             {
                 Charges--;
             }
+
+            // Tick Duration if Effect Triggers on Turnstart
+            if(trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+            {
+                if (Duration < 9999)
+                {
+                    Duration--;
+                }
+            }
+            if (IsExpired || IsSpend)
+            {
+                OnRemove();
+            }
         }
 
-        TriggerRef DurationTrigger = new TriggerRef
-            ( 
-            references: new() { GameplayRef.onTurnStart },
-            userEntity: OnTriggerConditionRef.UserEntity,
-            affectedEntities: new() { OnTriggerConditionRef.UserEntity 
+        // Tick Duration if its not triggered at TurnStart and has Duration
+        if(!OnRef_Trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+        {
+            TriggerRef DurationTrigger = new TriggerRef(
+            references: new() { GameplayRef.onTurnEnd },
+            userEntity: OnRef_Trigger.UserEntity,
+            affectedEntities: new() { OnRef_Trigger.AffectedEntities[0]
             });
 
-        if (GameEvents.CheckIfRelevantTrigger(trigger, DurationTrigger))
-        {
-            if (Duration < 99999)
+            if (GameEvents.CheckIfRelevantTrigger(trigger, DurationTrigger))
             {
-                Duration--;
+                if (Duration < 99999)
+                {
+                    Duration--;
+                }
             }
-
-        }
-        if (IsExpired || IsSpend)
-        {
-            OnRemove();
+            if (IsExpired || IsSpend)
+            {
+                OnRemove();
+            }
         }
     }
-    public void OnManuelTrigger(TriggerRef trigger, bool consumeCharges = false)
+    public void OnApply_ActionTrigger()
+    {
+        OnApply_Action?.Invoke(new TriggerActionData(OnApply_Trigger, StatModifier, BaseValue), OnApply_Trigger.AffectedEntities[0]);
+
+        //GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, OnApply_Trigger.UserEntity, OnApply_Trigger.AffectedEntities, OnApply_Trigger.CardData, OnApply_Trigger.Throughput));
+    }
+    public void onRemove_ActionTrigger()
+    {
+        OnRemove_Action?.Invoke(new TriggerActionData(OnRemove_Trigger, StatModifier, BaseValue), OnRemove_Trigger.AffectedEntities[0]);
+
+        //GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, OnRemove_Trigger.UserEntity, OnRemove_Trigger.AffectedEntities, OnRemove_Trigger.CardData, OnRemove_Trigger.Throughput));
+    }
+    public void OnManuel_ActionTrigger(TriggerRef trigger, bool consumeCharges = false)
     {
         Debug.Log($"EntityModifier {ModifierName} manually triggered action. By {trigger.UserEntity} at {trigger.AffectedEntities[0]}");
-        onTriggerEventAction?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
+        OnRef_Action?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
+
         GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, trigger.CardData, trigger.Throughput));
+
+        if (Charges < 9999)
+        {
+            Charges--;
+        }
         
         if (consumeCharges)
         {
@@ -141,18 +189,20 @@ public class EntityModifier : IEntityModifier
                 Debug.Log($"FunctionModifier duration: {Duration}");
             }
         }
-        if (IsExpired)
+        if (IsExpired || IsSpend)
         {
             OnRemove();
         }
     }
     public void OnRemove()
     {
-        foreach (var Reference in OnTriggerConditionRef.OnTriggerReference)
+        onRemove_ActionTrigger();
+
+        foreach (var Reference in OnRef_Trigger.OnTriggerReference)
         {
-            GameEvents.OnGameplayReference -= OnRefEventTriggered;
+            GameEvents.OnGameplayReference -= OnRef_ActionCall;
         }
-        OnTriggerConditionRef.AffectedEntities[0].RemoveModifier(this);
+        OnRef_Trigger.AffectedEntities[0].RemoveModifier(this);
     }
 }
 

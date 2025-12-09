@@ -56,13 +56,13 @@ public static class PhysicianCards
                     baseValue: d.Healing,
                     toTriggerRefs: new() { GameplayRef.onHealRecieved },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntities = new() { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data, target) =>
+                    onRef_Action: (data, target) =>
                     {
                         CombatUtility.ApplyHealing(data.TriggerReference.CardData, target, data.Value);
                     }
@@ -869,13 +869,13 @@ public static class PhysicianCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntities = new() { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data,target) =>
+                    onRef_Action: (data,target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
                     });

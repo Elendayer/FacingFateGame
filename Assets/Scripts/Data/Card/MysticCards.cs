@@ -443,8 +443,8 @@ public static class MysticCards
                     baseValue: d.Power,
                     toTriggerRefs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntities = { Target }},
-                    onTriggerEventAction: (data, target) =>
+                    onRef_Trigger: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntities = { Target }},
+                    onRef_Action: (data, target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
                     });

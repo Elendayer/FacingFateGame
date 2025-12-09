@@ -64,7 +64,15 @@ public class EntityScriptEditor : Editor
             DrawStat("Ignore Armour", entity.entityStats.IgnoreArmour);
             DrawStat("Ignore Block", entity.entityStats.IgnoreBlock);
             DrawStat("Lifesteal", entity.entityStats.Lifesteal);
-            EditorGUILayout.Space(10);    
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.LabelField(" Status Effects", EditorStyles.boldLabel);
+            DrawStat("Stunned", entity.entityStats.IsStunned);
+            DrawStat("Rooted", entity.entityStats.IsRooted);
+            DrawStat("Taunt Target",  entity.entityStats.tauntTarget ? entity.entityStats.tauntTarget.name : "not Taunted");
+            EditorGUILayout.Space(10);
+
+
         }
         catch
         {
@@ -144,6 +152,24 @@ public class EntityScriptEditor : Editor
         EditorGUILayout.LabelField(stat.ToString(), EditorStyles.boldLabel);
         EditorGUILayout.EndHorizontal();
     }
+    private void DrawStat(string label, bool stat)
+    {
+        float colLabel = 120f;
+
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+        EditorGUILayout.LabelField(stat.ToString(), EditorStyles.boldLabel);
+        EditorGUILayout.EndHorizontal();
+    }
+    private void DrawStat (string label, string stat)
+    {
+        float colLabel = 120f;
+
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+        EditorGUILayout.LabelField(stat, EditorStyles.boldLabel);
+        EditorGUILayout.EndHorizontal();
+    }
 
     private void DrawEntityModifiers(EntityScript entity)
     {
@@ -172,7 +198,16 @@ public class EntityScriptEditor : Editor
             count++;
 
             string name = mod.ModifierName ?? "<Unnamed>";
-            GameplayRef condition = mod.OnTriggerConditionRef.OnTriggerReference.FirstOrDefault();
+
+            GameplayRef condition;
+            if (mod.OnRef_Trigger.OnTriggerReference != null)
+            {
+                condition = mod.OnRef_Trigger.OnTriggerReference.FirstOrDefault();
+            }
+            else
+            {
+                condition = GameplayRef.None;
+            }
             string valueStr = "";
             int duration = mod.Duration; 
 

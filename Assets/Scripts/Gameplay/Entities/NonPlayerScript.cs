@@ -8,6 +8,7 @@ public class NonPlayerScript : EntityScript
     [Header("AI")]
     public string NpcID = "0001";
     public NpcAIController npcAIController;
+    public NpcData npcData = new();
 
     [SerializeField]
     private List<PlannedAction> plan = new();
@@ -15,9 +16,8 @@ public class NonPlayerScript : EntityScript
     public override void StartUp()
     {
         base.StartUp();
-
-        // Load NPC data and initialize AI
         NpcData npcData = NpcDatabase.GetNpcById(NpcID, this);
+        // Load NPC data and initialize AI
         npcAIController = new NpcAIController(this, npcData);
 
         name = $"{entityAffiliation}_{npcData.name}";
@@ -52,20 +52,19 @@ public class NonPlayerScript : EntityScript
 
                 case PlannedAction.ActionType.PlayCard:
                     yield return ExecuteCard(action);
-                    yield return new WaitForSeconds(0.5f);
-
                     break;
             }
-
-            // Optional pacing for readability
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.25f);
         }
+        yield return new WaitForSeconds(0.5f);
 
         EventManager.Instance.Endturn();
     }
 
     private IEnumerator ExecuteMove(PlannedAction action)
     {
+        float start = Time.time;
+
         GameEvents.TriggerRefEvent(new TriggerRef
         {
             OnTriggerReference = new() { GameplayRef.onMove },
@@ -76,12 +75,13 @@ public class NonPlayerScript : EntityScript
         var entityOnMap = GetComponent<EntityOnMap>();
         bool moveComplete = false;
 
-        // Start the move coroutine
         StartCoroutine(MoveToViaPathWithCallback(entityOnMap, action.Path, () => moveComplete = true));
 
-        // Wait until movement finishes
         while (!moveComplete)
             yield return null;
+
+        float end = Time.time;
+        Debug.Log($"Move completed in {end - start:0.000} seconds");
     }
 
     private IEnumerator ExecuteCard(PlannedAction action)
@@ -98,7 +98,10 @@ public class NonPlayerScript : EntityScript
 
     private IEnumerator MoveToViaPathWithCallback(EntityOnMap entityOnMap, List<Vector3Int> path, System.Action onComplete)
     {
-        yield return entityOnMap.StartCoroutine("StartMove", path);
+        // Wait for FollowPath to finish
+        yield return entityOnMap.StartMove(path);
+
+        // Now safe to fire callback
         onComplete?.Invoke();
     }
 

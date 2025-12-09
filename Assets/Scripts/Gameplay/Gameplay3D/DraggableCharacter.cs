@@ -16,7 +16,9 @@ public class DraggableCharacter : Draggable3D
 
     public override void OnMouseDown()
     {
-        if(TurnManager.Instance.CurrentTurnEntity == characterEntity)
+        if (characterEntity.entityStats.IsRooted) { return; }
+
+        if (TurnManager.Instance.CurrentTurnEntity == characterEntity)
         {        
             base.OnMouseDown();
             startPosition = characterOnMap.currentCell;
@@ -64,7 +66,6 @@ public class DraggableCharacter : Draggable3D
         }
 
         // Highlight path from current position to hover cell
-        Debug.Log(MovementUtility.FindPath(characterOnMap.currentCell, hoverCell).Path.Count);
         TilemapUtilityScript.SetTilesHighlight( MovementUtility.FindPath( characterOnMap.currentCell, hoverCell).Path, TilemapUtilityScript.HighlightType.Path);
     }
 }

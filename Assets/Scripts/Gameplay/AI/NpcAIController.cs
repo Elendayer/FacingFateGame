@@ -40,6 +40,9 @@ public class NpcAIController
                 actionCandidates.Add(repositionCandidate);
             }
 
+            ScoredCard bestAction;
+            int totalCost;
+
             // If no actions found, consider chasing
             if (actionCandidates.Count == 0)
             {
@@ -47,23 +50,38 @@ public class NpcAIController
                 var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities);
                 if (chaseCandidate != null)
                 {
-                    Debug.Log($"[NpcAI] Adding chase candidate for NPC {npcScript.name}");
-                    actionCandidates.Add(chaseCandidate);
+                    actionCandidates = new List<ScoredCard> { chaseCandidate };
+
+                    // Select best action within stamina
+                    Debug.Log($"[NpcAI] Found {actionCandidates.Count} action candidates for NPC {npcScript.name}");
+                     bestAction = SelectBestActionCandidate(actionCandidates, npcScript.entityStats.CurrentStamina);
+                    if (bestAction == null || bestAction.score <= 0) break;
+
+                    Debug.Log($"[NpcAI] Best action selected: {bestAction.pseudoName} with score {bestAction.score} for NPC {npcScript.name}");
+                     totalCost = (bestAction.movementCost) + (bestAction.card?.cardData.Cost ?? 0);
+                    if (totalCost > npcScript.entityStats.CurrentStamina) break;
+
+                    ApplyActionToPlan(plan, bestAction, ref virtualPosition, npcScript);
+                    break;
+                }
+                else
+                {
+                    Debug.Log($"[NpcAI] No chase candidate found for NPC {npcScript.name}, ending turn planning");
+                    break;
                 }
             }
 
             // Select best action within stamina
             Debug.Log($"[NpcAI] Found {actionCandidates.Count} action candidates for NPC {npcScript.name}");
-            var bestAction = SelectBestActionCandidate(actionCandidates, npcScript.entityStats.CurrentStamina);
+            bestAction = SelectBestActionCandidate(actionCandidates, npcScript.entityStats.CurrentStamina);
             if (bestAction == null || bestAction.score <= 0) break;
 
             Debug.Log($"[NpcAI] Best action selected: {bestAction.pseudoName} with score {bestAction.score} for NPC {npcScript.name}");
-            int totalCost = (bestAction.movementCost) + (bestAction.card?.cardData.Cost ?? 0);
+            totalCost = (bestAction.movementCost) + (bestAction.card?.cardData.Cost ?? 0);
             if (totalCost > npcScript.entityStats.CurrentStamina) break;
 
             ApplyActionToPlan(plan, bestAction, ref virtualPosition, npcScript);
         }
-
         return plan;
     }
     #endregion
@@ -233,6 +251,8 @@ public class NpcAIController
     #region Flee / Chase
     private ScoredCard TryGetRepositionCandidate(Vector3Int virtualPosition, List<EntityScript> allEntities)
     {
+        if (npcScript.entityStats.IsRooted) { return null; }
+
         ScoredCard moveOption_Flee = null;
         switch (npcScript.npcAIController.npcAIBias.RepositionCondition)
         {
@@ -281,6 +301,8 @@ public class NpcAIController
 
     private ScoredCard TryGetChaseCandidate(Vector3Int virtualPosition, List<EntityScript> allEntities)
     {
+        if (npcScript.entityStats.IsRooted) { return null; }
+
         Debug.Log($"[NpcAI] Trying to find chase candidate for NPC {npcScript.name} at position {virtualPosition}");
         var enemies = allEntities.Where(e => e.entityAffiliation != npcScript.entityAffiliation).ToList();
 
@@ -308,6 +330,7 @@ public class NpcAIController
             Debug.Log($"[NpcAI] Path to nearest enemy is null for NPC {npcScript.name}");
             return null;
         }
+
         Debug.Log($"[NpcAI] Path to nearest enemy for NPC {npcScript.name} has cost {pathData.PathCost}");
         if (pathData.PathCost <= npcScript.entityStats.CurrentStamina)
         {

@@ -47,6 +47,11 @@ public class EntityStats
     public Stat RadiusModifier = new();
     public Stat MaxTargetModifier = new();
 
+    [Header("StatusConditions")]
+    public bool IsStunned = false;
+    public bool IsRooted = false;
+    public EntityScript tauntTarget;
+
     public void StartUp(EntityScript entityScript)
     {
         Owner = entityScript;
@@ -70,6 +75,11 @@ public class EntityStats
         if (GameEvents.CheckIfRelevantTrigger(reference, new TriggerRef(new() { GameplayRef.onTurnStart }, Owner, new() { Owner })))
         {
             CurrentStamina = MaxStamina.Value();
+        }
+
+        if (IsStunned)
+        {
+            GameEvents.TriggerTurnEnd();
         }
     }
 }

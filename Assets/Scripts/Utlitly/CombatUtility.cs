@@ -118,13 +118,7 @@ namespace Utility
 
             mod.Stat.AddModifier(mod, mergeStrategy);
 
-            var dbg = target.GetComponent<StatusDebugView>();
-            if (dbg != null)
-            {
-                var label = string.IsNullOrEmpty(mod.ModifierName) ? "BUFF" : mod.ModifierName;
-                var eff = mod.Stat.GetModifierByName(mod.ModifierName) ?? mod;
-                dbg.SyncDot(label, eff.BaseValue, eff.Duration);
-            }
+            Debug.Log($"Applied Buff {mod.ModifierName} to {target.name}");
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, mod.BaseValue);
         }
 
@@ -142,9 +136,8 @@ namespace Utility
                 var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
                 dbg.SyncDot(label, eff.BaseValue, eff.Duration);
             }
-            HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);
-            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, new() { target }, cardData));
-        }
+            Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
+            HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);        }
 
         public static void ApplyEntityModifier(CardData cardData, EntityScript target, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
         {

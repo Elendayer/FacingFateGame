@@ -1,10 +1,8 @@
 ﻿// Editor/TimelineManagerEditor.cs
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 [CustomEditor(typeof(TimelineManager))]
 public class TimelineManagerEditor : Editor
@@ -13,7 +11,7 @@ public class TimelineManagerEditor : Editor
     private Vector2 scrollPos;
 
     // Tracks which turn entries are expanded
-    private Dictionary<int, bool> foldouts = new Dictionary<int, bool>();
+    private Dictionary<string, bool> foldouts = new Dictionary<string, bool>();
 
     // Cache of solid color textures for backgrounds
     private readonly Dictionary<Color, Texture2D> colorCache = new Dictionary<Color, Texture2D>();
@@ -35,21 +33,21 @@ public class TimelineManagerEditor : Editor
         foreach (var kvp in TimelineManager.Timeline)
         {
 
-            int key = int.Parse(kvp.Key.Split('_').Last()); // Example: "UserId_TurnIndex"
+            string name =(kvp.Key.Split('_').Last()); 
             var triggerList = kvp.Value;
 
-            if (!foldouts.ContainsKey(key))
-                foldouts[key] = false;
+            if (!foldouts.ContainsKey(name))
+                foldouts[name] = false;
 
             // Collapsible section per turn
             GUI.backgroundColor = new Color(0.15f, 0.2f, 0.25f);
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             GUI.backgroundColor = Color.white;
 
-            foldouts[key] = EditorGUILayout.Foldout(foldouts[key],
-                $"▶ Turn {key} ({triggerList.Count} triggers)", true, EditorStyles.foldoutHeader);
+            foldouts[name] = EditorGUILayout.Foldout(foldouts[name],
+                $"▶Round:{TurnManager.Instance.CurrentRoundIndex}_{name}", true, EditorStyles.foldoutHeader);
 
-            if (foldouts[key])
+            if (foldouts[name])
             {
                 Color bgColor = Color.white;
 
@@ -122,17 +120,17 @@ public class TimelineManagerEditor : Editor
             try
             {
                 string userIdSafe = triggerRef.UserEntity != null
-                    ? triggerRef.UserId.ToString()
+                    ? triggerRef.UserEntity.name
                     : "(null UserEntity)";
 
                 EditorGUILayout.LabelField($"User ID: {userIdSafe}");
 
                 EditorGUILayout.LabelField("Affected Entity ID", EditorStyles.boldLabel);
 
-                if (triggerRef.AffectedEntitiesIds != null && triggerRef.AffectedEntitiesIds.Count > 0)
+                if (triggerRef.AffectedEntities != null && triggerRef.AffectedEntities.Count > 0)
                 {
                     EditorGUI.indentLevel++;
-                    foreach (var id in triggerRef.AffectedEntitiesIds)
+                    foreach (var id in triggerRef.AffectedEntities)
                         EditorGUILayout.LabelField($"• {id}");
                     EditorGUI.indentLevel--;
                 }

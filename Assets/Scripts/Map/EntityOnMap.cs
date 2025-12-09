@@ -59,8 +59,7 @@ public class EntityOnMap : MonoBehaviour
 
     public Coroutine StartMove(List<Vector3Int> path)
     {
-        Coroutine coroutine = StartCoroutine(FollowPath(path, defaultMovementSpeed));
-        return coroutine;
+        return StartCoroutine(FollowPath(path, defaultMovementSpeed));
     }
 
     private IEnumerator FollowPath(List<Vector3Int> path, float speed = 3f)

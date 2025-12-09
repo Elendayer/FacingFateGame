@@ -32,7 +32,7 @@ public class TimelineManager : MonoBehaviour
 
         if ( triggerRef.OnTriggerReference.Contains(GameplayRef.onTurnStart))
         {
-            Timeline.TryAdd($"{TurnManager.Instance.CurrentRoundIndex}_{triggerRef.UserId}", new() { triggerRef });
+            Timeline.TryAdd($"{TurnManager.Instance.CurrentRoundIndex}_{triggerRef.UserEntity.name}", new() { triggerRef });
         }
         else
         {
@@ -40,7 +40,7 @@ public class TimelineManager : MonoBehaviour
         }
     }
     public static List<TriggerRef> GetDataFromTimeline(
-        int entityId,
+        EntityScript entity,
         TimelineFilter filter,
         object filterValue = null,
         int turnsAgo = int.MaxValue,
@@ -70,7 +70,7 @@ public class TimelineManager : MonoBehaviour
 
             bool matches = filter switch
             {
-                TimelineFilter.User => isUser ? tr.UserId == entityId : tr.AffectedEntitiesIds.Contains(entityId),
+                TimelineFilter.User => isUser ? tr.UserEntity == entity : tr.AffectedEntities.Contains(entity),
                 TimelineFilter.CardData => tr.CardData == filterValue as CardData,
                 TimelineFilter.CardIdentity => tr.CardData.cardIdentities.Contains((CardIdentity)filterValue),
                 TimelineFilter.CardClass => tr.CardData.cardClass == (CardClass)filterValue,

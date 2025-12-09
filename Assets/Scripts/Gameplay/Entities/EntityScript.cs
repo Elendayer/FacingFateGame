@@ -132,6 +132,8 @@ public class EntityScript : MonoBehaviour
         }
 
         modifier.AddListener();
+
+        modifier.OnApply_ActionTrigger();
     }
 
     public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
@@ -175,7 +177,7 @@ public class EntityScript : MonoBehaviour
         var modifier = entityModifiers.FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
         if (modifier != null)
         {
-            modifier.OnManuelTrigger(triggerRef, consumeCharges);
+            modifier.OnManuel_ActionTrigger(triggerRef, consumeCharges);
             return true;
         }
         return false;

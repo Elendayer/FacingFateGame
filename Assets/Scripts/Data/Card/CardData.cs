@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using Utility;
 
@@ -71,6 +72,10 @@ public class CardData
     [Header("Charges")]
     public int charges_u = 0;
     public int Charges => charges_u;
+
+    [Header("StatusEffects")]
+    public bool isFrozen = false;
+
 
     [Header("Card Target")]
     public CardTargetingData targetingData = new();
@@ -196,6 +201,15 @@ public class CardAiBias
         {
             Debug.Log("user condition was false");
             return 0;
+        }
+
+        if (cardData.Owner.entityStats.tauntTarget != null)
+        {
+            if (!targets.Contains(cardData.Owner.entityStats.tauntTarget))
+            {
+                Debug.Log("Taunted Target wasn't targeted");
+                return 0;
+            }
         }
 
         float baseTotal = ComputeBaseTotal(cardData);

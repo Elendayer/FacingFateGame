@@ -142,13 +142,13 @@ public static class AssassinCards
                         baseValue: tick,
                         toTriggerRefs: new() { tickRef },
                         duration: dur,
-                        onTriggerConditionRef: new TriggerRef
+                        onRef_Trigger: new TriggerRef
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
                             AffectedEntities = new() { Target },
                             UserEntity = User
                         },
-                    onTriggerEventAction: (data, target) =>
+                    onRef_Action: (data, target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
                     });
@@ -380,12 +380,12 @@ public static class AssassinCards
                     baseValue: d.Damage, // oder etwas kleiner als d.Damage, falls gewünscht
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         AffectedEntities = new() { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data,target) =>
+                    onRef_Action: (data,target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
                     });
@@ -429,13 +429,13 @@ public static class AssassinCards
                     baseValue: 1,
                     toTriggerRefs: new() { GameplayRef.onStunned },
                     duration: Mathf.Max(1, d.Duration),
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntities = new() { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data, target) =>
+                    onRef_Action: (data, target) =>
                     {
                         // Melde „Stun aktiv“ – Turn/AI sollten bei vorhandenem Stun-Modifier Aktionen überspringen (TODO in Turn/AI)
                         GameEvents.TriggerRefEvent(new TriggerRef
@@ -482,13 +482,13 @@ public static class AssassinCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntities = new() { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data ,target) =>
+                    onRef_Action: (data ,target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
                     });

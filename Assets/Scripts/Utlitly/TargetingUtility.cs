@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Utility;
+using static UnityEngine.GraphicsBuffer;
 
 namespace Utility
 {
@@ -15,9 +16,10 @@ namespace Utility
 
             return candidates.Where(target => target != null && IsTargetValid(card, owner, target)).ToList();
         }
-
-        private static bool IsTargetValid(CardScript card, EntityScript owner, EntityScript target)
+        public static bool IsTargetValid(CardScript card, EntityScript owner, EntityScript target)
         {
+            if(target == null) return false;
+
             var targeting = card.cardData.targetingData;
             var targetAff = target.entityAffiliation;
             var ownerAff = owner.entityAffiliation;
@@ -189,6 +191,12 @@ namespace Utility
                         results.Add((new PathData { Start = path.Start, End = path.End, Path = path.Path, PathCost = 0 }, template));
                     }
                     continue;
+                }
+
+                if (card.cardData.Owner.entityStats.IsRooted) 
+                {
+                    results.Add((new PathData { Start = path.Start, End = path.End, Path = path.Path, PathCost = 0 }, template));
+                    continue; 
                 }
 
                 int totalCost = path.PathCost + card.cardData.Cost;

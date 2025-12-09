@@ -270,13 +270,13 @@ public static class NeutralCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: dur,
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntities = new() { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data, target) =>
+                    onRef_Action: (data, target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
                     });
@@ -316,13 +316,13 @@ public static class NeutralCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntities = new() { Target },
                         UserEntity = User
                     },
-                    onTriggerEventAction: (data, target) =>
+                    onRef_Action: (data, target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
 
@@ -568,13 +568,13 @@ public static class NeutralCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
                         AffectedEntities = new() { Target },
                         UserEntity = User
                        },
-                    onTriggerEventAction: (data, target) =>
+                    onRef_Action: (data, target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
                     });
@@ -614,14 +614,14 @@ public static class NeutralCards
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
-                    onTriggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart, GameplayRef.onModifierApplied },
                         AffectedEntities = new() { Target },
                         UserEntity = User
 
                     },
-                    onTriggerEventAction: (data, target) =>
+                    onRef_Action: (data, target) =>
                     {
                         CombatUtility.ApplyDamage(null, target, data.Value);
                     });

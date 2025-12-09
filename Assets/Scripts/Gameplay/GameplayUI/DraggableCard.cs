@@ -73,6 +73,17 @@ public class DraggableCard : DraggableUI
         {
             targetingModeData = TargetingUtility.GetAffected(cardScript, dropCell, cardScript.cardData.Owner, selectedTilesDuringDrag, true);
 
+            // Check If the Card requires a Target
+            if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
+            {
+                List<EntityScript> t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell }, FindObjectsByType<EntityScript>(0).ToList());
+
+                if (!TargetingUtility.IsTargetValid(cardScript, cardScript.cardData.Owner, t.FirstOrDefault()))
+                {
+                    return;
+                }
+            }
+
             //Check if Cost can be paid
             if (cardScript.cardData.Cost > cardScript.cardData.Owner.entityStats.CurrentStamina)
             {
