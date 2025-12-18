@@ -58,7 +58,7 @@ public class NpcAIController
                     if (bestAction == null || bestAction.score <= 0) break;
 
                     Debug.Log($"[NpcAI] Best action selected: {bestAction.pseudoName} with score {bestAction.score} for NPC {npcScript.name}");
-                     totalCost = (bestAction.movementCost) + (bestAction.card?.cardData.Cost ?? 0);
+                     totalCost = (bestAction.pathData.PathCost) + (bestAction.card?.cardData.Cost ?? 0);
                     if (totalCost > npcScript.entityStats.CurrentStamina) break;
 
                     ApplyActionToPlan(plan, bestAction, ref virtualPosition, npcScript);
@@ -77,7 +77,7 @@ public class NpcAIController
             if (bestAction == null || bestAction.score <= 0) break;
 
             Debug.Log($"[NpcAI] Best action selected: {bestAction.pseudoName} with score {bestAction.score} for NPC {npcScript.name}");
-            totalCost = (bestAction.movementCost) + (bestAction.card?.cardData.Cost ?? 0);
+            totalCost = (bestAction.pathData.PathCost) + (bestAction.card?.cardData.Cost ?? 0);
             if (totalCost > npcScript.entityStats.CurrentStamina) break;
 
             ApplyActionToPlan(plan, bestAction, ref virtualPosition, npcScript);
@@ -134,7 +134,7 @@ public class NpcAIController
         {
             card = card,
             score = 0,
-            movementCost = int.MaxValue
+            pathData = new PathData { PathCost = int.MaxValue },
         };
 
         foreach (var move in reachableMoves)
@@ -149,12 +149,11 @@ public class NpcAIController
                 best.pseudoName = $"Play {card.cardData.cardName}";
                 best.targets = move.Item2.targetedEntities;
                 best.targetingModeData = move.Item2;
-                best.movementPath = move.Item1.Path;
-                best.movementCost = move.Item1.PathCost;
+                best.pathData = move.Item1;
                 best.executionOption = CardExecutionOption.PlayCard;
             }
         }
-        Debug.Log($"[NpcAI] Best action for card {card.cardData.cardName} is score {best.score} with movement cost {best.movementCost}, at {best.targetingModeData.castingPosition} for NPC {npcScript.name}");
+        Debug.Log($"[NpcAI] Best action for card {card.cardData.cardName} is score {best.score} with movement cost {best.pathData.PathCost}, at {best.targetingModeData.castingPosition} for NPC {npcScript.name}");
         return best;
     }
     #endregion
@@ -181,19 +180,19 @@ public class NpcAIController
 
     private void ApplyMoveActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, ref Vector3Int virtualPosition, EntityScript entity)
     {
-        if (bestAction?.movementPath == null || bestAction.movementPath.Count <= 0) return;
+        if (bestAction?.pathData == null || bestAction.pathData.Path.Count <= 0) return;
 
         plan.Add(new PlannedAction
         {
             Type = PlannedAction.ActionType.Move,
             Name =  $"Move_for_{bestAction.pseudoName}",
             TargetingModeData = bestAction.targetingModeData,
-            Path = bestAction.movementPath
+            PathData = bestAction.pathData,
         });
 
-        virtualPosition = bestAction.movementPath.Last();
+        virtualPosition = bestAction.pathData.End;
 
-        entity.entityStats.CurrentStamina -= bestAction.movementCost;
+        entity.entityStats.CurrentStamina -= bestAction.pathData.PathCost;
     }
 
     private void ApplyCardActionToPlan(List<PlannedAction> plan, ScoredCard bestAction, EntityScript entity)
@@ -206,7 +205,7 @@ public class NpcAIController
             Name = bestAction.card.name,
             Card = bestAction.card,
             TargetingModeData = bestAction.targetingModeData,
-            Path = bestAction.movementPath
+            PathData = bestAction.pathData
         });
 
         entity.entityStats.CurrentStamina -= bestAction.card.cardData.Cost;
@@ -223,7 +222,7 @@ public class NpcAIController
 
         foreach (var candidate in ordered)
         {
-            int totalCost = candidate.movementCost + (candidate.card?.cardData.Cost ?? 0);
+            int totalCost = candidate.pathData.PathCost + (candidate.card?.cardData.Cost ?? 0);
             if (totalCost <= stamina) return candidate;
         }
 
@@ -340,8 +339,7 @@ public class NpcAIController
                 card = null,
                 pseudoName = "Reposition",
                 targetingModeData = new() { castingPosition = targetCell },
-                movementPath = pathData.Path,
-                movementCost = pathData.PathCost,
+                pathData = pathData,
                 score = 10 // scoring can be improved later
             };
         }
@@ -360,8 +358,13 @@ public class NpcAIController
             {
                 pseudoName = "No Enemies Move",
                 targetingModeData = new() {castingPosition = virtualPosition },
-                movementPath = new List<Vector3Int> { virtualPosition },
-                movementCost = 0,
+                pathData = new PathData 
+                { 
+                    Start = virtualPosition,
+                    End = virtualPosition,
+                    PathCost = 0,
+                    Path = new List<Vector3Int> { virtualPosition }
+                },
                 score = 0
             };
         }
@@ -377,8 +380,13 @@ public class NpcAIController
         {
             pseudoName = "No Move",
             targetingModeData = new() {castingPosition = virtualPosition },
-            movementPath = new List<Vector3Int> { virtualPosition },
-            movementCost = 0,
+            pathData = new PathData
+            {
+                Start = virtualPosition,
+                End = virtualPosition,
+                PathCost = 0,
+                Path = new List<Vector3Int> { virtualPosition }
+            },
             score = 0
         };
     }
@@ -433,8 +441,7 @@ public class NpcAIController
                     {
                         pseudoName = "Flee",
                         targetingModeData = new() { castingPosition = candidate },
-                        movementPath = pathData.Path,
-                        movementCost = moveCost,
+                        pathData = pathData,
                         score = Mathf.RoundToInt(score)
                     };
                 }
@@ -453,8 +460,7 @@ public class ScoredCard
     public string pseudoName;
     public List<EntityScript> targets;
     public int score;
-    public int movementCost;
-    public List<Vector3Int> movementPath;
+    public PathData pathData;
     public TargetingModeData targetingModeData = new();
     public CardExecutionOption executionOption;
 }
@@ -474,6 +480,6 @@ public class PlannedAction
     public CardScript Card;
     public TargetingModeData TargetingModeData = new();
 
-    public List<Vector3Int> Path;
+    public PathData PathData;
 }
     #endregion

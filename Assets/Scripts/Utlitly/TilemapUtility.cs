@@ -31,7 +31,7 @@ namespace Utility
 
         #region Offset <-> Cube (Point-Top)
         // Odd-R and Even-R conversions per redblobgames
-        private static Vector3Int OffsetToCube_PointTop(Vector3Int off, bool oddR)
+        public static Vector3Int OffsetToCube_PointTop(Vector3Int off, bool oddR)
         {
             int col = off.x;
             int row = off.y;
@@ -48,7 +48,7 @@ namespace Utility
             return new Vector3Int(x, y, z);
         }
 
-        private static Vector3Int CubeToOffset_PointTop(Vector3Int cube, bool oddR)
+        public static Vector3Int CubeToOffset_PointTop(Vector3Int cube, bool oddR)
         {
             int x = cube.x;
             int z = cube.z;
@@ -228,63 +228,13 @@ namespace Utility
 
         #endregion
 
-        public static List<Vector3Int> GetReachableTiles(Vector3Int start, int stamina)
-        {
-            List<Vector3Int> reachable = new();
-            Queue<(Vector3Int cell, int costSoFar)> frontier = new();
-            HashSet<Vector3Int> visited = new();
-
-            frontier.Enqueue((start, 0));
-            visited.Add(start);
-
-            var costInfoScript = BaseTilemap.GetComponent<CostInfoScript>();
-
-            while (frontier.Count > 0)
-            {
-                var (current, costSoFar) = frontier.Dequeue();
-
-                // Skip adding the start itself if you only want destinations
-                if (current != start)
-                    reachable.Add(current);
-
-                // Expand neighbors in cube space
-                var currentCube = OffsetToCube_PointTop(current, UseOddROffset);
-                foreach (var dir in CubeDirs)
-                {
-                    var neighborCube = currentCube + dir;
-                    var neighbor = CubeToOffset_PointTop(neighborCube, UseOddROffset);
-
-                    if (visited.Contains(neighbor))
-                        continue;
-
-                    // default movement cost = 1
-                    int tileCost = 1;
-                    if (costInfoScript != null &&
-                        costInfoScript.costInfoDict.TryGetValue(neighbor, out CostInfo costInfo))
-                    {
-                        if (costInfo.isOccupied) continue; // can’t move here
-                        tileCost = Mathf.Max(1, costInfo.cost);
-                    }
-
-                    int newCost = costSoFar + tileCost;
-                    if (newCost <= stamina)
-                    {
-                        frontier.Enqueue((neighbor, newCost));
-                        visited.Add(neighbor);
-                    }
-                }
-            }
-
-            return reachable;
-        }
-
         public static List<Vector3Int> GetTilesInRange(Vector3Int targetPos, int range)
         {
             switch (range)
             {
                 case <= 0: return new List<Vector3Int> { targetPos };
                 default:
-                    return TilemapUtilityScript.GetTilesInRadius(targetPos, range);
+                    return GetTilesInRadius(targetPos, range);
             }
         }
 
@@ -321,7 +271,7 @@ namespace Utility
                 SpriteRenderer sr = tileObj.GetComponentInChildren<SpriteRenderer>();
                 if (sr != null)
                 {
-                    sr.color = Color.clear;
+                    sr.color = Color.black;
                     continue;
                 }
             }
@@ -362,8 +312,11 @@ namespace Utility
                 case HighlightType.Range:
                     color = Color.green;
                     break;
-                    case HighlightType.Line:
+                case HighlightType.Line:
                     color = Color.blueViolet;
+                    break;
+                case HighlightType.Blocked:
+                    color = Color.gray;  
                     break;
             }
 
@@ -407,7 +360,8 @@ namespace Utility
             Target,
             Selected,
             Range,
-            Line
+            Line,
+            Blocked
         }
         #endregion
     }

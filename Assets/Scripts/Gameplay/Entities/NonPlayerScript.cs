@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Utility;
 
 public class NonPlayerScript : EntityScript
 {
@@ -75,7 +76,7 @@ public class NonPlayerScript : EntityScript
         var entityOnMap = GetComponent<EntityOnMap>();
         bool moveComplete = false;
 
-        StartCoroutine(MoveToViaPathWithCallback(entityOnMap, action.Path, () => moveComplete = true));
+        StartCoroutine(MoveToViaPathWithCallback(entityOnMap, action.PathData, () => moveComplete = true));
 
         while (!moveComplete)
             yield return null;
@@ -96,10 +97,10 @@ public class NonPlayerScript : EntityScript
             yield return null;
     }
 
-    private IEnumerator MoveToViaPathWithCallback(EntityOnMap entityOnMap, List<Vector3Int> path, System.Action onComplete)
+    private IEnumerator MoveToViaPathWithCallback(EntityOnMap entityOnMap, PathData pathData, System.Action onComplete)
     {
         // Wait for FollowPath to finish
-        yield return entityOnMap.StartMove(path);
+        yield return entityOnMap.StartMove(pathData);
 
         // Now safe to fire callback
         onComplete?.Invoke();

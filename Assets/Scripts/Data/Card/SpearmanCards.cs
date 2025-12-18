@@ -26,14 +26,17 @@ public static class SpearmanCards
             damage_u = 20,
             repeats_u = 2,
 
+            range_u = 16,
             radius_u = 3,
             area_u = 1,
 
             targetingData = new()
             {
+                TargetingUsesVision = true,
+                EffectUsesVision = true,
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Ring,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -69,7 +72,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.LineSelf,
+                cardTargetingMode = CardTargetingMode.LineSelf,
             },
 
             CardDescription = (User, d) =>
@@ -106,7 +109,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -144,7 +147,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Select,
+                cardTargetingMode = CardTargetingMode.Select,
             },
 
             CardAiBias = new()
@@ -200,7 +203,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Cone,
+                cardTargetingMode = CardTargetingMode.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -241,7 +244,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Cone,
+                cardTargetingMode = CardTargetingMode.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -287,7 +290,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Cone,
+                cardTargetingMode = CardTargetingMode.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -321,7 +324,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -357,7 +360,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardAiBias = new()
@@ -409,7 +412,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -487,7 +490,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -530,7 +533,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -578,7 +581,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardAiBias = new()
@@ -616,7 +619,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -695,7 +698,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -746,7 +749,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                cardSelectionType = CardTargetingModeType.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -805,7 +808,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -846,7 +849,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>

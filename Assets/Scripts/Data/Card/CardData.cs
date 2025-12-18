@@ -298,9 +298,11 @@ public class CardAiBias
 [System.Serializable]
 public class CardTargetingData
 {
+    public bool TargetingUsesVision;
+    public bool EffectUsesVision;
     public CardTargetType CardTargetType;
     public CardTargetAffiliation CardTargetAffiliation;
-    public CardTargetingModeType cardSelectionType;
+    public CardTargetingMode cardTargetingMode;
 }
 
 public enum CardTargetType
@@ -320,7 +322,7 @@ public enum CardTargetAffiliation
     EnemyNeutral,
     AllyEnemy,
 }
-public enum CardTargetingModeType
+public enum CardTargetingMode
 {
     Single,
     Radius,

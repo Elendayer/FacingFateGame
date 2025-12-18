@@ -17,12 +17,10 @@ public class CoordinateText : MonoBehaviour
         int cost = 0;
 
         costInfoScript.costInfoDict.TryGetValue(cellPos, out CostInfo costInfo);
-        cost = costInfo.cost;
-
+        if (costInfo != null)
+        {
+            cost = costInfo.costCheck;
+        }
         GetComponent<TextMeshProUGUI>().text = $"{cellPos.x},{cellPos.y} : {cost}";
-    }
-    private void Update()
-    {
-        GetComponent<TextMeshProUGUI>().text = $"{cellPos.x},{cellPos.y} : {costInfoScript.costInfoDict[cellPos].cost}";
     }
 }

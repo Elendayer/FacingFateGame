@@ -27,10 +27,10 @@ public class DraggableCard : DraggableUI
 
         if (Input.GetMouseButtonDown(1)) // Right-click to select/deselect tiles
         {
-            int maxTargets = cardScript.cardData.targetingData.cardSelectionType switch
+            int maxTargets = cardScript.cardData.targetingData.cardTargetingMode switch
             {
-                CardTargetingModeType.Select => cardScript.cardData.MaxTarget,
-                CardTargetingModeType.LineFree => 2,
+                CardTargetingMode.Select => cardScript.cardData.MaxTarget,
+                CardTargetingMode.LineFree => 2,
                 _ => 1
             };
 
@@ -48,6 +48,7 @@ public class DraggableCard : DraggableUI
     public override void OnDrag(PointerEventData eventData)
     {
         base.OnDrag(eventData);
+
         HighlightCardEffectArea(TargetingUtility.GetHoveredTile(eventData));
     }
 
@@ -55,23 +56,33 @@ public class DraggableCard : DraggableUI
     {
         base.OnEndDrag(eventData);
         isDragging = false;
+
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
 
         Vector3Int dropCell = InvalidPosition;
-
         TargetingModeData targetingModeData;
-
         List<EntityScript> allEntities = FindObjectsByType<EntityScript>(0).ToList();
 
         dropCell = TargetingUtility.GetHoveredTile(eventData) ?? InvalidPosition;
-        if (dropCell == InvalidPosition) { return; }
+
+        // Invalid Position
+        if (dropCell == InvalidPosition) 
+        { 
+            return; 
+        }
 
         Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
         List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRange(currentCell, cardScript.cardData.Range);
 
+
+        if (cardScript.cardData.targetingData.TargetingUsesVision)
+        {
+            validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
+        }
+
         if (validTiles.Contains(dropCell))
         {
-            targetingModeData = TargetingUtility.GetAffected(cardScript, dropCell, cardScript.cardData.Owner, selectedTilesDuringDrag, true);
+            targetingModeData = TargetingUtility.GetAffected(cardScript, dropCell, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedTilesDuringDrag, true);
 
             // Check If the Card requires a Target
             if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
@@ -103,44 +114,51 @@ public class DraggableCard : DraggableUI
 
         Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
 
-        List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRange(currentCell, cardScript.cardData.Range);
-
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
 
+        List<Vector3Int> validTiles;
+
         // Show Range for SelectionTypes
-        switch (cardScript.cardData.targetingData.cardSelectionType)
+        switch (cardScript.cardData.targetingData.cardTargetingMode)
         {
-            case CardTargetingModeType.LineSelf:
+            case CardTargetingMode.LineSelf:
                 {
-                    var starTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
-                    TilemapUtilityScript.SetTilesHighlight(starTiles, TilemapUtilityScript.HighlightType.Range);
+                    validTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
                 }
                 break;
 
-            case CardTargetingModeType.Cone:
+            case CardTargetingMode.Cone:
                 {
-                    var starTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
-                    TilemapUtilityScript.SetTilesHighlight(starTiles, TilemapUtilityScript.HighlightType.Range);
+                    validTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
                 }
                 break;
 
             default:
                 {
-                    var radiusTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
-                    TilemapUtilityScript.SetTilesHighlight(radiusTiles, TilemapUtilityScript.HighlightType.Range);
+                    validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
                 }
                 break;
         }
 
-        if (!validTiles.Contains(hoveredTile.Value)) 
+        // If target requires Vision
+        if (cardScript.cardData.targetingData.TargetingUsesVision)
         {
-            return; 
+            validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
+
+            TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
         }
-        
-        var targetingData = TargetingUtility.GetAffected(cardScript, hoveredTile.Value, cardScript.cardData.Owner, selectedTilesDuringDrag);
+
+        TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
+
+        if (!validTiles.Contains(hoveredTile.Value))
+        {
+            return;
+        }
+
+        var targetingData = TargetingUtility.GetAffected(cardScript, hoveredTile.Value, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedTilesDuringDrag);
 
         TilemapUtilityScript.SetTilesHighlight(targetingData.targetedTiles, TilemapUtilityScript.HighlightType.Target);
-        
+
         lastHighlightedTile = hoveredTile;
     }
 }

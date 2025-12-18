@@ -35,7 +35,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.LineSelf,
+                cardTargetingMode = CardTargetingMode.LineSelf,
             },
 
             CardDescription = (User, d) =>
@@ -64,7 +64,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Ring,
+                cardTargetingMode = CardTargetingMode.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -92,7 +92,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -123,7 +123,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -182,7 +182,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -212,7 +212,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.LineSelf,
+                cardTargetingMode = CardTargetingMode.LineSelf,
             },
 
             CardDescription = (User, d) =>
@@ -243,7 +243,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -273,7 +273,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -363,7 +363,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Cone, 
+                cardTargetingMode = CardTargetingMode.Cone, 
             },
 
             CardDescription = (User, d) =>
@@ -412,7 +412,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -469,7 +469,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Ring,
+                cardTargetingMode = CardTargetingMode.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -517,7 +517,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -549,7 +549,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -582,7 +582,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -614,7 +614,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -645,7 +645,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -675,7 +675,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, data) => data.cardDescription = "Increase damage/crit (TODO).",
@@ -705,7 +705,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
             CardDescription = (User, data) => data.cardDescription = "Randomly inflict a negative effect on yourself (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }
@@ -728,7 +728,7 @@ public static class AssassinCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardSelectionType = CardTargetingModeType.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
             CardDescription = (User, data) => data.cardDescription = "Next attack repeats again (TODO).",
             CardEffect = (User, Target, data) => { /* TODO */ }

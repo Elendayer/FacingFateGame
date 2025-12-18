@@ -19,12 +19,18 @@ public class EntityScript : MonoBehaviour
     [Header("Entity Gameplay References")]
     private EntityVisualScript EntityVisual;
 
+    [Header("Entity on Map Reference")]
+    private EntityOnMap entityOnMap;
+
     public virtual void StartUp()
     {
         EntityVisual = GetComponentInChildren<EntityVisualScript>();
+        entityOnMap = GetComponentInChildren<EntityOnMap>();
         
         entityStats = new();
         entityStats.StartUp(this);
+
+        entityOnMap.Startup();
 
         AddListeners();
     }

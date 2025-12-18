@@ -113,7 +113,7 @@ namespace Utility
                     // If ignoreCost, all tiles have cost 1
                     if (!CostInfoScript.costInfoDict.ContainsKey(neighbor))
                         continue;
-                    int tentativeGScore = gScore[current] + (ignoreCost ? CostInfoScript.costInfoDict[current].costUnobstructed : CostInfoScript.costInfoDict[current].cost);
+                    int tentativeGScore = gScore[current] + (ignoreCost ? 1 : CostInfoScript.costInfoDict[current].costCheck);
 
                     if (!gScore.ContainsKey(neighbor) || tentativeGScore < gScore[neighbor])
                     {
@@ -237,15 +237,15 @@ namespace Utility
         {
             if (ignoreCost)
             {
-                return CostInfoScript.costInfoDict[position].costUnobstructed;
+                return 1;
             }
             else if (moveCostModifier != null)
             {
-                return moveCostModifier.ApplyFinalValue(CostInfoScript.costInfoDict[position].cost);
+                return moveCostModifier.ApplyFinalValue(CostInfoScript.costInfoDict[position].costCheck);
             }
             else
             {
-                return CostInfoScript.costInfoDict[position].cost;
+                return CostInfoScript.costInfoDict[position].costCheck;
             }
         }
         private static List<Vector3Int> ReconstructPath(Dictionary<Vector3Int, Vector3Int> cameFrom, Vector3Int start, Vector3Int goal, out int totalCost, CostInfoScript costInfoScript, bool ignoreCost, bool walkClose, Stat moveCostModifier)

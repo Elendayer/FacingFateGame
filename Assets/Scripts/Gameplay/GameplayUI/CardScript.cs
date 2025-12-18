@@ -50,78 +50,86 @@ public class CardScript : MonoBehaviour
 
         List<string> parts = new();
 
-        switch (t.cardSelectionType)
+        switch (t.cardTargetingMode)
         {
-            case CardTargetingModeType.Single:
+            case CardTargetingMode.Single:
                 parts.Add("Single Target");
                 break;
 
-            case CardTargetingModeType.Ring:
+            case CardTargetingMode.Ring:
                 parts.Add($"Ring, {cardData.Radius} by {cardData.Area}");
                 break;
 
-            case CardTargetingModeType.Radius:
+            case CardTargetingMode.Radius:
                 parts.Add($"Radius, {cardData.Radius}");
                 break;
 
-            case CardTargetingModeType.LineFree:
+            case CardTargetingMode.LineFree:
                 parts.Add($"Line Free, with maximum length {cardData.Area}");
                 break;
 
-            case CardTargetingModeType.LineSelf:
+            case CardTargetingMode.LineSelf:
                 parts.Add($"Line from Self, {cardData.Range}");
                 break;
 
-            case CardTargetingModeType.Cone:
+            case CardTargetingMode.Cone:
                 parts.Add($"Cone from Self, {cardData.Range} by {cardData.Area}");
                 break;
 
-            case CardTargetingModeType.Select:
+            case CardTargetingMode.Select:
                 parts.Add($"Select, {cardData.MaxTarget} targets");
                 break;
 
-            case CardTargetingModeType.All:
+            case CardTargetingMode.All:
                 parts.Add("All");
                 break;
         }
 
-        //
-        // 2. Affiliation if applicable
-        //
-        if (t.CardTargetAffiliation != CardTargetAffiliation.Self)
+        // if effect uses Vision
+        if (t.EffectUsesVision)
         {
-            if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
-                parts.Add("Ally Targets");
-            else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
-                parts.Add("Enemy Targets");
-            else
-                parts.Add("");
+            parts.Add("Blocked by Obstacles,");
         }
         else
         {
-            // Special case: Self-target overrides everything else.
-            if (t.cardSelectionType == CardTargetingModeType.Single)
-                return "Self Target";
-
-            parts.Add("Self Target");
+            parts.Add(",");
         }
 
-        //
-        // 3. Range (only if mode uses range)
-        //
-        if (t.cardSelectionType is not CardTargetingModeType.All)
+        //  Affiliation if applicable
+        if (t.CardTargetAffiliation != CardTargetAffiliation.Self)
         {
-            if (t.cardSelectionType == CardTargetingModeType.LineFree ||
-                t.cardSelectionType == CardTargetingModeType.LineSelf)
-                parts.Add($"up to {cardData.Range} Tiles");
-            else if (t.cardSelectionType != CardTargetingModeType.Cone) // cone already included its own dimensions
-                parts.Add($"in {cardData.Range} Tiles");
+            if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
+            {
+                parts.Add("Targeting Allies");
+            }
+            else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
+            {
+                parts.Add("Targeting Enemies");
+            }
+            else
+            {
+                parts.Add("Targeting Everything");
+            }
+
+            // if targeting uses Vision
+            if (t.TargetingUsesVision)
+            {
+                parts.Add("in Sight,");
+            }
+        }
+        else
+        {
+            parts.Add("Targets Self");
         }
 
-        //
-        // 4. Final join
-        //
-        return string.Join(", ", parts);
+        // Range (only if mode uses range)
+        if (t.cardTargetingMode is not CardTargetingMode.All)
+        {
+            parts.Add($"within {cardData.Range} Tiles");
+        }
+
+        // Final join
+        return string.Join(" ", parts);
     }
 
 

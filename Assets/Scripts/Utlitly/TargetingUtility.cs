@@ -2,8 +2,6 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Utility;
-using static UnityEngine.GraphicsBuffer;
 
 namespace Utility
 {
@@ -85,8 +83,7 @@ namespace Utility
             }
             return TilemapUtilityScript.InvalidPosition;
         }
-
-        public static TargetingModeData GetAffected(CardScript card, Vector3Int aimTile, EntityScript owner, List<Vector3Int> selectedTiles = null, bool isVetted = false)
+        public static TargetingModeData GetAffected(CardScript card, Vector3Int aimTile, EntityScript owner, bool usesVision, List<Vector3Int> selectedTiles = null, bool isVetted = false)
         {
             List<EntityScript> allEntities = Object.FindObjectsByType<EntityScript>(0).ToList();
             List<EntityScript> entities = new();
@@ -97,51 +94,51 @@ namespace Utility
             CardData cardData = card.cardData;
             Vector3Int currentCell = owner.GetComponent<EntityOnMap>().currentCell;
 
-            switch (cardData.targetingData.cardSelectionType)
+            switch (cardData.targetingData.cardTargetingMode)
             {
-                case CardTargetingModeType.Select:
+                case CardTargetingMode.Select:
                     {
                         tiles = selectedTiles;
-                        entities = GetEntitiesFromTiles(tiles, allEntities);
                     }
                     break;
-                case CardTargetingModeType.LineFree:
+                case CardTargetingMode.LineFree:
                     {
                         tiles = TilemapUtilityScript.GetTilesInLineFree(selectedTiles, cardData.Range, cardData.Area);
-                        entities = GetEntitiesFromTiles(tiles, allEntities);
                     }
                     break;
-                case CardTargetingModeType.Cone:
+                case CardTargetingMode.Cone:
                     {
                         tiles = TilemapUtilityScript.GetTilesInCone(currentCell, aimTile, cardData.Range, cardData.Area);
-                        entities = GetEntitiesFromTiles(tiles, allEntities);
                     }
                     break;
-                case CardTargetingModeType.LineSelf:
+                case CardTargetingMode.LineSelf:
                     {
                         tiles = TilemapUtilityScript.GetTilesInLineFromSelf(currentCell, aimTile, cardData.Range);
-                        entities = GetEntitiesFromTiles(tiles, allEntities);
                     }
                     break;
-                case CardTargetingModeType.Ring:
+                case CardTargetingMode.Ring:
                     {
                         tiles = TilemapUtilityScript.GetTilesInRing(aimTile, cardData.Radius, cardData.Area);
-                        entities = GetEntitiesFromTiles(tiles, allEntities);
                     }
                     break;
-                case CardTargetingModeType.Radius:
+                case CardTargetingMode.Radius:
                     {
                         tiles = TilemapUtilityScript.GetTilesInRadius(aimTile, cardData.Radius);
-                        entities = GetEntitiesFromTiles(tiles, allEntities);
                     }
                     break;
-                case CardTargetingModeType.Single:
+                case CardTargetingMode.Single:
                     {
                         tiles.Add(aimTile);
-                        entities = GetEntitiesFromTiles(tiles, allEntities);
                     }
                     break;
             }
+
+            if (usesVision)
+            {
+                tiles = VisionUtility.GetVisibleTiles(aimTile, tiles);
+            }
+
+            entities = GetEntitiesFromTiles(tiles, allEntities);
 
 
             targetingModeData.castingPosition = aimTile;
@@ -228,16 +225,16 @@ namespace Utility
     {
         public static ITargetingMode Create(CardScript card)
         {
-            return card.cardData.targetingData.cardSelectionType switch
+            return card.cardData.targetingData.cardTargetingMode switch
             {
-                CardTargetingModeType.Radius => new RadiusTargetingMode(),
-                CardTargetingModeType.Ring => new RingTargetingMode(),
-                CardTargetingModeType.LineSelf => new LineSelfTargetingMode(),
-                CardTargetingModeType.LineFree => new LineFreeTargetingMode(),
-                CardTargetingModeType.Cone => new ConeTargetingMode(),
-                CardTargetingModeType.Select => new SelectionTargetingMode(),
-                CardTargetingModeType.All => new AllTilesTargetingMode(),
-                CardTargetingModeType.Single => new SingleTargetingMode(),
+                CardTargetingMode.Radius => new RadiusTargetingMode(),
+                CardTargetingMode.Ring => new RingTargetingMode(),
+                CardTargetingMode.LineSelf => new LineSelfTargetingMode(),
+                CardTargetingMode.LineFree => new LineFreeTargetingMode(),
+                CardTargetingMode.Cone => new ConeTargetingMode(),
+                CardTargetingMode.Select => new SelectionTargetingMode(),
+                CardTargetingMode.All => new AllTilesTargetingMode(),
+                CardTargetingMode.Single => new SingleTargetingMode(),
                 _ => new SingleTargetingMode(),
             };
         }

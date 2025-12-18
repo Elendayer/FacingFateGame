@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using Utility;
 
@@ -13,17 +11,21 @@ public class EntityOnMap : MonoBehaviour
     private Coroutine moveRoutine;
     private bool isDragging = false;
 
-    private void Start()
+    private CostInfoScript costInfoScript;
+
+    public void Startup()
     {
+        costInfoScript = FindAnyObjectByType<CostInfoScript>();
+
         TeleportTo(currentCell);
-        SetOccupied(true);     
+        SetOccupied(currentCell, true);     
     }
 
     public void Spawn(Vector3Int vector3Int)
     {
         currentCell = vector3Int;
         transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(currentCell);
-        SetOccupied(false);
+        SetOccupied(vector3Int, false);
     }
 
 
@@ -36,7 +38,7 @@ public class EntityOnMap : MonoBehaviour
         {
             TilemapUtilityScript.SetTilesHighlight(pathData.Path, TilemapUtilityScript.HighlightType.Path);
             
-            moveRoutine = StartCoroutine(FollowPath(pathData.Path, moveSpeed));
+            moveRoutine = StartCoroutine(FollowPath(pathData, moveSpeed));
 
             if (entityScript != null)
             {
@@ -50,23 +52,23 @@ public class EntityOnMap : MonoBehaviour
     }
     public void TeleportTo(Vector3Int targetCell)
     {
-        SetOccupied(false);
+        SetOccupied(currentCell, false);
         Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(targetCell);
         transform.position = targetPos;
         currentCell = targetCell;
-        SetOccupied(true);
+        SetOccupied(currentCell, true);
     }
 
-    public Coroutine StartMove(List<Vector3Int> path)
+    public Coroutine StartMove(PathData pathData)
     {
-        return StartCoroutine(FollowPath(path, defaultMovementSpeed));
+        return StartCoroutine(FollowPath(pathData, defaultMovementSpeed));
     }
 
-    private IEnumerator FollowPath(List<Vector3Int> path, float speed = 3f)
+    private IEnumerator FollowPath(PathData pathData, float speed = 3f)
     {
-        SetOccupied(false);
+        SetOccupied(pathData.Start,false);
 
-        foreach (var cell in path)
+        foreach (var cell in pathData.Path)
         {
             Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(cell);
 
@@ -85,19 +87,13 @@ public class EntityOnMap : MonoBehaviour
         }
 
         moveRoutine = null;
-        SetOccupied(true);
+        SetOccupied(pathData.End, true);
 
-        TilemapUtilityScript.ResetMaphightlight(path);
+        TilemapUtilityScript.ResetMaphightlight(pathData.Path);
     }
 
-    public void SetOccupied( bool b)
+    public void SetOccupied(Vector3Int pos, bool b)
     {
-        GetCostInfo().isOccupied = b;
-    }
-
-    public CostInfo GetCostInfo()
-    {
-        TilemapUtilityScript.BaseTilemap.GetComponent<CostInfoScript>().costInfoDict.TryGetValue(currentCell, out CostInfo costInfo);
-        return costInfo;
+        costInfoScript.costInfoDict[pos].isOccupied = b;
     }
 }
