@@ -8,11 +8,11 @@ public interface IStatModifier
     int BaseValue { get; set; }
     ModifierScaling ModifierScaling { get; }
     int Duration { get; set; }
+    bool Condition(EntityScript entityScript = null, CardData cardData = null);
     List<GameplayRef> To_TriggerGameplayRefs { get; }
     bool IsExpired { get; }
-    void AddListener();
     void On_RefEventTriggered(TriggerRef reference);
-
+    Stat Stat { get; }
 }
 
 public class StatModifier : IStatModifier
@@ -21,12 +21,7 @@ public class StatModifier : IStatModifier
 
     public int BaseValue
     {
-        get
-        {
-            if (DynamicValueFunc != null)
-                return DynamicValueFunc.Invoke();
-            return StaticValue ?? 0;
-        }
+        get => DynamicValueFunc != null ? DynamicValueFunc.Invoke() : StaticValue ?? 0;
         set
         {
             if (DynamicValueFunc != null)
@@ -34,246 +29,116 @@ public class StatModifier : IStatModifier
             StaticValue = value;
         }
     }
-
     private int? StaticValue;
     private Func<int> DynamicValueFunc;
 
     public ModifierScaling ModifierScaling { get; private set; }
     public int Duration { get; set; }
-    public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
-    public TriggerRef On_TriggerConditionRef { get; private set; }
-    public TriggerRef LastTriggerRef { get; internal set; } = new TriggerRef();
-
     public bool IsExpired => Duration <= 0;
-    public Stat TargetStat;
-    public int GetRemainingDuration() => Duration;
+    public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
+    public Stat Stat { get; }
 
-    public void AddListener()
-    {
-        if (On_TriggerConditionRef.References == null)
-        {
-            return;
-        }
-
-        foreach (var Reference in On_TriggerConditionRef.References)
-        {
-            GameEvents.Subscribe(Reference, On_TriggerConditionRef.AffectedEntityId, On_RefEventTriggered);
-        }
-    }
-    public void OnRemove()
-    {
-        foreach (var Reference in On_TriggerConditionRef.References)
-        {
-            GameEvents.Unsubscribe(Reference, On_TriggerConditionRef.AffectedEntityId, On_RefEventTriggered);
-        }
-        TargetStat.RemoveModifier(this);
-    }
-    public void On_RefEventTriggered(TriggerRef trigger)
-    {
-        if (Duration < 9999)
-        {
-            Duration--;
-            Debug.Log($"StatModifier duration: {Duration}");
-        }
-
-        if (IsExpired)
-        {
-            OnRemove();
-        }
-    }
-
-    public StatModifier
-        (    
-        int value,
-        ModifierScaling scaling,
-        List<GameplayRef> to_triggerReferences = null,
-        int duration = 99999,
-        TriggerRef on_triggerConditionRef = new(),
-        string name = null
-        )
-    {
-        ModifierName = name;
-        StaticValue = value;
-        ModifierScaling = scaling;
-        To_TriggerGameplayRefs = to_triggerReferences;
-        On_TriggerConditionRef = on_triggerConditionRef;
-        Duration = duration;
-    }
-    public StatModifier
-        (
-        Func<int> value,
-        ModifierScaling scaling,
-        List<GameplayRef> gReferences = null,
-        int duration = 99999,
-        TriggerRef triggerConditionRef = new(),
-        Stat target = null,
-        string name = null
-        )
-    {
-        ModifierName = name;
-        DynamicValueFunc = value;
-        ModifierScaling = scaling;
-        To_TriggerGameplayRefs = gReferences;
-        On_TriggerConditionRef = triggerConditionRef;
-        Duration = duration;
-    }
-}
-
-
-public class ConditionalStatModifier : IStatModifier
-{
-    public string ModifierName { get; private set; }
-
-    public int BaseValue
-    {
-        get
-        {
-            if (DynamicValueFunc != null)
-                return DynamicValueFunc.Invoke();
-            return StaticValue ?? 0;
-        }
-        set
-        {
-            if (DynamicValueFunc != null)
-                throw new InvalidOperationException("Cannot set BaseValue when using dynamicValueFunc.");
-            StaticValue = value;
-        }
-    }
-    private int? StaticValue;
-    private Func<int> DynamicValueFunc;
-
-    public bool Condition
-    {
-        get
-        {
-            if (DynamicBoolFunc != null)
-                return DynamicBoolFunc.Invoke();
-            return StaticBool ?? false;
-        }
-        set
-        {
-            if (DynamicBoolFunc != null)
-                throw new InvalidOperationException("Cannot set BaseValue when using dynamicValueFunc.");
-            StaticBool = value;
-        }
-    }
+    // --- Condition ---
     private bool? StaticBool;
-    private Func<bool> DynamicBoolFunc;
+    private Func<EntityScript, CardData, bool> DynamicConditionFunc;
 
-    public ModifierScaling ModifierScaling { get; private set; }
-    public int Duration { get; set; }
-    public int Uses { get; set; } = 1;
-    public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
-    public bool IsExpired => Duration <= 0;
-    public Stat TargetStat;
+    public bool Condition(EntityScript entityScript = null, CardData cardData = null) => DynamicConditionFunc != null
+        ? DynamicConditionFunc.Invoke(entityScript, cardData)
+        : StaticBool ?? false;
+
+    public void OnRemove() => Stat.RemoveModifier(this);
     public int GetRemainingDuration() => Duration;
 
-    public void OnRemove()
-    {
-        TargetStat.RemoveModifier(this);
-    }
-    public void AddListener() { }
-   
     public void On_RefEventTriggered(TriggerRef trigger)
     {
         if (Duration < 9999)
-        {
             Duration--;
-            Debug.Log($"StatModifier duration: {Duration}");
-        }
 
         if (IsExpired)
-        {
             OnRemove();
-        }
-    }
-    public void On_RefEventTriggered()
-    {
-        if (Duration < 9999)
-        {
-            Duration--;
-            Debug.Log($"StatModifier duration: {Duration}");
-        }
-        if (IsExpired)
-        {
-            OnRemove();
-        }
     }
 
-    public ConditionalStatModifier
-        (
+
+
+    // -------------------- Constructors --------------------
+
+    // 1) Static int + static bool
+    public StatModifier(
+        Stat stat,
         int value,
-       bool condition,
         ModifierScaling scaling,
+        bool condition = true,
+        List<GameplayRef> to_TriggerRefs = null,
         int duration = 99999,
-        List<GameplayRef> gReferences = null,
-        TriggerRef on_triggerConditionRef = new(),
-        Stat target = null,
         string name = null
-        )
-    {
-        ModifierName = name;
-        StaticValue = value;
-        ModifierScaling = scaling;
-        To_TriggerGameplayRefs = gReferences;
-        Duration = duration;
-        TargetStat = target;
-    }
-    public ConditionalStatModifier
-        (
-        Func<int> value,
-         bool condition,
-        ModifierScaling scaling,
-        int duration = 99999,
-        List<GameplayRef> gReferences = null,
-        TriggerRef triggerConditionRef = new(),
-        Stat target = null,
-        string name = null
-        )
-    {
-        ModifierName = name;
-        DynamicValueFunc = value;
-        ModifierScaling = scaling;
-        To_TriggerGameplayRefs = gReferences;
-        Duration = duration;
-        TargetStat = target;
-    }
-    public ConditionalStatModifier
-    (
-    int value,
-    Func<bool> condition,
-    ModifierScaling scaling,
-    int duration = 99999,
-    List<GameplayRef> gReferences = null,
-    TriggerRef on_triggerConditionRef = new(),
-    Stat target = null,
-    string name = null
     )
     {
         ModifierName = name;
         StaticValue = value;
         ModifierScaling = scaling;
-        To_TriggerGameplayRefs = gReferences;
+        To_TriggerGameplayRefs = to_TriggerRefs;
         Duration = duration;
-        TargetStat = target;
+        StaticBool = condition;
+        Stat = stat;
     }
-    public ConditionalStatModifier
-        (
-        Func<int> value,
-        Func<bool> condition,
+
+    // 2) Static int + dynamic condition
+    public StatModifier(
+        Stat stat,
+        int value,
         ModifierScaling scaling,
+        Func<EntityScript, CardData, bool> conditionFunc,
+        List<GameplayRef> to_TriggerRefs = null,
         int duration = 99999,
-        List<GameplayRef> gReferences = null,
-        TriggerRef triggerConditionRef = new(),
-        Stat target = null,
         string name = null
-        )
+    )
+    {
+        ModifierName = name;
+        StaticValue = value;
+        ModifierScaling = scaling;
+        To_TriggerGameplayRefs = to_TriggerRefs;
+        Duration = duration;
+        DynamicConditionFunc = conditionFunc ?? ((e, c) => true);
+        Stat = stat;
+    }
+
+    // 3) Dynamic int + static bool
+    public StatModifier(
+        Stat stat,
+        Func<int> value,
+        ModifierScaling scaling,
+        bool condition = true,
+        List<GameplayRef> to_TriggerRefs = null,
+        int duration = 99999,
+        string name = null
+    )
     {
         ModifierName = name;
         DynamicValueFunc = value;
         ModifierScaling = scaling;
-        To_TriggerGameplayRefs = gReferences;
+        To_TriggerGameplayRefs = to_TriggerRefs;
         Duration = duration;
-        TargetStat = target;
+        StaticBool = condition;
+        Stat = stat;
+    }
+
+    // 4) Dynamic int + dynamic condition
+    public StatModifier(
+        Stat stat,
+        Func<int> value,
+        ModifierScaling scaling,
+        Func<EntityScript, CardData, bool> conditionFunc,
+        List<GameplayRef> to_TriggerRefs = null,
+        int duration = 99999,
+        string name = null
+    )
+    {
+        ModifierName = name;
+        DynamicValueFunc = value;
+        ModifierScaling = scaling;
+        To_TriggerGameplayRefs = to_TriggerRefs;
+        Duration = duration;
+        DynamicConditionFunc = conditionFunc ?? ((e, c) => true);
+        Stat = stat;
     }
 }

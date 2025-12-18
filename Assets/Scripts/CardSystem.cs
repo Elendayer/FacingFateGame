@@ -18,7 +18,7 @@ public static class CardSystem
 
         var data = cardUI.cardData;
         int cost = data.Cost;
-        if (user.entityStats.CurrentStamina.Value < cost)
+        if (user.entityStats.CurrentStamina < cost)
         {
             reason = "Not enough Stamina";
             return false;
@@ -31,8 +31,7 @@ public static class CardSystem
         int repeats = Mathf.Max(1, data.Repeats);
         for (int i = 0; i < repeats; i++)
         {
-                data.ActivateCard(new List<EntityScript> { targetOrNull}, cardUI.gameObject);
-
+              //  data.ActivateCardEffect(new List<EntityScript> { targetOrNull}, cardUI.gameObject);
         }
 
         // Discard

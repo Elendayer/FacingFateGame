@@ -45,11 +45,31 @@ public class AiBiasDatabase : MonoBehaviour
         {
             id = "StupidFuck",
 
-            intentionBias = new Dictionary<Intention, int>(),
-            refBias = new Dictionary<GameplayRef, int>(),
+            cardReferenceBias = new Dictionary<GameplayRef, int>(),
             identityBias = new Dictionary<CardIdentity, int>(),
 
             RepositionCondition = RepositionCondition.surrounded
         });
-    } 
+        RegisterBias(new NpcAiBias()
+        {
+            id = "Balanced",
+
+            cardReferenceBias = new Dictionary<GameplayRef, int>(),
+            identityBias = new Dictionary<CardIdentity, int>(),
+
+            RepositionCondition = RepositionCondition.lowHealth
+        });
+        RegisterBias(new NpcAiBias()
+        {
+            id = "Aggressive",
+            cardReferenceBias = new Dictionary<GameplayRef, int>(),
+            identityBias = new Dictionary<CardIdentity, int>()
+            {
+                { CardIdentity.Ranged, 50}
+            },
+
+            RepositionCondition = RepositionCondition.preferRanged
+        });
+
+    }
 }

@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 [CustomEditor(typeof(EntityScript), true)] // ✅ Works for all subclasses
 public class EntityScriptEditor : Editor
@@ -39,6 +39,10 @@ public class EntityScriptEditor : Editor
             DrawStat("Block", entity.entityStats.Block);
             EditorGUILayout.Space(5);
 
+            // === Movement ===
+            EditorGUILayout.LabelField("🏃 Movement", EditorStyles.boldLabel);
+            DrawStat("Movement Cost", entity.entityStats.MovementCostModifier);
+
             // === Attributes ===
             EditorGUILayout.LabelField("💪 Attributes", EditorStyles.boldLabel);
             DrawStat("Strength", entity.entityStats.Strength);
@@ -51,16 +55,24 @@ public class EntityScriptEditor : Editor
 
             // === Combat Modifiers ===
             EditorGUILayout.LabelField("⚔️ Combat Modifiers", EditorStyles.boldLabel);
-            DrawStat("Damage Increase", entity.entityStats.DamageIncrease);
-            DrawStat("Damage Reduction", entity.entityStats.DamageTakenReduction);
-            DrawStat("Healing Increase", entity.entityStats.HealingIncrease);
-            DrawStat("Cost Increase", entity.entityStats.CostIncrease);
-            DrawStat("Power Increase", entity.entityStats.PowerIncrease);
-            DrawStat("Duration Increase", entity.entityStats.DurationIncrease);
+            DrawStat("Damage Increase", entity.entityStats.DamageOutModifier);
+            DrawStat("Damage Reduction", entity.entityStats.DamageTakenModifier);
+            DrawStat("Healing Increase", entity.entityStats.HealingOutModifier);
+            DrawStat("Cost Increase", entity.entityStats.CardCostModifier);
+            DrawStat("Power Increase", entity.entityStats.PowerModifier);
+            DrawStat("Duration Increase", entity.entityStats.DurationModifier);
             DrawStat("Ignore Armour", entity.entityStats.IgnoreArmour);
             DrawStat("Ignore Block", entity.entityStats.IgnoreBlock);
             DrawStat("Lifesteal", entity.entityStats.Lifesteal);
-            EditorGUILayout.Space(10);    
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.LabelField(" Status Effects", EditorStyles.boldLabel);
+            DrawStat("Stunned", entity.entityStats.IsStunned);
+            DrawStat("Rooted", entity.entityStats.IsRooted);
+            DrawStat("Taunt Target",  entity.entityStats.tauntTarget ? entity.entityStats.tauntTarget.name : "not Taunted");
+            EditorGUILayout.Space(10);
+
+
         }
         catch
         {
@@ -82,9 +94,80 @@ public class EntityScriptEditor : Editor
             return;
         }
 
+        // Column widths for clean alignment
+        float colLabel = 120f;
+        float colValue = 60f;
+        float colFlat = 50f;
+        float colPercent = 50f;
+        float colMult = 50f;
+
+        int final = stat.Value();
+        int flat = stat.GetFlatValue();
+        int percent = stat.GetPercentValue();
+        List<int> multipliers = stat.GetMultiplierValues();
+
+        // Header Row
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+        EditorGUILayout.LabelField("Final", GUILayout.Width(colValue));
+        EditorGUILayout.LabelField("Flat", GUILayout.Width(colFlat));
+        EditorGUILayout.LabelField("%", GUILayout.Width(colPercent));
+        EditorGUILayout.LabelField("xMult", GUILayout.Width(colMult));
+        EditorGUILayout.EndHorizontal();
+
+        // Main Row (first multiplier if present)
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField(label, GUILayout.Width(160));
-        EditorGUILayout.LabelField(stat.Value.ToString(), EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty because label already shown above
+        EditorGUILayout.LabelField(final.ToString(), GUILayout.Width(colValue));
+        EditorGUILayout.LabelField(flat.ToString(), GUILayout.Width(colFlat));
+        EditorGUILayout.LabelField(percent.ToString(), GUILayout.Width(colPercent));
+
+        if (multipliers.Count > 0)
+            EditorGUILayout.LabelField(multipliers[0].ToString(), GUILayout.Width(colMult));
+        else
+            EditorGUILayout.LabelField("-", GUILayout.Width(colMult));
+
+        EditorGUILayout.EndHorizontal();
+
+        // Additional multiplier rows
+        for (int i = 1; i < multipliers.Count; i++)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty column
+            EditorGUILayout.LabelField("", GUILayout.Width(colValue));
+            EditorGUILayout.LabelField("", GUILayout.Width(colFlat));
+            EditorGUILayout.LabelField("", GUILayout.Width(colPercent));
+            EditorGUILayout.LabelField(multipliers[i].ToString(), GUILayout.Width(colMult));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        EditorGUILayout.Space(6);
+    }
+    private void DrawStat(string label, int stat)
+    {
+        float colLabel = 120f;
+
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+        EditorGUILayout.LabelField(stat.ToString(), EditorStyles.boldLabel);
+        EditorGUILayout.EndHorizontal();
+    }
+    private void DrawStat(string label, bool stat)
+    {
+        float colLabel = 120f;
+
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+        EditorGUILayout.LabelField(stat.ToString(), EditorStyles.boldLabel);
+        EditorGUILayout.EndHorizontal();
+    }
+    private void DrawStat (string label, string stat)
+    {
+        float colLabel = 120f;
+
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+        EditorGUILayout.LabelField(stat, EditorStyles.boldLabel);
         EditorGUILayout.EndHorizontal();
     }
 
@@ -109,13 +192,24 @@ public class EntityScriptEditor : Editor
         }
 
         int count = 0;
-        foreach (var mod in list)
+        foreach (IEntityModifier mod in list)
         {
             if (mod == null) continue;
             count++;
 
             string name = mod.ModifierName ?? "<Unnamed>";
+
+            GameplayRef condition;
+            if (mod.OnRef_Trigger.OnTriggerReference != null)
+            {
+                condition = mod.OnRef_Trigger.OnTriggerReference.FirstOrDefault();
+            }
+            else
+            {
+                condition = GameplayRef.None;
+            }
             string valueStr = "";
+            int duration = mod.Duration; 
 
             // Try to read "BaseValue" or "Value" if they exist
             var baseValField = mod.GetType().GetField("BaseValue", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -130,8 +224,14 @@ public class EntityScriptEditor : Editor
                 valueStr = valueProp.GetValue(mod)?.ToString();
 
             EditorGUILayout.BeginHorizontal("box");
-            EditorGUILayout.LabelField($"{count}. {name}", GUILayout.Width(180));
+            EditorGUILayout.BeginVertical("Box");
+            EditorGUILayout.LabelField($"{count}. {name}", EditorStyles.boldLabel);
             EditorGUILayout.LabelField($"Value: {valueStr}", EditorStyles.boldLabel);
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.BeginVertical("Box");
+            EditorGUILayout.LabelField($"Condition: {condition}", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"Duration: {duration}", EditorStyles.boldLabel);
+            EditorGUILayout.EndVertical();
             EditorGUILayout.EndHorizontal();
         }
 

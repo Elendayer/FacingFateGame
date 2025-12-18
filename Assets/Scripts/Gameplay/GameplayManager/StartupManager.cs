@@ -14,12 +14,23 @@ public class StartupManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject); // Optional: persist between scenes
 
-        Invoke(nameof(HandleStartup), 0.1f);
-        Invoke(nameof(HandlePostStartup), 0.2f);
+        new WaitForSeconds(1f);
+
+        Invoke(nameof(HandleMapStartup), 1f);
+        Invoke(nameof(HandleStartup), 1f);
+        Invoke(nameof(HandlePostStartup), 1f);
+    }
+    private void HandleMapStartup()
+    {
+        MapGenMaster mapGenMaster = FindAnyObjectByType<MapGenMaster>();
+
+        mapGenMaster.SetUp();
     }
     private void HandleStartup()
     {
+        CardDatabase.RegisterAll();
         AiBiasDatabase.RegisterAll();
+        NpcDatabase.RegisterAll();
 
         DeckManager.Instance.StartUp();
         TurnManager.Instance.StartUp();

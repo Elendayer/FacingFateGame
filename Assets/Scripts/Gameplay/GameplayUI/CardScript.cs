@@ -1,16 +1,18 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class CardScript : MonoBehaviour
 {
     [SerializeField]
 
     public CardData cardData;
-    public Image artworkRenderer;
+    public UnityEngine.UI.Image artworkRenderer;
     public GameObject cardBack;
     public TextMeshProUGUI nameText; // Optional: if you're using UI elements
     public TextMeshProUGUI descriptionText;
+    public TextMeshProUGUI range;
+    public TextMeshProUGUI cost;
 
     public bool isLocked;
     public bool inPlay;
@@ -36,10 +38,101 @@ public class CardScript : MonoBehaviour
             cardData.CardDescription(cardData.Owner, cardData);
             artworkRenderer.sprite = cardData.cardArtwork;
             nameText.text = cardData.cardName;
+            cost.text = $"{cardData.Cost}";
             descriptionText.text = cardData.cardDescription;
-            //Debug.Log($"[Card] {cardData.cardName} -> Owner={cardData.Owner?.name} (inst {cardData.GetHashCode()})");
+
+            range.text = GetRangeText(cardData);
         }
     }
+    public static string GetRangeText(CardData cardData)
+    {
+        var t = cardData.targetingData;
+
+        List<string> parts = new();
+
+        switch (t.cardTargetingMode)
+        {
+            case CardTargetingMode.Single:
+                parts.Add("Single Target");
+                break;
+
+            case CardTargetingMode.Ring:
+                parts.Add($"Ring, {cardData.Radius} by {cardData.Area}");
+                break;
+
+            case CardTargetingMode.Radius:
+                parts.Add($"Radius, {cardData.Radius}");
+                break;
+
+            case CardTargetingMode.LineFree:
+                parts.Add($"Line Free, with maximum length {cardData.Area}");
+                break;
+
+            case CardTargetingMode.LineSelf:
+                parts.Add($"Line from Self, {cardData.Range}");
+                break;
+
+            case CardTargetingMode.Cone:
+                parts.Add($"Cone from Self, {cardData.Range} by {cardData.Area}");
+                break;
+
+            case CardTargetingMode.Select:
+                parts.Add($"Select, {cardData.MaxTarget} targets");
+                break;
+
+            case CardTargetingMode.All:
+                parts.Add("All");
+                break;
+        }
+
+        // if effect uses Vision
+        if (t.EffectUsesVision)
+        {
+            parts.Add("Blocked by Obstacles,");
+        }
+        else
+        {
+            parts.Add(",");
+        }
+
+        //  Affiliation if applicable
+        if (t.CardTargetAffiliation != CardTargetAffiliation.Self)
+        {
+            if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
+            {
+                parts.Add("Targeting Allies");
+            }
+            else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
+            {
+                parts.Add("Targeting Enemies");
+            }
+            else
+            {
+                parts.Add("Targeting Everything");
+            }
+
+            // if targeting uses Vision
+            if (t.TargetingUsesVision)
+            {
+                parts.Add("in Sight,");
+            }
+        }
+        else
+        {
+            parts.Add("Targets Self");
+        }
+
+        // Range (only if mode uses range)
+        if (t.cardTargetingMode is not CardTargetingMode.All)
+        {
+            parts.Add($"within {cardData.Range} Tiles");
+        }
+
+        // Final join
+        return string.Join(" ", parts);
+    }
+
+
 
     public void ResetCard()
     {

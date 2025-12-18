@@ -13,10 +13,4 @@ public class IntentionIcon : MonoBehaviour
         IconImage = GetComponent<Image>();
         IconText = GetComponentInChildren<TextMeshProUGUI>();
     }
-
-    public void SetIcon(Intention intention, int value)
-    {
-        IconImage.sprite = AssetManager.Instance.IntentionImage(intention);
-        IconText.text = value.ToString();
-    }
 }

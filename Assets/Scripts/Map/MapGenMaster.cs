@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,9 @@ public class MapGenMaster : MonoBehaviour
     public int SizeY = 32;
 
     public enum TerrainMode { Perlin, Voronoi }
+    public HexagonalRuleTile defaultTile;
+    public HexagonalRuleTile unwalkableTile;
+    public HexagonalRuleTile lowAvoidanceTile;
 
     [Header("Generator Mode")]
     public TerrainMode terrainMode = TerrainMode.Perlin;
@@ -73,6 +76,11 @@ public class MapGenMaster : MonoBehaviour
 
 
     void Awake()
+    public HexagonalRuleTile overlayTile;
+
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public void SetUp()
     {
         StartCoroutine(GenerateMapCoroutine());
     }
@@ -94,12 +102,16 @@ public class MapGenMaster : MonoBehaviour
             yield return null;
         }
 
+        BaseMap.CompressBounds();
+
         OverlayGen();
+        CollectMap();
     }
 
 
 
     private void MapGen()
+    private void CollectMap()
     {
         if (BaseMap == null) { Debug.LogError("MapGenMaster: BaseMap is not assigned."); return; }
         if (costInfoScript == null) { Debug.LogError("MapGenMaster: costInfoScript is not assigned."); return; }
@@ -114,8 +126,14 @@ public class MapGenMaster : MonoBehaviour
 
         for (int i = 0; i < SizeX; i++)
             for (int j = 0; j < SizeY; j++)
+        costInfoScript.costInfoDict.Clear();
+
+        for (int i = -25; i < 25; i++)
+        {
+            for (int j = -25; j < 25; j++)
             {
                 var cell = new Vector3Int(i - halfX, j - halfY, 0);
+                Vector3Int vector3Int = new Vector3Int(i,j,0);
 
                 // Nur diese Zeile ist neu/anders:
                 float n = (terrainMode == TerrainMode.Perlin)
@@ -141,6 +159,36 @@ public class MapGenMaster : MonoBehaviour
                     info.isUnwalkable = false;
                 }
                 costInfoScript.costInfoDict[cell] = info;
+                TileBase tile = BaseMap.GetTile(vector3Int);
+
+                CostInfo costInfo = new CostInfo();
+
+                switch (tile)
+                {
+                    case var t when t == defaultTile:
+                        costInfo.cost = 5;
+                        costInfo.isUnwalkable = false;
+                        break;
+
+                    case var t when t == unwalkableTile:
+                        costInfo.cost = 999999;
+                        costInfo.isUnwalkable = true;
+                        costInfo.isOccupied = true;
+                        break;
+
+                    case var t when t == lowAvoidanceTile:
+                        costInfo.cost = 7;
+                        costInfo.isUnwalkable = false;
+                        break;
+                    default:
+                        costInfo.cost = 999999;
+                        costInfo.isUnwalkable = true;
+                        costInfo.isOccupied = true;
+                        break;
+                }
+
+                Debug.Log($"{vector3Int}");
+                costInfoScript.costInfoDict.Add(vector3Int, costInfo);
             }
 
         LogTerrainDistribution(); // falls du die Verteilungs-Logs nutzt
@@ -165,6 +213,9 @@ public class MapGenMaster : MonoBehaviour
         // Wenn keine Bänder definiert sind: Fallback
         return MapTile;
     }
+    private void OverlayGen()
+    {        
+        BoundsInt bounds = BaseMap.cellBounds;
 
     private void OnValidate()
     {
@@ -253,6 +304,9 @@ public class MapGenMaster : MonoBehaviour
             Debug.Log($"[MapGen] Connectivity: bridge {result.a} -> {result.b} len={result.path.Count}");
             CarvePath(result.path);
             foreach (var c in comp) main.Add(c);
+        foreach (Vector3Int cellPos in bounds.allPositionsWithin)
+        {
+            OverlayMap.SetTile(cellPos, overlayTile);
         }
 
         Debug.Log("[MapGen] Connectivity: All components connected.");

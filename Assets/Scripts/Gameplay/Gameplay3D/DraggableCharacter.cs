@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.Tilemaps;
+using UnityEngine;
 using Utility;
 using TMPro;
 
@@ -22,12 +21,20 @@ public class DraggableCharacter : Draggable3D
 
     public override void OnMouseDown()
     {
-        if(TurnManager.Instance.CurrentTurnEntity != characterEntity)
-        {
-            isDragging = false;
-            return;
+        if (characterEntity.entityStats.IsRooted) { return; }
+
+        if (TurnManager.Instance.CurrentTurnEntity == characterEntity)
+        {        
+            base.OnMouseDown();
+            startPosition = characterOnMap.currentCell;
         }
-        base.OnMouseDown();
+    }
+
+    public override void OnMouseUp()
+    {
+        moveCostModifer = characterEntity.entityStats.MovementCostModifier;
+        base.OnMouseUp();
+        
     }
     public override void HandleMove(PathData pathData)
     {
@@ -40,9 +47,10 @@ public class DraggableCharacter : Draggable3D
             return;
         }
 
-        if (characterEntity.entityStats.CurrentStamina.Value >= pathData.PathCost)
-        {
-            characterOnMap.MoveTo(dropCell);
+        // Move the character
+        if (characterEntity.entityStats.CurrentStamina >= pathData.PathCost)
+{        
+            characterOnMap.MoveTo(pathData, characterEntity);
         }
 
         ClearMovementPreview();
@@ -61,25 +69,8 @@ public class DraggableCharacter : Draggable3D
             return;
         }
 
-        // Pfad von der aktuellen Zelle zur Hover-Zelle berechnen
-        PathData pathData = TilemapUtilityScript.FindPath(characterOnMap.currentCell, hoverCell);
-
-        if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
-        {
-            ClearMovementPreview();
-            return;
-        }
-
-        // Gesamt-Stamina-Kosten im Inspector sichtbar machen
-        previewPathCost = pathData.PathCost;
-
-        // UI-Text aktualisieren, falls verlinkt
-        if (staminaPreviewText != null)
-        {
-            staminaPreviewText.text = previewPathCost.ToString();
-            bool canAfford = characterEntity.entityStats.CurrentStamina.Value >= previewPathCost;
-            staminaPreviewText.color = canAfford ? Color.white : Color.red;
-        }
+        // Highlight path from current position to hover cell
+        TilemapUtilityScript.SetTilesHighlight( MovementUtility.FindPath( characterOnMap.currentCell, hoverCell).Path, TilemapUtilityScript.HighlightType.Path);
     }
 
     private void ClearMovementPreview()

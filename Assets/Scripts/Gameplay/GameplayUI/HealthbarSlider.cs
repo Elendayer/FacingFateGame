@@ -7,11 +7,11 @@ public class HealthbarSlider : MonoBehaviour
     public TextMeshProUGUI textMeshPro;
     public EntityScript eM;
 
-    float maxHealth => eM.entityStats.MaxHealth.Value;
-    float currentHealth => eM.entityStats.CurrentHealth.Value;
+    float maxHealth => eM.entityStats.MaxHealth.Value();
+    float currentHealth => eM.entityStats.CurrentHealth;
 
-    float maxStamina => eM.entityStats.MaxStamina.Value;
-    float currentStamina => eM.entityStats.CurrentStamina.Value;
+    float maxStamina => eM.entityStats.MaxStamina.Value();
+    float currentStamina => eM.entityStats.CurrentStamina;
 
     public MeshRenderer healthRenderer;
     public MeshRenderer staminaRenderer;   

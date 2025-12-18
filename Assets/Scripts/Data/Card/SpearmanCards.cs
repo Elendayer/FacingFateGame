@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 
@@ -24,25 +23,34 @@ public static class SpearmanCards
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 20,
-            damage_u = 75,
+            damage_u = 20,
             repeats_u = 2,
+
+            range_u = 16,
+            radius_u = 3,
+            area_u = 1,
 
             targetingData = new()
             {
+                TargetingUsesVision = true,
+                EffectUsesVision = true,
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Ring,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Twice deal {d.Damage} damage to adjacent enemies.";
+                d.cardDescription = $"Deal {d.Damage} damage {d.Repeats} times";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
-                Debug.Log("Tempest of a Hundred Spears used");
+                CombatUtility.ApplyDamage(d, Target);
+            },
+            CardEffectGround = (User, Target, d) =>
+            {
+                AssetManager.Instance.CreateFX("SpearFx", Target);
             }
         });
 
@@ -53,28 +61,32 @@ public static class SpearmanCards
             cardName = "Piercing Light",
             cardType = CardType.Technique,
             cardClass = CardClass.Spearman,
-            cardIdentities = new() { CardIdentity.Physical },
+            cardIdentities = new() { CardIdentity.Physical, CardIdentity.Melee },
 
             cost_u = 25,
-            damage_u = 120,
+            damage_u = 50,
+
             range_u = 3,
-            area_u = 3,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.LineSelf,
+                cardTargetingMode = CardTargetingMode.LineSelf,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Deal {d.Damage} damage to all enemies in a line (range {d.Range}).";
+                d.cardDescription = $"Deal {d.Damage} damage";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
+            },
+            CardEffectGround = (User, Target, d) =>
+            {
+                AssetManager.Instance.CreateFX("SpearFx", Target);
             }
         });
 
@@ -89,30 +101,33 @@ public static class SpearmanCards
 
             cost_u = 30,
             damage_u = 85,
+
             range_u = 4,
-            power_u = 2,
+            power_u = 3,
 
             targetingData = new()
             {
-                CardTargetType = CardTargetType.CombatTile,
+                CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.LineSelf,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Deal {d.Damage} damage along a short line (range {d.Range}).";
+                d.cardDescription = $"Deal {d.Damage} damage";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.GetComponent<EntityOnMap>().currentCell, d.Power);
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // To-Do: Movement nach Vorne
+                CombatUtility.ApplyDamage(d, Target);
+            },
+            CardEffectGround = (User, Target, d) =>
+            {
+                MovementUtility.ForcedMove(ForcedMovementType.Targeted, User, Target, d.Power, 100f);
             }
         });
 
-        // 110104 – Heaven Piercing Spear (Single, Range 1) – Bleed DoT + immediate tick
+        // 110104 – Heaven Piercing Spear (Single, Range 1) – Bleed DoT
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 110104,
@@ -121,110 +136,115 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 50,
-            damage_u = 80,
+            cost_u = 10,
+            damage_u = 4,
             duration_u = 3,
-            range_u = 2,
+
+            range_u = 4,
+            maxtarget_u = 3,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Select,
+            },
+
+            CardAiBias = new()
+            {
+                DamageOverride = 40,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Apply Bleed dealing {d.Damage} for {d.Duration} turns (immediate tick).";
+                d.cardDescription = $"Apply Bleed dealing {d.Damage} for {d.Duration} turns";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                string name = $"Bleed#{d.cardID}";
-                var bleed = new EntityModifier(
-                    statName: "Bleed",
-                    baseValue: d.Damage,
-                    to_Trigger_refs: new() { GameplayRef.onBleed },
-                    duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
-                    },
-                    onRefEventAction: (mod, stat, ev) =>
-                    {
-                        GameEvents.TriggerRefEvent(new TriggerRef
+                CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier
+                    (
+                        modifierName: "Bleed",
+                        baseValue: d.Damage,
+                        duration: d.Duration,
+                        onRef_Trigger: new TriggerRef
                         {
-                            References = new() { GameplayRef.onBleed },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
-                    }
-                );
-
-                CombatUtility.ApplyEntityModifier(User, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
-
-                // immediate tick on play
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
-                GameEvents.TriggerRefEvent(new TriggerRef
-                {
-                    References = new() { GameplayRef.onBleed },
-                    UserId = User.GetInstanceID(),
-                    AffectedEntityId = Target.GetInstanceID()
-                });
+                            OnTriggerReference = new() { GameplayRef.onTurnStart},
+                            AffectedEntities = new() { Target },
+                            UserEntity = User,
+                            CardData = d,
+                            Throughput = 0
+                        },
+                        onRef_Action: (data, target) =>
+                        {
+                            CombatUtility.ApplyEffectDamage(data.Value, target, GameplayRef.onBleed);
+                        }
+                    ),
+                 ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
-        // 110105 – Earth-Sundering Sweep (Ring 1)
+        // 110105 – Salamander Sweep (Cone 1)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 110105,
-            cardName = "Earth-Sundering Sweep",
+            cardName = "Salamander Tail Sweep",
             cardType = CardType.Technique,
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 70,
-            damage_u = 250,
+            cost_u = 20,
+            damage_u = 30,
+
+            range_u = 2,
+            area_u = 2,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Ring,
+                cardTargetingMode = CardTargetingMode.Cone,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Deal {d.Damage} damage to adjacent enemies.";
+                d.cardDescription = $"Deal {d.Damage} damage";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
+            },
+            CardEffectGround = (User, Target, d) =>
+            {
+                AssetManager.Instance.CreateFX("FirestormFx", Target);
             }
         });
 
-        // 110106 – Dragon Fang Thrust (Single, Range 1)
+        // 110106 – Dragon Fang Thrust (Cone)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 110106,
-            cardName = "Dragon Fang Thrust",
+            cardName = "Snake Tail Sweep",
             cardType = CardType.Technique,
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 25,
-            damage_u = 50,
-            range_u = 2,
+            cost_u = 20,
+            damage_u = 5,
+
+            //Slow Movement Cost increase
+            power_u = 1,
+
+            range_u = 3,
+            area_u = 3,
+
 
             targetingData = new()
             {
-                CardTargetType = CardTargetType.Entity,
+                CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -234,27 +254,43 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
+
+                CombatUtility.ApplyStatDebuff(d, Target, Target.entityStats.MovementCostModifier,
+                    new StatModifier
+                    (
+                        stat: Target.entityStats.MovementCostModifier,
+                        value: d.Power,
+                        scaling: ModifierScaling.Flat,
+                        duration: d.Duration,
+                        to_TriggerRefs: new() { GameplayRef.onSlowed},
+                        name: $"MovementCostIncrease"
+                    ),
+                    ModifierMergeStrategy.RefreshDurationAndOverride);
             }
         });
 
-        // 110107 – Dragon's Tail Sweep (Single)
+        // 110107 – Dragon Tail Sweep (cone)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 110107,
-            cardName = "Dragon's Tail Sweep",
+            cardName = "Dragon Tail Sweep",
             cardType = CardType.Technique,
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 5,
-            damage_u = 3,
+            cost_u = 30,
+            damage_u = 25,
+
+            range_u = 4,
+            area_u = 4,
+
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -264,12 +300,12 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyDamage(d, Target);
                 // To-Do Slow
             }
         });
 
-        // 110108 – Earthshatter Pole (Ring 1)
+        // 110108 – Earthshatter Pole 
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 110108,
@@ -278,26 +314,31 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 100,
-            damage_u = 200,
+            cost_u = 40,
+            damage_u = 90,
+
+            range_u = 3,
             area_u = 2,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Ring,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Deal {d.Damage} damage to adjacent enemies.";
+                d.cardDescription = $"Deal {d.Damage} damage";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
-                // Slow all Enemies oder Stun
+                 CombatUtility.ApplyDamage(d, Target, d.Damage);
+            },
+            CardEffectGround = (User, Target, d) =>
+            {
+                AssetManager.Instance.CreateFX("FirestormFx", Target);
             }
         });
 
@@ -312,13 +353,19 @@ public static class SpearmanCards
 
             cost_u = 10,
             power_u = 10,
+
             duration_u = 1,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
+            },
+
+            CardAiBias = new()
+            {
+                PowerOverride = 80,
             },
 
             CardDescription = (User, d) =>
@@ -328,23 +375,22 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                var mod = new StatModifier(
+                var mod = new StatModifier
+                (
+                    stat: Target.entityStats.DamageOutModifier,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { GameplayRef.onTurnStart },   
-                        AffectedEntityId = Target.GetInstanceID()
-                    },
-                    name: $"DamageIncrease#{d.cardID}");                   
+                    name: $"DamageIncrease"
+                    );
 
-                CombatUtility.ApplyBuff(User, Target, Target.entityStats.DamageIncrease, mod,
-                    ModifierMergeStrategy.RefreshDurationAndMerge);
+                Debug.Log($"Applying Azure Dragon's Roar buff: +{d.Power} Damage for {d.Duration} turns.");
+
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndOverride);
             }
         });
 
-        // 110110 – Pillar of the Earth (LineSelf 4)
+        // 110110 – Pillar of the Earth (Radius Stun)
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 110110,
@@ -353,26 +399,74 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 100,
-            damage_u = 100,
-            range_u = 3,
-            area_u = 3,
+            cost_u = 36,
+            damage_u = 60,
+
+            duration_u = 2,
+
+            range_u = 2,
+            radius_u = 2,
+            area_u = 2,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.LineFree,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Deal {d.Damage} damage along a long line (range {d.Range}).";
+                d.cardDescription = $"Deal {d.Damage} damage";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyDamage(User, Target, d.Damage);
+                CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier
+                    (
+                        modifierName: "Rooted",
+                        baseValue: d.Power,
+                        duration: d.Duration,
+                        onRef_Trigger: new TriggerRef
+                        {
+                            OnTriggerReference = new() { },
+                            AffectedEntities = new() { Target },
+                            UserEntity = User,
+                            CardData = d,
+                            Throughput = 0
+                        },
+                        onApply_Trigger: new TriggerRef
+                        {
+                            OnTriggerReference = new() {},
+                            AffectedEntities = new() { Target },
+                            UserEntity = User,
+                            CardData = d,
+                            Throughput = 0
+                        },
+                        onRemove_Trigger: new TriggerRef
+                        {
+                            OnTriggerReference = new() {},
+                            AffectedEntities = new() { Target },
+                            UserEntity = User,
+                            CardData = d,
+                            Throughput = 0
+                        },
+                        onApply_Action: (data, target) =>
+                        {
+                            target.entityStats.IsRooted = true;
+                        },
+                        onRemove_Action: (data, target) =>
+                        {
+                            target.entityStats.IsRooted = false;
+                        }
+                    ),
+                 ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                CombatUtility.ApplyDamage(d, Target);
+            },
+            CardEffectGround = (User, Target, d) =>
+            {
+                AssetManager.Instance.CreateFX("SpearFx", Target);
             }
         });
     }
@@ -396,31 +490,29 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Increase melee range by +1 until end of turn.";
+                d.cardDescription = $"Increase melee range by {d.Power} until end of turn.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-
-                var mod = new StatModifier(
-                    value: d.Power,
-                    scaling: ModifierScaling.Flat,
-                    duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = User.GetInstanceID()
-                    },
-                    name: $"MeleeRangeIncrease"
-                );
-
-                CombatUtility.ApplyBuff(User, Target, Target.entityStats.RangeIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
-            }     
+                CombatUtility.ApplyStatBuff(d, Target,
+                    new StatModifier(
+                        stat: Target.entityStats.RangeModifier,
+                        value: d.Power,
+                        scaling: ModifierScaling.Flat,
+                        conditionFunc: (e, c) => c.cardIdentities.Contains(CardIdentity.Melee) && c.range_u > 1,
+                        to_TriggerRefs: new() { },
+                        duration: d.Duration,
+                        name: $"MeleeRangeIncrease"
+                        ),
+                    ModifierMergeStrategy.RefreshDurationAndMerge
+                    );
+            }
         });
 
         // 110202 – Iron Wall Reversal (Self; fixed melee counter once)
@@ -432,25 +524,44 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 2,
-            power_u = 10,
+            cost_u = 22,
+            damage_u = 50,
             duration_u = 1,
+            charges_u = 1,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"On next melee hit taken this turn, counter for {d.Power}.";
+                d.cardDescription = $"On next hit taken this round, counter for {d.Damage}.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                // Counter Melee
+                var mod = new EntityModifier(
+                    modifierName: "SpearmanIronWallReversalCounter",
+                    baseValue: d.Damage,
+                    toTriggerRefs: new(),
+                    duration: d.Duration,
+                    charges: d.Charges,
+                    onRef_Trigger: new TriggerRef
+                    {
+                        OnTriggerReference = new() { GameplayRef.onHitLanded },
+                        AffectedEntities = new() { Target },
+                        UserEntity = User
+                    },
+                    onRef_Action: (data, target) =>
+                    {
+                        Debug.Log($"Spearman Iron Wall Reversal counter triggered for {data.Value} damage.");
+                        CombatUtility.ApplyEffectDamage(data.Value, data.TriggerReference.UserEntity, GameplayRef.onCounterRecieved);
+                    }
+                );
+                CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -463,20 +574,24 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 2,
-            power_u = 0,
+            cost_u = 20,
             duration_u = 1,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
+            },
+
+            CardAiBias = new()
+            {
+                PowerOverride = 80,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"On next ranged hit this turn, deflect/negate (details TBD).";
+                d.cardDescription = $"On next ranged hit this round reduce damage 100%";
             },
 
             CardEffect = (User, Target, d) =>
@@ -494,6 +609,8 @@ public static class SpearmanCards
             cardClass = CardClass.Spearman,
             cardIdentities = new() { CardIdentity.Physical },
 
+            range_u = 2,
+
             cost_u = 20,
             power_u = 50,
             duration_u = 1,
@@ -501,30 +618,67 @@ public static class SpearmanCards
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Taunt and gain {d.Power} Armour for {d.Duration} turn.";
+                d.cardDescription = $"Taunt target and gain {d.Power} Armour for {d.Duration} turn.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                var mod = new StatModifier(
+                // Apply Armour
+                CombatUtility.ApplyStatBuff(d, User,
+                    new StatModifier
+                    (
+                    stat: Target.entityStats.Armour,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
-                    },
-                    name: $"ArmourIncrease#{d.cardID}");
+                    name: $"ArmourIncrease"
+                    ),
+                    ModifierMergeStrategy.RefreshDurationAndMerge);
 
-                    CombatUtility.ApplyBuff(User, Target, Target.entityStats.DamageIncrease, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 // Apply Taunt
+                CombatUtility.ApplyEntityModifier(d, Target,
+                    new EntityModifier(
+                    modifierName: "Taunted",
+                            duration: d.Duration,
+                            onRef_Trigger: new TriggerRef
+                            {
+                                OnTriggerReference = new() { },
+                                AffectedEntities = new() { Target },
+                                UserEntity = User,
+                                CardData = d,
+                                Throughput = 0
+                            },
+                            onApply_Trigger: new TriggerRef
+                            {
+                                OnTriggerReference = new() { },
+                                AffectedEntities = new() { Target },
+                                UserEntity = User,
+                                CardData = d,
+                                Throughput = 0
+                            },
+                            onRemove_Trigger: new TriggerRef
+                            {
+                                OnTriggerReference = new() { },
+                                AffectedEntities = new() { Target },
+                                UserEntity = User,
+                                CardData = d,
+                                Throughput = 0
+                            },
+                            onApply_Action: (data, target) =>
+                            {
+                                target.entityStats.tauntTarget = User;
+                            },
+                            onRemove_Action: (data, target) =>
+                            {
+                                target.entityStats.tauntTarget = null;
+                            }),
+                 ModifierMergeStrategy.Override);
             }
         });
 
@@ -538,26 +692,42 @@ public static class SpearmanCards
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 8,
-            power_u = 10,
-            duration_u = 1,
+            damage_u = 10,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"On next hit this turn, counter for {d.Power}.";
+                d.cardDescription = $"On next hit this turn, counter for {d.Damage}.";
             },
-
+             
             CardEffect = (User, Target, d) =>
             {
-                // Damage zurückwerfen
+                var mod = new EntityModifier(
+                     modifierName: "SpearmanSkyRendingReversalCounter",
+                     baseValue: d.Damage,
+                     toTriggerRefs: new() { },
+                     duration: d.Duration,
+                     onRef_Trigger: new TriggerRef
+                     {
+                         OnTriggerReference = new() { GameplayRef.onDamageRecieved },
+                         AffectedEntities = new() { Target },
+                         UserEntity = User
+                     },
+                    onRef_Action: (data, target) =>
+                    {
+                        CombatUtility.ApplyDamage(null, target, data.Value);
+                     }
+                 );
+                CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
-        });
+            });
+
 
         // 110206 – Phalanx Guard (Self; defensive placeholder)
         CardDatabase.RegisterCard(new CardData()
@@ -569,34 +739,51 @@ public static class SpearmanCards
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 100,
-            power_u = 25,
-            duration_u = 1,
+            power_u = 10,
+            damage_u = 10,
+            duration_u = 3,
+
+            radius_u = 2,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                CardTargetAffiliation = CardTargetAffiliation.Ally,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Increses armour by {d.Power}) for adjacent allies and gives them thorns.";
+                d.cardDescription = $"Increses armour by {d.Power}) for adjacent allies and gives them thorns {d.Damage}.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                var mod = new StatModifier(
+                CombatUtility.ApplyStatBuff(d, Target, 
+                    new StatModifier(
+                    stat: Target.entityStats.Armour,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef
+                    name: $"ArmourIncrease#{d.cardID}"),
+                    ModifierMergeStrategy.RefreshDurationAndMerge);
+                
+                CombatUtility.ApplyEntityModifier(d, Target, 
+                    new EntityModifier(
+                    modifierName: "SpearmanSkyRendingReversalCounter",
+                    baseValue: d.Damage,
+                    duration: d.Duration,
+                    onRef_Trigger: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
+                        OnTriggerReference = new() { GameplayRef.onDamageRecieved },
+                        AffectedEntities = new() { Target },
+                        UserEntity = User
                     },
-                    name: $"ArmourIncrease#{d.cardID}");
-                //To-DO Thorns
+                    onRef_Action: (data, target) =>
+                    {
+                        CombatUtility.ApplyEffectDamage(data.Value, data.TriggerReference.UserEntity, GameplayRef.onThorns);
+                    }),
+                    ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -615,11 +802,13 @@ public static class SpearmanCards
             cost_u = 0,
             power_u = -50,
 
+            range_u = 5,
+
             targetingData = new()
             {
                 CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -629,19 +818,15 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.IgnoreArmour;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Percent,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
-                    },
-                    name: $"ArmourIncrease#{d.cardID}");
+                    name: $"ArmourReducution#{d.cardID}");
 
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
     }
@@ -664,7 +849,7 @@ public static class SpearmanCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -674,19 +859,15 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Percent,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef
-                    {
-                        References = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
-                    },
                     name: $"AttackIncrease#{d.cardID}");
 
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 
                 // To-Do Increase Aggro
             }

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Tilemaps;
 using Utility;
 
 public class DraggableCard : DraggableUI
@@ -10,78 +9,156 @@ public class DraggableCard : DraggableUI
     public CardScript cardScript; // Reference to the card logic
     private static readonly Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
 
-    private Vector3Int lastHighlightedTile = InvalidPosition;
+    private Vector3Int? lastHighlightedTile = InvalidPosition;
+    private readonly List<Vector3Int> selectedTilesDuringDrag = new();
+    private bool isDragging = false;
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
         base.OnBeginDrag(eventData);
         cardScript = GetComponent<CardScript>();
+        isDragging = true;
+        selectedTilesDuringDrag.Clear();
+    }
+
+    private void Update()
+    {
+        if (!isDragging || lastHighlightedTile == InvalidPosition) return;
+
+        if (Input.GetMouseButtonDown(1)) // Right-click to select/deselect tiles
+        {
+            int maxTargets = cardScript.cardData.targetingData.cardTargetingMode switch
+            {
+                CardTargetingMode.Select => cardScript.cardData.MaxTarget,
+                CardTargetingMode.LineFree => 2,
+                _ => 1
+            };
+
+            if (selectedTilesDuringDrag.Contains(lastHighlightedTile.Value))
+            {
+                selectedTilesDuringDrag.Remove(lastHighlightedTile.Value);
+            }
+            else if (selectedTilesDuringDrag.Count < maxTargets)
+            {
+                selectedTilesDuringDrag.Add(lastHighlightedTile.Value);
+            }
+        }
     }
 
     public override void OnDrag(PointerEventData eventData)
     {
         base.OnDrag(eventData);
-        HighlightCardEffectArea(eventData);
+
+        HighlightCardEffectArea(TargetingUtility.GetHoveredTile(eventData));
     }
 
     public override void OnEndDrag(PointerEventData eventData)
     {
         base.OnEndDrag(eventData);
+        isDragging = false;
+
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
 
-        Vector3Int dropCell = TilemapUtilityScript.InvalidPosition;
-        CardTargetType ctt = cardScript.cardData.targetingData.CardTargetType;
+        Vector3Int dropCell = InvalidPosition;
+        TargetingModeData targetingModeData;
+        List<EntityScript> allEntities = FindObjectsByType<EntityScript>(0).ToList();
 
-        List<EntityScript> targets = new();
+        dropCell = TargetingUtility.GetHoveredTile(eventData) ?? InvalidPosition;
 
-        switch (ctt)
-        {
-            case CardTargetType.CombatTile:
-                dropCell = TargetingUtility.GetValidTileDrop(eventData, cardScript);
-                targets = TargetingUtility.GetEntitiesFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
-
-                ; break;
-            case CardTargetType.Entity:
-                dropCell = TargetingUtility.GetValidEntityDrop(eventData, cardScript);
-                targets = TargetingUtility.GetEntitiesFromPosition(cardScript, dropCell, FindObjectsByType<EntityScript>(FindObjectsSortMode.None).ToList(), cardScript.cardData.Owner);
-                break;
-            case CardTargetType.Ground:
-                dropCell = TargetingUtility.GetValidGroundDrop(eventData, cardScript);
-                break;
+        // Invalid Position
+        if (dropCell == InvalidPosition) 
+        { 
+            return; 
         }
 
-        if (dropCell == InvalidPosition) return;
+        Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+        List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRange(currentCell, cardScript.cardData.Range);
 
 
-        Debug.Log($"[DraggableCard] Card {cardScript.cardData.cardName} targets before vetting: {targets.Count}");
-
-        if (ctt == CardTargetType.Entity || ctt == CardTargetType.CombatTile)
+        if (cardScript.cardData.targetingData.TargetingUsesVision)
         {
-            if (targets.Any())
+            validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
+        }
+
+        if (validTiles.Contains(dropCell))
+        {
+            targetingModeData = TargetingUtility.GetAffected(cardScript, dropCell, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedTilesDuringDrag, true);
+
+            // Check If the Card requires a Target
+            if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
             {
-                Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on {string.Join(", ", targets.Select(t => t.name))}");
-                cardScript.cardData.ActivateCard(targets, gameObject);
+                List<EntityScript> t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell }, FindObjectsByType<EntityScript>(0).ToList());
+
+                if (!TargetingUtility.IsTargetValid(cardScript, cardScript.cardData.Owner, t.FirstOrDefault()))
+                {
+                    return;
+                }
             }
-        }
-        else
-        {
-            Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on ground at {dropCell}");
-            cardScript.cardData.ActivateCard(new List<Vector3Int>() { dropCell }, gameObject);
+
+            //Check if Cost can be paid
+            if (cardScript.cardData.Cost > cardScript.cardData.Owner.entityStats.CurrentStamina)
+            {
+                Debug.Log($"[DraggableCard] Cannot pay cost for card {cardScript.cardData.cardName}");
+                return;
+            }
+
+            Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on {string.Join(", ", targetingModeData.targetedEntities.Select(t => t.name))}");
+            cardScript.cardData.Owner.entityStats.CurrentStamina -= cardScript.cardData.Cost;
+            cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
         }
     }
-    private void HighlightCardEffectArea(PointerEventData eventData)
-    {
-        Vector3Int? currentTile = TargetingUtility.GetHoveredTile(eventData);
-        if (currentTile == InvalidPosition || lastHighlightedTile == currentTile) return;
 
-        List<Vector3Int> tilesToHighlight = currentTile.HasValue
-            ? TargetingUtility.GetEffectAreaTiles(cardScript, currentTile.Value, cardScript.cardData.Owner)
-            : new List<Vector3Int>();
+    private void HighlightCardEffectArea(Vector3Int? hoveredTile)
+    {
+        if (hoveredTile == null || hoveredTile == InvalidPosition) return;
+
+        Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
 
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
-        TilemapUtilityScript.SetTilesHighlight(tilesToHighlight, TilemapUtilityScript.HighlightType.Target);
 
-        lastHighlightedTile = currentTile ?? InvalidPosition;
+        List<Vector3Int> validTiles;
+
+        // Show Range for SelectionTypes
+        switch (cardScript.cardData.targetingData.cardTargetingMode)
+        {
+            case CardTargetingMode.LineSelf:
+                {
+                    validTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
+                }
+                break;
+
+            case CardTargetingMode.Cone:
+                {
+                    validTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
+                }
+                break;
+
+            default:
+                {
+                    validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
+                }
+                break;
+        }
+
+        // If target requires Vision
+        if (cardScript.cardData.targetingData.TargetingUsesVision)
+        {
+            validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
+
+            TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
+        }
+
+        TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
+
+        if (!validTiles.Contains(hoveredTile.Value))
+        {
+            return;
+        }
+
+        var targetingData = TargetingUtility.GetAffected(cardScript, hoveredTile.Value, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedTilesDuringDrag);
+
+        TilemapUtilityScript.SetTilesHighlight(targetingData.targetedTiles, TilemapUtilityScript.HighlightType.Target);
+
+        lastHighlightedTile = hoveredTile;
     }
-
 }

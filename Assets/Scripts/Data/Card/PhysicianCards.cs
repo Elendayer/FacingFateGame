@@ -27,7 +27,7 @@ public static class PhysicianCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 20,
-            healing_u = 20,      
+            healing_u = 20,
             duration_u = 3,   // for 3 turns
             range_u = 3,
 
@@ -35,39 +35,40 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
+            },
+
+            CardAiBias = new()
+            {
+                triggerConditionTargets = (entitiy) => entitiy.HasCondition(GameplayCondition.isDamaged)
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Apply a regeneration of {d.Power} for {d.Duration} turns.",
+            {
+                d.cardDescription = $"Apply a regeneration of {d.Power} for {d.Duration} turns.";
+            },
 
             CardEffect = (User, Target, d) =>
             {
                 // Heal-over-time as positive “on turn start” tick
                 var regen = new EntityModifier(
-                    statName: "Regeneration",
+                    modifierName: "Regeneration",
                     baseValue: d.Healing,
-                    to_Trigger_refs: new() { GameplayRef.onHeal },
+                    toTriggerRefs: new() { GameplayRef.onHealRecieved },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        AffectedEntities = new() { Target },
+                        UserEntity = User
                     },
-                    onRefEventAction: (mod, stat, ev) =>
+                    onRef_Action: (data, target) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef
-                        {
-                            References = new() { GameplayRef.onHeal },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
-                        CombatUtility.ApplyHealing(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyHealing(data.TriggerReference.CardData, target, data.Value);
                     }
                 );
 
-                CombatUtility.ApplyEntityModifier(User, Target, regen, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, regen, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -88,7 +89,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Turn target's Poison into Bleed.",
@@ -112,7 +113,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Ring,
+                cardTargetingMode = CardTargetingMode.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -120,7 +121,7 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyHealing(User, Target, d.Healing);
+                CombatUtility.ApplyHealing(d, Target, d.Healing);
             }
         });
 
@@ -140,7 +141,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Worsen target's Poison (TBD: add stacks / increase tick).",
@@ -163,7 +164,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) => d.cardDescription = "Cleanse ally (remove negative effects).",
@@ -190,7 +191,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.None,
-                SelectionType = CardTargetSelection.Ring,
+                cardTargetingMode = CardTargetingMode.Ring,
             },
 
             CardDescription = (User, d) =>
@@ -219,7 +220,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.None, 
-                SelectionType = CardTargetSelection.Single,                
+                cardTargetingMode = CardTargetingMode.Single,                
             },
 
             CardDescription = (User, d) =>
@@ -248,7 +249,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -277,7 +278,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Self,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -312,7 +313,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -321,15 +322,15 @@ public static class PhysicianCards
             CardEffect = (User, Target, d) =>
             {
                 // Buff DamageIncrease on each affected ally
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Percent,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"JadeResonance_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -351,7 +352,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Cone,
+                cardTargetingMode = CardTargetingMode.Cone,
             },
 
             CardDescription = (User, d) =>
@@ -359,7 +360,7 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyHealing(User, Target, d.Healing);
+                CombatUtility.ApplyHealing(d, Target, d.Healing);
             }
         });
     }
@@ -382,7 +383,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -390,7 +391,7 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyHealing(User, Target, d.Healing);
+                CombatUtility.ApplyHealing(d, Target, d.Healing);
             }
         });
 
@@ -412,7 +413,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -422,13 +423,13 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.MaxHealth;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"MaxHP+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -450,7 +451,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -460,13 +461,13 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.MaxHealth;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration, // 0 => indefinite in deinem System
-                    on_triggerConditionRef: new TriggerRef(), // kein Ablauf-Trigger nötig
                     name: $"MaxHP+{d.Power}_Pill"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -487,7 +488,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -517,7 +518,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -527,13 +528,13 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.MaxStamina;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"MaxStamina+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -555,7 +556,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -565,13 +566,13 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.MaxStamina;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef(),
                     name: $"MaxStamina+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -593,7 +594,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -601,15 +602,15 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"ArmourIncrease+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -631,7 +632,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -641,13 +642,13 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.Armour;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"ArmourIncrease+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -669,7 +670,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -679,13 +680,13 @@ public static class PhysicianCards
             {
                 var stat = Target.entityStats.Armour;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef(),
                     name: $"ArmourIncrease+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -707,7 +708,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -715,15 +716,18 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
-                var mod = new StatModifier(
+                CombatUtility.ApplyStatBuff(d, Target,
+                    new StatModifier
+                    (
+                    stat: User.entityStats.DamageOutModifier,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
+                    condition: true,
+                    to_TriggerRefs: new() { },
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
-                    name: $"SoaringDragon_Dmg+{d.Power}"
-                );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    name: $"SoaringDragon"
+                ),
+               ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -745,7 +749,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -753,15 +757,15 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef { References = new() { GameplayRef.onTurnStart }, AffectedEntityId = Target.GetInstanceID() },
                     name: $"SoaringDragonElixir_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -783,7 +787,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.Entity,
                 CardTargetAffiliation = CardTargetAffiliation.Ally,
-                SelectionType = CardTargetSelection.Single,
+                cardTargetingMode = CardTargetingMode.Single,
             },
 
             CardDescription = (User, d) =>
@@ -791,15 +795,15 @@ public static class PhysicianCards
 
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageIncrease;
+                var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
+                    stat: stat,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
-                    on_triggerConditionRef: new TriggerRef(),
                     name: $"SoaringDragonPill_Dmg+{d.Power}"
                 );
-                CombatUtility.ApplyBuff(User, Target, stat, mod, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Merge);
             }
         });
 
@@ -819,7 +823,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
 
             },
 
@@ -851,7 +855,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -861,28 +865,22 @@ public static class PhysicianCards
             {
                 string name = $"Poison#{d.cardID}";
                 var poison = new EntityModifier(
-                    statName: name,
+                    modifierName: name,
                     baseValue: d.Damage,
-                    to_Trigger_refs: new() { GameplayRef.onPoison },
+                    toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
-                    target: Target.entityStats.CurrentHealth,
-                    triggerConditionRef: new TriggerRef
+                    onRef_Trigger: new TriggerRef
                     {
-                        References = new() { GameplayRef.onTurnStart },
-                        AffectedEntityId = Target.GetInstanceID()
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        AffectedEntities = new() { Target },
+                        UserEntity = User
                     },
-                    onRefEventAction: (mod, stat, ev) =>
+                    onRef_Action: (data,target) =>
                     {
-                        GameEvents.TriggerRefEvent(new TriggerRef
-                        {
-                            References = new() { GameplayRef.onPoison },
-                            UserId = User.GetInstanceID(),
-                            AffectedEntityId = Target.GetInstanceID()
-                        });
-                        CombatUtility.ApplyDamage(User, Target, mod.BaseValue);
+                        CombatUtility.ApplyDamage(null, target, data.Value);
                     });
 
-                CombatUtility.ApplyEntityModifier(User, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 // ToDO: Posion Cloud sollte länger auf dem Spielfeld und ALLE vergiften die durchgehen wollen
             }
@@ -907,7 +905,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>
@@ -937,7 +935,7 @@ public static class PhysicianCards
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                SelectionType = CardTargetSelection.Radius,
+                cardTargetingMode = CardTargetingMode.Radius,
             },
 
             CardDescription = (User, d) =>

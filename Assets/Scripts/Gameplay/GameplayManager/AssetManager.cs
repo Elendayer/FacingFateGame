@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Utility;
 
 public class AssetManager : MonoBehaviour
 {
@@ -50,28 +51,19 @@ public class AssetManager : MonoBehaviour
         Debug.LogError($"Prefab with name '{name}' not found!");
         return null;
     }
-    public Sprite IntentionImage(Intention intentions)
+    public void CreateFX(string name, Vector3Int positon)
     {
-        switch (intentions)
-        {
-            case Intention.None:
-                return Resources.Load<Sprite>("Assets / 2D Casual UI / Sprite / GUI_0.png"); 
-                case Intention.Damage:
-                return Resources.Load<Sprite>("Assets / 2D Casual UI / Sprite / GUI_67.png"); 
-                case Intention.Block:
-                return Resources.Load<Sprite>("Assets / 2D Casual UI / Sprite / GUI_43.png");
-                case Intention.Heal:
-                return Resources.Load<Sprite>("Assets / 2D Casual UI / Sprite / GUI_20.png");
-                case Intention.Buff:
-                return Resources.Load<Sprite>("Assets / 2D Casual UI / Sprite / GUI_24.png");
-                case Intention.Debuff:
-                return Resources.Load<Sprite>("Assets / 2D Casual UI / Sprite / GUI_25.png");
-                case Intention.BuffDebuff:
-                return Resources.Load<Sprite>("Assets / 2D Casual UI / Sprite / GUI_24.png");
-                case Intention.Other:
-                return Resources.Load<Sprite>("Assets / 2D Casual UI / Sprite / GUI_26.png");
-        }
-        return null;
-    }
+        GameObject effectObj;
+        Vector3 pos = TilemapUtilityScript.BaseTilemap.CellToWorld( positon);
 
+        effectObj = AssetManager.Instance.GetEffectPrefab(name);
+        var CreatedObj = Instantiate(effectObj, pos, new());
+    }
+    public void CreateFX(string name, GameObject host)
+    {
+        GameObject effectObj;
+
+        effectObj = AssetManager.Instance.GetEffectPrefab(name);
+        var CreatedObj = Instantiate(effectObj, host.transform);
+    }
 }
