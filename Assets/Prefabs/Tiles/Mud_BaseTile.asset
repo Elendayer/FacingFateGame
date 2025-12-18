@@ -18,5 +18,5 @@ MonoBehaviour:
   m_TilingRules: []
   m_FlatTop: 0
   materialId: Mud
-  baseMoveCost: 2
+  baseMoveCost: 10
   unwalkable: 0

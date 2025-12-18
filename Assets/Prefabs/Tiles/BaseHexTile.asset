@@ -18,5 +18,5 @@ MonoBehaviour:
   m_TilingRules: []
   m_FlatTop: 0
   materialId: Grass
-  baseMoveCost: 1
+  baseMoveCost: 5
   unwalkable: 0

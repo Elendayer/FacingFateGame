@@ -18,5 +18,5 @@ MonoBehaviour:
   m_TilingRules: []
   m_FlatTop: 0
   materialId: Sand
-  baseMoveCost: 3
+  baseMoveCost: 7
   unwalkable: 0
