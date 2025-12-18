@@ -5,7 +5,7 @@ public static class HandUI
     public static void RefreshHandLocks(EntityScript user)
     {
         if (HandManager.Instance == null || user == null) return;
-        int stamina = user.entityStats.CurrentStamina.Value;
+        int stamina = user.entityStats.CurrentStamina;
 
         foreach (var go in HandManager.Instance.cardsInHand)
         {

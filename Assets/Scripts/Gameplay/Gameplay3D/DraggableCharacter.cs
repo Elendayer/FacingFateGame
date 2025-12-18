@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Tilemaps;
 using Utility;
 
 [RequireComponent(typeof(Collider))]
@@ -17,12 +16,20 @@ public class DraggableCharacter : Draggable3D
 
     public override void OnMouseDown()
     {
-        if(!TurnManager.Instance.CurrentTurnEntity == characterEntity)
-        {
-            isDragging = false;
-            return;
+        if (characterEntity.entityStats.IsRooted) { return; }
+
+        if (TurnManager.Instance.CurrentTurnEntity == characterEntity)
+        {        
+            base.OnMouseDown();
+            startPosition = characterOnMap.currentCell;
         }
-        base.OnMouseDown();
+    }
+
+    public override void OnMouseUp()
+    {
+        moveCostModifer = characterEntity.entityStats.MovementCostModifier;
+        base.OnMouseUp();
+        
     }
     public override void HandleMove(PathData pathData)
     {
@@ -38,10 +45,9 @@ public class DraggableCharacter : Draggable3D
         }
 
         // Move the character
-        if (characterEntity.entityStats.CurrentStamina.Value >= pathData.PathCost)
+        if (characterEntity.entityStats.CurrentStamina >= pathData.PathCost)
 {        
-            //CombatUtility.ApplyCost(characterEntity, characterOnMap.GetComponent<PlayerScript>().entityStats.CurrentStamina, pathData.PathCost);
-            characterOnMap.MoveTo(dropCell);
+            characterOnMap.MoveTo(pathData, characterEntity);
         }
 
         // Optionally clear path highlight after move
@@ -60,7 +66,6 @@ public class DraggableCharacter : Draggable3D
         }
 
         // Highlight path from current position to hover cell
-        Debug.Log(TilemapUtilityScript.FindPath(characterOnMap.currentCell, hoverCell).Path.Count);
-        TilemapUtilityScript.SetTilesHighlight( TilemapUtilityScript.FindPath( characterOnMap.currentCell, hoverCell).Path, TilemapUtilityScript.HighlightType.Path);
+        TilemapUtilityScript.SetTilesHighlight( MovementUtility.FindPath( characterOnMap.currentCell, hoverCell).Path, TilemapUtilityScript.HighlightType.Path);
     }
 }

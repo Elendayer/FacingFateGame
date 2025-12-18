@@ -1,105 +1,131 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Utility
 {
     public static class CombatUtility
     {
-        public static void ApplyCost(EntityScript user, Stat resourceStat, int cost)
+        public static void ApplyCost(CardData cardData, Stat resourceStat, int cost)
         {
-            resourceStat.AddModifier(new StatModifier(-cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { }, user.GetInstanceID()));
+            resourceStat.AddModifier(new StatModifier(resourceStat, -cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
         }
-        public static void ApplyDamage(EntityScript user, EntityScript target, int rawDamage, bool isAttack = false)
+
+        // Direct Damage that bypasses armour and block
+        public static void ApplyEffectDamage(int rawDamage, EntityScript target, GameplayRef dotType)
         {
-            if (isAttack)
+            List<GameplayRef> refs = new() { dotType, GameplayRef.onDamageRecieved };
+
+            target.entityStats.CurrentHealth -= rawDamage;
+
+            HandlePostCombatTrigger(refs, target, target, null, rawDamage);
+        }
+
+        // Standard Damage Application
+        public static void ApplyDamage(CardData cardData, EntityScript target, int rawDamage = 0)
+        {
+            List<GameplayRef> refs = new() { GameplayRef.onHitLanded };
+
+            int damage;
+            if (cardData != null)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onAttack }, user.GetInstanceID(), target.GetInstanceID()));
+                Debug.Log($"Card Data Damage: {cardData.Damage}");
+                damage = cardData.Damage;
+            }
+            else
+            {
+                Debug.Log($"Raw Damage: {rawDamage}");
+                damage = rawDamage;
             }
 
-            // Damage-Basis
-            int damage = rawDamage;
+            Debug.Log($"Applying {damage} damage to {target.name}");
 
-            // 1) Pre-Mitigation (Resistenzen o.ä.)
-            damage = target.entityStats.DamageTakenReduction.ApplyFinalValue(damage);
+            // 1) Pre-Mitigation
+            damage = target.entityStats.DamageTakenModifier.ApplyFinalValue(damage);
 
             // 2) Armour
-            if (target.entityStats.Armour.Value > 0)
+            if (target.entityStats.Armour.Value() > 0)
             {
-                int effectiveArmour = target.entityStats.IgnoreArmour.ApplyFinalValue(target.entityStats.Armour.Value);
+                int effectiveArmour = target.entityStats.IgnoreArmour.ApplyFinalValue(target.entityStats.Armour.Value());
                 damage = Mathf.Max(0, damage - effectiveArmour);
             }
 
             // 3) Block
-            int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block.Value);
+            int block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block);
             if (block > 0 && damage > 0)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBlocking }, user.GetInstanceID(), target.GetInstanceID()));
+                refs.Add(GameplayRef.onBlocking);
+
                 int blockAbsorb = Mathf.Min(damage, block);
-                target.entityStats.Block.AddModifier(new StatModifier(-blockAbsorb, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
-                damage -= blockAbsorb;
+                target.entityStats.Block -= blockAbsorb;
             }
 
             // 4) Health
             if (damage > 0)
             {
-                if (isAttack)
-                {
-                    GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onDamage }, user.GetInstanceID(), target.GetInstanceID()));
-                }
+                refs.Add(GameplayRef.onDamageRecieved);
 
-                target.entityStats.CurrentHealth.AddModifier(
-                    new StatModifier(-damage, ModifierScaling.Flat, name: "BaseValue"),
-                    ModifierMergeStrategy.Merge);
-
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHitLanded }, user.GetInstanceID(), target.GetInstanceID()));
+                target.entityStats.CurrentHealth -= damage;
             }
 
-            // 5) Lifesteal
-            if (damage > 0 && user.entityStats.Lifesteal.GetAllValues().Count > 0)
+            if (cardData != null)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onLifesteal }, user.GetInstanceID(), target.GetInstanceID()));
-                int heal = Mathf.CeilToInt(damage * (user.entityStats.Lifesteal.Value / 100f));
-                ApplyHealing(user, user, heal);
+                // 5) Lifesteal
+                if (damage > 0 && cardData.Owner.entityStats.Lifesteal.GetAllValues().Count > 0)
+                {
+                    refs.Add(GameplayRef.onLifesteal);
+
+                    int heal = Mathf.CeilToInt(damage * (cardData.Owner.entityStats.Lifesteal.Value() / 100f));
+                    ApplyHealing(cardData, cardData.Owner, heal);
+                }
+                HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, damage); return;
             }
+            HandlePostCombatTrigger(refs, null, target, null, damage); return;
         }
 
-
-        public static void ApplyHealing(EntityScript user, EntityScript target, int healing)
+        public static void ApplyHealing(CardData cardData, EntityScript target, int healing)
         {
             if (healing <= 0) return;
 
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onHeal }, user.GetInstanceID(), target.GetInstanceID()));
+            List<GameplayRef> refs = new();
 
-            int missing = target.entityStats.MaxHealth.Value - target.entityStats.CurrentHealth.Value;
+            int missing = target.entityStats.MaxHealth.Value() - target.entityStats.CurrentHealth;
             int effHeal = Mathf.Clamp(healing, 0, Mathf.Max(0, missing));
 
             if (effHeal > 0)
             {
-                target.entityStats.CurrentHealth.AddModifier(
-                    new StatModifier(+effHeal, ModifierScaling.Flat, name: "BaseValue"),
-                    ModifierMergeStrategy.Merge);
+                refs.Add(GameplayRef.onHealRecieved);
+
+                target.entityStats.CurrentHealth += effHeal;
             }
-        }
-
-
-        public static void ApplyBuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
-        {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onBuffed }, user.GetInstanceID(), target.GetInstanceID()));
-
-            targetStat.AddModifier(mod, mergeStrategy);
-
-            var dbg = target.GetComponent<StatusDebugView>();
-            if (dbg != null)
+            if (cardData != null)
             {
-                var label = string.IsNullOrEmpty(mod.ModifierName) ? "BUFF" : mod.ModifierName;
-                var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
-                dbg.SyncDot(label, eff.BaseValue, eff.Duration);
+                HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, effHeal);
+
+            }
+            else
+            {
+                HandlePostCombatTrigger(refs, target, target, null, effHeal);
             }
         }
-        public static void ApplyDebuff(EntityScript user, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+
+        public static void ApplyStatBuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onDebuffed }, user.GetInstanceID(), target.GetInstanceID()));
+            List<GameplayRef> refs = new();
+
+            refs.Add(GameplayRef.onBuffRecieved);
+
+            mod.Stat.AddModifier(mod, mergeStrategy);
+
+            Debug.Log($"Applied Buff {mod.ModifierName} to {target.name}");
+            HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, mod.BaseValue);
+        }
+
+        public static void ApplyStatDebuff(CardData cardData, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+        {
+            List<GameplayRef> refs = new();
+            refs.Add(GameplayRef.onDebuffRecieved);
 
             targetStat.AddModifier(mod, mergeStrategy);
 
@@ -110,28 +136,29 @@ namespace Utility
                 var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
                 dbg.SyncDot(label, eff.BaseValue, eff.Duration);
             }
-        }
+            Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
+            HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);        }
 
-        public static void ApplyEntityModifier(
-            EntityScript user,
-            EntityScript target,
-            EntityModifier mod,
-            ModifierMergeStrategy mergeStrategy)
+        public static void ApplyEntityModifier(CardData cardData, EntityScript target, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
         {
+            List<GameplayRef> refs = new();
+            refs.Add(GameplayRef.onModifierApplied);
+
             if (target == null || mod == null) return;
 
-            //Debug
-            if (mod.StatModifier == null) mod.StatModifier = new StatModifier(mod.BaseValue, ModifierScaling.Flat, duration: mod.Duration, on_triggerConditionRef: mod.TriggerConditionRef, name: mod.ModifierName);
-            mod.AddListener();
             target.AddModifier(mod, mergeStrategy);
             target.GetComponent<StatusDebugView>()?.Track(mod);
+
+            Debug.Log($"Applied Modifier {mod.ModifierName} to {target.name}");
+            HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);
         }
 
-        public static void SpawnEntity(EntityScript user, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation )
+        public static void SpawnEntity(CardData cardData, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation)
         {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onSummon }, user.GetInstanceID(), -1));
+            List<GameplayRef> refs = new();
+            refs.Add(GameplayRef.onSummon);
 
-            GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, parent: user.transform.parent);
+            GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, parent: cardData.Owner.transform.parent);
             EntityOnMap entityOnMap = SpawnObj.GetComponent<EntityOnMap>();
 
             entityOnMap.Spawn(spawnPosition);
@@ -139,11 +166,38 @@ namespace Utility
             NonPlayerScript spawnedEntity = SpawnObj.GetComponent<NonPlayerScript>();
             spawnedEntity.StartUp();
 
-            Npc npc =  NpcDatabase.GetNpcById(npcID);
-            
+            NpcData npc = NpcDatabase.GetNpcById(npcID, spawnedEntity);
             spawnedEntity.name = npc.name;
             spawnedEntity.entityAffiliation = affiliation;
-            spawnedEntity.npcAIBias = npc.aiBias;
+
+            HandlePostCombatTrigger(refs, cardData.Owner, spawnedEntity, cardData);
+        }
+
+        public static void HandlePreCombatTrigger(List<EntityScript> targets, CardData cardData)
+        {
+            if (cardData == null) return;
+            List<GameplayRef> refs = new();
+            refs.AddRange(cardData.cardIdentities.Select(c => (GameplayRef)Enum.Parse(typeof(GameplayRef), c.ToString())).ToList());
+
+            GameplayRef classRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData.cardClass.ToString());
+            refs.Add(classRef);
+
+            GameplayRef typeRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData.cardType.ToString());
+            refs.Add(typeRef);
+
+            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, targets, cardData, cardData.CardAiBias.ThroughputOverride(null, cardData, targets)));
+        }
+        public static void HandlePostCombatTrigger(List<GameplayRef> gameplayRefs, EntityScript user, EntityScript target, CardData cardData = null, int throughput = 0)
+        {
+            List<GameplayRef> refs = gameplayRefs;
+            if (cardData != null)
+            {
+                GameEvents.TriggerRefEvent(new TriggerRef(refs, user, new() { target }, cardData, throughput));
+            }
+            else
+            {
+                GameEvents.TriggerRefEvent(new TriggerRef(refs, user, new() { target }, null, throughput));
+            }
         }
     }
 }

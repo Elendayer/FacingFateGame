@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ public class EntityScript : MonoBehaviour
     public EntityAffiliation entityAffiliation = EntityAffiliation.Neutral;
 
     [Header("Deck Settings")]
+    [SerializeField]
     public List<int> deckCardIDs = new List<int>();  // Populate with card IDs
 
     [Header("Entity Stats")]
@@ -17,46 +19,67 @@ public class EntityScript : MonoBehaviour
     [Header("Entity Gameplay References")]
     private EntityVisualScript EntityVisual;
 
+    [Header("Entity on Map Reference")]
+    private EntityOnMap entityOnMap;
+
     public virtual void StartUp()
     {
         EntityVisual = GetComponentInChildren<EntityVisualScript>();
+        entityOnMap = GetComponentInChildren<EntityOnMap>();
         
         entityStats = new();
         entityStats.StartUp(this);
-        //entityStats.PostStartUp();
+
+        entityOnMap.Startup();
 
         AddListeners();
     }
     private void AddListeners()
     {
-        GameEvents.Subscribe(GameplayRef.onTurnStart, GetInstanceID(), GameEvents_OnTurnStart);
-
-        GameEvents.Subscribe(GameplayRef.onBurn, GetInstanceID(), TriggerAnimation);
-        GameEvents.Subscribe(GameplayRef.onDamage, GetInstanceID(), TriggerAnimation);
+        GameEvents.OnGameplayReference += TriggerAnimation;
     }
     private void TriggerAnimation(TriggerRef triggerRef)
     {
-        GameObject effectObj;
-        foreach (GameplayRef gRef in triggerRef.References)
+        var checkTrigger = new TriggerRef
+        {
+            UserEntity = this,
+            AffectedEntities = new() { this },
+            OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed }
+        };
+
+        if (GameEvents.CheckIfRelevantTrigger(triggerRef, checkTrigger))
+        {
+            Debug.Log("Playing Effect Animation for " + this.name);
+            PlayEffectAnimation(triggerRef);
+        }
+    }
+    public void PlayEffectAnimation(TriggerRef triggerRef)
+    {
+        foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
         {
             switch (gRef)
             {
                 default: break;
                 case GameplayRef.onBurn:
-                    effectObj = AssetManager.Instance.GetEffectPrefab("BurnEffect");
-                    Debug.Log("Tried to Add Burn Effect");
-                    Instantiate(effectObj, EntityVisual.transform);
+                    CreateFX("BurnEffect");
                     break;
-
                 case GameplayRef.onDamage:
-                    effectObj = AssetManager.Instance.GetEffectPrefab("DamageEffect");
-                    Debug.Log("Tried to Add Damage Effect");
-                    Instantiate(effectObj, EntityVisual.transform);
+                    CreateFX("DamageEffect");
+                    break;
+                case GameplayRef.onBleed:
+                    CreateFX("BloodEffect");
                     break;
             }
         }
     }
 
+    private void CreateFX(string name)
+    {
+        GameObject effectObj;
+
+        effectObj = AssetManager.Instance.GetEffectPrefab(name);
+        var CreatedObj = Instantiate(effectObj, EntityVisual.transform);
+    }
 
     [Header("Modifier System")]
     [SerializeField]
@@ -79,7 +102,7 @@ public class EntityScript : MonoBehaviour
                 break;
 
             case ModifierMergeStrategy.Merge:
-                if (existing is StatModifier existingMod && modifier is StatModifier newMod)
+                if (existing is EntityModifier existingMod && modifier is EntityModifier newMod)
                 {
                     existingMod.BaseValue += newMod.BaseValue;
                 }
@@ -88,8 +111,9 @@ public class EntityScript : MonoBehaviour
                     entityModifiers.Add(modifier);
                 }
                 break;
+
             case ModifierMergeStrategy.RefreshDurationAndMerge:
-                if (existing is StatModifier existingRefresh && modifier is StatModifier newRefresh)
+                if (existing is EntityModifier existingRefresh && modifier is EntityModifier newRefresh)
                 {
                     existingRefresh.BaseValue += newRefresh.BaseValue;
                     existingRefresh.Duration = Math.Max(existingRefresh.GetRemainingDuration(), newRefresh.GetRemainingDuration());
@@ -101,7 +125,7 @@ public class EntityScript : MonoBehaviour
                 break;
 
             case ModifierMergeStrategy.RefreshDurationAndOverride:
-                if (existing is StatModifier existingRefreshDuration && modifier is StatModifier newRefreshDuration)
+                if (existing is EntityModifier existingRefreshDuration && modifier is EntityModifier newRefreshDuration)
                 {
                     existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
                     existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
@@ -112,15 +136,12 @@ public class EntityScript : MonoBehaviour
                 }
                 break;
         }
+
         modifier.AddListener();
+
+        modifier.OnApply_ActionTrigger();
     }
-    private void GameEvents_OnTurnStart(TriggerRef trigger)
-    {
-        if (trigger.UserId == this.GetInstanceID())
-        {
-            entityStats.CurrentStamina.AddModifier(new StatModifier(entityStats.MaxStamina.Value, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Override);
-        }
-    }
+
     public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
     public void AddOrReplaceModifier(IEntityModifier modifier)
     {
@@ -130,8 +151,15 @@ public class EntityScript : MonoBehaviour
     }
     public (bool found, IEntityModifier modifier) HasReference(GameplayRef reference)
     {
-        var modifier = entityModifiers
-            .FirstOrDefault(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+        if (entityModifiers == null || entityModifiers.Count == 0)
+            return (false, null);
+
+        var modifier = entityModifiers.FirstOrDefault(m =>
+            m != null &&
+            m.ToTriggerGameplayRefs != null &&
+            m.ToTriggerGameplayRefs.Contains(reference) &&
+            !m.IsExpired
+        );
 
         return (modifier != null, modifier);
     }
@@ -139,12 +167,23 @@ public class EntityScript : MonoBehaviour
     public bool HasModifier(string name)
         => entityModifiers.Any(m => m.ModifierName == name && !m.IsExpired);
 
-    public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef)
+    public bool HasCondition(GameplayCondition condititon)
     {
-        var modifier = entityModifiers.FirstOrDefault(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+        bool c = false;
+
+        switch (condititon)
+        {
+            case GameplayCondition.isDamaged: c = entityStats.CurrentHealth < entityStats.MaxHealth.Value(); break;
+        }
+        return c;
+    }
+
+    public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef, bool consumeCharges = false)
+    {
+        var modifier = entityModifiers.FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
         if (modifier != null)
         {
-            modifier.OnRefEventTriggered(triggerRef);
+            modifier.OnManuel_ActionTrigger(triggerRef, consumeCharges);
             return true;
         }
         return false;
@@ -175,4 +214,9 @@ public enum EntityAffiliation
     Neutral,
     Player,
     Enemy
+}
+
+public enum GameplayCondition
+{
+    isDamaged,
 }

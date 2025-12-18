@@ -36,20 +36,11 @@ public class DeckManager : MonoBehaviour
     }
     public void StartUp()
     {
-        CardDatabase.RegisterAll();
-        AiBiasDatabase.RegisterAll();
-        NpcDatabase.RegisterAll();
-
         if (deckDrawButton != null)
             deckDrawButton.onClick.AddListener(DrawTopCard);
-
-        foreach (EntityScript entity in FindObjectsByType<EntityScript>(0))
-        {
-            BuildDeckFromIDs(entity);
-        }
     }
 
-    void BuildDeckFromIDs(EntityScript entity)
+    public void BuildDeckFromIDs(EntityScript entity)
     {
         GameObject cardDock = Instantiate(deckDockPrefab, transform);
         List<GameObject> cardObjs = new();

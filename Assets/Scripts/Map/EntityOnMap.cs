@@ -1,103 +1,74 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using Utility;
 
 public class EntityOnMap : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 3f;              // Units per second
-
     public Vector3Int currentCell = new Vector3Int(0,0,0);            // Current logical cell
+    public float defaultMovementSpeed = 3f;                                      // Movement speed in units per second
 
     private Coroutine moveRoutine;
     private bool isDragging = false;
-    private Vector3Int targetCell;
 
-    private void Start()
+    private CostInfoScript costInfoScript;
+
+    public void Startup()
     {
-        MoveTo(currentCell);
-        SetOccupied(true);     
+        costInfoScript = FindAnyObjectByType<CostInfoScript>();
+
+        TeleportTo(currentCell);
+        SetOccupied(currentCell, true);     
     }
 
     public void Spawn(Vector3Int vector3Int)
     {
-
         currentCell = vector3Int;
         transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(currentCell);
-        SetOccupied(false);
+        SetOccupied(vector3Int, false);
     }
 
 
-    public void MoveTo(Vector3Int targetCell)
+    public void MoveTo(PathData pathData, EntityScript entityScript = null, float moveSpeed = 3f)
     {
         if (moveRoutine != null) StopCoroutine(moveRoutine);
+        Stat moveCostModifier = entityScript.entityStats.MovementCostModifier;
 
-        List<Vector3Int> path = TilemapUtilityScript.FindPath(currentCell, targetCell)?.Path;
-
-        if (path != null && path.Count > 0)
+        if (pathData != null && pathData.Path.Count > 0)
         {
-            TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
-            moveRoutine = StartCoroutine(FollowPath(path, moveSpeed));
+            TilemapUtilityScript.SetTilesHighlight(pathData.Path, TilemapUtilityScript.HighlightType.Path);
+            
+            moveRoutine = StartCoroutine(FollowPath(pathData, moveSpeed));
+
+            if (entityScript != null)
+            {
+                entityScript.entityStats.CurrentStamina -= pathData.PathCost;
+            }
         }
         else
         {
-            Debug.LogWarning("No path found to " + targetCell);
+            Debug.LogWarning("No path found");
         }
     }
-    public void MoveTo(Vector3Int targetCell, float speed)
-    {
-        if (moveRoutine != null) StopCoroutine(moveRoutine);
-
-        List<Vector3Int> path = TilemapUtilityScript.FindPath(currentCell, targetCell)?.Path;
-
-        if (path != null && path.Count > 0)
-        {
-            TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
-            moveRoutine = StartCoroutine(FollowPath(path, speed));
-        }
-        else
-        {
-            Debug.LogWarning("No path found to " + targetCell);
-        }
-    }
-
-    public void MoveToViaPath(List<Vector3Int> path)
-    {
-        if (moveRoutine != null) StopCoroutine(moveRoutine);
-
-        if (path != null && path.Count > 0)
-        {
-            TilemapUtilityScript.SetTilesHighlight(path, TilemapUtilityScript.HighlightType.Path);
-            moveRoutine = StartCoroutine(FollowPath(path, moveSpeed));
-        }
-        else
-        { 
-            Debug.LogWarning("No path found to " + targetCell);
-        }
-    }
-
     public void TeleportTo(Vector3Int targetCell)
     {
-        SetOccupied(false);
+        SetOccupied(currentCell, false);
         Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(targetCell);
         transform.position = targetPos;
         currentCell = targetCell;
-        SetOccupied(true);
+        SetOccupied(currentCell, true);
     }
 
-    public Coroutine StartMove(List<Vector3Int> path)
+    public Coroutine StartMove(PathData pathData)
     {
-        Coroutine coroutine = StartCoroutine(FollowPath(path, moveSpeed));
-        return coroutine;
+        return StartCoroutine(FollowPath(pathData, defaultMovementSpeed));
     }
 
-    private IEnumerator FollowPath(List<Vector3Int> path, float speed = 3f)
+    private IEnumerator FollowPath(PathData pathData, float speed = 3f)
     {
-        SetOccupied(false);
+        SetOccupied(pathData.Start,false);
 
-        foreach (var cell in path)
+        foreach (var cell in pathData.Path)
         {
             Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(cell);
 
@@ -116,57 +87,13 @@ public class EntityOnMap : MonoBehaviour
         }
 
         moveRoutine = null;
-        SetOccupied(true);
+        SetOccupied(pathData.End, true);
 
-        TilemapUtilityScript.ResetMaphightlight(path);
+        TilemapUtilityScript.ResetMaphightlight(pathData.Path);
     }
 
-    public void SetOccupied( bool b)
+    public void SetOccupied(Vector3Int pos, bool b)
     {
-        GetCostInfo().isOccupied = b;
+        costInfoScript.costInfoDict[pos].isOccupied = b;
     }
-
-    public CostInfo GetCostInfo()
-    {
-        TilemapUtilityScript.BaseTilemap.GetComponent<CostInfoScript>().costInfoDict.TryGetValue(currentCell, out CostInfo costInfo);
-        return costInfo;
-    }
-    void Update()
-    {
-        HandleMouseDrag();
-    }
-
-    #region Mouse Drag Targeting
-    private void HandleMouseDrag()
-    {
-        // On mouse down, check if we clicked on this character
-        if (Input.GetMouseButtonDown(0))
-        {
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int clickedCell = TilemapUtilityScript.BaseTilemap.WorldToCell(worldPos);
-            Vector3 cellCenter = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(clickedCell);
-
-            // Start drag if clicked near the character
-            if (Vector3.Distance(cellCenter, transform.position) < 0.5f)
-            {
-                isDragging = true;
-                Debug.Log("Started dragging character");
-            }
-        }
-
-        // While dragging, update target cell
-        if (isDragging && Input.GetMouseButton(0))
-        {
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            targetCell = TilemapUtilityScript.BaseTilemap.WorldToCell(worldPos);
-        }
-
-        // On release, move character to target
-        if (isDragging && Input.GetMouseButtonUp(0))
-        {
-            isDragging = false;
-            MoveTo(targetCell);
-        }
-    }
-    #endregion
 }

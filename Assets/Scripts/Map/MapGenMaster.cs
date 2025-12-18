@@ -3,48 +3,77 @@ using UnityEngine.Tilemaps;
 
 public class MapGenMaster : MonoBehaviour
 {
-    public HexagonalRuleTile MapTile;
-    public HexagonalRuleTile OverlayTile;
-
     public CostInfoScript costInfoScript;
 
     public Tilemap BaseMap;
     public Tilemap OverlayMap;
 
-    public int SizeX;
-    public int SizeY;
+    public HexagonalRuleTile defaultTile;
+    public HexagonalRuleTile unwalkableTile;
+    public HexagonalRuleTile lowAvoidanceTile;
+
+    public HexagonalRuleTile overlayTile;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake()
+    public void SetUp()
     {
-        MapGen();
+        BaseMap.CompressBounds();
+
         OverlayGen();
+        CollectMap();
     }
 
-    private void MapGen()
+    private void CollectMap()
     {
-        for (int i = 0; i < SizeX; i++)
-        {
-            for (int j = 0; j < SizeY; j++)
-            {
-                Vector3Int vector3Int = new Vector3Int(i - (SizeX / 2), j - (SizeY / 2), 0);
+        costInfoScript.costInfoDict.Clear();
 
-                BaseMap.SetTile(vector3Int, MapTile);
-                costInfoScript.costInfoDict.Add(vector3Int, new CostInfo());
+        for (int i = -25; i < 25; i++)
+        {
+            for (int j = -25; j < 25; j++)
+            {
+                Vector3Int vector3Int = new Vector3Int(i,j,0);
+
+                TileBase tile = BaseMap.GetTile(vector3Int);
+
+                CostInfo costInfo = new CostInfo();
+
+                switch (tile)
+                {
+                    case var t when t == defaultTile:
+                        costInfo.cost = 5;
+                        costInfo.isUnwalkable = false;
+                        break;
+
+                    case var t when t == unwalkableTile:
+                        costInfo.cost = 999999;
+                        costInfo.isUnwalkable = true;
+                        costInfo.isOccupied = true;
+                        break;
+
+                    case var t when t == lowAvoidanceTile:
+                        costInfo.cost = 7;
+                        costInfo.isUnwalkable = false;
+                        break;
+                    default:
+                        costInfo.cost = 999999;
+                        costInfo.isUnwalkable = true;
+                        costInfo.isOccupied = true;
+                        break;
+                }
+
+                Debug.Log($"{vector3Int}");
+                costInfoScript.costInfoDict.Add(vector3Int, costInfo);
             }
         }
     }
-
     private void OverlayGen()
-    {
-        for (int i = 0; i < SizeX; i++)
-        {
-            for (int j = 0; j < SizeY; j++)
-            {
-                Vector3Int vector3Int = new Vector3Int(i - (SizeX / 2), j - (SizeY / 2), 0);
+    {        
+        BoundsInt bounds = BaseMap.cellBounds;
 
-                OverlayMap.SetTile(vector3Int, OverlayTile);
-            }
+        foreach (Vector3Int cellPos in bounds.allPositionsWithin)
+        {
+            OverlayMap.SetTile(cellPos, overlayTile);
         }
     }
 }
