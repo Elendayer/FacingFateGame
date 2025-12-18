@@ -1,11 +1,16 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Utility;
+using TMPro;
 
 [RequireComponent(typeof(Collider))]
 public class DraggableCharacter : Draggable3D
 {
     public EntityOnMap characterOnMap;
     public EntityScript characterEntity;
+
+    [Header("Movement Cost Preview")]
+    public int previewPathCost;                      
+    public TextMeshProUGUI staminaPreviewText;
 
     private void Awake()
     {
@@ -35,12 +40,10 @@ public class DraggableCharacter : Draggable3D
     {
         Vector3Int dropCell = pathData.End;
 
-        // Only move if valid
         if (dropCell == TilemapUtilityScript.InvalidPosition ||
             TilemapUtilityScript.CostInfoScript.costInfoDict[dropCell].isOccupied ||
             TilemapUtilityScript.CostInfoScript.costInfoDict[dropCell].isUnwalkable)
         {
-            // Invalid drop → do nothing
             return;
         }
 
@@ -50,22 +53,31 @@ public class DraggableCharacter : Draggable3D
             characterOnMap.MoveTo(pathData, characterEntity);
         }
 
-        // Optionally clear path highlight after move
+        ClearMovementPreview();
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
     }
 
+
     public override void HandleHover(Vector3Int hoverCell)
     {
+        // Ungültig / blockiert? -> Anzeige löschen
         if (hoverCell == TilemapUtilityScript.InvalidPosition ||
             TilemapUtilityScript.CostInfoScript.costInfoDict[hoverCell].isOccupied ||
             TilemapUtilityScript.CostInfoScript.costInfoDict[hoverCell].isUnwalkable)
         {
-            // Invalid hover → clear highlight
-            TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
+            ClearMovementPreview();
             return;
         }
 
         // Highlight path from current position to hover cell
         TilemapUtilityScript.SetTilesHighlight( MovementUtility.FindPath( characterOnMap.currentCell, hoverCell).Path, TilemapUtilityScript.HighlightType.Path);
     }
+
+    private void ClearMovementPreview()
+    {
+        previewPathCost = 0;
+        if (staminaPreviewText != null) staminaPreviewText.text = string.Empty;
+    }
+
+
 }
