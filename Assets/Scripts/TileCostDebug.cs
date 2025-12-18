@@ -20,7 +20,7 @@ public class TileCostDebug : MonoBehaviour
         var cell = baseMap.WorldToCell(world);
         if (costInfo.costInfoDict.TryGetValue(cell, out var info))
         {
-            string s = $"Cell {cell.x},{cell.y} | {info.materialId} | cost={info.cost} | unwalk={info.isUnwalkable} | occ={info.isOccupied}";
+            string s = $"Cell {cell.x},{cell.y} | cost={info.cost} | unwalk={info.isUnwalkable} | occ={info.isOccupied}";
             if (readout != null) readout.text = s; else Debug.Log(s);
         }
         else if (readout != null) readout.text = $"Cell {cell.x},{cell.y} | no data";

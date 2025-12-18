@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class LightPulse : MonoBehaviour
 {
-    private Light light;
+    private Light lightObj;
 
     [Header("Brightness Range")]
     public float minIntensity = 1f;
@@ -19,8 +19,8 @@ public class LightPulse : MonoBehaviour
 
     void Start()
     {
-        light = GetComponent<Light>();
-        defaultColor = light.color;
+        lightObj = GetComponent<Light>();
+        defaultColor = lightObj.color;
     }
 
     void Update()
@@ -28,7 +28,7 @@ public class LightPulse : MonoBehaviour
         float t = (Mathf.Sin(Time.time * speed) + 1f) * 0.5f;
 
         // Smooth brightness
-        light.intensity = Mathf.Lerp(minIntensity, maxIntensity, t);
+        lightObj.intensity = Mathf.Lerp(minIntensity, maxIntensity, t);
 
         // Smooth color shift
         if (enableColorPulse)
@@ -38,7 +38,7 @@ public class LightPulse : MonoBehaviour
             float g = defaultColor.g * (1f + Mathf.Sin(Time.time * speed + 2f) * colorShiftAmount);
             float b = defaultColor.b * (1f + Mathf.Sin(Time.time * speed + 4f) * colorShiftAmount);
 
-            light.color = new Color(r, g, b);
+            lightObj.color = new Color(r, g, b);
         }
     }
 }

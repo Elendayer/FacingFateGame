@@ -16,13 +16,13 @@ public class StartupManager : MonoBehaviour
 
         new WaitForSeconds(1f);
 
-        Invoke(nameof(HandleMapStartup), 1f);
-        Invoke(nameof(HandleStartup), 1f);
-        Invoke(nameof(HandlePostStartup), 1f);
+        Invoke(nameof(HandleMapStartup), 0.1f);
+        Invoke(nameof(HandleStartup), 0.2f);
+        Invoke(nameof(HandlePostStartup), 2f);
     }
     private void HandleMapStartup()
     {
-        MapGenMaster mapGenMaster = FindAnyObjectByType<MapGenMaster>();
+        CombatMapMaster mapGenMaster = FindAnyObjectByType<CombatMapMaster>();
 
         mapGenMaster.SetUp();
     }

@@ -23,9 +23,9 @@ public class EntityOnMap : MonoBehaviour
 
     public void Spawn(Vector3Int desiredCell)
     {
-        currentCell = vector3Int;
+        currentCell = desiredCell;
         transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(currentCell);
-        SetOccupied(vector3Int, false);
+        SetOccupied(desiredCell, false);
     }
 
 
