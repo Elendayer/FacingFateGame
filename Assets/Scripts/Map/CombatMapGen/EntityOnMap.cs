@@ -66,7 +66,7 @@ public class EntityOnMap : MonoBehaviour
 
     private IEnumerator FollowPath(PathData pathData, float speed = 3f)
     {
-        SetOccupied(pathData.Start,false);
+        SetOccupied(currentCell,false);
 
         foreach (var cell in pathData.Path)
         {
@@ -87,7 +87,7 @@ public class EntityOnMap : MonoBehaviour
         }
 
         moveRoutine = null;
-        SetOccupied(pathData.End, true);
+        SetOccupied(currentCell, true);
 
         TilemapUtilityScript.ResetMaphightlight(pathData.Path);
     }

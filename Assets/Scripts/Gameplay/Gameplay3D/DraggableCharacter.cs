@@ -26,7 +26,6 @@ public class DraggableCharacter : Draggable3D
         if (TurnManager.Instance.CurrentTurnEntity == characterEntity)
         {        
             base.OnMouseDown();
-            startPosition = characterOnMap.currentCell;
         }
     }
 

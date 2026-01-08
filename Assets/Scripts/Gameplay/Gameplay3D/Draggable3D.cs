@@ -11,8 +11,13 @@ public class Draggable3D : MonoBehaviour
     public float arrowHeightOffset = 1f;
 
     protected bool isDragging = false;
-    protected Vector3 startPosition;
-    protected Vector3Int lastHoveredTile = TilemapUtilityScript.InvalidPosition;
+    protected Vector3 currentPosition;
+    protected Vector3Int currentTile =>
+        new Vector3Int(
+            TilemapUtilityScript.BaseTilemap.WorldToCell(currentPosition).x,
+            TilemapUtilityScript.BaseTilemap.WorldToCell(currentPosition).y,
+            0
+        ); protected Vector3Int lastHoveredTile = TilemapUtilityScript.InvalidPosition;
 
     public Stat moveCostModifer;
 
@@ -20,7 +25,7 @@ public class Draggable3D : MonoBehaviour
     {
         isDragging = true;
 
-        startPosition = transform.position;
+        currentPosition = transform.position;
 
         if (lineRenderer != null)
         {
@@ -39,8 +44,9 @@ public class Draggable3D : MonoBehaviour
 
         // Trigger drag-end event
         Vector3Int dropCell = lastHoveredTile;
-        PathData pathData = MovementUtility.FindPath(
-            Vector3Int.RoundToInt(startPosition),
+        PathData pathData = MovementUtility.FindPath
+            (
+            currentTile,
             dropCell,
             movementCostModifier:  moveCostModifer
         );
@@ -67,7 +73,7 @@ public class Draggable3D : MonoBehaviour
 
             // Update arrow preview
             if (lineRenderer != null)
-                UpdateArrow(startPosition, cursorPosition);
+                UpdateArrow(currentPosition, cursorPosition);
 
             // Update hovered tile
             Vector3Int hoveredTile = TargetingUtility.GetHoveredTile(ray);
@@ -84,9 +90,9 @@ public class Draggable3D : MonoBehaviour
                 TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
                 if (hoveredTile != TilemapUtilityScript.InvalidPosition)
                 {
-                    Vector3Int vector3Int = Vector3Int.RoundToInt(startPosition);
-                    TilemapUtilityScript.SetTilesHighlight(
-                        MovementUtility.FindPath(vector3Int, hoveredTile).Path,
+                    TilemapUtilityScript.SetTilesHighlight
+                        (
+                        MovementUtility.FindPath(currentTile, hoveredTile).Path,
                         TilemapUtilityScript.HighlightType.Path
                     );
                 }
