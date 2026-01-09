@@ -19,6 +19,50 @@ MonoBehaviour:
     m_Key: Start
     m_Metadata:
       m_Items: []
+  - m_Id: 41556934963200
+    m_Key: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 41646810509312
+    m_Key: Credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42019747049472
+    m_Key: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42143177027584
+    m_Key: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43013725794304
+    m_Key: Tutorial_Toggle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45970542342144
+    m_Key: Master Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46026364334080
+    m_Key: SFX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47102706626560
+    m_Key: Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47538830356480
+    m_Key: Mute
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47581104746496
+    m_Key: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48441050312704
+    m_Key: Fullscreen
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

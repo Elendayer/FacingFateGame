@@ -22,6 +22,50 @@ MonoBehaviour:
     m_Localized: Start
     m_Metadata:
       m_Items: []
+  - m_Id: 41556934963200
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 41646810509312
+    m_Localized: Credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42019747049472
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42143177027584
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43013725794304
+    m_Localized: with Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45970542342144
+    m_Localized: Master Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46026364334080
+    m_Localized: SFX Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47102706626560
+    m_Localized: Music Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47538830356480
+    m_Localized: Mute
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47581104746496
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48441050312704
+    m_Localized: Fullscreen
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

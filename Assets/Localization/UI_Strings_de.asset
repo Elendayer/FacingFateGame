@@ -22,6 +22,50 @@ MonoBehaviour:
     m_Localized: Start
     m_Metadata:
       m_Items: []
+  - m_Id: 41556934963200
+    m_Localized: Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 41646810509312
+    m_Localized: Credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42019747049472
+    m_Localized: Beenden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42143177027584
+    m_Localized: "Zur\xFCck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43013725794304
+    m_Localized: mit Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45970542342144
+    m_Localized: "Gesamtlautst\xE4rke"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46026364334080
+    m_Localized: "Effektlautst\xE4rke"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47102706626560
+    m_Localized: "Musiklautst\xE4rke"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47538830356480
+    m_Localized: Stumm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47581104746496
+    m_Localized: Sprache
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48441050312704
+    m_Localized: Vollbild
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
