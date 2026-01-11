@@ -89,7 +89,7 @@ public class DraggableCard : DraggableUI
             {
                 List<EntityScript> t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell }, FindObjectsByType<EntityScript>(0).ToList());
 
-                if (!TargetingUtility.IsTargetValid(cardScript, cardScript.cardData.Owner, t.FirstOrDefault()))
+                if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
                 {
                     return;
                 }

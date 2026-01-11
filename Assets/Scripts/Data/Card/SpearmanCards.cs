@@ -429,7 +429,7 @@ public static class SpearmanCards
                         duration: d.Duration,
                         onRef_Trigger: new TriggerRef
                         {
-                            OnTriggerReference = new() { },
+                            OnTriggerReference = new() {},
                             AffectedEntities = new() { Target },
                             UserEntity = User,
                             CardData = d,
@@ -633,7 +633,7 @@ public static class SpearmanCards
                 CombatUtility.ApplyStatBuff(d, User,
                     new StatModifier
                     (
-                    stat: Target.entityStats.Armour,
+                    stat: User.entityStats.Armour,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
@@ -645,6 +645,7 @@ public static class SpearmanCards
                 CombatUtility.ApplyEntityModifier(d, Target,
                     new EntityModifier(
                     modifierName: "Taunted",
+                    toTriggerRefs: new() { GameplayRef.onTaunted },
                             duration: d.Duration,
                             onRef_Trigger: new TriggerRef
                             {

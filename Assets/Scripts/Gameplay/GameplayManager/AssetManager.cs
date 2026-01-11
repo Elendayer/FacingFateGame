@@ -20,6 +20,8 @@ public class AssetManager : MonoBehaviour
     [Header("Entity")]
     public GameObject entityPrefab;
 
+    public GameObject groundEffectPrefab;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)

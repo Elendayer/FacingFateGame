@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using facingfate;
 
 namespace Utility
 {
@@ -146,6 +147,11 @@ namespace Utility
 
             if (target == null || mod == null) return;
 
+            if (!mod.OnRef_Trigger.AffectedEntities.Contains(target))
+            {
+                mod.OnRef_Trigger.AffectedEntities.Add(target);
+            }
+
             target.AddModifier(mod, mergeStrategy);
             target.GetComponent<StatusDebugView>()?.Track(mod);
 
@@ -172,7 +178,15 @@ namespace Utility
 
             HandlePostCombatTrigger(refs, cardData.Owner, spawnedEntity, cardData);
         }
-
+        public static void SpawnGroundEffect(CardData cardData, Vector3Int spawnPosition, GroundEffectDataBase groundEffectData)
+        {
+            List<GameplayRef> refs = new();
+            GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.groundEffectPrefab, parent: cardData.Owner.transform.parent);
+            GroundEffectScript groundEffectScript = SpawnObj.GetComponent<GroundEffectScript>();
+            SpawnObj.transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(spawnPosition);
+            groundEffectScript.EffectData = groundEffectData;
+            HandlePostCombatTrigger(refs, cardData.Owner, null, cardData);
+        }
         public static void HandlePreCombatTrigger(List<EntityScript> targets, CardData cardData)
         {
             if (cardData == null) return;

@@ -105,7 +105,6 @@ public class EntityModifier : IEntityModifier
 
     public void OnRef_ActionCall(TriggerRef trigger)
     {
-
         if (GameEvents.CheckIfRelevantTrigger(trigger, OnRef_Trigger))
         {
             OnRef_Action?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
@@ -176,11 +175,6 @@ public class EntityModifier : IEntityModifier
 
         GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, trigger.CardData, trigger.Throughput));
 
-        if (Charges < 9999)
-        {
-            Charges--;
-        }
-        
         if (consumeCharges)
         {
             if (Charges < 99999)

@@ -102,7 +102,7 @@ public class NpcAIController
     private ScoredCard EvaluateCard(CardScript card, int stamina, Vector3Int virtualPosition)
     {
         // STEP 1 — Get final list of valid targets
-        var validTargets = TargetingUtility.GetValidTargets(card, npcScript, allEntities);
+        var validTargets = TargetingUtility.GetValidTargets(card.cardData, allEntities);
         if (validTargets.Count == 0)
             return null;
 
