@@ -58,8 +58,6 @@ public class Draggable3D : MonoBehaviour
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
     }
 
-
-
     void Update()
     {
         if (!isDragging) return;
@@ -90,11 +88,7 @@ public class Draggable3D : MonoBehaviour
                 TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
                 if (hoveredTile != TilemapUtilityScript.InvalidPosition)
                 {
-                    TilemapUtilityScript.SetTilesHighlight
-                        (
-                        MovementUtility.FindPath(currentTile, hoveredTile).Path,
-                        TilemapUtilityScript.HighlightType.Path
-                    );
+                    TilemapUtilityScript.SetTilesHighlight(MovementUtility.FindPath(currentTile, hoveredTile).Path,TilemapUtilityScript.HighlightType.Path);
                 }
             }
         }

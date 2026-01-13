@@ -6171,6 +6171,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2107cd0f149561740bc4e659db483a8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HexThin: {fileID: 299868602, guid: 70efd6a14bd308c468f75ffb654f5b03, type: 3}
+  HexThick: {fileID: 6917715783815774954, guid: 80587dfc6048a9247875c843d054fddb, type: 3}
   effectAssets:
   - name: BurnEffect
     prefab: {fileID: 100000, guid: 55654dc0a2e9e124b914a067ed8bca69, type: 3}
@@ -8522,7 +8524,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[4]'
-      value: 110204
+      value: 120112
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[5]'

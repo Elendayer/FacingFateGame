@@ -6,6 +6,9 @@ public class AssetManager : MonoBehaviour
 {
     public static AssetManager Instance { get; private set; }
 
+    public Sprite HexThin;
+    public Sprite HexThick;
+
     [System.Serializable]
     public struct AssetEntry
     {
