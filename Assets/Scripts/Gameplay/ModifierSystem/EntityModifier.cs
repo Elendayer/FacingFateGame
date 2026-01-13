@@ -6,7 +6,6 @@ public interface IEntityModifier
 {
     string ModifierName { get; }
     int BaseValue { get; set; }
-    StatModifier StatModifier { get; set; }
     int Duration { get; set; }
     bool IsExpired { get; }
     int Charges { get; set; }
@@ -26,7 +25,7 @@ public interface IEntityModifier
 public class EntityModifier : IEntityModifier
 {
     //Main
-    public string ModifierName { get; private set; }
+    public string ModifierName { get; set; }
     public int BaseValue
     {
         get
@@ -52,14 +51,11 @@ public class EntityModifier : IEntityModifier
     public int Charges { get; set; } = 0;
     public bool IsSpend => Charges <= 0;
 
-    // Associated StatModifier
-    public StatModifier StatModifier { get; set; }
-
     // Triggering
-    public List<GameplayRef> ToTriggerGameplayRefs { get; private set; }
-    public TriggerRef OnRef_Trigger { get; private set; } = new TriggerRef();
-    public TriggerRef OnRemove_Trigger { get; private set; } = new TriggerRef();
-    public TriggerRef OnApply_Trigger { get; private set; } = new TriggerRef();
+    public List<GameplayRef> ToTriggerGameplayRefs { get;  set; }
+    public TriggerRef OnRef_Trigger { get;  set; } = new TriggerRef();
+    public TriggerRef OnRemove_Trigger { get;  set; } = new TriggerRef();
+    public TriggerRef OnApply_Trigger { get;  set; } = new TriggerRef();
 
     // Action to perform on trigger
     public Action<TriggerActionData, EntityScript> OnRef_Action;
@@ -77,7 +73,6 @@ public class EntityModifier : IEntityModifier
     TriggerRef onRemove_Trigger = new TriggerRef(),
     int duration = 99999,
     int charges = 99999,
-    Stat targetStat = null,
     Action<TriggerActionData, EntityScript> onRef_Action = null,
     Action<TriggerActionData, EntityScript> onApply_Action = null,
     Action<TriggerActionData, EntityScript> onRemove_Action = null
@@ -107,7 +102,7 @@ public class EntityModifier : IEntityModifier
     {
         if (GameEvents.CheckIfRelevantTrigger(trigger, OnRef_Trigger))
         {
-            OnRef_Action?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
+            OnRef_Action?.Invoke(new TriggerActionData(trigger, BaseValue), trigger.AffectedEntities[0]);
 
             if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
             {
@@ -158,20 +153,20 @@ public class EntityModifier : IEntityModifier
     }
     public void OnApply_ActionTrigger()
     {
-        OnApply_Action?.Invoke(new TriggerActionData(OnApply_Trigger, StatModifier, BaseValue), OnApply_Trigger.AffectedEntities[0]);
+        OnApply_Action?.Invoke(new TriggerActionData(OnApply_Trigger,  BaseValue), OnApply_Trigger.AffectedEntities[0]);
 
         //GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, OnApply_Trigger.UserEntity, OnApply_Trigger.AffectedEntities, OnApply_Trigger.CardData, OnApply_Trigger.Throughput));
     }
     public void onRemove_ActionTrigger()
     {
-        OnRemove_Action?.Invoke(new TriggerActionData(OnRemove_Trigger, StatModifier, BaseValue), OnRemove_Trigger.AffectedEntities[0]);
+        OnRemove_Action?.Invoke(new TriggerActionData(OnRemove_Trigger, BaseValue), OnRemove_Trigger.AffectedEntities[0]);
 
         //GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, OnRemove_Trigger.UserEntity, OnRemove_Trigger.AffectedEntities, OnRemove_Trigger.CardData, OnRemove_Trigger.Throughput));
     }
     public void OnManuel_ActionTrigger(TriggerRef trigger, bool consumeCharges = false)
     {
         Debug.Log($"EntityModifier {ModifierName} manually triggered action. By {trigger.UserEntity} at {trigger.AffectedEntities[0]}");
-        OnRef_Action?.Invoke(new TriggerActionData(trigger, StatModifier, BaseValue), trigger.AffectedEntities[0]);
+        OnRef_Action?.Invoke(new TriggerActionData(trigger, BaseValue), trigger.AffectedEntities[0]);
 
         GameEvents.TriggerRefEvent(new TriggerRef(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, trigger.CardData, trigger.Throughput));
 
@@ -198,19 +193,50 @@ public class EntityModifier : IEntityModifier
         }
         OnRef_Trigger.AffectedEntities[0].RemoveModifier(this);
     }
+
+    internal EntityModifier Clone(CardData cd, ThroughputSource source, EntityScript user)
+    {
+        int baseValue = source switch
+        {
+            ThroughputSource.Damage => cd.Damage,
+            ThroughputSource.Heal => cd.Healing,
+            ThroughputSource.Power => cd.Power,
+            _ => 0
+        };
+
+        return new EntityModifier
+        (
+            modifierName: this.ModifierName,
+            baseValue: baseValue, // pass int directly
+            toTriggerRefs: this.ToTriggerGameplayRefs,
+            onRef_Trigger: this.OnRef_Trigger,
+            onApply_Trigger: this.OnApply_Trigger,
+            onRemove_Trigger: this.OnRemove_Trigger,
+            duration: cd.Duration,
+            charges: cd.Charges,
+            onRef_Action: this.OnRef_Action,
+            onApply_Action: this.OnApply_Action,
+            onRemove_Action: this.OnRemove_Action
+        );
+    }
+
 }
 
 public struct TriggerActionData
 {
     public TriggerRef TriggerReference;
-    public StatModifier StatModifier;
-
     public int Value;
 
-    public TriggerActionData(TriggerRef triggerReference, StatModifier statModifier,  int value)
+    public TriggerActionData(TriggerRef triggerReference, int value)
     {
         TriggerReference = triggerReference;
-        StatModifier = statModifier;
         Value = value;
     }
+}
+
+public enum ThroughputSource
+{
+Damage,
+Heal,
+Power
 }

@@ -865,7 +865,7 @@ public static class PhysicianCards
 
             CardEffectGround = (User, TargetTile, d) =>
             {
-                CombatUtility.SpawnGroundEffect(d, TargetTile, new GroundEffectEntityData
+                CombatUtility.SpawnGroundEffect(d, TargetTile, new GroundEffect_Enter_EntityData
                 (
                     cardData: d,
                     triggerRef: new TriggerRef
@@ -876,7 +876,7 @@ public static class PhysicianCards
                     },
                     duration: d.Duration,
                     removeOnExit: false,
-                    removeOnEnd: true,
+                    removeOnEnd: false,
                     modifier: new EntityModifier(
                         modifierName: "Poison",
                         baseValue: d.Damage,
@@ -892,13 +892,13 @@ public static class PhysicianCards
                         {
                             CombatUtility.ApplyDamage(null, target, data.Value);
                         }),
-                    applyModifier: (effect, target) =>
+                    onEnter: (modifier, target) =>
                     {
-                        CombatUtility.ApplyEntityModifier(d, target, effect, ModifierMergeStrategy.RefreshDurationAndMerge);
+                        CombatUtility.ApplyEntityModifier(d, target, modifier, ModifierMergeStrategy.RefreshDurationAndMerge);
                     },
-                    removeModifier: (effect, target) =>
+                    onExit: (modifier, target) =>
                     {
-                        // WIP : Remove effect after duration
+                        
                     }));
                 // ToDO: Posion Cloud sollte länger auf dem Spielfeld und ALLE vergiften die durchgehen wollen
             }

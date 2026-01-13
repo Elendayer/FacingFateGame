@@ -162,25 +162,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier
-                    (
-                        modifierName: "Bleed",
-                        baseValue: d.Damage,
-                        duration: d.Duration,
-                        onRef_Trigger: new TriggerRef
-                        {
-                            OnTriggerReference = new() { GameplayRef.onTurnStart},
-                            AffectedEntities = new() { Target },
-                            UserEntity = User,
-                            CardData = d,
-                            Throughput = 0
-                        },
-                        onRef_Action: (data, target) =>
-                        {
-                            CombatUtility.ApplyEffectDamage(data.Value, target, GameplayRef.onBleed);
-                        }
-                    ),
-                 ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", d, ThroughputSource.Damage, User),ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 

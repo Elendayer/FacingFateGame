@@ -2,6 +2,7 @@ using Mono.Cecil;
 using System.Collections.Generic;
 using UnityEngine;
 using Utility;
+using facingfate;
 
 public static class AssassinCards
 {
@@ -461,9 +462,12 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 60,
+            cost_u = 50,
             damage_u = 20,   
             duration_u = 3,
+
+            range_u = 10,
+            radius_u = 2,
 
             targetingData = new()
             {
@@ -473,30 +477,25 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Apply Bleed ({d.Damage} per turn for {d.Duration}) to adjacent enemies.",
+                d.cardDescription = $"Deal {d.Damage} Damage at the Start of your turn to targets in the effect.",
 
-            CardEffect = (User, Target, d) =>
+            CardEffectGround = (User, Target, d) =>
             {
-                var bleed = new EntityModifier(
-                    modifierName: "Bleed",
-                    baseValue: d.Damage,
-                    toTriggerRefs: new() { GameplayRef.onBleed },
-                    duration: d.Duration,
-                    onRef_Trigger: new TriggerRef
+                CombatUtility.SpawnGroundEffect(d, Target, new GroundEffect_Ref_Effect
+                    (
+                    cardData: d,
+                    triggerRef: new TriggerRef
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { Target },
+                        AffectedEntities = new() { },
                         UserEntity = User
                     },
-                    onRef_Action: (data ,target) =>
-                    {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
-                    });
-
-                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    duration: d.Duration,
+                    onRef: (target) => { CombatUtility.ApplyDamage(null, target, d.Damage); AssetManager.Instance.CreateFX("BloodEffect", Target);
+                    }
+                   )); 
             }
         });
-
     }
 
     private static void RegisterAbilities()

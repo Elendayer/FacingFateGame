@@ -20,7 +20,12 @@ namespace facingfate
             if (!groundEffectCollider)
                 groundEffectCollider = GetComponent<Collider>();
 
-            GameEvents.OnGameplayReference += OnGameplayRef;
+            switch (EffectData)
+            {
+                case GroundEffect_Ref_EntityData: GameEvents.OnGameplayReference += OnGameplayRef; break;
+                case GroundEffect_Ref_StatData: GameEvents.OnGameplayReference += OnGameplayRef; break;
+                case GroundEffect_Ref_Effect: GameEvents.OnGameplayReference += OnGameplayRef; break;
+            }
         }
 
         private void OnDestroy()
@@ -42,12 +47,16 @@ namespace facingfate
                 if (EffectData.Duration < 9999)
                     EffectData.Duration--;
 
-                if (EffectData.Duration <= 0)
+                if (EffectData.Duration == 0)
                 {
-                    RemoveEffectFromAll();
+                    if (EffectData.RemoveOnEnd)
+                    {
+                        RemoveEffectFromAll();
+                        return;
+                    }
                     Destroy(gameObject);
                     return;
-                }
+                }           
             }
 
             // Apply effect via trigger
@@ -94,16 +103,26 @@ namespace facingfate
         private void ApplyEffect(EntityScript target)
         {
             if (!affectedEntities.Contains(target))
+            {
                 affectedEntities.Add(target);
-
+            }
             switch (EffectData)
             {
-                case GroundEffectEntityData entityData:
-                    entityData.ApplyModifier?.Invoke(entityData.Modifier, target);
+                case GroundEffect_Enter_EntityData entityData:
+                    {
+                        entityData.OnEnter?.Invoke(entityData.Modifier, target);
+                    }
                     break;
 
-                case GroundEffectStatData statData:
-                    statData.ApplyModifier?.Invoke(statData.Modifier, target);
+                case GroundEffect_Enter_StatData statData:
+                    {
+                        statData.OnEnter?.Invoke(statData.Modifier, target);
+                    }
+                    break;
+                case GroundEffect_Enter_Effect effectData:
+                    {
+                        effectData.OnEnter?.Invoke(target);
+                    }
                     break;
             }
         }
@@ -112,12 +131,29 @@ namespace facingfate
         {
             switch (EffectData)
             {
-                case GroundEffectEntityData entityData:
-                    entityData.RemoveModifier?.Invoke(entityData.Modifier, target);
+                case GroundEffect_Enter_EntityData entityData:
+                    {
+                        entityData.OnExit?.Invoke(entityData.Modifier, target);
+                        if (EffectData.RemoveOnExit)
+                        {
+                            RemoveEffect(target);
+                        }
+                    }
                     break;
 
-                case GroundEffectStatData statData:
-                    statData.RemoveModifier?.Invoke(statData.Modifier, target);
+                case GroundEffect_Enter_StatData statData:
+                    {
+                        statData.OnExit?.Invoke(statData.Modifier, target);
+                        if (EffectData.RemoveOnExit)
+                        {
+                            RemoveEffect(target);
+                        }
+                    }
+                    break;
+                case GroundEffect_Enter_Effect effectData:
+                    {
+                        effectData.OnExit?.Invoke(target);
+                    }
                     break;
             }
         }
@@ -149,14 +185,18 @@ namespace facingfate
 
     }
 
+
+    // =============================
+    // GroundEffects Enter / Exit Data
+    // =============================
     [System.Serializable]
-    public class GroundEffectEntityData : GroundEffectDataBase
+    public class GroundEffect_Enter_EntityData : GroundEffectDataBase
     {
         public EntityModifier Modifier;
-        public Action<EntityModifier, EntityScript> ApplyModifier;
-        public Action<EntityModifier, EntityScript> RemoveModifier;
+        public Action<EntityModifier, EntityScript> OnEnter;
+        public Action<EntityModifier, EntityScript> OnExit;
 
-        public GroundEffectEntityData(CardData cardData, TriggerRef triggerRef, int duration, bool removeOnExit, bool removeOnEnd, EntityModifier modifier, Action<EntityModifier, EntityScript> applyModifier, Action<EntityModifier, EntityScript> removeModifier)
+        public GroundEffect_Enter_EntityData(CardData cardData, TriggerRef triggerRef, int duration, bool removeOnExit, bool removeOnEnd, EntityModifier modifier, Action<EntityModifier, EntityScript> onEnter, Action<EntityModifier, EntityScript> onExit)
         {
             CardData = cardData;
             OnRef_Trigger = triggerRef;
@@ -164,19 +204,19 @@ namespace facingfate
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;
             Modifier = modifier;
-            ApplyModifier = applyModifier;
-            RemoveModifier = removeModifier;
+            OnEnter = onEnter;
+            OnExit = onExit;
         }
     }
 
     [System.Serializable]
-    public class GroundEffectStatData : GroundEffectDataBase
+    public class GroundEffect_Enter_StatData : GroundEffectDataBase
     {
         public StatModifier Modifier;
-        public Action<StatModifier, EntityScript> ApplyModifier;
-        public Action<StatModifier, EntityScript> RemoveModifier;
+        public Action<StatModifier, EntityScript> OnEnter;
+        public Action<StatModifier, EntityScript> OnExit;
 
-        public GroundEffectStatData(CardData cardData, TriggerRef triggerRef, int duration, bool removeOnExit, bool removeOnEnd, StatModifier modifier, Action<StatModifier, EntityScript> applyModifier, Action<StatModifier, EntityScript> removeModifier)
+        public GroundEffect_Enter_StatData(CardData cardData, TriggerRef triggerRef, int duration, bool removeOnExit, bool removeOnEnd, StatModifier modifier, Action<StatModifier, EntityScript> onEnter, Action<StatModifier, EntityScript> onExit)
         {
             CardData = cardData;
             OnRef_Trigger = triggerRef;
@@ -184,8 +224,82 @@ namespace facingfate
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;
             Modifier = modifier;
-            ApplyModifier = applyModifier;
-            RemoveModifier = removeModifier;
+            OnEnter = onEnter;
+            OnExit = onExit;
+        }
+    }
+
+    public class GroundEffect_Enter_Effect : GroundEffectDataBase
+    {
+        public StatModifier Modifier;
+        public Action< EntityScript> OnEnter;
+        public Action< EntityScript> OnExit;
+        public GroundEffect_Enter_Effect(CardData cardData, TriggerRef triggerRef, int duration, bool removeOnExit, bool removeOnEnd, Action<EntityScript> onEnter, Action<EntityScript> onExit)
+        {
+            CardData = cardData;
+            OnRef_Trigger = triggerRef;
+            Duration = duration;
+            RemoveOnExit = removeOnExit;
+            RemoveOnEnd = removeOnEnd;
+            OnEnter = onEnter;
+            OnExit = onExit;
+        }
+    }
+    // =============================
+    // GroundEffects Reference Triggered
+    // =============================
+    [System.Serializable]
+    public class GroundEffect_Ref_EntityData : GroundEffectDataBase
+    {
+        public EntityModifier Modifier;
+        public Action<EntityModifier, EntityScript> OnEnter;
+        public Action<EntityModifier, EntityScript> OnExit;
+        public Action<StatModifier, EntityScript> OnRef;
+
+        public GroundEffect_Ref_EntityData(CardData cardData, TriggerRef triggerRef, int duration, EntityModifier modifier, Action<StatModifier, EntityScript> onRef, bool removeOnExit = false, bool removeOnEnd = false)
+        {
+            CardData = cardData;
+            OnRef_Trigger = triggerRef;
+            Duration = duration;
+            RemoveOnExit = removeOnExit;
+            RemoveOnEnd = removeOnEnd;
+            Modifier = modifier;
+            OnRef = onRef;
+        }
+    }
+
+    [System.Serializable]
+    public class GroundEffect_Ref_StatData : GroundEffectDataBase
+    {
+        public StatModifier Modifier;
+        public Action<StatModifier, EntityScript> OnEnter;
+        public Action<StatModifier, EntityScript> OnExit;
+        public Action<StatModifier, EntityScript> OnRef;
+
+        public GroundEffect_Ref_StatData(CardData cardData, TriggerRef triggerRef, int duration, StatModifier modifier, Action<StatModifier, EntityScript> onRef, bool removeOnExit =false, bool removeOnEnd = false )
+        {
+            CardData = cardData;
+            OnRef_Trigger = triggerRef;
+            Duration = duration;
+            RemoveOnExit = removeOnExit;
+            RemoveOnEnd = removeOnEnd;
+            Modifier = modifier;
+            OnRef = onRef;
+        }
+    }
+
+    public class GroundEffect_Ref_Effect : GroundEffectDataBase
+    {
+        public StatModifier Modifier;
+        public Action<EntityScript> OnRef;
+        public GroundEffect_Ref_Effect(CardData cardData, TriggerRef triggerRef, int duration, Action<EntityScript> onRef, bool removeOnExit = false, bool removeOnEnd = false)
+        {
+            CardData = cardData;
+            OnRef_Trigger = triggerRef;
+            Duration = duration;
+            RemoveOnExit = removeOnExit;
+            RemoveOnEnd = removeOnEnd;
+            OnRef = onRef;
         }
     }
 }
