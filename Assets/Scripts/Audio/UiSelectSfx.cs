@@ -8,9 +8,9 @@ namespace facingfate
     public class UiSelectSfx : MonoBehaviour
     {
         // globale Sperre für Select-Sounds
-        private static float s_suppressSelectUntil = -1f;
+        //private static float s_suppressSelectUntil = -1f;
 
-        [SerializeField] private float initialSuppressSeconds = 0.5f; // beim Szenenstart stumm
+        //[SerializeField] private float initialSuppressSeconds = 0.5f; // beim Szenenstart stumm
         /*
         [SerializeField] private StudioEventEmitter selectEmitter;     // Emitter: Trigger= None
 

@@ -35,9 +35,6 @@ namespace facingfate
         //private VCA _vcaSfxNoUi;
         //private VCA _vcaSfx;
 
-        bool _notAKeyboard = false;
-        private OptionsMenu _optionsMenu;
-
         private void Awake()
         {
             //_controls = new DungeonPhaseInput();
@@ -159,7 +156,7 @@ namespace facingfate
 
                 if (optionsPanel.activeInHierarchy)
                 {
-                    optionsMenu.CloseOptions(true);
+                    optionsMenu.CloseOptionsScroll(true);
                 }
 
                 if (EventSystem.current != null)

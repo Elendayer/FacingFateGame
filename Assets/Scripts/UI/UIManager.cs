@@ -1,4 +1,5 @@
 using DG.Tweening;
+using facingfate;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -10,7 +11,8 @@ namespace dungeonduell
         public GameObject creditsPanel;
         public GameObject creditsSelectedButton;
         public GameObject previousSelected;
-        public GameObject optionsPanel;
+
+        public OptionsMenu optionsMenu;
         public CanvasGroup fadeCanvas;
 
         public float fadeDuration = 0.5f;
@@ -90,15 +92,20 @@ namespace dungeonduell
         // �ffnet oder schlie�t das Options-Panel mit Animation
         public void ToggleOptions()
         {
-            if (optionsPanel != null)
+            if (optionsMenu == null || optionsMenu.optionsPanel == null) return;
+
+            bool isActive = optionsMenu.optionsPanel.activeSelf;
+
+            if (!isActive)
             {
-                var isActive = optionsPanel.activeSelf;
-                optionsPanel.SetActive(true);
-                optionsPanel.transform.localScale = Vector3.zero;
-                optionsPanel.transform.DOScale(isActive ? 0 : 1, fadeDuration).OnComplete(() =>
-                {
-                    if (isActive) optionsPanel.SetActive(false);
-                });
+                if (EventSystem.current != null)
+                    optionsMenu.previousSelected = EventSystem.current.currentSelectedGameObject;
+
+                optionsMenu.OpenOptionsScroll();
+            }
+            else
+            {
+                optionsMenu.CloseOptionsScroll(true);
             }
         }
 

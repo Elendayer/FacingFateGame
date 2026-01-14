@@ -6,7 +6,7 @@ namespace facingfate
     public class DropdownSelectSuppressor : MonoBehaviour
     {
         [SerializeField] private TMP_Dropdown dropdown;
-        [SerializeField] private float suppressAfterValueChangeSeconds = 0.2f;
+        //[SerializeField] private float suppressAfterValueChangeSeconds = 0.2f;
 
         private void Reset()
         {
