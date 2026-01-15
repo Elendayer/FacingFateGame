@@ -290,28 +290,6 @@ Transform:
   - {fileID: 1661481853}
   m_Father: {fileID: 577829259}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &38095485 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-  m_PrefabInstance: {fileID: 394069818}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &38095489
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 38095485}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb787bb34c3f4f4695b9c7fdced48dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightFlicker_Effect
-  minIntensity: 3
-  maxIntensity: 5
-  speed: 1
-  enableColorPulse: 0
-  colorShiftAmount: 0.1
 --- !u!1001 &58676537
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -360,6 +338,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5533333001176320617, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 1252147641256412889, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
+    - target: {fileID: -4860107055905415341, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3864149102149897406, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
     - target: {fileID: 919132149155446097, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
       propertyPath: m_Name
       value: Palace_Pillar (1)
@@ -667,6 +653,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5533333001176320617, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 1252147641256412889, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
+    - target: {fileID: -4860107055905415341, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3864149102149897406, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
     - target: {fileID: 919132149155446097, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
       propertyPath: m_Name
       value: Palace_Pillar (5)
@@ -970,6 +964,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -4643522120868182550, guid: 201759810634e7346ad07eb9f0319656, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -4643522120868182550, guid: 201759810634e7346ad07eb9f0319656, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -4643522120868182550, guid: 201759810634e7346ad07eb9f0319656, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -4643522120868182550, guid: 201759810634e7346ad07eb9f0319656, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.08
       objectReference: {fileID: 0}
@@ -977,6 +983,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -1677132566325117404, guid: 201759810634e7346ad07eb9f0319656, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -2052996276529254954, guid: 4c302c4ba5ed79f46b4687dfea6de67c, type: 3}
     - target: {fileID: -588033845913518196, guid: 201759810634e7346ad07eb9f0319656, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -985,6 +995,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: PalaceMap_Test
       objectReference: {fileID: 0}
+    - target: {fileID: 1607021914913826944, guid: 201759810634e7346ad07eb9f0319656, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2186430941476567602, guid: 4c302c4ba5ed79f46b4687dfea6de67c, type: 3}
+    - target: {fileID: 8168969872745336029, guid: 201759810634e7346ad07eb9f0319656, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -629719859055844128, guid: 4c302c4ba5ed79f46b4687dfea6de67c, type: 3}
     - target: {fileID: 9054820531407274903, guid: 201759810634e7346ad07eb9f0319656, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -1615,7 +1633,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Range
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.b
@@ -1623,23 +1641,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.r
-      value: 0.9891138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Intensity
-      value: 4
+      value: 0.07957747
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Lightmapping
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_BounceIntensity
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_ColorTemperature
@@ -1647,22 +1673,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_UseColorTemperature
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Name
       value: Brazier (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 3977158554440778490, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2503579894941517308, guid: e49a3bea872bbc443b3217f7394a462b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1306293648}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 880176742}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
 --- !u!4 &283378238 stripped
 Transform:
@@ -1832,7 +1859,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Range
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.b
@@ -1840,23 +1867,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.r
-      value: 0.9891138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Intensity
-      value: 4
+      value: 0.07957747
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Lightmapping
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_BounceIntensity
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_ColorTemperature
@@ -1864,22 +1899,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_UseColorTemperature
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Name
       value: Brazier (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 3977158554440778490, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2503579894941517308, guid: e49a3bea872bbc443b3217f7394a462b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1494698826}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 38095489}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
 --- !u!1 &413623292
 GameObject:
@@ -2675,28 +2711,6 @@ PrefabInstance:
       insertIndex: 3
       addedObject: {fileID: 1343682555}
   m_SourcePrefab: {fileID: 100100000, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
---- !u!1 &502340047 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-  m_PrefabInstance: {fileID: 2137430831}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &502340051
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 502340047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb787bb34c3f4f4695b9c7fdced48dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightFlicker_Effect
-  minIntensity: 3
-  maxIntensity: 5
-  speed: 1
-  enableColorPulse: 0
-  colorShiftAmount: 0.1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2877,50 +2891,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &529608606 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-  m_PrefabInstance: {fileID: 1377650313}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &529608610
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 529608606}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb787bb34c3f4f4695b9c7fdced48dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightFlicker_Effect
-  minIntensity: 3
-  maxIntensity: 5
-  speed: 1
-  enableColorPulse: 0
-  colorShiftAmount: 0.1
---- !u!1 &551762051 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-  m_PrefabInstance: {fileID: 770963923}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &551762055
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 551762051}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb787bb34c3f4f4695b9c7fdced48dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightFlicker_Effect
-  minIntensity: 3
-  maxIntensity: 5
-  speed: 1
-  enableColorPulse: 0
-  colorShiftAmount: 0.1
 --- !u!1001 &567672602
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3428,7 +3398,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Range
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.b
@@ -3436,23 +3406,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.r
-      value: 0.9891138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Intensity
-      value: 4
+      value: 0.07957747
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Lightmapping
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_BounceIntensity
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_ColorTemperature
@@ -3460,50 +3438,29 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_UseColorTemperature
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Name
       value: Brazier (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 3977158554440778490, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2503579894941517308, guid: e49a3bea872bbc443b3217f7394a462b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 125246578}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 678228215}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
 --- !u!4 &678228213 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
   m_PrefabInstance: {fileID: 678228212}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &678228214 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-  m_PrefabInstance: {fileID: 678228212}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &678228215
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 678228214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb787bb34c3f4f4695b9c7fdced48dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightFlicker_Effect
-  minIntensity: 3
-  maxIntensity: 5
-  speed: 1
-  enableColorPulse: 0
-  colorShiftAmount: 0.1
 --- !u!1 &760297657
 GameObject:
   m_ObjectHideFlags: 0
@@ -3660,7 +3617,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Range
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.b
@@ -3668,23 +3625,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.r
-      value: 0.9891138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Intensity
-      value: 4
+      value: 0.07957747
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Lightmapping
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_BounceIntensity
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_ColorTemperature
@@ -3692,22 +3657,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_UseColorTemperature
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Name
       value: Brazier (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 3977158554440778490, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2503579894941517308, guid: e49a3bea872bbc443b3217f7394a462b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1444874739}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 551762055}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
 --- !u!1 &789815647
 GameObject:
@@ -4001,28 +3967,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &880176738 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-  m_PrefabInstance: {fileID: 283378237}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &880176742
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 880176738}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb787bb34c3f4f4695b9c7fdced48dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightFlicker_Effect
-  minIntensity: 3
-  maxIntensity: 5
-  speed: 1
-  enableColorPulse: 0
-  colorShiftAmount: 0.1
 --- !u!1 &939853849 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
@@ -4447,6 +4391,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5533333001176320617, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 1252147641256412889, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
+    - target: {fileID: -4860107055905415341, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3864149102149897406, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
     - target: {fileID: 919132149155446097, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
       propertyPath: m_Name
       value: Palace_Pillar (4)
@@ -5291,6 +5243,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5533333001176320617, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 1252147641256412889, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
+    - target: {fileID: -4860107055905415341, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3864149102149897406, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
     - target: {fileID: 919132149155446097, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
       propertyPath: m_Name
       value: Palace_Pillar
@@ -5360,6 +5320,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5533333001176320617, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 1252147641256412889, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
+    - target: {fileID: -4860107055905415341, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3864149102149897406, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
     - target: {fileID: 919132149155446097, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
       propertyPath: m_Name
       value: Palace_Pillar (2)
@@ -5637,28 +5605,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257273686}
   m_CullTransparentMesh: 1
---- !u!1 &1258128698 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-  m_PrefabInstance: {fileID: 1690008121}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1258128702
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1258128698}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb787bb34c3f4f4695b9c7fdced48dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightFlicker_Effect
-  minIntensity: 3
-  maxIntensity: 5
-  speed: 1
-  enableColorPulse: 0
-  colorShiftAmount: 0.1
 --- !u!1 &1266654710
 GameObject:
   m_ObjectHideFlags: 0
@@ -6045,7 +5991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Range
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.b
@@ -6053,23 +5999,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.r
-      value: 0.9891138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Intensity
-      value: 4
+      value: 0.07957747
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Lightmapping
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_BounceIntensity
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_ColorTemperature
@@ -6077,22 +6031,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_UseColorTemperature
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Name
       value: Brazier (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 3977158554440778490, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2503579894941517308, guid: e49a3bea872bbc443b3217f7394a462b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1166969668}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 529608610}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
 --- !u!1 &1425228122
 GameObject:
@@ -7574,7 +7529,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Range
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.b
@@ -7582,23 +7537,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.r
-      value: 0.9891138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Intensity
-      value: 4
+      value: 0.07957747
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Lightmapping
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_BounceIntensity
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_ColorTemperature
@@ -7606,7 +7569,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_UseColorTemperature
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Name
@@ -7616,16 +7579,17 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: beb5498900466e84497b5cb074e47bc2, type: 3}
+    - target: {fileID: 3977158554440778490, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2503579894941517308, guid: e49a3bea872bbc443b3217f7394a462b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 848743967}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1258128702}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
 --- !u!1 &1731509238
 GameObject:
@@ -16027,7 +15991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Range
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.b
@@ -16035,23 +15999,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.r
-      value: 0.9891138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Intensity
-      value: 4
+      value: 0.07957747
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Lightmapping
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_BounceIntensity
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_ColorTemperature
@@ -16059,50 +16031,29 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_UseColorTemperature
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Name
       value: Brazier (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 3977158554440778490, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2503579894941517308, guid: e49a3bea872bbc443b3217f7394a462b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1649990153}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1861789377}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
 --- !u!4 &1861789375 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
   m_PrefabInstance: {fileID: 1861789374}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1861789376 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-  m_PrefabInstance: {fileID: 1861789374}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1861789377
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1861789376}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb787bb34c3f4f4695b9c7fdced48dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightFlicker_Effect
-  minIntensity: 3
-  maxIntensity: 5
-  speed: 1
-  enableColorPulse: 0
-  colorShiftAmount: 0.1
 --- !u!1 &1938320529
 GameObject:
   m_ObjectHideFlags: 0
@@ -16258,6 +16209,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5533333001176320617, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 1252147641256412889, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
+    - target: {fileID: -4860107055905415341, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3864149102149897406, guid: 26ed100e32c5d894f9be280b192ea3ed, type: 3}
     - target: {fileID: 919132149155446097, guid: bf41792b1a122414aa2b880292a724a0, type: 3}
       propertyPath: m_Name
       value: Palace_Pillar (3)
@@ -16817,7 +16776,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Range
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.b
@@ -16825,23 +16784,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Color.r
-      value: 0.9891138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Intensity
-      value: 4
+      value: 0.07957747
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_AreaSize.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Lightmapping
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_BounceIntensity
-      value: 1.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_ColorTemperature
@@ -16849,22 +16816,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_UseColorTemperature
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       propertyPath: m_Name
       value: Brazier
       objectReference: {fileID: 0}
+    - target: {fileID: 3977158554440778490, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2503579894941517308, guid: e49a3bea872bbc443b3217f7394a462b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1545904940}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8700617353114198275, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 502340051}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f69d5151f13e5c41be20a546dbd7ff2, type: 3}
 --- !u!4 &2137430832 stripped
 Transform:
