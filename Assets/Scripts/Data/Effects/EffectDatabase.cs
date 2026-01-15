@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Utility;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.UIElements.UxmlAttributeDescription;
 
 public static class EffectDatabase
 {
@@ -39,17 +37,16 @@ public static class EffectDatabase
 		RegisterEffect(new EntityModifier
 			(
 			modifierName: "Bleed",
-			onRef_Trigger: new TriggerRef
+			owner: null,
+            onRef_Trigger: new RelevantTriggerCheck
 			{
 				OnTriggerReference = new() { GameplayRef.onTurnStart },
-				AffectedEntities = new() { },
-				UserEntity = null,
-				CardData = null,
-				Throughput = 0
-			},
-			onRef_Action: (data, target) =>
+				CheckType = CheckEntityType.User,
+				CheckEntity = null,
+            },
+			onRef_Action: (target, cd, value) =>
 			{
-				CombatUtility.ApplyEffectDamage(data.Value, target, GameplayRef.onBleed);
+				CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBleed);
 			}));
 	}
 }

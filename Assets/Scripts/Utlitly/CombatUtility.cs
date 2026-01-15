@@ -10,7 +10,7 @@ namespace Utility
     {
         public static void ApplyCost(CardData cardData, Stat resourceStat, int cost)
         {
-            resourceStat.AddModifier(new StatModifier(resourceStat, -cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
+            resourceStat.AddModifier(new StatModifier("BaseValue", resourceStat, -cost, ModifierScaling.Flat), ModifierMergeStrategy.Merge);
         }
 
         // Direct Damage that bypasses armour and block
@@ -123,20 +123,13 @@ namespace Utility
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, mod.BaseValue);
         }
 
-        public static void ApplyStatDebuff(CardData cardData, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyStatDebuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
             List<GameplayRef> refs = new();
             refs.Add(GameplayRef.onDebuffRecieved);
 
-            targetStat.AddModifier(mod, mergeStrategy);
+            mod.Stat.AddModifier(mod, mergeStrategy);
 
-            var dbg = target.GetComponent<StatusDebugView>();
-            if (dbg != null)
-            {
-                var label = string.IsNullOrEmpty(mod.ModifierName) ? "DEBUFF" : mod.ModifierName;
-                var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
-                dbg.SyncDot(label, eff.BaseValue, eff.Duration);
-            }
             Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);        }
 
@@ -147,11 +140,10 @@ namespace Utility
 
             if (target == null || mod == null) return;
 
-            if (!mod.OnRef_Trigger.AffectedEntities.Contains(target))
+            if ( mod.Owner == null)
             {
-                mod.OnRef_Trigger.AffectedEntities.Add(target);
+                mod.Owner = target;
             }
-
             target.AddModifier(mod, mergeStrategy);
             target.GetComponent<StatusDebugView>()?.Track(mod);
 
@@ -190,7 +182,7 @@ namespace Utility
         public static void HandlePreCombatTrigger(List<EntityScript> targets, CardData cardData)
         {
             if (cardData == null) return;
-            List<GameplayRef> refs = new();
+            List<GameplayRef> refs = new() { GameplayRef.onCardPlayed };
             refs.AddRange(cardData.cardIdentities.Select(c => (GameplayRef)Enum.Parse(typeof(GameplayRef), c.ToString())).ToList());
 
             GameplayRef classRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData.cardClass.ToString());
@@ -199,18 +191,20 @@ namespace Utility
             GameplayRef typeRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData.cardType.ToString());
             refs.Add(typeRef);
 
-            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, targets, cardData, cardData.CardAiBias.ThroughputOverride(null, cardData, targets)));
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, cardData.Owner, targets, cardData, cardData.CardAiBias.ThroughputOverride(null, cardData, targets)));
         }
         public static void HandlePostCombatTrigger(List<GameplayRef> gameplayRefs, EntityScript user, EntityScript target, CardData cardData = null, int throughput = 0)
         {
-            List<GameplayRef> refs = gameplayRefs;
+            List<GameplayRef> refs = new() { GameplayRef.onCardEffectEnd};
+            refs.AddRange(gameplayRefs);
+
             if (cardData != null)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(refs, user, new() { target }, cardData, throughput));
+                GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, user, new() { target }, cardData, throughput));
             }
             else
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(refs, user, new() { target }, null, throughput));
+                GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, user, new() { target }, null, throughput));
             }
         }
     }

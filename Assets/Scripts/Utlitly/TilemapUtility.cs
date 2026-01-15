@@ -232,16 +232,6 @@ namespace Utility
 
         #endregion
 
-        public static List<Vector3Int> GetTilesInRange(Vector3Int targetPos, int range)
-        {
-            switch (range)
-            {
-                case <= 0: return new List<Vector3Int> { targetPos };
-                default:
-                    return GetTilesInRadius(targetPos, range);
-            }
-        }
-
         // Return the closest reachable tile within range of the target position
         public static Vector3Int GetReachableTileWithinRangeOfTarget(Vector3Int startPos, Vector3Int targetPos, int range)
         {

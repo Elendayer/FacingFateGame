@@ -66,7 +66,7 @@ public class NonPlayerScript : EntityScript
     {
         float start = Time.time;
 
-        GameEvents.TriggerRefEvent(new TriggerRef
+        GameEvents.TriggerRefEvent(new ToSendTriggerReference
         {
             OnTriggerReference = new() { GameplayRef.onMove },
             UserEntity = this,
@@ -108,9 +108,51 @@ public class NonPlayerScript : EntityScript
 
     private IEnumerator PlayCardWithCallback(PlannedAction action, System.Action onComplete)
     {
-        // Activate card effects
-        action.Card.cardData.ActivateCardEffect(action.TargetingModeData, gameObject);
+        CardData cardData = action.Card.cardData;
+        TargetingModeData targetingData = action.TargetingModeData;
+        float repeatDelay = 0.25f; // delay between repeats
+        int repeats = Mathf.Max(cardData.repeats_u, 1);
+
+        if (cardData.Repeats > 1)
+        {
+            // Enqueue each repeat as a single action
+            for (int i = 0; i < repeats; i++)
+            {
+                int iteration = i; // capture loop variable
+
+                ActionQueue.Enqueue(() =>
+                {
+                    // Entity effects
+                    foreach (EntityScript target in targetingData.targetedEntities)
+                        cardData.CardEffect?.Invoke(this, target, cardData);
+
+                    // Ground effects
+                    foreach (Vector3Int tile in targetingData.targetedTiles)
+                        cardData.CardEffectGround?.Invoke(this, tile, cardData);
+
+                }, repeatDelay * i); // accumulate delay between repeats
+            }
+        }
+        else
+        {
+            // Single execution without repeats
+            ActionQueue.Enqueue(() =>
+            {
+                // Entity effects
+                foreach (EntityScript target in targetingData.targetedEntities)
+                    cardData.CardEffect?.Invoke(this, target, cardData);
+                // Ground effects
+                foreach (Vector3Int tile in targetingData.targetedTiles)
+                    cardData.CardEffectGround?.Invoke(this, tile, cardData);
+            });
+        }
+        // Wait until the entire queue is empty for this card
+        yield return new WaitUntil(() => ActionQueue.IsEmpty);
+
+        // Discard card after all repeats
+        HandManager.Instance.DiscardCard(action.Card.gameObject);
+
+        // Notify completion
         onComplete?.Invoke();
-        yield return null;
     }
 }

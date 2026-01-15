@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using Utility;
+using static UnityEngine.UIElements.UxmlAttributeDescription;
 
 
 [System.Serializable]
@@ -25,7 +27,7 @@ public class CardData
     [Header("Cost")]
     public int cost_u = 0;
     public Stat cost_s = new();
-    public int Cost => Owner.entityStats.PowerModifier.ApplyFinalValue(cost_s.ApplyFinalValue(cost_u,Owner,this),Owner,this);
+    public int Cost => Owner.entityStats.CardCostModifier.ApplyFinalValue(cost_s.ApplyFinalValue(cost_u,Owner,this),Owner,this);
 
     [Header("Power")]
     public int power_u = 0;
@@ -35,7 +37,7 @@ public class CardData
     [Header("Damage")]
     public int damage_u = 0;
     public Stat damage_s = new();
-    public int Damage => Owner.entityStats.DamageOutModifier.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u,Owner,this),Owner,this);
+    public int Damage => Owner.entityStats.DamageOutModifier.ApplyFinalValue( damage_s.ApplyFinalValue(damage_u,Owner,this), Owner,this);
 
     [Header("Healing")]
     public int healing_u = 0;
@@ -45,10 +47,10 @@ public class CardData
     [Header("Duration")]
     public int duration_u = 0;
     public Stat duration_s = new();
-    public int Duration => Owner.entityStats.HealingOutModifier.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u, Owner, this), Owner, this);
+    public int Duration => Owner.entityStats.DurationModifier.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u, Owner, this), Owner, this);
 
     [Header("Repeats")]
-    public int repeats_u = 0;
+    public int repeats_u = 1;
     public Stat repeats_s = new();
     public int Repeats => repeats_u + repeats_s.Value(Owner,this);
 
@@ -158,20 +160,69 @@ public class CardData
     }
     public void ActivateCardEffect(TargetingModeData targetingModeData, GameObject cardObj)
     {
-        CombatUtility.HandlePreCombatTrigger(targetingModeData.targetedEntities,this);
+        // Ensure your entity or manager has a reference to the action queue
+        ActionQueue actionQueue = Owner.ActionQueue; // Assuming each entity has an ActionQueue
 
-        foreach (EntityScript target in targetingModeData.targetedEntities)
+        // Pre-combat trigger runs first
+        actionQueue.Enqueue(() => CombatUtility.HandlePreCombatTrigger(targetingModeData.targetedEntities, this));
+
+
+        if (repeats_u > 1)
         {
-            CardEffect?.Invoke(Owner, target, this);
+            float repeatDelay = 0.25f; // delay between repeats
+
+            for (int i = 0; i < Repeats; i++)
+            {
+                int iteration = i; // capture loop variable
+
+                // Enqueue a single action for this repeat
+                actionQueue.Enqueue(() =>
+                {
+                    // Card effects on entities
+                    foreach (EntityScript target in targetingModeData.targetedEntities)
+                    {
+                        CardEffect?.Invoke(Owner, target, this);
+                    }
+
+                    // Card effects on ground/tiles
+                    foreach (Vector3Int tile in targetingModeData.targetedTiles)
+                    {
+                        CardEffectGround?.Invoke(Owner, tile, this);
+                    }
+                }, iteration * repeatDelay); // delay only between repeats
+            }
+        }
+        else
+        {
+            // Single execution without repeats
+            actionQueue.Enqueue(() =>
+            {
+                // Card effects on entities
+                foreach (EntityScript target in targetingModeData.targetedEntities)
+                {
+                    CardEffect?.Invoke(Owner, target, this);
+                }
+                // Card effects on ground/tiles
+                foreach (Vector3Int tile in targetingModeData.targetedTiles)
+                {
+                    CardEffectGround?.Invoke(Owner, tile, this);
+                }
+            });
         }
 
-        foreach (Vector3Int target in targetingModeData.targetedTiles)
-        {
-            CardEffectGround?.Invoke(Owner, target, this);
-        }
+        // Discard the card after all effects
+        actionQueue.Enqueue(() => HandManager.Instance.DiscardCard(cardObj));
 
-        //Discard
-        HandManager.Instance.DiscardCard(cardObj);
+        // Update Entities after each effect resolution
+        actionQueue.Enqueue(() =>
+        {
+            cardObj.GetComponent<CardScript>().cardData.Owner.entityStats.UpdateStats();
+
+            foreach (EntityScript e in targetingModeData.targetedEntities)
+            {
+                e.entityStats.UpdateStats();
+            }
+        });
     }
 }
 public class CardAiBias

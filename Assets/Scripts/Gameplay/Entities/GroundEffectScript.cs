@@ -36,7 +36,7 @@ namespace facingfate
         // =============================
         // Trigger-Based Application
         // =============================
-        private void OnGameplayRef(TriggerRef trigger)
+        private void OnGameplayRef(ToSendTriggerReference trigger)
         {
             if (EffectData == null) return;
 
@@ -60,7 +60,7 @@ namespace facingfate
             }
 
             // Apply effect via trigger
-            if (GameEvents.CheckIfRelevantTrigger(trigger, EffectData.OnRef_Trigger))
+            if (GameEvents.CheckIfRelevantTrigger(trigger, EffectData.RelevantTrigger))
             {
                 foreach (var target in trigger.AffectedEntities)
                 {
@@ -178,7 +178,7 @@ namespace facingfate
     public abstract class GroundEffectDataBase
     {
         public CardData CardData;
-        public TriggerRef OnRef_Trigger;
+        public RelevantTriggerCheck RelevantTrigger;
         public int Duration;
         public bool RemoveOnExit = true;
         public bool RemoveOnEnd = true;
@@ -196,10 +196,10 @@ namespace facingfate
         public Action<EntityModifier, EntityScript> OnEnter;
         public Action<EntityModifier, EntityScript> OnExit;
 
-        public GroundEffect_Enter_EntityData(CardData cardData, TriggerRef triggerRef, int duration, bool removeOnExit, bool removeOnEnd, EntityModifier modifier, Action<EntityModifier, EntityScript> onEnter, Action<EntityModifier, EntityScript> onExit)
+        public GroundEffect_Enter_EntityData(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, bool removeOnExit, bool removeOnEnd, EntityModifier modifier, Action<EntityModifier, EntityScript> onEnter, Action<EntityModifier, EntityScript> onExit)
         {
             CardData = cardData;
-            OnRef_Trigger = triggerRef;
+            RelevantTrigger = relevantTrigger;
             Duration = duration;
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;
@@ -216,10 +216,10 @@ namespace facingfate
         public Action<StatModifier, EntityScript> OnEnter;
         public Action<StatModifier, EntityScript> OnExit;
 
-        public GroundEffect_Enter_StatData(CardData cardData, TriggerRef triggerRef, int duration, bool removeOnExit, bool removeOnEnd, StatModifier modifier, Action<StatModifier, EntityScript> onEnter, Action<StatModifier, EntityScript> onExit)
+        public GroundEffect_Enter_StatData(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, bool removeOnExit, bool removeOnEnd, StatModifier modifier, Action<StatModifier, EntityScript> onEnter, Action<StatModifier, EntityScript> onExit)
         {
             CardData = cardData;
-            OnRef_Trigger = triggerRef;
+            RelevantTrigger = relevantTrigger;
             Duration = duration;
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;
@@ -234,10 +234,10 @@ namespace facingfate
         public StatModifier Modifier;
         public Action< EntityScript> OnEnter;
         public Action< EntityScript> OnExit;
-        public GroundEffect_Enter_Effect(CardData cardData, TriggerRef triggerRef, int duration, bool removeOnExit, bool removeOnEnd, Action<EntityScript> onEnter, Action<EntityScript> onExit)
+        public GroundEffect_Enter_Effect(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, bool removeOnExit, bool removeOnEnd, Action<EntityScript> onEnter, Action<EntityScript> onExit)
         {
             CardData = cardData;
-            OnRef_Trigger = triggerRef;
+            RelevantTrigger = relevantTrigger;
             Duration = duration;
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;
@@ -256,10 +256,10 @@ namespace facingfate
         public Action<EntityModifier, EntityScript> OnExit;
         public Action<StatModifier, EntityScript> OnRef;
 
-        public GroundEffect_Ref_EntityData(CardData cardData, TriggerRef triggerRef, int duration, EntityModifier modifier, Action<StatModifier, EntityScript> onRef, bool removeOnExit = false, bool removeOnEnd = false)
+        public GroundEffect_Ref_EntityData(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, EntityModifier modifier, Action<StatModifier, EntityScript> onRef, bool removeOnExit = false, bool removeOnEnd = false)
         {
             CardData = cardData;
-            OnRef_Trigger = triggerRef;
+            RelevantTrigger = relevantTrigger;
             Duration = duration;
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;
@@ -276,10 +276,10 @@ namespace facingfate
         public Action<StatModifier, EntityScript> OnExit;
         public Action<StatModifier, EntityScript> OnRef;
 
-        public GroundEffect_Ref_StatData(CardData cardData, TriggerRef triggerRef, int duration, StatModifier modifier, Action<StatModifier, EntityScript> onRef, bool removeOnExit =false, bool removeOnEnd = false )
+        public GroundEffect_Ref_StatData(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, StatModifier modifier, Action<StatModifier, EntityScript> onRef, bool removeOnExit =false, bool removeOnEnd = false )
         {
             CardData = cardData;
-            OnRef_Trigger = triggerRef;
+            RelevantTrigger = relevantTrigger;
             Duration = duration;
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;
@@ -292,10 +292,10 @@ namespace facingfate
     {
         public StatModifier Modifier;
         public Action<EntityScript> OnRef;
-        public GroundEffect_Ref_Effect(CardData cardData, TriggerRef triggerRef, int duration, Action<EntityScript> onRef, bool removeOnExit = false, bool removeOnEnd = false)
+        public GroundEffect_Ref_Effect(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, Action<EntityScript> onRef, bool removeOnExit = false, bool removeOnEnd = false)
         {
             CardData = cardData;
-            OnRef_Trigger = triggerRef;
+            RelevantTrigger = relevantTrigger;
             Duration = duration;
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;

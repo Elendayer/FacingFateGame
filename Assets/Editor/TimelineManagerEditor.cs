@@ -104,7 +104,7 @@ public class TimelineManagerEditor : Editor
         EditorGUI.indentLevel--;
     }
 
-    private void DrawTriggerBox(TriggerRef triggerRef, Color bgColor)
+    private void DrawTriggerBox(ToSendTriggerReference triggerRef, Color bgColor)
     {
         var boxStyle = new GUIStyle()
         {

@@ -7,7 +7,9 @@ public class TimelineManager : MonoBehaviour
 {
     public static TimelineManager Instance { get; private set; }
 
-    public static Dictionary<string,List<TriggerRef>> Timeline = new();
+    public static Dictionary<string,List<ToSendTriggerReference>> Timeline = new();
+
+
 
     private void Awake()
     {
@@ -26,7 +28,7 @@ public class TimelineManager : MonoBehaviour
 
     }
 
-    public static void AddToTimeline(TriggerRef triggerRef)
+    public static void AddToTimeline(ToSendTriggerReference triggerRef)
     {
         if(triggerRef.OnTriggerReference == null) return;
 
@@ -39,7 +41,7 @@ public class TimelineManager : MonoBehaviour
             Timeline.Last().Value.Add(triggerRef);
         }
     }
-    public static List<TriggerRef> GetDataFromTimeline(
+    public static List<ToSendTriggerReference> GetDataFromTimeline(
         EntityScript entity,
         TimelineFilter filter,
         object filterValue = null,
@@ -59,7 +61,7 @@ public class TimelineManager : MonoBehaviour
             .OrderByDescending(x => x.Turn) // Start from the most recent turn
             .ToList();
 
-        var result = new List<TriggerRef>();
+        var result = new List<ToSendTriggerReference>();
 
         foreach (var entry in flatTimeline)
         {

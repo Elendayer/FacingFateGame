@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -43,7 +44,38 @@ public class CardScript : MonoBehaviour
 
             range.text = GetRangeText(cardData);
         }
+
+        StartCoroutine("DescriptionUpdate");
     }
+
+    private IEnumerator DescriptionUpdate()
+    {
+        while (true)
+        {
+            descriptionText.text = FormatCardDescription(cardData);
+            range.text = FormatCardRange(cardData);
+
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+    private string FormatCardDescription(CardData d)
+    {
+        return d.cardDescription
+                .Replace("Power", d.Power.ToString())
+                .Replace("Damage", d.Damage.ToString())
+                .Replace("Healing", d.Duration.ToString())
+                .Replace("Duration", d.Duration.ToString())
+                .Replace("Repeats", d.Repeats.ToString())
+                .Replace("Range", d.Range.ToString())
+                .Replace("Area", d.Area.ToString())
+                .Replace("Radius", d.Radius.ToString())
+                .Replace("MaxTarget", d.MaxTarget.ToString());
+    }
+    private string FormatCardRange(CardData d)
+    {
+        return GetRangeText(cardData);
+    }
+
     public static string GetRangeText(CardData cardData)
     {
         var t = cardData.targetingData;

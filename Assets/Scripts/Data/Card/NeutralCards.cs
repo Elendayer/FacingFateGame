@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Utility;
+using static UnityEngine.GraphicsBuffer;
 
 // Neutral cards (Class = 10)
 // ID-Schema: 10 | TT | II   (TT: MartialArt=01, Ability=02, Spell=03, Curse=04, Blessing=05, Item=06)
@@ -64,7 +65,15 @@ public static class NeutralCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(d, Target, d.Damage);
-                // TODO: Movement-Cost/Range senken
+                CombatUtility.ApplyStatDebuff(d, Target,
+                    new StatModifier(
+                    stat: Target.entityStats.MovementCostModifier,
+                    value: 1,
+                    condition: true,
+                    scaling: ModifierScaling.Flat,
+                    duration: 2,
+                    name: $"HeavyBlowMovementDecrease"
+                ), ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -267,18 +276,19 @@ public static class NeutralCards
                 string name = $"Bleed#{d.cardID}";
                 var bleed = new EntityModifier(
                     modifierName: name,
+                    owner: Target,
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBleed },
                     duration: dur,
-                    onRef_Trigger: new TriggerRef
+                    onRef_Trigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target,
                     },
-                    onRef_Action: (data, target) =>
+                    onRef_Action: (target, cd, value) =>
                     {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
+                        CombatUtility.ApplyDamage(null, target, value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -312,19 +322,20 @@ public static class NeutralCards
                 // Poison DoT + immediate tick
                 string name = $"Poison#{d.cardID}";
                 var poison = new EntityModifier(
-                    modifierName: name,
+                    modifierName: name, 
+                    owner: Target,
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
-                    onRef_Trigger: new TriggerRef
+                    onRef_Trigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target,
                     },
-                    onRef_Action: (data, target) =>
+                    onRef_Action: (target, cd, value) =>
                     {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
+                        CombatUtility.ApplyDamage(null, target, value);
 
                     });
 
@@ -411,7 +422,7 @@ public static class NeutralCards
             },
 
             CardDescription = (User, d) => d.cardDescription = $"Your next attack is empowered by {d.power_u}.",
-            CardEffect = (User, Target, d) => 
+            CardEffect = (User, Target, d) =>
             {
                 var stat = Target.entityStats.DamageOutModifier;
                 var mod = new StatModifier(
@@ -432,10 +443,10 @@ public static class NeutralCards
             cardName = "Growl",
             cardType = CardType.Ability,
             cardClass = CardClass.Neutral,
-            cardIdentities = new() { CardIdentity.None },   
+            cardIdentities = new() { CardIdentity.None },
 
-            cost_u = 50,
-            power_u = 50, 
+            cost_u = 20,
+            power_u = 10,
             duration_u = 2,
             range_u = 4,
             area_u = 4,
@@ -447,18 +458,16 @@ public static class NeutralCards
                 cardTargetingMode = CardTargetingMode.Ring,
             },
 
-            CardDescription = (User, d) => d.cardDescription = $"Demoralize enemies in an area and reduces attack damage by {d.Power}.",
-            CardEffect = (User, Target, d) => 
+            CardDescription = (User, d) => d.cardDescription = $"Demoralize enemies in an area and reduces damage by {d.Power}.",
+            CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageOutModifier;
-                var mod = new StatModifier(
-                    stat: stat,
+                CombatUtility.ApplyStatDebuff(d, Target, new StatModifier(
+                    stat: Target.entityStats.DamageOutModifier,
                     value: d.Power,
                     scaling: ModifierScaling.Flat,
                     duration: d.Duration,
                     name: $"GrowlDecrease{d.Power}"
-                );
-                CombatUtility.ApplyStatDebuff(d, Target, stat, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                ), ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -487,15 +496,16 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = $"Bolster allies damage in range by {d.Power} ).",
             CardEffect = (User, Target, d) =>
             {
-                var stat = Target.entityStats.DamageOutModifier;
-                var mod = new StatModifier(
-                    stat: stat,
-                    value: d.Power,
-                    scaling: ModifierScaling.Flat,
-                    duration: d.Duration,
-                    name: $"HowlIncrease{d.Power}"
-                );
-                CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyStatBuff(d, Target,
+                    new StatModifier
+                    (
+                        stat: Target.entityStats.DamageOutModifier,
+                        value: d.Power,
+                        scaling: ModifierScaling.Flat,
+                        duration: d.Duration,
+                        name: $"HowlIncrease{d.Power}"
+                        ),
+                    ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -565,18 +575,19 @@ public static class NeutralCards
             {
                 var poison = new EntityModifier(
                     modifierName: "Poison",
+                    owner: Target,
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onPoison },
                     duration: d.Duration,
-                    onRef_Trigger: new TriggerRef
+                    onRef_Trigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
-                       },
-                    onRef_Action: (data, target) =>
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target,
+                    },
+                    onRef_Action: (target,cd,value) =>
                     {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
+                        CombatUtility.ApplyDamage(null, target, value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -608,22 +619,22 @@ public static class NeutralCards
             CardDescription = (User, d) => d.cardDescription = $"Apply Burn {d.Damage} for {d.Duration} turns.",
             CardEffect = (User, Target, d) =>
             {
-                string name = $"Burn#{d.cardID}";
+                string name = "Burn";
                 var burn = new EntityModifier(
                     modifierName: name,
+                    owner: Target ,
                     baseValue: d.Damage,
                     toTriggerRefs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
-                    onRef_Trigger: new TriggerRef
+                    onRef_Trigger: new RelevantTriggerCheck
                     {
-                        OnTriggerReference = new() { GameplayRef.onTurnStart, GameplayRef.onModifierApplied },
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
-
+                        OnTriggerReference = new() { GameplayRef.onTurnStart},
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target,
                     },
-                    onRef_Action: (data, target) =>
+                    onRef_Action: (target, cd, value) =>
                     {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
+                        CombatUtility.ApplyDamage(null, target, value);
                     });
 
                 CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);

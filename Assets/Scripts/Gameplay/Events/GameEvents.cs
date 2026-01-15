@@ -12,7 +12,7 @@ public static class GameEvents
     public static event Action OnCombatStart;
     public static event Action OnCombatEnd;
 
-    public static event Action<TriggerRef> OnGameplayReference;
+    public static event Action<ToSendTriggerReference> OnGameplayReference;
 
     public static void TriggerTurnStart() => OnTurnStart?.Invoke();
     public static void TriggerTurnEnd() => OnTurnEnd?.Invoke();
@@ -25,53 +25,94 @@ public static class GameEvents
 
     public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());
 
-    public static void TriggerRefEvent(TriggerRef grs)
+    public static void TriggerRefEvent(ToSendTriggerReference grs)
     {
         TimelineManager.AddToTimeline(grs);
         OnGameplayReference?.Invoke(grs);
     }
-    public static bool CheckIfRelevantTrigger(TriggerRef sendReference, TriggerRef checkReference)
+    public static bool CheckIfRelevantTrigger(ToSendTriggerReference sendReference, RelevantTriggerCheck checkReference)
     {
-        if (sendReference.AffectedEntities != null && checkReference.AffectedEntities != null)
+        // Null checks
+        if (sendReference.OnTriggerReference == null || checkReference.OnTriggerReference == null)
+            return false;
+
+        // Check for overlap in OnTriggerReference
+        if (!sendReference.OnTriggerReference.Intersect(checkReference.OnTriggerReference).Any())
+            return false;
+
+        // Check entity relevance
+        switch (checkReference.CheckType)
         {
-            if (checkReference.AffectedEntities.Any(entity => sendReference.AffectedEntities.Contains(entity)))
-            {
-                if (sendReference.OnTriggerReference == null || sendReference.OnTriggerReference.Count == 0)
-                {
+            case CheckEntityType.User:
+                if (sendReference.UserEntity != checkReference.CheckEntity)
                     return false;
-                }
-                return sendReference.OnTriggerReference.Any(tr => checkReference.OnTriggerReference.Contains(tr));
-            }
+                break;
+
+            case CheckEntityType.Target:
+                if (sendReference.AffectedEntities == null || !sendReference.AffectedEntities.Contains(checkReference.CheckEntity))
+                    return false;
+                break;
+
+            default:
+                return false;
         }
-        return false;
-    }
+
+        // If all checks passed, return true
+        return true;
+    } 
 }
 
-// -------------------- Referenece Struct --------------------
-public struct TriggerRef
-{
-    public List<GameplayRef> OnTriggerReference;
-    public EntityScript UserEntity;
-    public List<EntityScript> AffectedEntities;
-    public CardData CardData;
-    public int Throughput;
-
-    public TriggerRef(
-        List<GameplayRef> references, 
-        EntityScript userEntity,
-        List<EntityScript> affectedEntities,
-        CardData cardData = null,
-        int throughput = 0
-        )
+    // -------------------- Referenece Struct --------------------
+    public struct ToSendTriggerReference
     {
-        OnTriggerReference = references;
-        UserEntity = userEntity;
-        AffectedEntities = affectedEntities;
-        CardData = cardData;
-        Throughput = throughput;
-    }
-}
+        public List<GameplayRef> OnTriggerReference;
+        public EntityScript UserEntity;
+        public List<EntityScript> AffectedEntities;
+        public CardData CardData;
+        public int Throughput;
 
+        public ToSendTriggerReference(
+            List<GameplayRef> references,
+            EntityScript userEntity,
+            List<EntityScript> affectedEntities,
+            CardData cardData = null,
+            int throughput = 0
+            )
+        {
+            OnTriggerReference = references;
+            UserEntity = userEntity;
+            AffectedEntities = affectedEntities;
+            CardData = cardData;
+            Throughput = throughput;
+        }
+    }
+
+    public struct RelevantTriggerCheck
+    {
+        public List<GameplayRef> OnTriggerReference;
+        public CheckEntityType CheckType;
+        public EntityScript CheckEntity;
+        public CardData CardData;
+
+        public RelevantTriggerCheck(
+            List<GameplayRef> references,
+            CheckEntityType checkType,
+            EntityScript checkEntity,
+            CardData cardData = null
+            )
+        {
+            OnTriggerReference = references;
+            CheckType = checkType;
+            CheckEntity = checkEntity;
+            CardData = cardData;
+        }
+    }
+
+    public enum CheckEntityType
+    {
+        User,
+        Target
+    }
 // -------------------- Gameplay References Enum --------------------
 public enum GameplayRef
 {
@@ -120,13 +161,14 @@ public enum GameplayRef
     onHealRecieved,
     onBuffRecieved,
     onDebuffRecieved,
-    
+
     //Game Flow
     onTurnStart,
     onTurnEnd,
     onRoundStart,
     onRoundEnd,
     onCardPlayed,
+    onCardEffectEnd,
     onCardDrawn,
     onCardDiscarded,
     onStatChanged,
@@ -184,4 +226,5 @@ public enum GameplayRef
     Barbarian,
     Alchemist,
     Monster,
+
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
@@ -56,30 +58,62 @@ public class EntityStats
     {
         Owner = entityScript;
 
-        Strength.AddModifier(new StatModifier(stat: Strength, value: 10, ModifierScaling.Flat, name: "BaseValue"));
-        Dexterity.AddModifier(new StatModifier(stat: Dexterity, value: 10, ModifierScaling.Flat, name: "BaseValue"));
-        Wisdom.AddModifier(new StatModifier(stat: Wisdom, value: 10, ModifierScaling.Flat, name: "BaseValue"));
-        Foresight.AddModifier(new StatModifier(stat: Foresight, value: 10, ModifierScaling.Flat, name: "BaseValue"));
-        Endurance.AddModifier(new StatModifier(stat: Endurance, value: 10, ModifierScaling.Flat, name: "BaseValue"));
-        Tenacity.AddModifier(new StatModifier(stat: Tenacity, value: 10, ModifierScaling.Flat, name: "BaseValue"));
+        // Base attribute values
+        Strength.AddModifier(new StatModifier("BaseValue",  Strength, value: 10, ModifierScaling.Flat));
+        Dexterity.AddModifier(new StatModifier("BaseValue", Dexterity, value: 10, ModifierScaling.Flat));
+        Wisdom.AddModifier(new StatModifier("BaseValue", Wisdom, value: 10, ModifierScaling.Flat));
+        Foresight.AddModifier(new StatModifier("BaseValue", Foresight, value: 10, ModifierScaling.Flat));
+        Endurance.AddModifier(new StatModifier("BaseValue", Endurance, value: 10, ModifierScaling.Flat));
+        Tenacity.AddModifier(new StatModifier("BaseValue", Tenacity, value: 10, ModifierScaling.Flat));
 
-        MaxHealth.AddModifier(new StatModifier(stat: MaxHealth, value: () => Tenacity.Value() * 50, ModifierScaling.Flat, name: "BaseValue"));
-        MaxStamina.AddModifier(new StatModifier(stat: MaxStamina, value: () => Endurance.Value() * 5, ModifierScaling.Flat, name: "BaseValue"));
+        MaxHealth.AddModifier(new StatModifier("BaseValue", MaxHealth, value: () => Tenacity.Value() * 50, ModifierScaling.Flat));
+        MaxStamina.AddModifier(new StatModifier("BaseValue", MaxStamina, value: () => Endurance.Value() * 5, ModifierScaling.Flat));
 
         CurrentHealth = MaxHealth.Value();
         CurrentStamina = MaxStamina.Value();
+
+        // Subscribe to turn start event
         GameEvents.OnGameplayReference += OnTurnStart;
+
+        // Initial tick to set all stats correctly
+        TickAllStats();
     }
-    private void OnTurnStart(TriggerRef reference)
+    private void OnTurnStart(ToSendTriggerReference reference)
     {
-        if (GameEvents.CheckIfRelevantTrigger(reference, new TriggerRef(new() { GameplayRef.onTurnStart }, Owner, new() { Owner })))
+        if (GameEvents.CheckIfRelevantTrigger(reference, new RelevantTriggerCheck(new() { GameplayRef.onTurnStart }, CheckEntityType.User, Owner)))
         {
             CurrentStamina = MaxStamina.Value();
+
+            TickAllStats();
         }
 
         if (IsStunned)
         {
             GameEvents.TriggerTurnEnd();
+        }
+    }
+    public void TickAllStats()
+    {
+        var statFields = typeof(EntityStats).GetFields()
+                            .Where(f => f.FieldType == typeof(Stat));
+
+        foreach (var field in statFields)
+        {
+            var stat = (Stat)field.GetValue(this);
+            stat.owner = Owner;
+            stat?.Tick();
+        }
+    }
+
+    internal void UpdateStats()
+    {
+        var statFields = typeof(EntityStats).GetFields()
+                                   .Where(f => f.FieldType == typeof(Stat));
+
+        foreach (var field in statFields)
+        {
+            var stat = (Stat)field.GetValue(this);
+            stat?.UpdateStat();
         }
     }
 }

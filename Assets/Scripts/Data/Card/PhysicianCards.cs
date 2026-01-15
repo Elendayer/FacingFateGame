@@ -55,18 +55,19 @@ public static class PhysicianCards
                 // Heal-over-time as positive “on turn start” tick
                 var regen = new EntityModifier(
                     modifierName: "Regeneration",
+                    owner: Target,
                     baseValue: d.Healing,
                     toTriggerRefs: new() { GameplayRef.onHealRecieved },
                     duration: d.Duration,
-                    onRef_Trigger: new TriggerRef
+                    onRef_Trigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target,
                     },
-                    onRef_Action: (data, target) =>
+                    onRef_Action: (target, cd, value) =>
                     {
-                        CombatUtility.ApplyHealing(data.TriggerReference.CardData, target, data.Value);
+                        CombatUtility.ApplyHealing(cd, target, value);
                     }
                 );
 
@@ -868,29 +869,29 @@ public static class PhysicianCards
                 CombatUtility.SpawnGroundEffect(d, TargetTile, new GroundEffect_Enter_EntityData
                 (
                     cardData: d,
-                    triggerRef: new TriggerRef
+                    relevantTrigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new(),
-                        UserEntity = User
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = User,
                     },
                     duration: d.Duration,
                     removeOnExit: false,
                     removeOnEnd: false,
                     modifier: new EntityModifier(
                         modifierName: "Poison",
+                        owner: null,
                         baseValue: d.Damage,
                         toTriggerRefs: new() { GameplayRef.onPoison },
                         duration: d.Duration,
-                        onRef_Trigger: new TriggerRef
+                        onRef_Trigger: new RelevantTriggerCheck
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            AffectedEntities = new(),
-                            UserEntity = User
+                            CheckType = CheckEntityType.Target,
                         },
-                        onRef_Action: (data, target) =>
+                        onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, data.Value);
+                            CombatUtility.ApplyDamage(null, target, value);
                         }),
                     onEnter: (modifier, target) =>
                     {

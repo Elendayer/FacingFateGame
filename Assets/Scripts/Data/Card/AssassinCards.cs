@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 using facingfate;
+using UnityEditor.Rendering;
 
 public static class AssassinCards
 {
@@ -140,18 +141,19 @@ public static class AssassinCards
                 {
                     return new EntityModifier(
                         modifierName: statName,
+                        owner: Target,
                         baseValue: tick,
                         toTriggerRefs: new() { tickRef },
                         duration: dur,
-                        onRef_Trigger: new TriggerRef
+                        onRef_Trigger: new RelevantTriggerCheck
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            AffectedEntities = new() { Target },
-                            UserEntity = User
+                            CheckType = CheckEntityType.Target,
+                            CheckEntity = User,
                         },
-                    onRef_Action: (data, target) =>
+                    onRef_Action: (target, cd, value) =>
                     {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
+                        CombatUtility.ApplyDamage(null, target, value);
                     });
                 }
 
@@ -375,23 +377,7 @@ public static class AssassinCards
                 // Direktschaden
                 CombatUtility.ApplyDamage(d, Target);
 
-                // Bleed-DoT
-                var bleed = new EntityModifier(
-                    modifierName: "Bleed",
-                    baseValue: d.Damage, // oder etwas kleiner als d.Damage, falls gewünscht
-                    toTriggerRefs: new() { GameplayRef.onBleed },
-                    duration: d.Duration,
-                    onRef_Trigger: new TriggerRef
-                    {
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
-                    },
-                    onRef_Action: (data,target) =>
-                    {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
-                    });
-
-                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -427,19 +413,19 @@ public static class AssassinCards
                 // Stun-Modifier (Ein-Zug)
                 var stun = new EntityModifier(
                     modifierName: "Stun",
+                    owner: Target,
                     baseValue: 1,
                     toTriggerRefs: new() { GameplayRef.onStunned },
                     duration: Mathf.Max(1, d.Duration),
-                    onRef_Trigger: new TriggerRef
+                    onRef_Trigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
+                        CheckType = CheckEntityType.Target,
+                        CheckEntity = User,
                     },
-                    onRef_Action: (data, target) =>
+                    onRef_Action: (target, cd, value) =>
                     {
-                        // Melde „Stun aktiv“ – Turn/AI sollten bei vorhandenem Stun-Modifier Aktionen überspringen (TODO in Turn/AI)
-                        GameEvents.TriggerRefEvent(new TriggerRef
+                        GameEvents.TriggerRefEvent(new ToSendTriggerReference
                         {
                             OnTriggerReference = new() { GameplayRef.onStunned },
                             AffectedEntities = new() { Target },
@@ -484,11 +470,13 @@ public static class AssassinCards
                 CombatUtility.SpawnGroundEffect(d, Target, new GroundEffect_Ref_Effect
                     (
                     cardData: d,
-                    triggerRef: new TriggerRef
+
+
+                    relevantTrigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { },
-                        UserEntity = User
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = User,
                     },
                     duration: d.Duration,
                     onRef: (target) => { CombatUtility.ApplyDamage(null, target, d.Damage); AssetManager.Instance.CreateFX("BloodEffect", Target);
@@ -540,9 +528,9 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison },
 
             cost_u = 0,
-            power_u = 3,     // <- Anzahl Angriffe (charges)
-            damage_u = 2,    
-            duration_u = 3,  
+            charges_u = 3,
+            damage_u = 2,
+            duration_u = 3,
 
             targetingData = new()
             {
@@ -553,8 +541,7 @@ public static class AssassinCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription =
-                    $"Next {d.Power} attacks apply Burn (DoT {d.Damage} for {d.Duration} turns).";
+                d.cardDescription = $"Next {d.Power} attacks apply Burn (DoT {d.Damage} for {d.Duration} turns).";
             },
 
             CardEffect = (User, Target, d) =>
@@ -573,9 +560,9 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.Poison },
 
             cost_u = 0,
-            power_u = 3,     
-            damage_u = 2,    
-            duration_u = 3,  
+            power_u = 3,
+            damage_u = 2,
+            duration_u = 3,
 
             targetingData = new()
             {
@@ -586,8 +573,7 @@ public static class AssassinCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription =
-                    $"Next {d.Power} attacks apply Poison (DoT {d.Damage} for {d.Duration} turns).";
+                d.cardDescription = "Next {d.Power} attacks apply Poison (DoT {d.Damage} for {d.Duration} turns).";
             },
 
             CardEffect = (User, Target, d) =>
@@ -606,8 +592,8 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 0,
-            duration_u = 1, 
-            power_u = 2,    
+            duration_u = 1,
+            power_u = 2,
 
             targetingData = new()
             {
@@ -666,7 +652,7 @@ public static class AssassinCards
             cardName = "Eye of the Nighthawk",
             cardType = CardType.Ability,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.None },
+            cardIdentities = new() { CardIdentity.Shadow },
 
             cost_u = 0,
 
@@ -677,11 +663,29 @@ public static class AssassinCards
                 cardTargetingMode = CardTargetingMode.Single,
             },
 
-            CardDescription = (User, data) => data.cardDescription = "Increase damage/crit (TODO).",
-            CardEffect = (User, Target, data) => { /* TODO buff */ }
+            CardDescription = (User, data) => data.cardDescription = "Your next damage dealt is doubled",
+            CardEffect = (User, Target, data) =>
+            {
+                CombatUtility.ApplyStatBuff(data, Target, new StatModifier
+                    (
+                        name: "CritOnNextTechnique",
+                        stat: Target.entityStats.DamageOutModifier,
+                        value: 200,
+                        scaling: ModifierScaling.Multiplier,
+                        to_TriggerRefs: new() { },
+                        charges: 1,
+                        condition: (target, data) => data.cardType == CardType.Technique,
+                        on_RefTrigger: new RelevantTriggerCheck
+                        {
+                            OnTriggerReference = new() { GameplayRef.Technique },
+                            CheckType = CheckEntityType.User,
+                            CheckEntity = User,
+                        }
+                        ), ModifierMergeStrategy.Override);
+            }
         });
-
     }
+
 
     private static void RegisterSpells()
     {

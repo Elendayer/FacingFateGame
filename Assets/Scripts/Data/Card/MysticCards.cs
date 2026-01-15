@@ -440,13 +440,19 @@ public static class MysticCards
             {
                 var ignite = new EntityModifier(
                     modifierName: "Burn",
+                    owner: Target,
                     baseValue: d.Power,
                     toTriggerRefs: new() { GameplayRef.onBurn },
                     duration: d.Duration,
-                    onRef_Trigger: new TriggerRef { OnTriggerReference = new() { GameplayRef.onTurnStart }, AffectedEntities = { Target }},
-                    onRef_Action: (data, target) =>
+                    onRef_Trigger: new RelevantTriggerCheck 
                     {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
+                        OnTriggerReference = new() { GameplayRef.onTurnStart }, 
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target
+                    },
+                    onRef_Action: (target, cd, value) =>
+                    {
+                        CombatUtility.ApplyDamage(null, target, value);
                     });
                 CombatUtility.ApplyEntityModifier(d, Target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
