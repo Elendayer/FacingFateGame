@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static TimelineManager;
 using Utility;
 
 public class NonPlayerScript : EntityScript
@@ -17,30 +18,43 @@ public class NonPlayerScript : EntityScript
     public override void StartUp()
     {
         base.StartUp();
-        NpcData npcData = NpcDatabase.GetNpcById(NpcID, this);
-        // Load NPC data and initialize AI
+
+        // Load NPC data
+        npcData = NpcDatabase.GetNpcById(NpcID, this);
+
+        // Initialize AI
         npcAIController = new NpcAIController(this, npcData);
 
+        // Set entity name
         name = $"{entityAffiliation}_{npcData.name}";
 
-        // Load Cards from NpcData
+        // Build deck from NPC data
         deckCardIDs = npcData.cardIds;
         DeckManager.Instance.BuildDeckFromIDs(this);
 
         Debug.Log($"[NonPlayerScript] Setup complete for {name}");
     }
 
+    /// <summary>
+    /// Starts the NPC's turn by building a plan and executing all actions via the global queue.
+    /// </summary>
     public void TakeTurn()
     {
         plan.Clear();
-        Debug.Log($" ---------{name}'s Turn ----------------------------------------------------------------------------------------------");
+
+        Debug.Log($"--------- {name}'s Turn ---------");
 
         plan = npcAIController.BuildTurnPlan();
 
         Debug.Log($"[NonPlayerScript] {name} has planned {plan.Count} actions for this turn.");
+
+        // Start executing the plan
         StartCoroutine(ExecutePlan(plan));
     }
 
+    /// <summary>
+    /// Executes a list of planned actions sequentially via the global action queue.
+    /// </summary>
     private IEnumerator ExecutePlan(List<PlannedAction> plan)
     {
         foreach (PlannedAction action in plan)
@@ -48,111 +62,51 @@ public class NonPlayerScript : EntityScript
             switch (action.Type)
             {
                 case PlannedAction.ActionType.Move:
-                    yield return ExecuteMove(action);
+                    EnqueueMoveAction(action);
                     break;
 
                 case PlannedAction.ActionType.PlayCard:
-                    yield return ExecuteCard(action);
+                    EnqueueCardAction(action);
                     break;
             }
+
+            // Optional buffer between actions
             yield return new WaitForSeconds(0.25f);
         }
+
+        // Small delay after all actions
         yield return new WaitForSeconds(0.5f);
 
+        // Notify end of turn
         EventManager.Instance.Endturn();
     }
 
-    private IEnumerator ExecuteMove(PlannedAction action)
+    /// <summary>
+    /// Enqueues a movement action through the ActionQueueUtility.
+    /// </summary>
+    private void EnqueueMoveAction(PlannedAction action)
     {
-        float start = Time.time;
-
-        GameEvents.TriggerRefEvent(new ToSendTriggerReference
-        {
-            OnTriggerReference = new() { GameplayRef.onMove },
-            UserEntity = this,
-            AffectedEntities = new() { this }
-        });
-
         var entityOnMap = GetComponent<EntityOnMap>();
         bool moveComplete = false;
 
-        StartCoroutine(MoveToViaPathWithCallback(entityOnMap, action.PathData, () => moveComplete = true));
-
-        while (!moveComplete)
-            yield return null;
-
-        float end = Time.time;
-        Debug.Log($"Move completed in {end - start:0.000} seconds");
+        // Enqueue movement with callback
+        ActionQueueUtility.EnqueueMovement(entityOnMap, action.PathData, () => moveComplete = true);
     }
 
-    private IEnumerator ExecuteCard(PlannedAction action)
+    /// <summary>
+    /// Enqueues a card action through the ActionQueueUtility.
+    /// </summary>
+    private void EnqueueCardAction(PlannedAction action)
     {
-        Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on {string.Join(", ", action.TargetingModeData.targetedEntities.Select(t => t.name))}");
+        Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on " + $"{string.Join(", ", action.TargetingModeData.targetedEntities.Select(t => t.name))}");
 
-        bool cardComplete = false;
+        // Enqueue card effects (handles repeats internally)
+        ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData);
 
-        StartCoroutine(PlayCardWithCallback(action, () => cardComplete = true));
-
-        while (!cardComplete)
-            yield return null;
-    }
-
-    private IEnumerator MoveToViaPathWithCallback(EntityOnMap entityOnMap, PathData pathData, System.Action onComplete)
-    {
-        // Wait for FollowPath to finish
-        yield return entityOnMap.StartMove(pathData);
-
-        // Now safe to fire callback
-        onComplete?.Invoke();
-    }
-
-    private IEnumerator PlayCardWithCallback(PlannedAction action, System.Action onComplete)
-    {
-        CardData cardData = action.Card.cardData;
-        TargetingModeData targetingData = action.TargetingModeData;
-        float repeatDelay = 0.25f; // delay between repeats
-        int repeats = Mathf.Max(cardData.repeats_u, 1);
-
-        if (cardData.Repeats > 1)
+        // After all repeats resolve, discard the card
+        ActionQueueUtility.EnqueueAction(() =>
         {
-            // Enqueue each repeat as a single action
-            for (int i = 0; i < repeats; i++)
-            {
-                int iteration = i; // capture loop variable
-
-                ActionQueue.Enqueue(() =>
-                {
-                    // Entity effects
-                    foreach (EntityScript target in targetingData.targetedEntities)
-                        cardData.CardEffect?.Invoke(this, target, cardData);
-
-                    // Ground effects
-                    foreach (Vector3Int tile in targetingData.targetedTiles)
-                        cardData.CardEffectGround?.Invoke(this, tile, cardData);
-
-                }, repeatDelay * i); // accumulate delay between repeats
-            }
-        }
-        else
-        {
-            // Single execution without repeats
-            ActionQueue.Enqueue(() =>
-            {
-                // Entity effects
-                foreach (EntityScript target in targetingData.targetedEntities)
-                    cardData.CardEffect?.Invoke(this, target, cardData);
-                // Ground effects
-                foreach (Vector3Int tile in targetingData.targetedTiles)
-                    cardData.CardEffectGround?.Invoke(this, tile, cardData);
-            });
-        }
-        // Wait until the entire queue is empty for this card
-        yield return new WaitUntil(() => ActionQueue.IsEmpty);
-
-        // Discard card after all repeats
-        HandManager.Instance.DiscardCard(action.Card.gameObject);
-
-        // Notify completion
-        onComplete?.Invoke();
+            HandManager.Instance.DiscardCard(action.Card.gameObject);
+        });
     }
 }

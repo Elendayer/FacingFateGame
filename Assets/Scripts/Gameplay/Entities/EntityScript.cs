@@ -24,10 +24,7 @@ public class EntityScript : MonoBehaviour
 
     public virtual void StartUp()
     {
-        if (ActionQueue == null)
-        {
-            ActionQueue = gameObject.GetComponent<ActionQueue>() ?? gameObject.AddComponent<ActionQueue>();
-        }
+
 
         EntityVisual = GetComponentInChildren<EntityVisualScript>();
         entityOnMap = GetComponentInChildren<EntityOnMap>();
@@ -90,9 +87,6 @@ public class EntityScript : MonoBehaviour
     [SerializeField]
     private readonly List<IEntityModifier> entityModifiers = new();
     public List<string> modifierNames;
-
-    [Header("Action Queue")]
-    public ActionQueue ActionQueue;
 
     public void AddModifier(IEntityModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
     {

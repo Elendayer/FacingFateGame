@@ -13,7 +13,6 @@ public class ActionQueue : MonoBehaviour
     {
         public Action Action;
         public float Delay;
-        public string Name;
 
         public QueuedAction(Action action, float delay = 0f)
         {
@@ -57,7 +56,6 @@ public class ActionQueue : MonoBehaviour
         {
             var item = queue.Dequeue();
 
-            Debug.Log($"Activating in Queue {item.Name}");
             // Execute the action
             item.Action?.Invoke();
 

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using TMPro;
 using UnityEngine;
 using Utility;
-using static UnityEngine.UIElements.UxmlAttributeDescription;
+using static TimelineManager;
 
 
 [System.Serializable]
@@ -160,69 +158,10 @@ public class CardData
     }
     public void ActivateCardEffect(TargetingModeData targetingModeData, GameObject cardObj)
     {
-        // Ensure your entity or manager has a reference to the action queue
-        ActionQueue actionQueue = Owner.ActionQueue; // Assuming each entity has an ActionQueue
+        CardData cardData = cardObj.GetComponent<CardScript>().cardData;
 
-        // Pre-combat trigger runs first
-        actionQueue.Enqueue(() => CombatUtility.HandlePreCombatTrigger(targetingModeData.targetedEntities, this));
-
-
-        if (repeats_u > 1)
-        {
-            float repeatDelay = 0.25f; // delay between repeats
-
-            for (int i = 0; i < Repeats; i++)
-            {
-                int iteration = i; // capture loop variable
-
-                // Enqueue a single action for this repeat
-                actionQueue.Enqueue(() =>
-                {
-                    // Card effects on entities
-                    foreach (EntityScript target in targetingModeData.targetedEntities)
-                    {
-                        CardEffect?.Invoke(Owner, target, this);
-                    }
-
-                    // Card effects on ground/tiles
-                    foreach (Vector3Int tile in targetingModeData.targetedTiles)
-                    {
-                        CardEffectGround?.Invoke(Owner, tile, this);
-                    }
-                }, iteration * repeatDelay); // delay only between repeats
-            }
-        }
-        else
-        {
-            // Single execution without repeats
-            actionQueue.Enqueue(() =>
-            {
-                // Card effects on entities
-                foreach (EntityScript target in targetingModeData.targetedEntities)
-                {
-                    CardEffect?.Invoke(Owner, target, this);
-                }
-                // Card effects on ground/tiles
-                foreach (Vector3Int tile in targetingModeData.targetedTiles)
-                {
-                    CardEffectGround?.Invoke(Owner, tile, this);
-                }
-            });
-        }
-
-        // Discard the card after all effects
-        actionQueue.Enqueue(() => HandManager.Instance.DiscardCard(cardObj));
-
-        // Update Entities after each effect resolution
-        actionQueue.Enqueue(() =>
-        {
-            cardObj.GetComponent<CardScript>().cardData.Owner.entityStats.UpdateStats();
-
-            foreach (EntityScript e in targetingModeData.targetedEntities)
-            {
-                e.entityStats.UpdateStats();
-            }
-        });
+        // Enqueue the card execution in the action queue
+        ActionQueueUtility.EnqueueCardExecution(cardData.Owner, cardData, targetingModeData, cardObj);
     }
 }
 public class CardAiBias

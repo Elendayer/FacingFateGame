@@ -9,7 +9,7 @@ public class TimelineManager : MonoBehaviour
 
     public static Dictionary<string,List<ToSendTriggerReference>> Timeline = new();
 
-
+    public static ActionQueue GlobalActionQueue;
 
     private void Awake()
     {
@@ -17,6 +17,12 @@ public class TimelineManager : MonoBehaviour
         {
             Destroy(gameObject);
             return;
+        }
+
+        // Ensure ActionQueue component exists
+        if (GlobalActionQueue == null)
+        {
+            GlobalActionQueue = gameObject.GetComponent<ActionQueue>() ?? gameObject.AddComponent<ActionQueue>();
         }
 
         DontDestroyOnLoad(gameObject);

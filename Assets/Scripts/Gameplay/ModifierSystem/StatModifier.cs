@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static TimelineManager;
 
 public interface IStatModifier
 {
@@ -81,7 +82,7 @@ public class StatModifier : IStatModifier
 
         if (IsExpired)
         {
-            Stat.owner.ActionQueue.Enqueue(() =>
+            GlobalActionQueue.Enqueue(() =>
             {
                 OnRemove();
             });
@@ -91,7 +92,7 @@ public class StatModifier : IStatModifier
     {
         if (IsSpend)
         {
-            Stat.owner.ActionQueue.Enqueue(() =>
+            GlobalActionQueue.Enqueue(() =>
             {
                 OnRemove();
             });
