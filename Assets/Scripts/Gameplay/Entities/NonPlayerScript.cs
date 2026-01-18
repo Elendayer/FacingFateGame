@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static TimelineManager;
 using Utility;
+using static TimelineManager;
 
 public class NonPlayerScript : EntityScript
 {
@@ -35,6 +35,28 @@ public class NonPlayerScript : EntityScript
         Debug.Log($"[NonPlayerScript] Setup complete for {name}");
     }
 
+    public override void StartTurn()
+    {
+        base.StartTurn();
+
+        if (entityStats.IsStunned)
+        {
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                Debug.Log($"[NonPlayerScript] {name} has completed all planned actions for this turn.");
+                EventManager.Instance.Endturn();
+            });
+            
+            entityStats.IsStunned = false;
+
+            return;
+        }
+        else
+        {
+            TakeTurn();
+        }
+    }
+
     /// <summary>
     /// Starts the NPC's turn by building a plan and executing all actions via the global queue.
     /// </summary>
@@ -42,20 +64,30 @@ public class NonPlayerScript : EntityScript
     {
         plan.Clear();
 
-        Debug.Log($"--------- {name}'s Turn ---------");
+        ActionQueueUtility.EnqueueAction(() =>
+        {
+            // Step 1: Build the plan
+            plan = npcAIController.BuildTurnPlan();
+        });
 
-        plan = npcAIController.BuildTurnPlan();
+        ActionQueueUtility.EnqueueAction(() =>
+        {
+            // Step 2: Execute the plan (enqueue actions)
+            ExecutePlan(plan);
 
-        Debug.Log($"[NonPlayerScript] {name} has planned {plan.Count} actions for this turn.");
-
-        // Start executing the plan
-        StartCoroutine(ExecutePlan(plan));
+            // Step 3: Enqueue Endturn AFTER the plan actions
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                EventManager.Instance.Endturn();
+            }, 1f);
+        });
     }
+
 
     /// <summary>
     /// Executes a list of planned actions sequentially via the global action queue.
     /// </summary>
-    private IEnumerator ExecutePlan(List<PlannedAction> plan)
+    private void ExecutePlan(List<PlannedAction> plan)
     {
         foreach (PlannedAction action in plan)
         {
@@ -69,16 +101,7 @@ public class NonPlayerScript : EntityScript
                     EnqueueCardAction(action);
                     break;
             }
-
-            // Optional buffer between actions
-            yield return new WaitForSeconds(0.25f);
         }
-
-        // Small delay after all actions
-        yield return new WaitForSeconds(0.5f);
-
-        // Notify end of turn
-        EventManager.Instance.Endturn();
     }
 
     /// <summary>
@@ -90,7 +113,7 @@ public class NonPlayerScript : EntityScript
         bool moveComplete = false;
 
         // Enqueue movement with callback
-        ActionQueueUtility.EnqueueMovement(entityOnMap, action.PathData, () => moveComplete = true);
+        ActionQueueUtility.EnqueueMovement(entityOnMap, action.PathData);
     }
 
     /// <summary>
@@ -98,8 +121,6 @@ public class NonPlayerScript : EntityScript
     /// </summary>
     private void EnqueueCardAction(PlannedAction action)
     {
-        Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on " + $"{string.Join(", ", action.TargetingModeData.targetedEntities.Select(t => t.name))}");
-
         // Enqueue card effects (handles repeats internally)
         ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData);
 

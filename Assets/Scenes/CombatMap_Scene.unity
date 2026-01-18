@@ -8707,15 +8707,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[3]'
-      value: 110110
+      value: 120205
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[4]'
-      value: 120206
+      value: 120203
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[5]'
-      value: 120206
+      value: 120204
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[6]'

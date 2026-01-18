@@ -208,6 +208,16 @@ public class EntityScript : MonoBehaviour
         modifierNames.Clear();
         modifierNames.AddRange(entityModifiers.Select(c => c.ModifierName));
     }
+
+    public virtual void StartTurn()
+    {
+        entityStats.CurrentStamina = entityStats.MaxStamina.Value();
+
+        ActionQueueUtility.EnqueueAction(() =>
+        {
+            entityStats.TickAllStats();
+        });
+    }
 }
 
 public enum EntityAttributeEnum 

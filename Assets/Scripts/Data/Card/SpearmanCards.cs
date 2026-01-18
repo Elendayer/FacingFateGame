@@ -138,7 +138,6 @@ public static class SpearmanCards
 
             cost_u = 10,
             damage_u = 4,
-            duration_u = 3,
 
             range_u = 4,
             maxtarget_u = 3,
@@ -162,7 +161,7 @@ public static class SpearmanCards
 
             CardEffect = (User, Target, d) =>
             {
-                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", d, ThroughputSource.Damage, User),ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, d, ThroughputSource.Damage, User),ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -602,27 +601,7 @@ public static class SpearmanCards
                     ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 // Apply Taunt
-                CombatUtility.ApplyEntityModifier(d, Target,
-                    new EntityModifier(
-                    modifierName: "Taunted",
-                    owner: Target,
-                    toTriggerRefs: new() { GameplayRef.onTaunted },
-                            duration: d.Duration,
-                            onRemove_Trigger: new RelevantTriggerCheck
-                            {
-                                OnTriggerReference = new() { },
-                                CheckType = CheckEntityType.User,
-                                CheckEntity = Target,
-                            },
-                            onApply_Action: (target,cd,value) =>
-                            {
-                                target.entityStats.tauntTarget = User;
-                            },
-                            onRemove_Action: (target, cd, value) =>
-                            {
-                                target.entityStats.tauntTarget = null;
-                            }),
-                 ModifierMergeStrategy.Override);
+                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Taunted", CloneMode.Defaults, d, ThroughputSource.Power, User), ModifierMergeStrategy.Override);
             }
         });
 

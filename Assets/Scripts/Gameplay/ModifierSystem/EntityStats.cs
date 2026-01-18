@@ -72,25 +72,11 @@ public class EntityStats
         CurrentHealth = MaxHealth.Value();
         CurrentStamina = MaxStamina.Value();
 
-        // Subscribe to turn start event
-        GameEvents.OnGameplayReference += OnTurnStart;
-
         // Initial tick to set all stats correctly
-        TickAllStats();
-    }
-    private void OnTurnStart(ToSendTriggerReference reference)
-    {
-        if (GameEvents.CheckIfRelevantTrigger(reference, new RelevantTriggerCheck(new() { GameplayRef.onTurnStart }, CheckEntityType.User, Owner)))
+        ActionQueueUtility.EnqueueAction(() =>
         {
-            CurrentStamina = MaxStamina.Value();
-
             TickAllStats();
-        }
-
-        if (IsStunned)
-        {
-            GameEvents.TriggerTurnEnd();
-        }
+        });
     }
     public void TickAllStats()
     {

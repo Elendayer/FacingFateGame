@@ -125,30 +125,39 @@ namespace Utility
 
         public static void ApplyStatDebuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            List<GameplayRef> refs = new();
-            refs.Add(GameplayRef.onDebuffRecieved);
+            List<GameplayRef> refs = new() { GameplayRef.onDebuffRecieved };
 
             mod.Stat.AddModifier(mod, mergeStrategy);
 
             Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);        }
 
-        public static void ApplyEntityModifier(CardData cardData, EntityScript target, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyEntityModifier(CardData cardData, EntityScript EffectOwner, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            List<GameplayRef> refs = new();
-            refs.Add(GameplayRef.onModifierApplied);
+            List<GameplayRef> refs = new() { GameplayRef.onModifierApplied };
 
-            if (target == null || mod == null) return;
+            if (EffectOwner == null || mod == null) return;
 
             if ( mod.Owner == null)
             {
-                mod.Owner = target;
+                mod.Owner = EffectOwner;
             }
-            target.AddModifier(mod, mergeStrategy);
-            target.GetComponent<StatusDebugView>()?.Track(mod);
 
-            Debug.Log($"Applied Modifier {mod.ModifierName} to {target.name}");
-            HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);
+            if (mod.OnRef_Trigger.CheckEntity == null)
+            {
+                mod.OnRef_Trigger = new RelevantTriggerCheck()
+                {
+                    OnTriggerReference = mod.OnRef_Trigger.OnTriggerReference,
+                    CheckType = mod.OnRef_Trigger.CheckType,
+                    CheckEntity = EffectOwner,
+                    CardData = cardData
+                };
+            }
+
+            EffectOwner.AddModifier(mod, mergeStrategy);
+
+            Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
+            HandlePostCombatTrigger(refs, cardData.Owner, EffectOwner, cardData);
         }
 
         public static void SpawnEntity(CardData cardData, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation)
@@ -195,7 +204,7 @@ namespace Utility
         }
         public static void HandlePostCombatTrigger(List<GameplayRef> gameplayRefs, EntityScript user, EntityScript target, CardData cardData = null, int throughput = 0)
         {
-            List<GameplayRef> refs = new() { GameplayRef.onCardEffectEnd};
+            List<GameplayRef> refs = new() {};
             refs.AddRange(gameplayRefs);
 
             if (cardData != null)

@@ -59,38 +59,45 @@ public class EntityOnMap : MonoBehaviour
         SetOccupied(currentCell, true);
     }
 
-    public Coroutine StartMove(PathData pathData)
+    public IEnumerator StartMoveRoutine(PathData pathData)
     {
-        return StartCoroutine(FollowPath(pathData, defaultMovementSpeed));
+        if (moveRoutine != null)
+        {
+            StopCoroutine(moveRoutine);
+            moveRoutine = null;
+        }
+
+        moveRoutine = StartCoroutine(FollowPath(pathData, defaultMovementSpeed));
+        yield return moveRoutine;
     }
 
-    private IEnumerator FollowPath(PathData pathData, float speed = 3f)
+    private IEnumerator FollowPath(PathData pathData, float speed)
     {
-        SetOccupied(currentCell,false);
+        SetOccupied(currentCell, false);
 
         foreach (var cell in pathData.Path)
         {
             Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(cell);
 
-            // Smooth movement toward target cell
-            while (Vector3.Distance(transform.position, targetPos) > 0.05f)
+            while ((transform.position - targetPos).sqrMagnitude > 0.0025f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(
+                    transform.position,
+                    targetPos,
+                    speed * Time.deltaTime
+                );
                 yield return null;
             }
 
-            // Snap exactly to cell center
             transform.position = targetPos;
-
-            // Update logical cell
             currentCell = cell;
         }
 
         moveRoutine = null;
         SetOccupied(currentCell, true);
-
         TilemapUtilityScript.ResetMaphightlight(pathData.Path);
     }
+
 
     public void SetOccupied(Vector3Int pos, bool b)
     {

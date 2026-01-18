@@ -29,11 +29,8 @@ public class TimelineManager : MonoBehaviour
         Instance = this;
     }
 
-    public void StartUp()
-    {
 
-    }
-
+    #region Timeline
     public static void AddToTimeline(ToSendTriggerReference triggerRef)
     {
         if(triggerRef.OnTriggerReference == null) return;
@@ -47,6 +44,7 @@ public class TimelineManager : MonoBehaviour
             Timeline.Last().Value.Add(triggerRef);
         }
     }
+
     public static List<ToSendTriggerReference> GetDataFromTimeline(
         EntityScript entity,
         TimelineFilter filter,
@@ -78,11 +76,18 @@ public class TimelineManager : MonoBehaviour
 
             bool matches = filter switch
             {
-                TimelineFilter.User => isUser ? tr.UserEntity == entity : tr.AffectedEntities.Contains(entity),
-                TimelineFilter.CardData => tr.CardData == filterValue as CardData,
-                TimelineFilter.CardIdentity => tr.CardData.cardIdentities.Contains((CardIdentity)filterValue),
-                TimelineFilter.CardClass => tr.CardData.cardClass == (CardClass)filterValue,
-                TimelineFilter.CardType => tr.CardData.cardType == (CardType)filterValue,
+                TimelineFilter.User => isUser
+                    ? tr.UserEntity == entity
+                    : tr.AffectedEntities != null && tr.AffectedEntities.Contains(entity),
+
+                TimelineFilter.CardData => tr.CardData != null && tr.CardData == filterValue as CardData,
+
+                TimelineFilter.CardIdentity => tr.CardData != null && tr.CardData.cardIdentities != null && tr.CardData.cardIdentities.Contains((CardIdentity)filterValue),
+
+                TimelineFilter.CardClass => tr.CardData != null && tr.CardData.cardClass == (CardClass)filterValue,
+
+                TimelineFilter.CardType => tr.CardData != null && tr.CardData.cardType == (CardType)filterValue,
+
                 _ => false
             };
 
@@ -100,4 +105,5 @@ public class TimelineManager : MonoBehaviour
         CardType,
         CardData
     }
+    #endregion
 }

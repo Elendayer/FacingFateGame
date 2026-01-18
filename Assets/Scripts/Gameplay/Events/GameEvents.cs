@@ -30,36 +30,34 @@ public static class GameEvents
         TimelineManager.AddToTimeline(grs);
         OnGameplayReference?.Invoke(grs);
     }
+
     public static bool CheckIfRelevantTrigger(ToSendTriggerReference sendReference, RelevantTriggerCheck checkReference)
     {
-        // Null checks
-        if (sendReference.OnTriggerReference == null || checkReference.OnTriggerReference == null)
-            return false;
-
-        // Check for overlap in OnTriggerReference
-        if (!sendReference.OnTriggerReference.Intersect(checkReference.OnTriggerReference).Any())
-            return false;
-
-        // Check entity relevance
-        switch (checkReference.CheckType)
+        // Null checks – positive condition: both references must be non-null
+        if (sendReference.OnTriggerReference != null && checkReference.OnTriggerReference != null)
         {
-            case CheckEntityType.User:
-                if (sendReference.UserEntity != checkReference.CheckEntity)
-                    return false;
-                break;
+            // Check for overlap in OnTriggerReference – positive condition: there is at least one overlapping trigger
+            if (sendReference.OnTriggerReference.Intersect(checkReference.OnTriggerReference).Any())
+            {
+                // Check entity relevance based on type
+                switch (checkReference.CheckType)
+                {
+                    case CheckEntityType.User:
+                        if (sendReference.UserEntity == checkReference.CheckEntity)
+                            return true;
+                        break;
 
-            case CheckEntityType.Target:
-                if (sendReference.AffectedEntities == null || !sendReference.AffectedEntities.Contains(checkReference.CheckEntity))
-                    return false;
-                break;
-
-            default:
-                return false;
+                    case CheckEntityType.Target:
+                        if (sendReference.AffectedEntities != null && sendReference.AffectedEntities.Contains(checkReference.CheckEntity))
+                            return true;
+                        break;
+                }
+            }
         }
 
-        // If all checks passed, return true
-        return true;
-    } 
+        // If none of the positive checks succeed, return false
+        return false;
+    }
 }
 
     // -------------------- Referenece Struct --------------------
@@ -205,6 +203,9 @@ public enum GameplayRef
     Occult,
     Melee,
     Ranged,
+
+    //Alchemy
+    Venom,
 
     //Classes
     Spearman,

@@ -229,7 +229,10 @@ public class Stat
     {
         foreach (IStatModifier mod in statModifiers)
         {
-            mod.Tick();
+            if (mod != null)
+            {
+                mod.Tick();
+            }
         }
     }
 

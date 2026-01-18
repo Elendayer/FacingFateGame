@@ -43,7 +43,7 @@ public class CardData
     public int Healing => Owner.entityStats.HealingOutModifier.ApplyFinalValue(healing_s.ApplyFinalValue(healing_u, Owner, this), Owner, this);
 
     [Header("Duration")]
-    public int duration_u = 0;
+    public int duration_u = 99999;
     public Stat duration_s = new();
     public int Duration => Owner.entityStats.DurationModifier.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u, Owner, this), Owner, this);
 
@@ -370,6 +370,7 @@ public enum CardIdentity
     Potion,
     Brew,
     Tonic,
+    Venom,
 
     Mechanical,
 }

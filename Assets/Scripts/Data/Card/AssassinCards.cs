@@ -1,9 +1,12 @@
-using Mono.Cecil;
+using facingfate;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Utility;
-using facingfate;
-using UnityEditor.Rendering;
+using static TimelineManager;
+using static UnityEngine.UIElements.UxmlAttributeDescription;
+using Object = UnityEngine.Object;
 
 public static class AssassinCards
 {
@@ -151,6 +154,7 @@ public static class AssassinCards
                             CheckType = CheckEntityType.Target,
                             CheckEntity = User,
                         },
+                        actionTargetType: EntityModifier.ActionTargetType.Affected,
                     onRef_Action: (target, cd, value) =>
                     {
                         CombatUtility.ApplyDamage(null, target, value);
@@ -359,25 +363,26 @@ public static class AssassinCards
 
             cost_u = 60,
             damage_u = 50,
-            duration_u = 6, // Bleed-Dauer
+            duration_u = 6,
             range_u = 3,
 
             targetingData = new()
             {
                 CardTargetType = CardTargetType.CombatTile,
                 CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardTargetingMode = CardTargetingMode.Cone, 
+                cardTargetingMode = CardTargetingMode.Cone,
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"AOE: deal {d.Damage} damage and inflict Bleed ({d.Duration} turns).",
-
+            {
+                d.cardDescription = $"AOE: deal {d.Damage} damage and inflict Bleed ({d.Duration} turns)";
+            },
             CardEffect = (User, Target, d) =>
             {
                 // Direktschaden
                 CombatUtility.ApplyDamage(d, Target);
 
-                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.OverrideFromData, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -557,12 +562,12 @@ public static class AssassinCards
             cardName = "Apply Black Lotus Venom",
             cardType = CardType.Ability,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Poison },
+            cardIdentities = new() { CardIdentity.Venom },
 
-            cost_u = 0,
-            power_u = 3,
-            damage_u = 2,
+            cost_u = 5,
             duration_u = 3,
+            charges_u = 2,
+            damage_u = 10,
 
             targetingData = new()
             {
@@ -573,12 +578,30 @@ public static class AssassinCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = "Next {d.Power} attacks apply Poison (DoT {d.Damage} for {d.Duration} turns).";
+                d.cardDescription = "Next {charges} attacks apply {Damage} Poison .";
             },
 
-            CardEffect = (User, Target, d) =>
+            CardEffect = (User, Target, cd) =>
             {
-                //VenomUtility.ArmPoisonFromCard(User, d);
+                CombatUtility.ApplyEntityModifier(cd, User,
+                    new EntityModifier(
+                        modifierName: "PosionVenom",
+                        owner: User,
+                        baseValue: cd.Duration,
+                        toTriggerRefs: new() { },
+                        charges: cd.Charges,
+                        onRef_Trigger: new RelevantTriggerCheck
+                        {
+                            OnTriggerReference = new() { GameplayRef.onHitLanded },
+                            CheckType = CheckEntityType.User,
+                            CheckEntity = User,
+                        },
+                        actionTargetType: EntityModifier.ActionTargetType.Affected,
+                        onRef_Action: (t, d, value) =>
+                        {
+                            CombatUtility.ApplyEntityModifier(d, t, EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, t), ModifierMergeStrategy.RefreshDurationAndMerge);
+                        }),
+                    ModifierMergeStrategy.Override);
             }
         });
 
@@ -589,11 +612,10 @@ public static class AssassinCards
             cardName = "Apply Dazzlying Numbing Venom",
             cardType = CardType.Ability,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.None },
+            cardIdentities = new() { CardIdentity.Venom },
 
-            cost_u = 0,
-            duration_u = 1,
-            power_u = 2,
+            cost_u = 15,
+            charges_u = 1,
 
             targetingData = new()
             {
@@ -602,15 +624,32 @@ public static class AssassinCards
                 cardTargetingMode = CardTargetingMode.Single,
             },
 
-            CardDescription = (User, d) =>
+            CardDescription = (User, cd) =>
             {
-                int charges = (d.Power > 0 ? d.Power : 3);
-                d.cardDescription = $"For the next {charges} attacks: apply Stun for {d.Duration} turn(s).";
+                cd.cardDescription = "The next {Charges} attacks apply Stun";
             },
 
-            CardEffect = (User, Target, d) =>
+            CardEffect = (User, Target, cd) =>
             {
-                //VenomUtility.ArmStunFromCard(User, d);
+                CombatUtility.ApplyEntityModifier(cd, User, 
+                    new EntityModifier(
+                        modifierName: "StunVenom",
+                        owner: User,
+                        baseValue: cd.Duration,
+                        toTriggerRefs: new() { },
+                        charges: cd.Charges,
+                        onRef_Trigger: new RelevantTriggerCheck
+                        {
+                            OnTriggerReference = new() { GameplayRef.onHitLanded },
+                            CheckType = CheckEntityType.User,
+                            CheckEntity = User,
+                        },
+                        actionTargetType: EntityModifier.ActionTargetType.Affected,
+                        onRef_Action: (t, d, value) =>
+                        {
+                            CombatUtility.ApplyEntityModifier( d, t, EffectDatabase.GetEffectByName("Stun", CloneMode.Defaults, d, ThroughputSource.Power, t), ModifierMergeStrategy.RefreshDurationAndMerge);
+                        }),
+                    ModifierMergeStrategy.Override);
             }
         });
 
@@ -624,7 +663,6 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.None },
 
             cost_u = 0,
-            power_u = 3, // Ziel-Anzahl an Charges nach dem Top-Up
 
             targetingData = new()
             {
@@ -636,17 +674,34 @@ public static class AssassinCards
             CardDescription = (User, d) =>
             {
                 int target = (d.Power > 0 ? d.Power : 3);
-                d.cardDescription = $"Reapply your last venom card (top-up to {target} charges).";
+                d.cardDescription = $"Reapply your last venom card.";
             },
 
             CardEffect = (User, Target, d) =>
             {
-                //VenomUtility.ReapplyFromCard(User, d); // top-up auf d.Power (Default 3)
+                // Fetch the most recent Venom card played by the User
+                var lastVenomCard = TimelineManager.GetDataFromTimeline(
+                    entity: User,
+                    filter: TimelineManager.TimelineFilter.CardIdentity,
+                    filterValue: CardIdentity.Venom,
+                    turnsAgo: int.MaxValue,
+                    isUser: true
+                ).FirstOrDefault();
+
+                // Safety check
+                if (lastVenomCard.CardData == null)
+                {
+                    Debug.LogWarning($"No Venom card found for user {User.name}");
+                    return;
+                }
+
+                // Execute the CardEffect from the fetched card
+                lastVenomCard.CardData.CardEffect.Invoke(User, Target, lastVenomCard.CardData);
             }
         });
 
-        // 120206 – Eye of the Nighthawk – dmg/crit up (non-damage)
-        CardDatabase.RegisterCard(new CardData()
+            // 120206 – Eye of the Nighthawk – dmg/crit up (non-damage)
+            CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120206,
             cardName = "Eye of the Nighthawk",
