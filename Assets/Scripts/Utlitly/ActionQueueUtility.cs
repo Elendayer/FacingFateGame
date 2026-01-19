@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using Utility;
 using static TimelineManager;
+using static UnityEngine.Rendering.DebugUI;
 
 public static class ActionQueueUtility
 {
@@ -84,6 +85,16 @@ public static class ActionQueueUtility
         }
     }
 
+
+    private static IEnumerator MoveCoroutine(
+    EntityOnMap entityOnMap,
+    PathData pathData,
+    Action onComplete)
+    {
+        yield return entityOnMap.StartMoveRoutine(pathData);
+        onComplete?.Invoke();
+    }
+
     // Movement enqueue remains the same
     public static void EnqueueMovement(
         EntityOnMap entityOnMap,
@@ -96,17 +107,30 @@ public static class ActionQueueUtility
         });
     }
 
-    private static IEnumerator MoveCoroutine(
-        EntityOnMap entityOnMap,
-        PathData pathData,
+    private static IEnumerator ActionCoroutine(
+        Func<IEnumerator> action,
         Action onComplete)
     {
-        yield return entityOnMap.StartMoveRoutine(pathData);
+        yield return action();
         onComplete?.Invoke();
     }
+    public static void EnqueueActionRoutine(
+    MonoBehaviour source,
+    Func<IEnumerator> action,
+    Action onComplete = null)
+    {
+        GlobalActionQueue.Enqueue(() =>
+        {
+            source.StartCoroutine(ActionCoroutine(action, onComplete));
+        });
+    }
+
+
 
     // Simple action enqueue
-    public static void EnqueueAction(Action value, float delay = 0f)
+    public static void EnqueueAction(
+        Action value,
+        float delay = 0f)
     {
         GlobalActionQueue.Enqueue(() =>
         {

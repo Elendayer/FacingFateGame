@@ -91,7 +91,7 @@ public static class AssassinCards
             cardIdentities = new() { CardIdentity.Physical },
 
             cost_u = 2,
-            damage_u = 10,
+            radius_u= 2,
 
             targetingData = new()
             {
@@ -101,12 +101,18 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"If target <10% HP: execute (TODO). Otherwise deal {d.Damage} damage.",
+                d.cardDescription = "If target has less than 10% of their maximum Health, Execute them. Otherwise deal 1 damage.",
 
             CardEffect = (User, Target, d) =>
             {
-                // TODO: Execute-Logik (instant kill) wenn Ziel <10% MaxHP
-                CombatUtility.ApplyDamage(d, Target);
+                if (Target.entityStats.CurrentHealth <= Target.entityStats.MaxHealth.Value() / 10)
+                {
+                    CombatUtility.ApplyEffectDamage(99999, Target, GameplayRef.Physical);
+                }
+                else
+                {
+                    CombatUtility.ApplyEffectDamage(1, Target, GameplayRef.Physical);
+                }
             }
         });
 
@@ -497,7 +503,7 @@ public static class AssassinCards
         CardDatabase.RegisterCard(new CardData()
         {
             cardID = 120201,
-            cardName = "Apply Scorching Blood Venom",
+            cardName = "Phantom Step",
             cardType = CardType.Ability,
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison },
@@ -519,7 +525,7 @@ public static class AssassinCards
 
             CardEffect = (User, Target, d) =>
             {
-
+                MovementUtility.ForcedMove(ForcedMovementType.Jump, User, Target.GetComponent<EntityOnMap>().currentCell);
             }
         });
 
@@ -578,7 +584,7 @@ public static class AssassinCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = "Next {charges} attacks apply {Damage} Poison .";
+                d.cardDescription = "Next {Charges} attacks apply {Damage} Poison";
             },
 
             CardEffect = (User, Target, cd) =>

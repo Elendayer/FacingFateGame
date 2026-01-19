@@ -65,11 +65,12 @@ public class CardScript : MonoBehaviour
                 .Replace("Damage", d.Damage.ToString())
                 .Replace("Healing", d.Duration.ToString())
                 .Replace("Duration", d.Duration.ToString())
+                .Replace("Charges", d.Charges.ToString()
                 .Replace("Repeats", d.Repeats.ToString())
                 .Replace("Range", d.Range.ToString())
                 .Replace("Area", d.Area.ToString())
                 .Replace("Radius", d.Radius.ToString())
-                .Replace("MaxTarget", d.MaxTarget.ToString());
+                .Replace("MaxTarget", d.MaxTarget.ToString()));
     }
     private string FormatCardRange(CardData d)
     {
