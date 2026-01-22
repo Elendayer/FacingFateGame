@@ -156,7 +156,7 @@ namespace facingfate
 
                 if (optionsPanel.activeInHierarchy)
                 {
-                    optionsMenu.CloseOptionsScroll(true);
+                    //optionsMenu.CloseOptionsScroll(true);
                 }
 
                 if (EventSystem.current != null)

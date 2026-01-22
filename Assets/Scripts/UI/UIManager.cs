@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-namespace dungeonduell
+namespace facingfate
 {
     public class UIManager : MonoBehaviour
     {
@@ -12,7 +12,7 @@ namespace dungeonduell
         public GameObject creditsSelectedButton;
         public GameObject previousSelected;
 
-        public OptionsMenu optionsMenu;
+        [SerializeField] private facingfate.OptionsMenu optionsMenu;
         public CanvasGroup fadeCanvas;
 
         public float fadeDuration = 0.5f;
@@ -89,24 +89,14 @@ namespace dungeonduell
             }
         }
 
-        // �ffnet oder schlie�t das Options-Panel mit Animation
+        // öffnet oder schließt das Options-Panel mit Animation
         public void ToggleOptions()
         {
             if (optionsMenu == null || optionsMenu.optionsPanel == null) return;
 
             bool isActive = optionsMenu.optionsPanel.activeSelf;
-
-            if (!isActive)
-            {
-                if (EventSystem.current != null)
-                    optionsMenu.previousSelected = EventSystem.current.currentSelectedGameObject;
-
-                optionsMenu.OpenOptionsScroll();
-            }
-            else
-            {
-                optionsMenu.CloseOptionsScroll(true);
-            }
+            if (!isActive) optionsMenu.OpenOptionsRoll();
+            else optionsMenu.CloseOptionsRoll();
         }
 
         private void OnEnable()
