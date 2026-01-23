@@ -35,6 +35,13 @@ MonoBehaviour:
     referenceMode: 2
     serializationDepthLimit: 64
     assemblyNames:
+    - Ak.Wwise.Api.WAAPI
+    - AK.Wwise.Unity.API
+    - AK.Wwise.Unity.API.WwiseTypes
+    - AK.Wwise.Unity.Logging
+    - AK.Wwise.Unity.MonoBehaviour
+    - AK.Wwise.Unity.Timeline
+    - AK.Wwise.Unity.Utilities
     - Assembly-CSharp
     - Assembly-CSharp-firstpass
     showAdvancedSettings: 0
