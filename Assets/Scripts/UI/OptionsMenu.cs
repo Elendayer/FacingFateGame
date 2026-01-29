@@ -45,7 +45,7 @@ namespace facingfate
             _canvasGroup = optionsPanel.GetComponent<CanvasGroup>();
             if (_canvasGroup == null) _canvasGroup = optionsPanel.AddComponent<CanvasGroup>();
 
-            _canvasGroup.alpha = 0;
+            _canvasGroup.alpha = 1f;
             optionsPanel.SetActive(false);
 
             /*
