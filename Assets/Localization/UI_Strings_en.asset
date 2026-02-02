@@ -66,6 +66,38 @@ MonoBehaviour:
     m_Localized: Fullscreen
     m_Metadata:
       m_Items: []
+  - m_Id: 8700033724571648
+    m_Localized: Resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700333831217152
+    m_Localized: Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700468350935040
+    m_Localized: Back to the Title Screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700850565275648
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700893699497984
+    m_Localized: Deny
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8701721738993664
+    m_Localized: Are you sure you want to leave?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8704270651088896
+    m_Localized: Controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8704437936709632
+    m_Localized: Legend
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

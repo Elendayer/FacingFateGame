@@ -66,6 +66,38 @@ MonoBehaviour:
     m_Localized: Vollbild
     m_Metadata:
       m_Items: []
+  - m_Id: 8700033724571648
+    m_Localized: Weiter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700333831217152
+    m_Localized: Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700468350935040
+    m_Localized: "Zur\xFCck zum Hauptmenu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700850565275648
+    m_Localized: Ja
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700893699497984
+    m_Localized: Nein
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8701721738993664
+    m_Localized: Bist du sicher?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8704270651088896
+    m_Localized: Steuerung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8704437936709632
+    m_Localized: Legende
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

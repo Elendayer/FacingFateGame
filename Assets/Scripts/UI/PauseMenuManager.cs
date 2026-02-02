@@ -66,13 +66,19 @@ namespace facingfate
             //_controls.CardPhase.Disable();
         }
 
-        private void TogglePause(InputAction.CallbackContext context)
+        private void Update()
         {
-            if (!_isPaused) OpenPauseMenu(context);
+            if (Input.GetKeyDown(KeyCode.Escape))
+                TogglePause();
+        }
+
+        private void TogglePause()//InputAction.CallbackContext context
+        {
+            if (!_isPaused) OpenPauseMenu();// context)
             else ResumeGame();
         }
 
-        public void OpenPauseMenu(InputAction.CallbackContext context)
+        public void OpenPauseMenu()//InputAction.CallbackContext context)
         {
             _allClosing = false;
             //GameManager.Instance.Paused = true;
@@ -81,8 +87,8 @@ namespace facingfate
             pausePanel.transform.localScale = Vector3.zero;
             _pauseGroup.alpha = 0;
 
-            EventSystem.current.sendNavigationEvents = context.control.device is not Keyboard;
-            ;
+            //EventSystem.current.sendNavigationEvents = context.control.device is not Keyboard;
+            
 
             /*
             if (_vcaSfxNoUi.isValid())
