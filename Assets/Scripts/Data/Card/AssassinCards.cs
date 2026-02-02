@@ -2,6 +2,7 @@ using facingfate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utility;
 using static TimelineManager;
@@ -44,7 +45,7 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Line: deal {d.Damage} damage to enemies in line (range {d.Range}).",
+                d.cardDescription = "Deal {Damage} damage",
 
             CardEffect = (User, Target, d) =>
             {
@@ -61,7 +62,7 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 80,
+            cost_u = 20,
             damage_u = 30,
             repeats_u = 4,
 
@@ -73,7 +74,7 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"AOE: deal {d.Damage} damage (x{d.Repeats}).",
+                d.cardDescription = "Deal {Damage} damage,{Repeats} times.",
 
             CardEffect = (User, Target, d) =>
             {
@@ -125,9 +126,9 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Poison, CardIdentity.Fire, CardIdentity.Blood },
 
-            cost_u = 60,
-            damage_u = 10,     // Tickhöhe
-            duration_u = 2,   // Dauer der DoTs
+            cost_u = 50,
+            damage_u = 2,     
+            duration_u = 2,
             range_u = 4,
 
             targetingData = new()
@@ -137,44 +138,17 @@ public static class AssassinCards
                 cardTargetingMode = CardTargetingMode.Single,
             },
 
-            CardDescription = (User, d) =>
-                d.cardDescription = $"Inflict Poison, Burn and Bleed ({d.Damage} per turn for {d.Duration} turns).",
+            CardDescription = (User, d) => d.cardDescription = "Inflict Poison, Burn and Bleed for {Damage} damage, for {Duration} turns.",
 
             CardEffect = (User, Target, d) =>
             {
-                int tick = Mathf.Max(1, d.Damage);
-                int dur = d.Duration > 0 ? d.Duration : 6;
+                EntityModifier poison = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, Target);
+                EntityModifier burn = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, d, ThroughputSource.Damage, Target);
+                EntityModifier bleed = EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, d, ThroughputSource.Damage, Target);
 
-                // Helper zum Erstellen eines DoTs
-                EntityModifier MakeDot(string statName, GameplayRef tickRef)
-                {
-                    return new EntityModifier(
-                        modifierName: statName,
-                        owner: Target,
-                        baseValue: tick,
-                        toTriggerRefs: new() { tickRef },
-                        duration: dur,
-                        onRef_Trigger: new RelevantTriggerCheck
-                        {
-                            OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            CheckType = CheckEntityType.Target,
-                            CheckEntity = User,
-                        },
-                        actionTargetType: EntityModifier.ActionTargetType.Affected,
-                    onRef_Action: (target, cd, value) =>
-                    {
-                        CombatUtility.ApplyDamage(null, target, value);
-                    });
-                }
-
-                var poison = MakeDot("Poison", GameplayRef.onPoison);
-                var burn = MakeDot("Burn", GameplayRef.onBurn);
-                var bleed = MakeDot("Bleed", GameplayRef.onBleed);
-
-                // WICHTIG: hier explizit Merge (kein Refresh), damit gleiche Karte nicht verlängert
-                CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.Merge);
-                CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.Merge);
-                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
+                CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
             }
         });
 
@@ -187,9 +161,8 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 80,
+            cost_u = 45,
             damage_u = 200,
-            range_u = 3,
 
             targetingData = new()
             {
@@ -216,10 +189,10 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical },
 
-            cost_u = 60,
-            damage_u = 100,
+            cost_u = 30,
+            damage_u = 20,
             range_u = 5,
-            area_u = 3,
+            maxtarget_u = 3,
 
             targetingData = new()
             {
@@ -229,7 +202,7 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Line: hit up to {d.Area} enemies for {d.Damage} each (range {d.Range}).",
+                d.cardDescription = "Deal {Damage} damage",
 
             CardEffect = (User, Target, d) =>
             {
@@ -260,7 +233,7 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Deals {d.Damage} damage in a small area.",
+                d.cardDescription = "Deals {Damage} damage",
 
             CardEffect = (User, Target, d) =>
             {
@@ -279,7 +252,6 @@ public static class AssassinCards
 
             cost_u = 3,
             damage_u = 4,
-            repeats_u = 2, // Anzahl Bounces (Standard 2, kann per Stat skaliert werden)
             range_u = 4,
 
             targetingData = new()
@@ -290,7 +262,7 @@ public static class AssassinCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Hit for {d.Damage} and bounce to {(d.Repeats > 0 ? d.Repeats : 2)} enemies (≤2 tiles between bounces).",
+                d.cardDescription = "Deal {Damage} damage and bounce to 2 times",
 
             CardEffect = (User, Target, d) =>
             {
@@ -301,7 +273,6 @@ public static class AssassinCards
                     return candidate.entityAffiliation != owner.entityAffiliation
                            && candidate.entityAffiliation != EntityAffiliation.Neutral;
                 }
-
                 int StepsBetween(Vector3Int from, Vector3Int to)
                 {
                     var p = MovementUtility.FindPath(from, to, ignoreCost: true);
@@ -311,12 +282,11 @@ public static class AssassinCards
 
                 EntityScript FindNextBounceTarget(EntityScript from, HashSet<int> alreadyHit, int maxHopSteps)
                 {
-                    var allOnMap = Object.FindObjectsByType<EntityOnMap>(
-                        FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+                    var allOnMap = Object.FindObjectsByType<EntityOnMap>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
                     var fromCell = from.GetComponent<EntityOnMap>()?.currentCell ?? TilemapUtilityScript.InvalidPosition;
 
-                    EntityScript best = null;
+                    EntityScript best = null; 
                     int bestSteps = int.MaxValue;
 
                     foreach (var eom in allOnMap)
@@ -343,7 +313,7 @@ public static class AssassinCards
                 var hitSet = new HashSet<int> { Target.GetInstanceID() };
                 var last = Target;
 
-                int maxBounces = (d.Repeats > 0) ? d.Repeats : 2; 
+                int maxBounces = 2; 
                 const int hopLimit = 2; 
 
                 for (int i = 0; i < maxBounces; i++)
@@ -367,7 +337,7 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 60,
+            cost_u = 50,
             damage_u = 50,
             duration_u = 6,
             range_u = 3,
@@ -381,12 +351,14 @@ public static class AssassinCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"AOE: deal {d.Damage} damage and inflict Bleed ({d.Duration} turns)";
+                d.cardDescription = "Deal {Damage} damage and inflict a Bleed dealing {Damage_10} for {Duration} turns)";
             },
             CardEffect = (User, Target, d) =>
             {
                 // Direktschaden
                 CombatUtility.ApplyDamage(d, Target);
+
+                d.damage_u = 10;
 
                 CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.OverrideFromData, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge);
             }
@@ -421,32 +393,8 @@ public static class AssassinCards
                 // Direkter Schaden
                 CombatUtility.ApplyDamage(d, Target);
 
-                // Stun-Modifier (Ein-Zug)
-                var stun = new EntityModifier(
-                    modifierName: "Stun",
-                    owner: Target,
-                    baseValue: 1,
-                    toTriggerRefs: new() { GameplayRef.onStunned },
-                    duration: Mathf.Max(1, d.Duration),
-                    onRef_Trigger: new RelevantTriggerCheck
-                    {
-                        OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        CheckType = CheckEntityType.Target,
-                        CheckEntity = User,
-                    },
-                    onRef_Action: (target, cd, value) =>
-                    {
-                        GameEvents.TriggerRefEvent(new ToSendTriggerReference
-                        {
-                            OnTriggerReference = new() { GameplayRef.onStunned },
-                            AffectedEntities = new() { Target },
-                            UserEntity = User
-                        });
-                        // Optional: hier könntest du AP/Stamina auf 0 setzen, falls dein System so arbeitet.
-                        // Target.entityStats.CurrentStamina?.ApplyFinalValue(0); // <-- nur falls vorhanden/gewünscht
-                    });
 
-                CombatUtility.ApplyEntityModifier(d, Target, stun, ModifierMergeStrategy.Merge);
+                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Stun", CloneMode.OverrideFromData, d, ThroughputSource.Power, Target), ModifierMergeStrategy.Merge);
             }
         });
 
@@ -459,7 +407,7 @@ public static class AssassinCards
             cardClass = CardClass.Assassin,
             cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
-            cost_u = 50,
+            cost_u = 40,
             damage_u = 20,   
             duration_u = 3,
 

@@ -26,7 +26,12 @@ public static class NeutralCards
             cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
             cost_u = 10,
-            damage_u = 100,
+            damageFunc = card =>
+            {
+                return card.Owner.entityStats.Strength.Value() / 2;
+            },
+
+            range_u = 2,
 
             targetingData = new()
             {
@@ -35,7 +40,7 @@ public static class NeutralCards
                 cardTargetingMode = CardTargetingMode.Single,
             },
 
-            CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
+            CardDescription = (User, d) => d.cardDescription = "Deal Damage equal to half your Strength: ({Damage})",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(d, Target, d.Damage);

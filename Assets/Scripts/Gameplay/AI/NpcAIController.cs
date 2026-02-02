@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utility;
+using static UnityEngine.GraphicsBuffer;
 
 public class NpcAIController
 {
@@ -147,7 +148,15 @@ public class NpcAIController
             {
                 best.score = score;
                 best.pseudoName = $"Play {card.cardData.cardName}";
-                best.targets = move.Item2.targetedEntities;
+                // remove targets over the maximum allowed
+                if (card.cardData.MaxTarget > 0)
+                {
+                    best.targets = move.Item2.targetedEntities.Take(card.cardData.MaxTarget).ToList();
+                }
+                else
+                {
+                    best.targets = move.Item2.targetedEntities;
+                }
                 best.targetingModeData = move.Item2;
                 best.pathData = move.Item1;
                 best.executionOption = CardExecutionOption.PlayCard;
@@ -232,6 +241,12 @@ public class NpcAIController
     private int EvaluateCardScore(CardScript card, List<EntityScript> targets, int moveCost)
     {
         if (card == null || card.cardData == null) return 0;
+
+        // remove targets over the maximum allowed
+        if (card.cardData.MaxTarget > 0)
+        {
+            targets = targets.Take(card.cardData.MaxTarget).ToList();
+        }
 
         int throughput = card.cardData.CardAiBias?.ThroughputOverride(npcAIBias, card.cardData, targets) ?? 0;
         int cost = Mathf.Max(1, card.cardData.Cost + moveCost);

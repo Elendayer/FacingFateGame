@@ -57,7 +57,7 @@ public static class EffectDatabase
 			(
 			modifierName: "Bleed",
 			owner: null,
-			duration: 2,
+			duration: 3,
 			toTriggerRefs: new() { GameplayRef.onBleed },
 			onRef_Trigger: new RelevantTriggerCheck
 			{
@@ -74,7 +74,7 @@ public static class EffectDatabase
 			(
 			modifierName: "Poison",
 			owner: null,
-			duration: 3,
+			duration: 2,
 			toTriggerRefs: new() { GameplayRef.onPoison },
 			onRef_Trigger: new RelevantTriggerCheck
 			{
@@ -87,7 +87,24 @@ public static class EffectDatabase
 				CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onPoison);
 			}));
 
-		RegisterEffect(new EntityModifier(
+		RegisterEffect(new EntityModifier
+			(
+			modifierName: "Burn",
+			owner: null,
+			duration: 2,
+			toTriggerRefs: new() { GameplayRef.onBurn },
+			onRef_Trigger: new RelevantTriggerCheck
+			{
+				OnTriggerReference = new() { GameplayRef.onTurnStart },
+				CheckType = CheckEntityType.User,
+				CheckEntity = null,
+			},
+			onRef_Action: (target, cd, value) =>
+			{
+				CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBurn);
+			}));
+
+        RegisterEffect(new EntityModifier(
 			modifierName: "Stun",
 			owner: null,
 			toTriggerRefs: new() { GameplayRef.onStunned },
