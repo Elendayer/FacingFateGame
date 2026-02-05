@@ -5,252 +5,255 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Stat
+namespace facingfate
 {
-    public EntityScript owner;
-
-    public int Value(EntityScript entityScript = null, CardData cardData = null) => GetFinalValue(entityScript, cardData);
-
-    private readonly List<IStatModifier> statModifiers = new();
-
-    public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
+    public class Stat
     {
-        //Debug.Log($"[Stat] Adding modifier: {modifier.ModifierName} with strategy: {strategy} for {modifier.BaseValue}");
-        var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
+        public EntityScript owner;
 
-        switch (strategy)
+        public int Value(EntityScript entityScript = null, CardData cardData = null) => GetFinalValue(entityScript, cardData);
+
+        private readonly List<IStatModifier> statModifiers = new();
+
+        public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
         {
-            case ModifierMergeStrategy.AddUnique:
-                statModifiers.Add(modifier);
-                break;
+            //Debug.Log($"[Stat] Adding modifier: {modifier.ModifierName} with strategy: {strategy} for {modifier.BaseValue}");
+            var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
 
-            case ModifierMergeStrategy.Override:
-                if (existing != null) statModifiers.Remove(existing);
-                statModifiers.Add(modifier);
-                break;
-
-            case ModifierMergeStrategy.Merge:
-                if (existing is StatModifier existingMod && modifier is StatModifier newMod)
-                {
-                    existingMod.BaseValue += newMod.BaseValue;
-                }
-                else
-                {
+            switch (strategy)
+            {
+                case ModifierMergeStrategy.AddUnique:
                     statModifiers.Add(modifier);
-                }
-                break;
+                    break;
 
-            case ModifierMergeStrategy.RefreshDurationAndMerge:
-                if (existing is StatModifier existingRefresh && modifier is StatModifier newRefresh)
-                {
-                    existingRefresh.BaseValue += newRefresh.BaseValue;
-                    existingRefresh.Duration = Math.Max(existingRefresh.GetRemainingDuration(), newRefresh.GetRemainingDuration());
-                }
-                else
-                {
+                case ModifierMergeStrategy.Override:
+                    if (existing != null) statModifiers.Remove(existing);
                     statModifiers.Add(modifier);
-                }
-                break;
+                    break;
 
-            case ModifierMergeStrategy.RefreshDurationAndOverride:
-                if (existing is StatModifier existingRefreshDuration && modifier is StatModifier newRefreshDuration)
-                {
-                    existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
-                    existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
-                }
-                else
-                {
-                    statModifiers.Add(modifier);
-                }
-                break;
-
-        }
-    }
-
-    public void RemoveModifier(IStatModifier modifier) => statModifiers.Remove(modifier);
-
-    public int GetFlatValue()
-    {
-        int baseValue = 0;
-        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
-        {
-            if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Flat)
-            {
-                baseValue += statMod.BaseValue;
-            }
-        }
-        return baseValue;
-    }
-    public int GetPercentValue()
-    {
-        int percentValue = 0;
-        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
-        {
-            if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Percent)
-            {
-                percentValue += statMod.BaseValue;
-            }
-        }
-        return percentValue;
-    }
-    public List<int> GetMultiplierValues()
-    {
-        List<int> multipliers = new();
-        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
-        {
-            if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Multiplier)
-            {
-                multipliers.Add(statMod.BaseValue);
-            }
-        }
-        return multipliers;
-
-    }
-
-
-    private int GetFinalValue(EntityScript entityScript = null, CardData cardData = null)
-    {
-        int BaseValue = 0;
-        int percent = 0;
-        List<int> multipliers = new();
-
-        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
-        {
-            if (mod.ModifierName == "MeleeRangeIncrease")
-            {
-                Debug.Log($"[Stat] Applying modifier: {mod.ModifierName} with value: {mod.BaseValue}");
-                Debug.Log(mod.Condition(entityScript, cardData));
-            }
-
-            // Check for conditional modifier and its condition
-            if (mod.Condition(entityScript, cardData))
-            {
-                // Apply modifier based on its scaling type
-                if (mod is StatModifier statMod)
-                {
-                    switch (statMod.ModifierScaling)
+                case ModifierMergeStrategy.Merge:
+                    if (existing is StatModifier existingMod && modifier is StatModifier newMod)
                     {
-                        case ModifierScaling.Flat:
-                            BaseValue += statMod.BaseValue;
-                            break;
-                        case ModifierScaling.Percent:
-                            percent += statMod.BaseValue;
-                            break;
-                        case ModifierScaling.Multiplier:
-                            multipliers.Add(statMod.BaseValue);
-                            break;
+                        existingMod.BaseValue += newMod.BaseValue;
+                    }
+                    else
+                    {
+                        statModifiers.Add(modifier);
+                    }
+                    break;
+
+                case ModifierMergeStrategy.RefreshDurationAndMerge:
+                    if (existing is StatModifier existingRefresh && modifier is StatModifier newRefresh)
+                    {
+                        existingRefresh.BaseValue += newRefresh.BaseValue;
+                        existingRefresh.Duration = Math.Max(existingRefresh.GetRemainingDuration(), newRefresh.GetRemainingDuration());
+                    }
+                    else
+                    {
+                        statModifiers.Add(modifier);
+                    }
+                    break;
+
+                case ModifierMergeStrategy.RefreshDurationAndOverride:
+                    if (existing is StatModifier existingRefreshDuration && modifier is StatModifier newRefreshDuration)
+                    {
+                        existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
+                        existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
+                    }
+                    else
+                    {
+                        statModifiers.Add(modifier);
+                    }
+                    break;
+
+            }
+        }
+
+        public void RemoveModifier(IStatModifier modifier) => statModifiers.Remove(modifier);
+
+        public int GetFlatValue()
+        {
+            int baseValue = 0;
+            foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+            {
+                if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Flat)
+                {
+                    baseValue += statMod.BaseValue;
+                }
+            }
+            return baseValue;
+        }
+        public int GetPercentValue()
+        {
+            int percentValue = 0;
+            foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+            {
+                if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Percent)
+                {
+                    percentValue += statMod.BaseValue;
+                }
+            }
+            return percentValue;
+        }
+        public List<int> GetMultiplierValues()
+        {
+            List<int> multipliers = new();
+            foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+            {
+                if (mod is StatModifier statMod && statMod.ModifierScaling == ModifierScaling.Multiplier)
+                {
+                    multipliers.Add(statMod.BaseValue);
+                }
+            }
+            return multipliers;
+
+        }
+
+
+        private int GetFinalValue(EntityScript entityScript = null, CardData cardData = null)
+        {
+            int BaseValue = 0;
+            int percent = 0;
+            List<int> multipliers = new();
+
+            foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+            {
+                if (mod.ModifierName == "MeleeRangeIncrease")
+                {
+                    Debug.Log($"[Stat] Applying modifier: {mod.ModifierName} with value: {mod.BaseValue}");
+                    Debug.Log(mod.Condition(entityScript, cardData));
+                }
+
+                // Check for conditional modifier and its condition
+                if (mod.Condition(entityScript, cardData))
+                {
+                    // Apply modifier based on its scaling type
+                    if (mod is StatModifier statMod)
+                    {
+                        switch (statMod.ModifierScaling)
+                        {
+                            case ModifierScaling.Flat:
+                                BaseValue += statMod.BaseValue;
+                                break;
+                            case ModifierScaling.Percent:
+                                percent += statMod.BaseValue;
+                                break;
+                            case ModifierScaling.Multiplier:
+                                multipliers.Add(statMod.BaseValue);
+                                break;
+                        }
                     }
                 }
             }
-        }
 
-        BaseValue = BaseValue * (100 + percent) / 100;
+            BaseValue = BaseValue * (100 + percent) / 100;
 
-        foreach (var mult in multipliers)
-        {
-            float pMulti = (float)mult / 100f;
-
-            BaseValue = (int)((float)BaseValue * pMulti);
-        }
-
-        return BaseValue;
-    }
-
-    public int ApplyFinalValue(int value, EntityScript entityScript = null, CardData cardData = null)
-    {
-        int baseValue = value;
-        int percent = 0;
-        List<int> multipliers = new();
-
-        foreach (IStatModifier mod in statModifiers.Where(m => !m.IsExpired))
-        {
-            if (mod.ModifierName == "MeleeRangeIncrease")
+            foreach (var mult in multipliers)
             {
-                Debug.Log($"[Stat] Applying modifier: {mod.ModifierName} with value: {mod.BaseValue}");
-                Debug.Log(mod.Condition(entityScript,cardData));
+                float pMulti = (float)mult / 100f;
+
+                BaseValue = (int)((float)BaseValue * pMulti);
             }
 
-            // Check for conditional modifier and its condition
-            if (mod.Condition(entityScript, cardData))
+            return BaseValue;
+        }
+
+        public int ApplyFinalValue(int value, EntityScript entityScript = null, CardData cardData = null)
+        {
+            int baseValue = value;
+            int percent = 0;
+            List<int> multipliers = new();
+
+            foreach (IStatModifier mod in statModifiers.Where(m => !m.IsExpired))
             {
-                // Apply modifier based on its scaling type
-                if (mod is StatModifier statMod)
+                if (mod.ModifierName == "MeleeRangeIncrease")
                 {
-                    switch (statMod.ModifierScaling)
+                    Debug.Log($"[Stat] Applying modifier: {mod.ModifierName} with value: {mod.BaseValue}");
+                    Debug.Log(mod.Condition(entityScript, cardData));
+                }
+
+                // Check for conditional modifier and its condition
+                if (mod.Condition(entityScript, cardData))
+                {
+                    // Apply modifier based on its scaling type
+                    if (mod is StatModifier statMod)
                     {
-                        case ModifierScaling.Flat:
-                            baseValue += statMod.BaseValue;
-                            break;
-                        case ModifierScaling.Percent:
-                            percent += statMod.BaseValue;
-                            break;
-                        case ModifierScaling.Multiplier:
-                            multipliers.Add(statMod.BaseValue);
-                            break;
+                        switch (statMod.ModifierScaling)
+                        {
+                            case ModifierScaling.Flat:
+                                baseValue += statMod.BaseValue;
+                                break;
+                            case ModifierScaling.Percent:
+                                percent += statMod.BaseValue;
+                                break;
+                            case ModifierScaling.Multiplier:
+                                multipliers.Add(statMod.BaseValue);
+                                break;
+                        }
                     }
                 }
             }
+
+            baseValue = baseValue * (100 + percent) / 100;
+
+            foreach (var mult in multipliers)
+            {
+                baseValue = (baseValue * mult) / 100;
+            }
+
+            return baseValue;
         }
 
-        baseValue = baseValue * (100 + percent) / 100;
-
-        foreach (var mult in multipliers)
+        public List<int> GetAllValues(ModifierScaling? filterType = null)
         {
-            baseValue = (baseValue * mult) / 100;
+            return statModifiers
+                .Where(m => !m.IsExpired && m is StatModifier sm && (!filterType.HasValue || sm.ModifierScaling == filterType.Value))
+                .Cast<StatModifier>()
+                .Select(m => m.BaseValue)
+                .ToList();
         }
 
-        return baseValue;
+        public bool HasReference(GameplayRef reference)
+            => statModifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
+
+        public IStatModifier GetModifierByName(string name)
+            => statModifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);
+
+        public void AddOrReplaceModifier(IStatModifier modifier)
+        {
+            var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
+            if (existing != null) statModifiers.Remove(existing);
+            statModifiers.Add(modifier);
+        }
     }
 
-    public List<int> GetAllValues(ModifierScaling? filterType = null)
+
+    // -------------------- Enums --------------------
+
+    public enum ModifierMergeStrategy
     {
-        return statModifiers
-            .Where(m => !m.IsExpired && m is StatModifier sm && (!filterType.HasValue || sm.ModifierScaling == filterType.Value))
-            .Cast<StatModifier>()
-            .Select(m => m.BaseValue)
-            .ToList();
+        AddUnique,
+        Override,
+        Merge,
+        RefreshDurationAndMerge,
+        RefreshDurationAndOverride
     }
 
-    public bool HasReference(GameplayRef reference)
-        => statModifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
-
-    public IStatModifier GetModifierByName(string name)
-        => statModifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);
-
-    public void AddOrReplaceModifier(IStatModifier modifier)
+    public enum ModifierScaling
     {
-        var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
-        if (existing != null) statModifiers.Remove(existing);
-        statModifiers.Add(modifier);
+        Flat,
+        Percent,
+        Multiplier
     }
-}
 
-
-// -------------------- Enums --------------------
-
-public enum ModifierMergeStrategy
-{
-    AddUnique,
-    Override,
-    Merge,
-    RefreshDurationAndMerge,
-    RefreshDurationAndOverride
-}
-
-public enum ModifierScaling
-{
-    Flat,
-    Percent,
-    Multiplier
-}
-
-public enum StatAspect
-{
-    Power,
-    Damage,
-    Healing,
-    Cost,
-    Duration,
-    Repeats,
-    Range
+    public enum StatAspect
+    {
+        Power,
+        Damage,
+        Healing,
+        Cost,
+        Duration,
+        Repeats,
+        Range
+    }
 }

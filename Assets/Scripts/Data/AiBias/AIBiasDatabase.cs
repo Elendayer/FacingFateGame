@@ -2,74 +2,77 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AiBiasDatabase : MonoBehaviour
+namespace facingfate
 {
-
-    private static Dictionary<string, NpcAiBias> AILookup = new Dictionary<string, NpcAiBias>();
-
-    public static void RegisterBias(NpcAiBias bias)
+    public class AiBiasDatabase : MonoBehaviour
     {
-        if (!AILookup.ContainsKey(bias.id))
+
+        private static Dictionary<string, NpcAiBias> AILookup = new Dictionary<string, NpcAiBias>();
+
+        public static void RegisterBias(NpcAiBias bias)
         {
-            AILookup[bias.id] = bias;
-            //Debug.Log($"Registered card: {card.cardName} (ID: {card.cardID})");
+            if (!AILookup.ContainsKey(bias.id))
+            {
+                AILookup[bias.id] = bias;
+                //Debug.Log($"Registered card: {card.cardName} (ID: {card.cardID})");
+            }
+            else
+            {
+                Debug.LogWarning($"Duplicate card ID detected: {bias.id}");
+            }
         }
-        else
+        public static NpcAiBias GetBiasById(string id)
         {
-            Debug.LogWarning($"Duplicate card ID detected: {bias.id}");
+            if (!AILookup.TryGetValue(id, out var blueprint) || blueprint == null)
+                return null;
+
+            NpcAiBias AiBias = blueprint.Clone();
+
+            return AiBias;
         }
-    }
-    public static NpcAiBias GetBiasById(string id)
-    {
-        if (!AILookup.TryGetValue(id, out var blueprint) || blueprint == null)
-            return null;
 
-        NpcAiBias AiBias = blueprint.Clone();
-
-        return AiBias;
-    }
-
-    public static List<NpcAiBias> GetAllBias()
-    {
-        return new List<NpcAiBias>(AILookup.Values);
-    }
-
-    public static void RegisterAll()
-    {
-        RegisterAIBias();
-    }
-
-    private static void RegisterAIBias()
-    {
-        RegisterBias(new NpcAiBias()
+        public static List<NpcAiBias> GetAllBias()
         {
-            id = "StupidFuck",
+            return new List<NpcAiBias>(AILookup.Values);
+        }
 
-            cardReferenceBias = new Dictionary<GameplayRef, int>(),
-            identityBias = new Dictionary<CardIdentity, int>(),
-
-            RepositionCondition = RepositionCondition.surrounded
-        });
-        RegisterBias(new NpcAiBias()
+        public static void RegisterAll()
         {
-            id = "Balanced",
+            RegisterAIBias();
+        }
 
-            cardReferenceBias = new Dictionary<GameplayRef, int>(),
-            identityBias = new Dictionary<CardIdentity, int>(),
-
-            RepositionCondition = RepositionCondition.lowHealth
-        });
-        RegisterBias(new NpcAiBias()
+        private static void RegisterAIBias()
         {
-            id = "Aggressive",
-            cardReferenceBias = new Dictionary<GameplayRef, int>(),
-            identityBias = new Dictionary<CardIdentity, int>()
+            RegisterBias(new NpcAiBias()
+            {
+                id = "StupidFuck",
+
+                cardReferenceBias = new Dictionary<GameplayRef, int>(),
+                identityBias = new Dictionary<CardIdentity, int>(),
+
+                RepositionCondition = RepositionCondition.surrounded
+            });
+            RegisterBias(new NpcAiBias()
+            {
+                id = "Balanced",
+
+                cardReferenceBias = new Dictionary<GameplayRef, int>(),
+                identityBias = new Dictionary<CardIdentity, int>(),
+
+                RepositionCondition = RepositionCondition.lowHealth
+            });
+            RegisterBias(new NpcAiBias()
+            {
+                id = "Aggressive",
+                cardReferenceBias = new Dictionary<GameplayRef, int>(),
+                identityBias = new Dictionary<CardIdentity, int>()
             {
                 { CardIdentity.Ranged, 50}
             },
 
-            RepositionCondition = RepositionCondition.preferRanged
-        });
+                RepositionCondition = RepositionCondition.preferRanged
+            });
 
+        }
     }
 }

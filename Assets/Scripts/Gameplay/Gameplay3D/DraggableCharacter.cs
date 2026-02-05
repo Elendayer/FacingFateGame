@@ -1,6 +1,7 @@
+using facingfate;
+using TMPro;
 using UnityEngine;
 using Utility;
-using TMPro;
 
 [RequireComponent(typeof(Collider))]
 public class DraggableCharacter : Draggable3D
@@ -21,6 +22,7 @@ public class DraggableCharacter : Draggable3D
 
     public override void OnMouseDown()
     {
+        if (TimelineManager.isPaused == true) { return; }
         if (characterEntity.entityStats.IsRooted) { return; }
 
         if (TurnManager.Instance.CurrentTurnEntity == characterEntity)

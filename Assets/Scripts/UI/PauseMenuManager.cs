@@ -74,7 +74,7 @@ namespace facingfate
 
         private void TogglePause()//InputAction.CallbackContext context
         {
-            if (!_isPaused) OpenPauseMenu();// context)
+            if (!TimelineManager.isPaused) OpenPauseMenu();// context)
             else ResumeGame();
         }
 
@@ -111,7 +111,7 @@ namespace facingfate
                 else
                     EventSystem.current.SetSelectedGameObject(null);
             });
-            _isPaused = true;
+            TimelineManager.isPaused = true;
             Time.timeScale = 0f;
         }
 
@@ -134,11 +134,11 @@ namespace facingfate
              */
 
             Time.timeScale = 1f;
-            _isPaused = false;
+            TimelineManager.isPaused = false;
             pausePanel.transform.DOScale(0, fadeDuration).SetEase(Ease.InBack).SetUpdate(true);
             _pauseGroup.DOFade(0, fadeDuration).SetUpdate(true).OnComplete(() =>
             {
-                _isPaused = false;
+                TimelineManager.isPaused = false;
                 Time.timeScale = 1f;
                 pausePanel.SetActive(false);
                 //DdCodeEventHandler.Trigger_TutorialDone();
