@@ -454,7 +454,7 @@ public static class AssassinCards
             cardName = "Phantom Step",
             cardType = CardType.Ability,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison },
+            cardIdentities = new() { CardIdentity.Shadow },
 
             cost_u = 40,
             range_u = 5,
@@ -468,7 +468,7 @@ public static class AssassinCards
 
             CardDescription = (User, d) =>
             {
-                d.cardDescription = $"Moves behind an Enemy.";
+                d.cardDescription = $"Moves to an Enemy.";
             },
 
             CardEffect = (User, Target, d) =>
@@ -484,7 +484,7 @@ public static class AssassinCards
             cardName = "Apply Scorching Blood Venom",
             cardType = CardType.Ability,
             cardClass = CardClass.Assassin,
-            cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison },
+            cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison, CardIdentity.Venom },
 
             cost_u = 0,
             charges_u = 3,

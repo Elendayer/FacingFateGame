@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Utility;
-using static UnityEngine.GraphicsBuffer;
 
 // Neutral cards (Class = 10)
 // ID-Schema: 10 | TT | II   (TT: MartialArt=01, Ability=02, Spell=03, Curse=04, Blessing=05, Item=06)
@@ -128,7 +127,7 @@ public static class NeutralCards
                 cardTargetingMode = CardTargetingMode.Single,
             },
 
-            CardDescription = (User, d) => d.cardDescription = "Hit the target twice.",
+            CardDescription = (User, d) => d.cardDescription = "Hit the target {Repeats} for {Damage}.",
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(d, Target, d.Damage);
@@ -147,7 +146,6 @@ public static class NeutralCards
             cost_u = 20,
             damage_u = 10,
             range_u = 2,
-            power_u = 1,
 
             targetingData = new()
             {
@@ -160,7 +158,7 @@ public static class NeutralCards
             CardEffect = (User, Target, d) =>
             {
                 CombatUtility.ApplyDamage(d, Target, d.Damage);
-                MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, d.Power);
+                MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, 1);
                 // TODO: 1 Feld wegschieben
             }
         });
