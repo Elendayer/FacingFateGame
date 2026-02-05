@@ -1,12 +1,7 @@
 fileFormatVersion: 2
 guid: 171c5051d845c4545a6679cdcb9e8290
 DefaultImporter:
+  externalObjects: {}
   userData: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 11672
-  packageName: Dialogue System for Unity
-  packageVersion: 2.2.64.1
-  assetPath: Assets/Plugins/Pixel Crushers/Common/Third Party Support/Compass Navigator
-    Pro 2 Support.unitypackage
-  uploadId: 843882
+  assetBundleName: 
+  assetBundleVariant: 
