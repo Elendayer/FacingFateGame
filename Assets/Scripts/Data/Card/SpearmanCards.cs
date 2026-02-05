@@ -1,5 +1,6 @@
 using UnityEngine;
 using Utility;
+using static facingfate.GameEvents;
 
 namespace facingfate
 {
@@ -27,10 +28,6 @@ namespace facingfate
                 cost_u = 20,
                 damage_u = 20,
                 repeats_u = 2,
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Deal {Damage} damage {Repeats} times";
-            },
 
                 range_u = 16,
                 radius_u = 3,
@@ -47,7 +44,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Deal {d.Damage} damage {d.Repeats} times";
+                    d.cardDescription = "Deal {Damage} damage {Repeats} times";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -69,10 +66,6 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Melee },
 
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Deal {Damage} damage";
-            },
                 cost_u = 25,
                 damage_u = 50,
 
@@ -87,7 +80,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Deal {d.Damage} damage";
+                    d.cardDescription = "Deal {Damage} damage";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -109,10 +102,8 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Deal {Damage} damage";
-            },
+                cost_u = 30,
+                damage_u = 85,
 
                 range_u = 4,
                 power_u = 3,
@@ -124,8 +115,10 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-            cost_u = 10,
-            damage_u = 4,
+                CardDescription = (User, d) =>
+                {
+                    d.cardDescription = "Deal {Damage} damage";
+                },
 
                 CardEffect = (User, Target, d) =>
                 {
@@ -148,18 +141,16 @@ namespace facingfate
 
                 cost_u = 10,
                 damage_u = 4,
-                duration_u = 3,
 
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Apply Bleed dealing {Damage} for {Duration} turns";
-            },
+                range_u = 4,
+                maxtarget_u = 3,
 
-            CardEffect = (User, Target, d) =>
-            {
-                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, d, ThroughputSource.Damage, User),ModifierMergeStrategy.RefreshDurationAndMerge);
-            }
-        });
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Entity,
+                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                    cardTargetingMode = CardTargetingMode.Select,
+                },
 
                 CardAiBias = new()
                 {
@@ -168,30 +159,12 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Apply Bleed dealing {d.Damage} for {d.Duration} turns";
+                    d.cardDescription = "Apply Bleed dealing {Damage} for {Duration} turns";
                 },
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier
-                        (
-                            modifierName: "Bleed",
-                            baseValue: d.Damage,
-                            duration: d.Duration,
-                            onRef_Trigger: new TriggerRef
-                            {
-                                OnTriggerReference = new() { GameplayRef.onTurnStart },
-                                AffectedEntities = new() { Target },
-                                UserEntity = User,
-                                CardData = d,
-                                Throughput = 0
-                            },
-                            onRef_Action: (data, target) =>
-                            {
-                                CombatUtility.ApplyEffectDamage(data.Value, target, GameplayRef.onBleed);
-                            }
-                        ),
-                     ModifierMergeStrategy.RefreshDurationAndMerge);
+                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
 
@@ -204,10 +177,6 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Deal {Damage} damage";
-            },
                 cost_u = 20,
                 damage_u = 30,
 
@@ -223,7 +192,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Deal {d.Damage} damage";
+                    d.cardDescription = "Deal {Damage} damage";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -247,10 +216,6 @@ namespace facingfate
 
                 cost_u = 20,
                 damage_u = 5,
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Deal {Damage} damage.";
-            },
 
                 //Slow Movement Cost increase
                 power_u = 1,
@@ -268,14 +233,14 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Deal {d.Damage} damage.";
+                    d.cardDescription = "Deal {Damage} damage.";
                 },
 
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target);
 
-                    CombatUtility.ApplyStatDebuff(d, Target, Target.entityStats.MovementCostModifier,
+                    CombatUtility.ApplyStatDebuff(d, Target,
                         new StatModifier
                         (
                             stat: Target.entityStats.MovementCostModifier,
@@ -314,13 +279,15 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Deal {d.Damage} damage.";
+                    d.cardDescription = "Deal {Damage} damage.";
                 },
 
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Deal {Damage} damage";
-            },
+                CardEffect = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyDamage(d, Target);
+                    // To-Do Slow
+                }
+            });
 
             // 110108 – Earthshatter Pole 
             CardDatabase.RegisterCard(new CardData()
@@ -346,7 +313,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Deal {d.Damage} damage";
+                    d.cardDescription = "Deal {Damage} damage";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -362,13 +329,16 @@ namespace facingfate
             // 110109 – Azure Dragon's Roar (Self; until end of turn)
             CardDatabase.RegisterCard(new CardData()
             {
-                d.cardDescription = $"Increses attack damage by {d.Power}.";
-            },
+                cardID = 110109,
+                cardName = "Azure Dragon's Roar",
+                cardType = CardType.Technique,
+                cardClass = CardClass.Spearman,
+                cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 10,
                 power_u = 10,
 
-                Debug.Log($"Applying Azure Dragon's Roar buff: +{d.Power} Damage for {d.Duration} turns.");
+                duration_u = 1,
 
                 targetingData = new()
                 {
@@ -384,96 +354,21 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Increses attack damage by {d.Power}.";
+                    d.cardDescription = "Increses attack damage by {Power}.";
                 },
 
-            duration_u = 2,
-
-            range_u = 2,
-            radius_u = 2,
-            area_u = 2,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.CombatTile,
-                CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardTargetingMode = CardTargetingMode.Radius,
-            },
-
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Deal {Damage} damage";
-            },
-
-            CardEffect = (User, Target, d) =>
-            {
-                CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier
+                CardEffect = (User, Target, d) =>
+                {
+                    var mod = new StatModifier
                     (
-                        modifierName: "Rooted",
-                        owner: Target,
-                        baseValue: d.Power,
-                        duration: d.Duration,
-                        onApply_Action: (target,cd,value) =>
-                        {
-                            target.entityStats.IsRooted = true;
-                        },
-                        onRemove_Action: (target, cd, value) =>
-                        {
-                            target.entityStats.IsRooted = false;
-                        }
-                    ),
-                 ModifierMergeStrategy.RefreshDurationAndMerge);
-
-                CombatUtility.ApplyDamage(d, Target);
-            },
-            CardEffectGround = (User, Target, d) =>
-            {
-                AssetManager.Instance.CreateFX("SpearFx", Target);
-            }
-        });
-    }
-
-    private static void RegisterAbilities()
-    {
-        // 110201 – Extending Heaven's Lance (Self; +range until end of turn)
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 110201,
-            cardName = "Extending Heaven's Lance",
-            cardType = CardType.Ability,
-            cardClass = CardClass.Spearman,
-            cardIdentities = new() { CardIdentity.Physical },
-
-            cost_u = 20,
-            power_u = 2,
-            duration_u = 1,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Self,
-                cardTargetingMode = CardTargetingMode.Single,
-            },
-
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Increase melee range by {Power} until end of turn.";
-            },
-
-            CardEffect = (User, Target, d) =>
-            {
-                CombatUtility.ApplyStatBuff(d, Target,
-                    new StatModifier(
-                        stat: Target.entityStats.RangeModifier,
+                        stat: Target.entityStats.DamageOutModifier,
                         value: d.Power,
                         scaling: ModifierScaling.Flat,
-                        condition: (e, c) => c.cardIdentities.Contains(CardIdentity.Melee) && c.range_u > 1,
-                        to_TriggerRefs: new() { },
                         duration: d.Duration,
                         name: $"DamageIncrease"
                         );
 
-                    Debug.Log($"Applying Azure Dragon's Roar buff: +{d.Power} Damage for {d.Duration} turns.");
+                    Debug.Log("Applying Azure Dragon's Roar buff: +{Power} Damage for {Duration} turns.");
 
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndOverride);
                 }
@@ -488,35 +383,10 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "On next hit taken this round, counter for {Damage}.";
-            },
+                cost_u = 36,
+                damage_u = 60,
 
-            CardEffect = (User, Target, d) =>
-            {
-                var mod = new EntityModifier(
-                    modifierName: "SpearmanIronWallReversalCounter",
-                    owner: Target,
-                    baseValue: d.Damage,
-                    toTriggerRefs: new(),
-                    duration: d.Duration,
-                    charges: d.Charges,
-                    onRef_Trigger: new RelevantTriggerCheck
-                    {
-                        OnTriggerReference = new() { GameplayRef.onHitLanded },
-                        CheckType = CheckEntityType.Target,
-                        CheckEntity = User,
-                    },
-                    onRef_Action: (target, cd, value) =>
-                    {
-                        Debug.Log($"Spearman Iron Wall Reversal counter triggered for {value} damage.");
-                        CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved);
-                    }
-                );
-                CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
-            }
-        });
+                duration_u = 2,
 
                 range_u = 2,
                 radius_u = 2,
@@ -531,70 +401,27 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Deal {d.Damage} damage";
+                    d.cardDescription = "Deal {Damage} damage";
                 },
 
-            CardAiBias = new()
-            {
-                PowerOverride = 80,
-            },
-
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = $"On next ranged hit this round reduce damage 100%";
-            },
-
-            CardEffect = (User, Target, d) =>
-            {
-                //To-Do Deflect Ranged
-            }
-        });
-
-        // 110204 – Unyielding Spear Stance (Self; Taunt + Armour +10 for 1 turn)
-        CardDatabase.RegisterCard(new CardData()
-        {
-            cardID = 110204,
-            cardName = "Unyielding Spear Stance",
-            cardType = CardType.Ability,
-            cardClass = CardClass.Spearman,
-            cardIdentities = new() { CardIdentity.Physical },
-
-            range_u = 2,
-
-            cost_u = 20,
-            power_u = 50,
-            duration_u = 1,
-
-            targetingData = new()
-            {
-                CardTargetType = CardTargetType.Entity,
-                CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                cardTargetingMode = CardTargetingMode.Single,
-            },
-
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "Taunt target and gain {Power} Armour for {Duration} turn.";
-            },
-
-            CardEffect = (User, Target, d) =>
-            {
-                // Apply Armour
-                CombatUtility.ApplyStatBuff(d, User,
-                    new StatModifier
-                    (
-                    stat: User.entityStats.Armour,
-                    value: d.Power,
-                    scaling: ModifierScaling.Flat,
-                    duration: d.Duration,
-                    name: $"ArmourIncrease"
-                    ),
-                    ModifierMergeStrategy.RefreshDurationAndMerge);
-
-                // Apply Taunt
-                CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Taunted", CloneMode.Defaults, d, ThroughputSource.Power, User), ModifierMergeStrategy.Override);
-            }
-        });
+                CardEffect = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier
+                        (
+                            modifierName: "Rooted",
+                            owner: Target,
+                            baseValue: d.Power,
+                            duration: d.Duration,
+                            onApply_Action: (target, cd, value) =>
+                            {
+                                target.entityStats.IsRooted = true;
+                            },
+                            onRemove_Action: (target, cd, value) =>
+                            {
+                                target.entityStats.IsRooted = false;
+                            }
+                        ),
+                     ModifierMergeStrategy.RefreshDurationAndMerge);
 
                     CombatUtility.ApplyDamage(d, Target);
                 },
@@ -627,32 +454,26 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-            CardDescription = (User, d) =>
-            {
-                d.cardDescription = "On next hit this turn, counter for {Damage}.";
-            },
-             
-            CardEffect = (User, Target, d) =>
-            {
-                var mod = new EntityModifier(
-                     modifierName: "SpearmanSkyRendingReversalCounter",
-                     owner: Target,
-                     baseValue: d.Damage,
-                     toTriggerRefs: new() { },
-                     duration: d.Duration,
-                     onRef_Trigger: new RelevantTriggerCheck
-                     {
-                         OnTriggerReference = new() { GameplayRef.onDamageRecieved },
-                            CheckType = CheckEntityType.Target,
-                            CheckEntity = User,
-                     },
-                    onRef_Action: (target, cd, value) =>
-                    {
-                        CombatUtility.ApplyDamage(null, target, value);
-                     }
-                 );
-                CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
-            }
+                CardDescription = (User, d) =>
+                {
+                    d.cardDescription = "Increase melee range by {Power} until end of turn.";
+                },
+
+                CardEffect = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyStatBuff(d, Target,
+                        new StatModifier(
+                            stat: Target.entityStats.RangeModifier,
+                            value: d.Power,
+                            scaling: ModifierScaling.Flat,
+                            condition: (e, c) => c.cardIdentities.Contains(CardIdentity.Melee) && c.range_u > 1,
+                            to_TriggerRefs: new() { },
+                            duration: d.Duration,
+                            name: $"MeleeRangeIncrease"
+                            ),
+                        ModifierMergeStrategy.RefreshDurationAndMerge
+                        );
+                }
             });
 
             // 110202 – Iron Wall Reversal (Self; fixed melee counter once)
@@ -678,27 +499,28 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"On next hit taken this round, counter for {d.Damage}.";
+                    d.cardDescription = "On next hit taken this round, counter for {Damage}.";
                 },
 
                 CardEffect = (User, Target, d) =>
                 {
                     var mod = new EntityModifier(
                         modifierName: "SpearmanIronWallReversalCounter",
+                        owner: Target,
                         baseValue: d.Damage,
                         toTriggerRefs: new(),
                         duration: d.Duration,
                         charges: d.Charges,
-                        onRef_Trigger: new TriggerRef
+                        onRef_Trigger: new RelevantTriggerCheck
                         {
                             OnTriggerReference = new() { GameplayRef.onHitLanded },
-                            AffectedEntities = new() { Target },
-                            UserEntity = User
+                            CheckType = CheckEntityType.Target,
+                            CheckEntity = User,
                         },
-                        onRef_Action: (data, target) =>
+                        onRef_Action: (target, cd, value) =>
                         {
-                            Debug.Log($"Spearman Iron Wall Reversal counter triggered for {data.Value} damage.");
-                            CombatUtility.ApplyEffectDamage(data.Value, data.TriggerReference.UserEntity, GameplayRef.onCounterRecieved);
+                            Debug.Log($"Spearman Iron Wall Reversal counter triggered for {value} damage.");
+                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved);
                         }
                     );
                     CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -708,40 +530,14 @@ namespace facingfate
             // 110203 – Whirling Heaven Ward (Self; deflect ranged once)
             CardDatabase.RegisterCard(new CardData()
             {
-                d.cardDescription = "Increses armour by {Power}) for adjacent allies and gives them thorns {Damage}.";
-            },
+                cardID = 110203,
+                cardName = "Whirling Heaven Ward",
+                cardType = CardType.Ability,
+                cardClass = CardClass.Spearman,
+                cardIdentities = new() { CardIdentity.Physical },
 
-            CardEffect = (User, Target, d) =>
-            {
-                CombatUtility.ApplyStatBuff(d, Target, 
-                    new StatModifier(
-                    stat: Target.entityStats.Armour,
-                    value: d.Power,
-                    scaling: ModifierScaling.Flat,
-                    duration: d.Duration,
-                    name: $"ArmourIncrease#{d.cardID}"),
-                    ModifierMergeStrategy.RefreshDurationAndMerge);
-                
-                CombatUtility.ApplyEntityModifier(d, Target, 
-                    new EntityModifier(
-                    modifierName: "SpearmanSkyRendingReversalCounter",
-                    owner: Target,
-                    baseValue: d.Damage,
-                    duration: d.Duration,
-                    onRef_Trigger: new RelevantTriggerCheck
-                    {
-                        OnTriggerReference = new() { GameplayRef.onDamageRecieved },
-                        CheckType = CheckEntityType.Target,
-                        CheckEntity = User,
-                    },
-                    onRef_Action: (target, cd, value) =>
-                    {
-                        CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onThorns);
-                    }),
-                    ModifierMergeStrategy.RefreshDurationAndMerge);
-            }
-        });
-    }
+                cost_u = 20,
+                duration_u = 1,
 
                 targetingData = new()
                 {
@@ -790,7 +586,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Taunt target and gain {d.Power} Armour for {d.Duration} turn.";
+                    d.cardDescription = "Taunt target and gain {Power} Armour for {Duration} turn.";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -799,7 +595,7 @@ namespace facingfate
                     CombatUtility.ApplyStatBuff(d, User,
                         new StatModifier
                         (
-                        stat: Target.entityStats.Armour,
+                        stat: User.entityStats.Armour,
                         value: d.Power,
                         scaling: ModifierScaling.Flat,
                         duration: d.Duration,
@@ -808,56 +604,18 @@ namespace facingfate
                         ModifierMergeStrategy.RefreshDurationAndMerge);
 
                     // Apply Taunt
-                    CombatUtility.ApplyEntityModifier(d, Target,
-                        new EntityModifier(
-                        modifierName: "Taunted",
-                                duration: d.Duration,
-                                onRef_Trigger: new TriggerRef
-                                {
-                                    OnTriggerReference = new() { },
-                                    AffectedEntities = new() { Target },
-                                    UserEntity = User,
-                                    CardData = d,
-                                    Throughput = 0
-                                },
-                                onApply_Trigger: new TriggerRef
-                                {
-                                    OnTriggerReference = new() { },
-                                    AffectedEntities = new() { Target },
-                                    UserEntity = User,
-                                    CardData = d,
-                                    Throughput = 0
-                                },
-                                onRemove_Trigger: new TriggerRef
-                                {
-                                    OnTriggerReference = new() { },
-                                    AffectedEntities = new() { Target },
-                                    UserEntity = User,
-                                    CardData = d,
-                                    Throughput = 0
-                                },
-                                onApply_Action: (data, target) =>
-                                {
-                                    target.entityStats.tauntTarget = User;
-                                },
-                                onRemove_Action: (data, target) =>
-                                {
-                                    target.entityStats.tauntTarget = null;
-                                }),
-                     ModifierMergeStrategy.Override);
+                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Taunted", CloneMode.Defaults, d, ThroughputSource.Power, User), ModifierMergeStrategy.Override);
                 }
             });
 
             // 110205 – Sky-Rending Reversal (Self; stronger fixed counter)
             CardDatabase.RegisterCard(new CardData()
             {
-                var stat = Target.entityStats.IgnoreArmour;
-                var mod = new StatModifier(
-                    stat: stat,
-                    value: d.Power,
-                    scaling: ModifierScaling.Percent,
-                    duration: d.Duration,
-                    name: $"ArmourReducution");
+                cardID = 110205,
+                cardName = "Sky-Rending Reversal",
+                cardType = CardType.Ability,
+                cardClass = CardClass.Spearman,
+                cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 8,
                 damage_u = 10,
@@ -871,25 +629,26 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"On next hit this turn, counter for {d.Damage}.";
+                    d.cardDescription = "On next hit this turn, counter for {Damage}.";
                 },
 
                 CardEffect = (User, Target, d) =>
                 {
                     var mod = new EntityModifier(
                          modifierName: "SpearmanSkyRendingReversalCounter",
+                         owner: Target,
                          baseValue: d.Damage,
                          toTriggerRefs: new() { },
                          duration: d.Duration,
-                         onRef_Trigger: new TriggerRef
+                         onRef_Trigger: new RelevantTriggerCheck
                          {
                              OnTriggerReference = new() { GameplayRef.onDamageRecieved },
-                             AffectedEntities = new() { Target },
-                             UserEntity = User
+                             CheckType = CheckEntityType.Target,
+                             CheckEntity = User,
                          },
-                        onRef_Action: (data, target) =>
+                        onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, data.Value);
+                            CombatUtility.ApplyDamage(null, target, value);
                         }
                      );
                     CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -922,7 +681,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Increses armour by {d.Power}) for adjacent allies and gives them thorns {d.Damage}.";
+                    d.cardDescription = "Increses armour by {Power}) for adjacent allies and gives them thorns {Damage}.";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -939,17 +698,18 @@ namespace facingfate
                     CombatUtility.ApplyEntityModifier(d, Target,
                         new EntityModifier(
                         modifierName: "SpearmanSkyRendingReversalCounter",
+                        owner: Target,
                         baseValue: d.Damage,
                         duration: d.Duration,
-                        onRef_Trigger: new TriggerRef
+                        onRef_Trigger: new RelevantTriggerCheck
                         {
                             OnTriggerReference = new() { GameplayRef.onDamageRecieved },
-                            AffectedEntities = new() { Target },
-                            UserEntity = User
+                            CheckType = CheckEntityType.Target,
+                            CheckEntity = User,
                         },
-                        onRef_Action: (data, target) =>
+                        onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyEffectDamage(data.Value, data.TriggerReference.UserEntity, GameplayRef.onThorns);
+                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onThorns);
                         }),
                         ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -992,7 +752,7 @@ namespace facingfate
                         value: d.Power,
                         scaling: ModifierScaling.Percent,
                         duration: d.Duration,
-                        name: $"ArmourReducution#{d.cardID}");
+                        name: $"ArmourReducution");
 
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -1022,7 +782,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Increase Aggro and attack power by {d.Power}% while active.";
+                    d.cardDescription = "Increase Aggro and attack power by {Power}% while active.";
                 },
 
                 CardEffect = (User, Target, d) =>

@@ -11,13 +11,8 @@ namespace facingfate
 
         public int Value(EntityScript entityScript = null, CardData cardData = null) => GetFinalValue(entityScript, cardData);
 
-    public readonly List<IStatModifier> statModifiers = new();
-    public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
-    {
-        //Debug.Log($"[Stat] Adding modifier: {modifier.ModifierName} with strategy: {strategy} for {modifier.BaseValue}");
-        var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
-
-        switch (strategy)
+        public readonly List<IStatModifier> statModifiers = new();
+        public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
         {
             //Debug.Log($"[Stat] Adding modifier: {modifier.ModifierName} with strategy: {strategy} for {modifier.BaseValue}");
             var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
@@ -33,25 +28,48 @@ namespace facingfate
                     statModifiers.Add(modifier);
                     break;
 
-            case ModifierMergeStrategy.RefreshDurationAndOverride:
-                if (existing is StatModifier existingRefreshDuration && modifier is StatModifier newRefreshDuration)
-                {
-                    existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
-                    existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
-                }
-                else
-                {
-                    statModifiers.Add(modifier);
-                }
-                break;
-        }
-        modifier.Init();
-    }
+                case ModifierMergeStrategy.Merge:
+                    if (existing is StatModifier existingMod && modifier is StatModifier newMod)
+                    {
+                        existingMod.BaseValue += newMod.BaseValue;
+                    }
+                    else
+                    {
+                        statModifiers.Add(modifier);
+                    }
+                    break;
 
-    public void RemoveModifier(IStatModifier modifier)
-    {
-        modifier.OnRemove();
-    }
+                case ModifierMergeStrategy.RefreshDurationAndMerge:
+                    if (existing is StatModifier existingRefresh && modifier is StatModifier newRefresh)
+                    {
+                        existingRefresh.BaseValue += newRefresh.BaseValue;
+                        existingRefresh.Duration = Math.Max(existingRefresh.GetRemainingDuration(), newRefresh.GetRemainingDuration());
+                    }
+                    else
+                    {
+                        statModifiers.Add(modifier);
+                    }
+                    break;
+
+                case ModifierMergeStrategy.RefreshDurationAndOverride:
+                    if (existing is StatModifier existingRefreshDuration && modifier is StatModifier newRefreshDuration)
+                    {
+                        existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
+                        existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
+                    }
+                    else
+                    {
+                        statModifiers.Add(modifier);
+                    }
+                    break;
+            }
+            modifier.Init();
+        }
+
+        public void RemoveModifier(IStatModifier modifier)
+        {
+            modifier.OnRemove();
+        }
 
         public int GetFlatValue()
         {
@@ -91,24 +109,14 @@ namespace facingfate
 
         }
 
-
-    private int GetFinalValue(EntityScript entityScript = null, CardData cardData = null)
-    {
-        int BaseValue = 0;
-        int percent = 0;
-        List<int> multipliers = new();
-
-        foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+        private int GetFinalValue(EntityScript entityScript = null, CardData cardData = null)
         {
-            // Check for conditional modifier and its condition
-            if (mod.Condition(entityScript, cardData))
-            {
-                if (mod.ModifierName == "MeleeRangeIncrease")
-                {
-                    Debug.Log($"[Stat] Applying modifier: {mod.ModifierName} with value: {mod.BaseValue}");
-                    Debug.Log(mod.Condition(entityScript, cardData));
-                }
+            int BaseValue = 0;
+            int percent = 0;
+            List<int> multipliers = new();
 
+            foreach (var mod in statModifiers.Where(m => !m.IsExpired))
+            {
                 // Check for conditional modifier and its condition
                 if (mod.Condition(entityScript, cardData))
                 {
@@ -131,29 +139,23 @@ namespace facingfate
                 }
             }
 
-        BaseValue = BaseValue * (100 + percent) / 100;
-        float floatBaseValue = (float)BaseValue;
+            BaseValue = BaseValue * (100 + percent) / 100;
+            float floatBaseValue = (float)BaseValue;
 
-        foreach (var mult in multipliers)
-        {
-            float pM = mult;
-            float pMulti = pM / 100f;
+            foreach (var mult in multipliers)
+            {
+                float pM = mult;
+                float pMulti = pM / 100f;
 
-            floatBaseValue = floatBaseValue * pMulti;
+                floatBaseValue = floatBaseValue * pMulti;
+            }
+
+            BaseValue = Mathf.RoundToInt(floatBaseValue);
+
+            return BaseValue;
         }
 
-        BaseValue = Mathf.RoundToInt(floatBaseValue);
-
-        return BaseValue;
-    }
-
-    public int ApplyFinalValue(int value, EntityScript entityScript = null, CardData cardData = null)
-    {
-        int baseValue = value;
-        int percent = 0;
-        List<int> multipliers = new();
-
-        foreach (IStatModifier mod in statModifiers.Where(m => !m.IsExpired))
+        public int ApplyFinalValue(int value, EntityScript entityScript = null, CardData cardData = null)
         {
             int baseValue = value;
             int percent = 0;
@@ -191,27 +193,29 @@ namespace facingfate
 
             baseValue = baseValue * (100 + percent) / 100;
 
+            float floatBaseValue = (float)baseValue;
+
             foreach (var mult in multipliers)
             {
-                baseValue = (baseValue * mult) / 100;
+                floatBaseValue = (floatBaseValue * mult) / 100;
             }
+
+            baseValue = Mathf.RoundToInt(floatBaseValue);
 
             return baseValue;
         }
 
-        baseValue = baseValue * (100 + percent) / 100;
-
-        float floatBaseValue = (float)baseValue;
-
-        foreach (var mult in multipliers)
+        public List<int> GetAllValues(ModifierScaling? filterType = null)
         {
-            floatBaseValue = (floatBaseValue * mult) / 100;
+            return statModifiers
+                .Where(m => !m.IsExpired && m is StatModifier sm && (!filterType.HasValue || sm.ModifierScaling == filterType.Value))
+                .Cast<StatModifier>()
+                .Select(m => m.BaseValue)
+                .ToList();
         }
 
-        baseValue = Mathf.RoundToInt(floatBaseValue);
-
-        return baseValue;
-    }
+        public bool HasReference(GameplayRef reference)
+            => statModifiers.Any(m => m.To_TriggerGameplayRefs.Contains(reference) && !m.IsExpired);
 
         public IStatModifier GetModifierByName(string name)
             => statModifiers.FirstOrDefault(m => m.ModifierName == name && !m.IsExpired);
@@ -221,6 +225,25 @@ namespace facingfate
             var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
             if (existing != null) statModifiers.Remove(existing);
             statModifiers.Add(modifier);
+        }
+
+        public void Tick()
+        {
+            foreach (IStatModifier mod in statModifiers)
+            {
+                if (mod != null)
+                {
+                    mod.Tick();
+                }
+            }
+        }
+
+        public void UpdateStat()
+        {
+            foreach (IStatModifier mod in statModifiers)
+            {
+                mod.UpdateStatModifier();
+            }
         }
     }
 
@@ -235,26 +258,6 @@ namespace facingfate
         RefreshDurationAndMerge,
         RefreshDurationAndOverride
     }
-
-    public void Tick()
-    {
-        foreach (IStatModifier mod in statModifiers)
-        {
-            if (mod != null)
-            {
-                mod.Tick();
-            }
-        }
-    }
-
-    public void UpdateStat()
-    {
-        foreach (IStatModifier mod in statModifiers)
-        {
-            mod.UpdateStatModifier();
-        }
-    }
-}
 
     public enum ModifierScaling
     {

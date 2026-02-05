@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace facingfate
 {
+
     public class EntityScript : MonoBehaviour
     {
         [Header("Main Enity Settings")]
@@ -26,26 +27,15 @@ namespace facingfate
 
         public virtual void StartUp()
         {
+
+
             EntityVisual = GetComponentInChildren<EntityVisualScript>();
             entityOnMap = GetComponentInChildren<EntityOnMap>();
 
             entityStats = new();
             entityStats.StartUp(this);
 
-        AddListeners();
-    }
-    private void AddListeners()
-    {
-        GameEvents.OnGameplayReference += TriggerAnimation;
-    }
-    private void TriggerAnimation(ToSendTriggerReference triggerRef)
-    {
-        var checkTrigger = new RelevantTriggerCheck
-        {
-            OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed },
-            CheckType = CheckEntityType.User,
-            CheckEntity = this
-        };
+            entityOnMap.Startup();
 
             AddListeners();
         }
@@ -53,16 +43,13 @@ namespace facingfate
         {
             GameEvents.OnGameplayReference += TriggerAnimation;
         }
-    }
-    public void PlayEffectAnimation(ToSendTriggerReference triggerRef)
-    {
-        foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
+        private void TriggerAnimation(ToSendTriggerReference triggerRef)
         {
-            var checkTrigger = new TriggerRef
+            var checkTrigger = new RelevantTriggerCheck
             {
-                UserEntity = this,
-                AffectedEntities = new() { this },
-                OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed }
+                OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed },
+                CheckType = CheckEntityType.User,
+                CheckEntity = this
             };
 
             if (GameEvents.CheckIfRelevantTrigger(triggerRef, checkTrigger))
@@ -71,7 +58,7 @@ namespace facingfate
                 PlayEffectAnimation(triggerRef);
             }
         }
-        public void PlayEffectAnimation(TriggerRef triggerRef)
+        public void PlayEffectAnimation(ToSendTriggerReference triggerRef)
         {
             foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
             {
@@ -157,7 +144,16 @@ namespace facingfate
 
             modifier.AddListener();
 
-            modifier.OnApply_ActionTrigger();
+            ToSendTriggerReference OnApplyTrigger = new ToSendTriggerReference
+            {
+                OnTriggerReference = new() { GameplayRef.onModifierApplied },
+                UserEntity = this,
+                AffectedEntities = new List<EntityScript> { this },
+                CardData = null,
+                Throughput = modifier.BaseValue
+            };
+
+            modifier.OnApply_ActionTrigger(OnApplyTrigger);
         }
 
         public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
@@ -172,17 +168,12 @@ namespace facingfate
             if (entityModifiers == null || entityModifiers.Count == 0)
                 return (false, null);
 
-        ToSendTriggerReference OnApplyTrigger = new ToSendTriggerReference
-        {
-            OnTriggerReference = new() { GameplayRef.onModifierApplied},
-            UserEntity = this,
-            AffectedEntities = new List<EntityScript> { this },
-            CardData = null,
-            Throughput = modifier.BaseValue
-        };
-
-        modifier.OnApply_ActionTrigger(OnApplyTrigger);
-    }
+            var modifier = entityModifiers.FirstOrDefault(m =>
+                m != null &&
+                m.ToTriggerGameplayRefs != null &&
+                m.ToTriggerGameplayRefs.Contains(reference) &&
+                !m.IsExpired
+            );
 
             return (modifier != null, modifier);
         }
@@ -201,7 +192,7 @@ namespace facingfate
             return c;
         }
 
-        public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef, bool consumeCharges = false)
+        public bool ActivateModifierWithReferenceOnce(GameplayRef reference, ToSendTriggerReference triggerRef, bool consumeCharges = false)
         {
             var modifier = entityModifiers.FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
             if (modifier != null)
@@ -220,9 +211,19 @@ namespace facingfate
             modifierNames.Clear();
             modifierNames.AddRange(entityModifiers.Select(c => c.ModifierName));
         }
+
+        public virtual void StartTurn()
+        {
+            entityStats.CurrentStamina = entityStats.MaxStamina.Value();
+
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                entityStats.TickAllStats();
+            });
+        }
     }
 
-    public bool ActivateModifierWithReferenceOnce(GameplayRef reference, ToSendTriggerReference triggerRef, bool consumeCharges = false)
+    public enum EntityAttributeEnum
     {
         Strength,
         Dexterity,
@@ -242,15 +243,5 @@ namespace facingfate
     public enum GameplayCondition
     {
         isDamaged,
-    }
-
-    public virtual void StartTurn()
-    {
-        entityStats.CurrentStamina = entityStats.MaxStamina.Value();
-
-        ActionQueueUtility.EnqueueAction(() =>
-        {
-            entityStats.TickAllStats();
-        });
     }
 }

@@ -14,7 +14,7 @@ namespace facingfate
         public static event Action OnCombatStart;
         public static event Action OnCombatEnd;
 
-    public static event Action<ToSendTriggerReference> OnGameplayReference;
+        public static event Action<ToSendTriggerReference> OnGameplayReference;
 
         public static void TriggerTurnStart() => OnTurnStart?.Invoke();
         public static void TriggerTurnEnd() => OnTurnEnd?.Invoke();
@@ -27,39 +27,39 @@ namespace facingfate
 
         public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());
 
-    public static void TriggerRefEvent(ToSendTriggerReference grs)
-    {
-        TimelineManager.AddToTimeline(grs);
-        OnGameplayReference?.Invoke(grs);
-    }
-
-    public static bool CheckIfRelevantTrigger(ToSendTriggerReference sendReference, RelevantTriggerCheck checkReference)
-    {
-        // Null checks ï¿½ positive condition: both references must be non-null
-        if (sendReference.OnTriggerReference != null && checkReference.OnTriggerReference != null)
+        public static void TriggerRefEvent(ToSendTriggerReference grs)
         {
-            // Check for overlap in OnTriggerReference ï¿½ positive condition: there is at least one overlapping trigger
-            if (sendReference.OnTriggerReference.Intersect(checkReference.OnTriggerReference).Any())
-            {
-                // Check entity relevance based on type
-                switch (checkReference.CheckType)
-                {
-                    case CheckEntityType.User:
-                        if (sendReference.UserEntity == checkReference.CheckEntity)
-                            return true;
-                        break;
-
-                    case CheckEntityType.Target:
-                        if (sendReference.AffectedEntities != null && sendReference.AffectedEntities.Contains(checkReference.CheckEntity))
-                            return true;
-                        break;
-                }
-            }
-            return false;
+            TimelineManager.AddToTimeline(grs);
+            OnGameplayReference?.Invoke(grs);
         }
 
-        // If none of the positive checks succeed, return false
-        return false;
+        public static bool CheckIfRelevantTrigger(ToSendTriggerReference sendReference, RelevantTriggerCheck checkReference)
+        {
+            // Null checks – positive condition: both references must be non-null
+            if (sendReference.OnTriggerReference != null && checkReference.OnTriggerReference != null)
+            {
+                // Check for overlap in OnTriggerReference – positive condition: there is at least one overlapping trigger
+                if (sendReference.OnTriggerReference.Intersect(checkReference.OnTriggerReference).Any())
+                {
+                    // Check entity relevance based on type
+                    switch (checkReference.CheckType)
+                    {
+                        case CheckEntityType.User:
+                            if (sendReference.UserEntity == checkReference.CheckEntity)
+                                return true;
+                            break;
+
+                        case CheckEntityType.Target:
+                            if (sendReference.AffectedEntities != null && sendReference.AffectedEntities.Contains(checkReference.CheckEntity))
+                                return true;
+                            break;
+                    }
+                }
+            }
+
+            // If none of the positive checks succeed, return false
+            return false;
+        }
     }
 
     // -------------------- Referenece Struct --------------------
@@ -113,10 +113,10 @@ namespace facingfate
         User,
         Target
     }
-// -------------------- Gameplay References Enum --------------------
-public enum GameplayRef
-{
-    None,
+    // -------------------- Gameplay References Enum --------------------
+    public enum GameplayRef
+    {
+        None,
 
         //Status Effects
         onBurn,
@@ -147,34 +147,20 @@ public enum GameplayRef
 
         taunt,
 
-    //Combat Events
-    onDamage,
-    onBlocking,
-    onBuffed,
-    onAttack,
-    onHeal,
-    onDeath,
-    onSummon,
-    onLifesteal,
-    onCounterRecieved,
-    onDamageRecieved,
-    onHealRecieved,
-    onBuffRecieved,
-    onDebuffRecieved,
-
-    //Game Flow
-    onTurnStart,
-    onTurnEnd,
-    onRoundStart,
-    onRoundEnd,
-    onCardPlayed,
-    onCardEffectEnd,
-    onCardDrawn,
-    onCardDiscarded,
-    onStatChanged,
-    onModifierApplied,
-    onModifierExpired,
-    onHitLanded,
+        //Combat Events
+        onDamage,
+        onBlocking,
+        onBuffed,
+        onAttack,
+        onHeal,
+        onDeath,
+        onSummon,
+        onLifesteal,
+        onCounterRecieved,
+        onDamageRecieved,
+        onHealRecieved,
+        onBuffRecieved,
+        onDebuffRecieved,
 
         //Game Flow
         onTurnStart,
@@ -182,6 +168,7 @@ public enum GameplayRef
         onRoundStart,
         onRoundEnd,
         onCardPlayed,
+        onCardEffectEnd,
         onCardDrawn,
         onCardDiscarded,
         onStatChanged,
@@ -201,15 +188,26 @@ public enum GameplayRef
         Blessing,
         Curse,
 
-    //Alchemy
-    Venom,
+        //Identites
+        Non,
+        Physical,
+        Fire,
+        Ice,
+        Air,
+        Earth,
+        Shadow,
+        Poison,
+        Light,
+        Blood,
+        Arcane,
+        Soul,
+        Divine,
+        Occult,
+        Melee,
+        Ranged,
 
-    //Classes
-    Spearman,
-    Assassin,
-    Mystic,
-    Physician,
-    Neutral,
+        //Alchemy
+        Venom,
 
         //Classes
         Spearman,
@@ -218,17 +216,19 @@ public enum GameplayRef
         Physician,
         Neutral,
 
-    //Classes Old
-    Knight,
-    Rogue,
-    Wizard,
-    Cleric,
-    Paladin,
-    Warlock,
-    Ranger,
-    Druid,
-    Barbarian,
-    Alchemist,
-    Monster,
 
+        //Classes Old
+        Knight,
+        Rogue,
+        Wizard,
+        Cleric,
+        Paladin,
+        Warlock,
+        Ranger,
+        Druid,
+        Barbarian,
+        Alchemist,
+        Monster,
+
+    }
 }

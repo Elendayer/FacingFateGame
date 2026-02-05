@@ -244,31 +244,32 @@ namespace facingfate
             }
         }
 
-    public void StartTurn(EntityScript entity)
-    {
-        // Only for player for now
-        if (entity.GetType() == typeof(PlayerScript))
+        public void StartTurn(EntityScript entity)
         {
+            // Only for player for now
             if (entity.GetType() == typeof(PlayerScript))
             {
-                MoveInDeck(entity);
+                if (entity.GetType() == typeof(PlayerScript))
+                {
+                    MoveInDeck(entity);
 
-                for (int i = 0; i < 5; i++)
+                    for (int i = 0; i < 5; i++)
+                    {
+                        DrawTopCard();
+                    }
+                }
+                else
                 {
                     DrawTopCard();
                 }
             }
-            else
-            {
-                DrawTopCard();
-            } 
-        }        
-    }
-    public void EndTurn(EntityScript entity)
-    {
-        if (entity.GetType() == typeof(PlayerScript))
+        }
+        public void EndTurn(EntityScript entity)
         {
-            MoveOutDeck(entity);
+            if (entity.GetType() == typeof(PlayerScript))
+            {
+                MoveOutDeck(entity);
+            }
         }
     }
 }

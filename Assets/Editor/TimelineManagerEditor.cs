@@ -1,4 +1,4 @@
-// Editor/TimelineManagerEditor.cs
+﻿// Editor/TimelineManagerEditor.cs
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -6,7 +6,8 @@ using UnityEngine;
 
 namespace facingfate
 {
-    [CustomEditor(typeof(TimelineManager))]
+
+    [CustomEditor(typeof(facingfate.TimelineManager))]
     public class TimelineManagerEditor : Editor
     {
         private bool showTimeline = true;
@@ -106,13 +107,7 @@ namespace facingfate
             EditorGUI.indentLevel--;
         }
 
-        EditorGUILayout.EndScrollView();
-        EditorGUI.indentLevel--;
-    }
-
-    private void DrawTriggerBox(ToSendTriggerReference triggerRef, Color bgColor)
-    {
-        var boxStyle = new GUIStyle()
+        private void DrawTriggerBox(ToSendTriggerReference triggerRef, Color bgColor)
         {
             var boxStyle = new GUIStyle()
             {

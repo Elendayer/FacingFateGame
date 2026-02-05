@@ -73,23 +73,24 @@ namespace facingfate
                 return;
             }
 
-        Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
-        List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
+            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+            List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
 
-        if (cardScript.cardData.targetingData.TargetingUsesVision)
-        {
-            validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
-        }
+            if (cardScript.cardData.targetingData.TargetingUsesVision)
+            {
+                validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
+            }
 
             if (validTiles.Contains(dropCell))
             {
                 targetingModeData = TargetingUtility.GetAffected(cardScript, dropCell, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedTilesDuringDrag, true);
 
-                if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
+                // Check If the Card requires a Target
+                if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
                 {
                     List<EntityScript> t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell }, FindObjectsByType<EntityScript>(0).ToList());
 
-                    if (!TargetingUtility.IsTargetValid(cardScript, cardScript.cardData.Owner, t.FirstOrDefault()))
+                    if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
                     {
                         return;
                     }
@@ -147,18 +148,17 @@ namespace facingfate
 
                 TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
             }
+            else
+            {
+                TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
+            }
 
-            TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
-        }
-        else
-        {
-            TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
-        }
+            if (!validTiles.Contains(hoveredTile.Value))
+            {
+                return;
+            }
 
-        if (!validTiles.Contains(hoveredTile.Value))
-        {
-            return;
-        }
+            var targetingData = TargetingUtility.GetAffected(cardScript, hoveredTile.Value, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedTilesDuringDrag);
 
             TilemapUtilityScript.SetTilesHighlight(targetingData.targetedTiles, TilemapUtilityScript.HighlightType.Target);
 

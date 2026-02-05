@@ -1,42 +1,38 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
-using static TimelineManager;
 
 namespace facingfate
 {
-    string ModifierName { get; }
+    public interface IEntityModifier
+    {
+        string ModifierName { get; }
 
-    EntityScript Owner { get; set; }
+        EntityScript Owner { get; set; }
 
-    int BaseValue { get; set; }
-    int Duration { get; set; }
-    bool IsExpired { get; }
-    int Charges { get; set; }
+        int BaseValue { get; set; }
+        int Duration { get; set; }
+        bool IsExpired { get; }
+        int Charges { get; set; }
 
-    // Triggering
-    List<GameplayRef> ToTriggerGameplayRefs { get; }
-    RelevantTriggerCheck OnRef_Trigger { get; }
+        // Triggering
+        List<GameplayRef> ToTriggerGameplayRefs { get; }
+        RelevantTriggerCheck OnRef_Trigger { get; }
 
-    void AddListener();
-    void OnRef_ActionCall(ToSendTriggerReference triggerReference);
-    void OnApply_ActionTrigger(ToSendTriggerReference triggerReference);
-    void onRemove_ActionTrigger(ToSendTriggerReference triggerReference);
-    void OnManuel_ActionTrigger(ToSendTriggerReference triggerReference, bool consumeCharges = false);
-}
+        void AddListener();
+        void OnRef_ActionCall(ToSendTriggerReference triggerReference);
+        void OnApply_ActionTrigger(ToSendTriggerReference triggerReference);
+        void onRemove_ActionTrigger(ToSendTriggerReference triggerReference);
+        void OnManuel_ActionTrigger(ToSendTriggerReference triggerReference, bool consumeCharges = false);
+    }
 
-[System.Serializable]
-public class EntityModifier : IEntityModifier
-{
-    //Main
-    public string ModifierName { get; set; }
-
-    public EntityScript Owner { get; set; }
-    public int BaseValue
+    [System.Serializable]
+    public class EntityModifier : IEntityModifier
     {
         //Main
-        public string ModifierName { get; private set; }
+        public string ModifierName { get; set; }
+
+        public EntityScript Owner { get; set; }
         public int BaseValue
         {
             get
@@ -62,38 +58,40 @@ public class EntityModifier : IEntityModifier
         public int Charges { get; set; } = 0;
         public bool IsSpend => Charges <= 0;
 
-        // Associated StatModifier
-        public StatModifier StatModifier { get; set; }
-
         // Triggering
-        public List<GameplayRef> ToTriggerGameplayRefs { get; private set; }
-        public TriggerRef OnRef_Trigger { get; private set; } = new TriggerRef();
-        public TriggerRef OnRemove_Trigger { get; private set; } = new TriggerRef();
-        public TriggerRef OnApply_Trigger { get; private set; } = new TriggerRef();
+        public List<GameplayRef> ToTriggerGameplayRefs { get; set; }
 
+        public RelevantTriggerCheck OnRef_Trigger { get; set; }
+        public RelevantTriggerCheck OnRemove_Trigger { get; set; }
+        public RelevantTriggerCheck OnApply_Trigger { get; set; }
+
+        // Action Target Type
+        public ActionTargetType TargetType { get; set; } = ActionTargetType.User;
         // Action to perform on trigger
-        public Action<TriggerActionData, EntityScript> OnRef_Action;
-        public Action<TriggerActionData, EntityScript> OnApply_Action;
-        public Action<TriggerActionData, EntityScript> OnRemove_Action;
+        public Action<EntityScript, CardData, int> OnRef_Action;
+        public Action<EntityScript, CardData, int> OnApply_Action;
+        public Action<EntityScript, CardData, int> OnRemove_Action;
 
         // Constructor
         public EntityModifier
         (
         string modifierName,
+        EntityScript owner,
         int baseValue = 0,
         List<GameplayRef> toTriggerRefs = null,
-        TriggerRef onRef_Trigger = new TriggerRef(),
-        TriggerRef onApply_Trigger = new TriggerRef(),
-        TriggerRef onRemove_Trigger = new TriggerRef(),
+        RelevantTriggerCheck onRef_Trigger = new RelevantTriggerCheck(),
+        RelevantTriggerCheck onApply_Trigger = new RelevantTriggerCheck(),
+        RelevantTriggerCheck onRemove_Trigger = new RelevantTriggerCheck(),
         int duration = 99999,
         int charges = 99999,
-        Stat targetStat = null,
-        Action<TriggerActionData, EntityScript> onRef_Action = null,
-        Action<TriggerActionData, EntityScript> onApply_Action = null,
-        Action<TriggerActionData, EntityScript> onRemove_Action = null
+        ActionTargetType actionTargetType = ActionTargetType.User,
+        Action<EntityScript, CardData, int> onRef_Action = null,
+        Action<EntityScript, CardData, int> onApply_Action = null,
+        Action<EntityScript, CardData, int> onRemove_Action = null
         )
         {
             ModifierName = modifierName;
+            Owner = owner;
             BaseValue = baseValue;
             ToTriggerGameplayRefs = toTriggerRefs;
             OnRef_Trigger = onRef_Trigger;
@@ -101,6 +99,7 @@ public class EntityModifier : IEntityModifier
             OnRemove_Trigger = onRemove_Trigger;
             Duration = duration;
             Charges = charges;
+            TargetType = actionTargetType;
             OnRef_Action = onRef_Action;
             OnApply_Action = onApply_Action;
             OnRemove_Action = onRemove_Action;
@@ -113,96 +112,20 @@ public class EntityModifier : IEntityModifier
         }
         public int GetRemainingDuration() => Duration;
 
-        public void OnRef_ActionCall(TriggerRef trigger)
+
+        public void OnRef_ActionCall(ToSendTriggerReference trigger)
         {
-
-    // Triggering
-    public List<GameplayRef> ToTriggerGameplayRefs { get;  set; }
-
-    public RelevantTriggerCheck OnRef_Trigger { get;  set; }
-    public RelevantTriggerCheck OnRemove_Trigger { get;  set; } 
-    public RelevantTriggerCheck OnApply_Trigger { get;  set; }
-
-    // Action Target Type
-    public ActionTargetType TargetType { get; set; } = ActionTargetType.User;
-    // Action to perform on trigger
-    public Action<EntityScript, CardData, int> OnRef_Action;
-    public Action<EntityScript, CardData, int> OnApply_Action;
-    public Action<EntityScript, CardData, int> OnRemove_Action;
-
-    // Constructor
-    public EntityModifier
-    (
-    string modifierName, 
-    EntityScript owner,
-    int baseValue = 0, 
-    List<GameplayRef> toTriggerRefs = null,
-    RelevantTriggerCheck onRef_Trigger = new RelevantTriggerCheck(),
-    RelevantTriggerCheck onApply_Trigger = new RelevantTriggerCheck(),
-    RelevantTriggerCheck onRemove_Trigger = new RelevantTriggerCheck(),
-    int duration = 99999,
-    int charges = 99999,
-    ActionTargetType actionTargetType = ActionTargetType.User,
-    Action<EntityScript, CardData, int> onRef_Action = null,
-    Action<EntityScript, CardData, int> onApply_Action = null,
-    Action<EntityScript, CardData, int> onRemove_Action = null
-    )
-    {
-        ModifierName = modifierName;
-        Owner = owner;
-        BaseValue = baseValue;
-        ToTriggerGameplayRefs = toTriggerRefs;
-        OnRef_Trigger = onRef_Trigger;
-        OnApply_Trigger = onApply_Trigger;
-        OnRemove_Trigger = onRemove_Trigger;
-        Duration = duration;
-        Charges = charges;
-        TargetType = actionTargetType;
-        OnRef_Action = onRef_Action;
-        OnApply_Action = onApply_Action;
-        OnRemove_Action = onRemove_Action;
-    }
-
-            // Tick Duration if its not triggered at TurnStart and has Duration
-            if (!OnRef_Trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+            // Check if Trigger is Relevant
+            if (GameEvents.CheckIfRelevantTrigger(trigger, OnRef_Trigger))
             {
-                TriggerRef DurationTrigger = new TriggerRef(
-                references: new() { GameplayRef.onTurnEnd },
-                userEntity: OnRef_Trigger.UserEntity,
-                affectedEntities: new() { OnRef_Trigger.AffectedEntities[0]
-                });
-
-
-    public void OnRef_ActionCall(ToSendTriggerReference trigger)
-    {
-        // Check if Trigger is Relevant
-        if (GameEvents.CheckIfRelevantTrigger(trigger, OnRef_Trigger))
-        {
-            //Activate Effect
-            switch (TargetType)
-            {
-                case ActionTargetType.User:
-                    {
-                        ActionQueueUtility.EnqueueAction(() =>
-                        {
-                            OnRef_Action?.Invoke(OnRef_Trigger.CheckEntity, trigger.CardData, trigger.Throughput);
-
-                            // Trigger further GameplayRefs
-                            if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
-                            {
-                                GameEvents.TriggerRefEvent(new ToSendTriggerReference(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, null, BaseValue));
-                            }
-                        });
-                    }
-                    break;
-
-                case ActionTargetType.Affected:
-                    {
-                        foreach (EntityScript entity in trigger.AffectedEntities)
+                //Activate Effect
+                switch (TargetType)
+                {
+                    case ActionTargetType.User:
                         {
                             ActionQueueUtility.EnqueueAction(() =>
                             {
-                                OnRef_Action?.Invoke(entity, trigger.CardData, trigger.Throughput);
+                                OnRef_Action?.Invoke(OnRef_Trigger.CheckEntity, trigger.CardData, trigger.Throughput);
 
                                 // Trigger further GameplayRefs
                                 if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
@@ -211,18 +134,108 @@ public class EntityModifier : IEntityModifier
                                 }
                             });
                         }
+                        break;
+
+                    case ActionTargetType.Affected:
+                        {
+                            foreach (EntityScript entity in trigger.AffectedEntities)
+                            {
+                                ActionQueueUtility.EnqueueAction(() =>
+                                {
+                                    OnRef_Action?.Invoke(entity, trigger.CardData, trigger.Throughput);
+
+                                    // Trigger further GameplayRefs
+                                    if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
+                                    {
+                                        GameEvents.TriggerRefEvent(new ToSendTriggerReference(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, null, BaseValue));
+                                    }
+                                });
+                            }
+                        }
+                        break;
+                }
+
+                // Consume Charge if it has Charges
+                if (Charges < 9999)
+                {
+                    Charges--;
+                }
+
+
+                // Tick Duration if Effect Triggers on Turnstart
+                if (trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+                {
+                    if (Duration < 9999)
+                    {
+                        Duration--;
                     }
-                    break;
+                }
+
+                if (IsExpired || IsSpend)
+                {
+                    ActionQueueUtility.EnqueueAction(() =>
+                    {
+                        OnRemove();
+                    });
+
+                    return;
+                }
             }
 
-            if (Charges < 9999)
+            // Tick Duration if its not triggered at TurnStart and has Duration
+            if (!OnRef_Trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
             {
-                Charges--;
+                RelevantTriggerCheck FallBackEndTurnTrigger = new RelevantTriggerCheck()
+                {
+                    OnTriggerReference = new List<GameplayRef>() { GameplayRef.onTurnEnd },
+                    CheckType = CheckEntityType.User,
+                    CheckEntity = Owner,
+                };
+
+                if (GameEvents.CheckIfRelevantTrigger(trigger, FallBackEndTurnTrigger))
+                {
+                    if (Duration < 99999)
+                    {
+                        Duration--;
+                    }
+                }
+
+                if (IsExpired || IsSpend)
+                {
+                    ActionQueueUtility.EnqueueAction(() =>
+                    {
+                        OnRemove();
+                    });
+                }
             }
+        }
+
+        public void OnApply_ActionTrigger(ToSendTriggerReference trigger)
+        {
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                OnApply_Action?.Invoke(trigger.UserEntity, trigger.CardData, trigger.Throughput);
+            });
+        }
+        public void onRemove_ActionTrigger(ToSendTriggerReference trigger)
+        {
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                OnRemove_Action?.Invoke(trigger.UserEntity, trigger.CardData, trigger.Throughput);
+            });
+        }
+        public void OnManuel_ActionTrigger(ToSendTriggerReference trigger, bool consumeCharges = false)
+        {
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                Debug.Log($"EntityModifier {ModifierName} manually triggered action. By {trigger.UserEntity} at {trigger.AffectedEntities[0]}");
+                OnRef_Action?.Invoke(trigger.UserEntity, trigger.CardData, trigger.Throughput);
+
+                GameEvents.TriggerRefEvent(new ToSendTriggerReference(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, trigger.CardData, trigger.Throughput));
+            });
 
 
-            // Tick Duration if Effect Triggers on Turnstart
-            if (trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+            if (consumeCharges)
             {
                 if (Charges < 99999)
                 {
@@ -230,170 +243,101 @@ public class EntityModifier : IEntityModifier
                     Debug.Log($"FunctionModifier duration: {Duration}");
                 }
             }
-
             if (IsExpired || IsSpend)
             {
                 ActionQueueUtility.EnqueueAction(() =>
                 {
                     OnRemove();
                 });
-
-                return;
             }
         }
-
-        // Tick Duration if its not triggered at TurnStart and has Duration
-        if (!OnRef_Trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+        public void OnRemove()
         {
-            RelevantTriggerCheck FallBackEndTurnTrigger = new RelevantTriggerCheck()
-            {
-                OnTriggerReference = new List<GameplayRef>() { GameplayRef.onTurnEnd },
-                CheckType = CheckEntityType.User,
-                CheckEntity = Owner,
-            };
+            ToSendTriggerReference RemovalTrigger = new ToSendTriggerReference(OnRemove_Trigger.OnTriggerReference, Owner, new List<EntityScript>() { Owner }, null, 0);
 
-            if (GameEvents.CheckIfRelevantTrigger(trigger, FallBackEndTurnTrigger))
+            onRemove_ActionTrigger(RemovalTrigger);
+
+            foreach (var Reference in OnRef_Trigger.OnTriggerReference)
             {
                 GameEvents.OnGameplayReference -= OnRef_ActionCall;
             }
+            Owner.RemoveModifier(this);
+        }
 
-            if (IsExpired || IsSpend)
+        public EntityModifier CloneOverrideFromData(
+            CardData cd,
+            ThroughputSource source,
+            EntityScript user)
+        {
+            int baseValue = source switch
             {
-                ActionQueueUtility.EnqueueAction(() =>
-                {
-                    OnRemove();
-                });
-            }
+                ThroughputSource.Damage => cd.Damage,
+                ThroughputSource.Heal => cd.Healing,
+                ThroughputSource.Power => cd.Power,
+                _ => 0
+            };
+            return new EntityModifier
+            (
+                modifierName: ModifierName,
+                owner: cd.Owner,
+                baseValue: baseValue,
+                toTriggerRefs: ToTriggerGameplayRefs,
+                onRef_Trigger: OnRef_Trigger,
+                onApply_Trigger: OnApply_Trigger,
+                onRemove_Trigger: OnRemove_Trigger,
+                duration: cd.Duration,
+                charges: cd.Charges,
+                actionTargetType: TargetType,
+                onRef_Action: OnRef_Action,
+                onApply_Action: OnApply_Action,
+                onRemove_Action: OnRemove_Action
+            );
         }
-    }
-
-    public void OnApply_ActionTrigger(ToSendTriggerReference trigger)
-    {
-        ActionQueueUtility.EnqueueAction(() =>
+        public EntityModifier CloneDefaults(
+          CardData cd,
+          ThroughputSource source,
+          EntityScript user)
         {
-            OnApply_Action?.Invoke(trigger.UserEntity, trigger.CardData, trigger.Throughput);
-        });
-    }
-    public void onRemove_ActionTrigger(ToSendTriggerReference trigger)
-    {
-        ActionQueueUtility.EnqueueAction(() =>
-        {
-            OnRemove_Action?.Invoke(trigger.UserEntity, trigger.CardData, trigger.Throughput);
-        });
-    }
-    public void OnManuel_ActionTrigger(ToSendTriggerReference trigger, bool consumeCharges = false)
-    {
-        ActionQueueUtility.EnqueueAction(() =>
-        {
-            Debug.Log($"EntityModifier {ModifierName} manually triggered action. By {trigger.UserEntity} at {trigger.AffectedEntities[0]}");
-            OnRef_Action?.Invoke(trigger.UserEntity, trigger.CardData, trigger.Throughput);
-
-            GameEvents.TriggerRefEvent(new ToSendTriggerReference(ToTriggerGameplayRefs, trigger.UserEntity, trigger.AffectedEntities, trigger.CardData, trigger.Throughput));
-        });
-
-
-        if (consumeCharges)
-        {
-            if (Charges < 99999)
+            int baseValue = source switch
             {
-                Duration--;
-                Debug.Log($"FunctionModifier duration: {Duration}");
-            }
+                ThroughputSource.Damage => cd.Damage,
+                ThroughputSource.Heal => cd.Healing,
+                ThroughputSource.Power => cd.Power,
+                _ => 0
+            };
+            return new EntityModifier
+            (
+                modifierName: ModifierName,
+                owner: user,
+                baseValue: baseValue,
+                toTriggerRefs: ToTriggerGameplayRefs,
+                onRef_Trigger: OnRef_Trigger,
+                onApply_Trigger: OnApply_Trigger,
+                onRemove_Trigger: OnRemove_Trigger,
+                duration: Duration,
+                charges: Charges,
+                actionTargetType: TargetType,
+                onRef_Action: OnRef_Action,
+                onApply_Action: OnApply_Action,
+                onRemove_Action: OnRemove_Action
+            );
         }
-        if (IsExpired || IsSpend)
+        public enum ActionTargetType
         {
-            ActionQueueUtility.EnqueueAction(() =>
-            {
-                OnRemove();
-            });
+            User,
+            Affected,
         }
     }
-    public void OnRemove()
-    {
-        ToSendTriggerReference RemovalTrigger = new ToSendTriggerReference(OnRemove_Trigger.OnTriggerReference, Owner, new List<EntityScript>() { Owner }, null, 0);
 
-        onRemove_ActionTrigger(RemovalTrigger);
-
-        foreach (var Reference in OnRef_Trigger.OnTriggerReference)
-        {
-            GameEvents.OnGameplayReference -= OnRef_ActionCall;
-        }
-        Owner.RemoveModifier(this);
-    }
-
-    public EntityModifier CloneOverrideFromData(
-        CardData cd,
-        ThroughputSource source,
-        EntityScript user)
+    public enum ThroughputSource
     {
-        int baseValue = source switch
-        {
-            ThroughputSource.Damage => cd.Damage,
-            ThroughputSource.Heal => cd.Healing,
-            ThroughputSource.Power => cd.Power,
-            _ => 0
-        };
-        return new EntityModifier
-        (
-            modifierName:  ModifierName,
-            owner: cd.Owner,
-            baseValue: baseValue,
-            toTriggerRefs:  ToTriggerGameplayRefs,
-            onRef_Trigger:  OnRef_Trigger,
-            onApply_Trigger:  OnApply_Trigger,
-            onRemove_Trigger:  OnRemove_Trigger,
-            duration: cd.Duration,
-            charges: cd.Charges,
-            actionTargetType:  TargetType,
-            onRef_Action:  OnRef_Action,
-            onApply_Action:  OnApply_Action,
-            onRemove_Action:  OnRemove_Action
-        );
+        Damage,
+        Heal,
+        Power
     }
-    public EntityModifier CloneDefaults(
-      CardData cd,
-      ThroughputSource source,
-      EntityScript user)
+    public enum CloneMode
     {
-        int baseValue = source switch
-        {
-            ThroughputSource.Damage => cd.Damage,
-            ThroughputSource.Heal => cd.Healing,
-            ThroughputSource.Power => cd.Power,
-            _ => 0
-        };
-        return new EntityModifier
-        (
-            modifierName: ModifierName,
-            owner: user,
-            baseValue: baseValue,
-            toTriggerRefs: ToTriggerGameplayRefs,
-            onRef_Trigger: OnRef_Trigger,
-            onApply_Trigger:  OnApply_Trigger,
-            onRemove_Trigger:  OnRemove_Trigger,
-            duration: Duration,
-            charges: Charges,
-            actionTargetType:  TargetType,
-            onRef_Action:  OnRef_Action,
-            onApply_Action:  OnApply_Action,
-            onRemove_Action:  OnRemove_Action
-        );
+        Defaults,
+        OverrideFromData,
     }
-    public enum ActionTargetType
-    {
-        User,
-        Affected,
-    }
-}
-
-public enum ThroughputSource
-{
-    Damage,
-    Heal,
-    Power
-}
-public enum CloneMode
-{
-    Defaults,
-    OverrideFromData,
 }

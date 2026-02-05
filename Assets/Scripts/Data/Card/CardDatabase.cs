@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Utility;
-
 namespace facingfate
 {
     public static class CardDatabase
@@ -37,26 +36,17 @@ namespace facingfate
 
         public static void RegisterAll()
         {
+            // Register cards from all classes
             SpearmanCards.RegisterAll();
             AssassinCards.RegisterAll();
             MysticCards.RegisterAll();
             PhysicianCards.RegisterAll();
             NeutralCards.RegisterAll();
+
+            //ReGister Effects
+            EffectDatabase.RegisterAll();
+
+            //Register completed
         }
-    }
-
-    public static void RegisterAll()
-    {
-        // Register cards from all classes
-        SpearmanCards.RegisterAll();
-        AssassinCards.RegisterAll();
-        MysticCards.RegisterAll();
-        PhysicianCards.RegisterAll();
-        NeutralCards.RegisterAll();
-
-        //ReGister Effects
-        EffectDatabase.RegisterAll();
-
-        //Register completed
     }
 }

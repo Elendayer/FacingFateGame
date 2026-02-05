@@ -60,48 +60,49 @@ namespace facingfate
         {
             Owner = entityScript;
 
-        // Base attribute values
-        Strength.AddModifier(new StatModifier("BaseValue",  Strength, value: 10, ModifierScaling.Flat));
-        Dexterity.AddModifier(new StatModifier("BaseValue", Dexterity, value: 10, ModifierScaling.Flat));
-        Wisdom.AddModifier(new StatModifier("BaseValue", Wisdom, value: 10, ModifierScaling.Flat));
-        Foresight.AddModifier(new StatModifier("BaseValue", Foresight, value: 10, ModifierScaling.Flat));
-        Endurance.AddModifier(new StatModifier("BaseValue", Endurance, value: 10, ModifierScaling.Flat));
-        Tenacity.AddModifier(new StatModifier("BaseValue", Tenacity, value: 10, ModifierScaling.Flat));
+            // Base attribute values
+            Strength.AddModifier(new StatModifier("BaseValue", Strength, value: 10, ModifierScaling.Flat));
+            Dexterity.AddModifier(new StatModifier("BaseValue", Dexterity, value: 10, ModifierScaling.Flat));
+            Wisdom.AddModifier(new StatModifier("BaseValue", Wisdom, value: 10, ModifierScaling.Flat));
+            Foresight.AddModifier(new StatModifier("BaseValue", Foresight, value: 10, ModifierScaling.Flat));
+            Endurance.AddModifier(new StatModifier("BaseValue", Endurance, value: 10, ModifierScaling.Flat));
+            Tenacity.AddModifier(new StatModifier("BaseValue", Tenacity, value: 10, ModifierScaling.Flat));
 
-        MaxHealth.AddModifier(new StatModifier("BaseValue", MaxHealth, value: () => Tenacity.Value() * 50, ModifierScaling.Flat));
-        MaxStamina.AddModifier(new StatModifier("BaseValue", MaxStamina, value: () => Endurance.Value() * 5, ModifierScaling.Flat));
+            MaxHealth.AddModifier(new StatModifier("BaseValue", MaxHealth, value: () => Tenacity.Value() * 50, ModifierScaling.Flat));
+            MaxStamina.AddModifier(new StatModifier("BaseValue", MaxStamina, value: () => Endurance.Value() * 5, ModifierScaling.Flat));
 
-        CurrentHealth = MaxHealth.Value();
-        CurrentStamina = MaxStamina.Value();
+            CurrentHealth = MaxHealth.Value();
+            CurrentStamina = MaxStamina.Value();
 
-        // Initial tick to set all stats correctly
-        ActionQueueUtility.EnqueueAction(() =>
-        {
-            TickAllStats();
-        });
-    }
-    public void TickAllStats()
-    {
-        var statFields = typeof(EntityStats).GetFields()
-                            .Where(f => f.FieldType == typeof(Stat));
-
-        foreach (var field in statFields)
-        {
-            var stat = (Stat)field.GetValue(this);
-            stat.owner = Owner;
-            stat?.Tick();
+            // Initial tick to set all stats correctly
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                TickAllStats();
+            });
         }
-    }
-
-    internal void UpdateStats()
-    {
-        var statFields = typeof(EntityStats).GetFields()
-                                   .Where(f => f.FieldType == typeof(Stat));
-
-        foreach (var field in statFields)
+        public void TickAllStats()
         {
-            var stat = (Stat)field.GetValue(this);
-            stat?.UpdateStat();
+            var statFields = typeof(EntityStats).GetFields()
+                                .Where(f => f.FieldType == typeof(Stat));
+
+            foreach (var field in statFields)
+            {
+                var stat = (Stat)field.GetValue(this);
+                stat.owner = Owner;
+                stat?.Tick();
+            }
+        }
+
+        internal void UpdateStats()
+        {
+            var statFields = typeof(EntityStats).GetFields()
+                                       .Where(f => f.FieldType == typeof(Stat));
+
+            foreach (var field in statFields)
+            {
+                var stat = (Stat)field.GetValue(this);
+                stat?.UpdateStat();
+            }
         }
     }
 }

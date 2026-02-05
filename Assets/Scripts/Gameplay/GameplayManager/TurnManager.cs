@@ -56,36 +56,33 @@ namespace facingfate
                 .ToList();
         }
 
-        private void OnTurnStart()
-        {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
-
     private void OnTurnStart()
-    {      
-        //Trigger Reference Event
-        GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() {TurnOrder[CurrentTurnIndex] }));
-
-        // Start the Turn for the Current Entity
-        DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
-        TurnOrder[CurrentTurnIndex].StartTurn();
-    }
-    private void OnTurnEnd()
-    {
-        //Trigger Reference Event
-        GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
-
-        // End the Turn for the current Entity
-        DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
-
-        //Increment Turn Order
-        CurrentTurnIndex++;
-        if (CurrentTurnIndex >= TurnOrder.Count)
         {
-            CurrentTurnIndex = 0;
-            CurrentRoundIndex++;
-        }
+            //Trigger Reference Event
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
 
-        //Start the next Turn
-        ActionQueueUtility.EnqueueAction(new Action(OnTurnStart),0.5f);
+            // Start the Turn for the Current Entity
+            DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
+            TurnOrder[CurrentTurnIndex].StartTurn();
+        }
+        private void OnTurnEnd()
+        {
+            //Trigger Reference Event
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
+
+            // End the Turn for the current Entity
+            DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
+
+            //Increment Turn Order
+            CurrentTurnIndex++;
+            if (CurrentTurnIndex >= TurnOrder.Count)
+            {
+                CurrentTurnIndex = 0;
+                CurrentRoundIndex++;
+            }
+
+            //Start the next Turn
+            ActionQueueUtility.EnqueueAction(new Action(OnTurnStart), 0.5f);
+        }
     }
-}    
+}

@@ -3,24 +3,24 @@ using System.Collections;
 using UnityEngine;
 using Utility;
 
-namespace facingfate
+public class EntityOnMap : MonoBehaviour
 {
     [Header("Movement Settings")]
     public Vector3Int currentCell = new Vector3Int(0,0,0);      // Current logical cell
     public float defaultMovementSpeed = 3f;                     // Movement speed in units per second
 
-        private Coroutine moveRoutine;
-        private bool isDragging = false;
+    private Coroutine moveRoutine;
+    private bool isDragging = false;
 
-        private CostInfoScript costInfoScript;
+    private CostInfoScript costInfoScript;
 
-        public void Startup()
-        {
-            costInfoScript = FindAnyObjectByType<CostInfoScript>();
+    public void Startup()
+    {
+        costInfoScript = FindAnyObjectByType<CostInfoScript>();
 
-            TeleportTo(currentCell);
-            SetOccupied(currentCell, true);
-        }
+        TeleportTo(currentCell);
+        SetOccupied(currentCell, true);     
+    }
 
     public void Spawn(Vector3Int desiredCell)
     {
@@ -66,7 +66,7 @@ namespace facingfate
 
         foreach (var cell in pathData.Path)
         {
-            SetOccupied(pathData.Start, false);
+            Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(cell);
 
             while ((transform.position - targetPos).sqrMagnitude > 0.0025f)
             {
