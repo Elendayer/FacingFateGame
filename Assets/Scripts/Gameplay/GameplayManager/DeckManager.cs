@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -241,15 +242,9 @@ public class DeckManager : MonoBehaviour
         }
     }
 
-    public void EndTurn(EntityScript entity)
-    {
-        if (entity.GetType() == typeof(PlayerScript))
-        {
-            MoveOutDeck(entity);
-        }
-    }
     public void StartTurn(EntityScript entity)
     {
+        // Only for player for now
         if (entity.GetType() == typeof(PlayerScript))
         {
             MoveInDeck(entity);
@@ -257,11 +252,14 @@ public class DeckManager : MonoBehaviour
             for (int i = 0; i < 5; i++)
             {
                 DrawTopCard();
-            }
-        }
-        else
+            } 
+        }        
+    }
+    public void EndTurn(EntityScript entity)
+    {
+        if (entity.GetType() == typeof(PlayerScript))
         {
-            (entity as NonPlayerScript).TakeTurn();
+            MoveOutDeck(entity);
         }
     }
 }

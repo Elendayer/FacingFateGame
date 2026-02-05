@@ -1,4 +1,6 @@
+using facingfate;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using UnityEngine;
 using Utility;
 
@@ -53,18 +55,19 @@ public static class PhysicianCards
                 // Heal-over-time as positive “on turn start” tick
                 var regen = new EntityModifier(
                     modifierName: "Regeneration",
+                    owner: Target,
                     baseValue: d.Healing,
                     toTriggerRefs: new() { GameplayRef.onHealRecieved },
                     duration: d.Duration,
-                    onRef_Trigger: new TriggerRef
+                    onRef_Trigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target,
                     },
-                    onRef_Action: (data, target) =>
+                    onRef_Action: (target, cd, value) =>
                     {
-                        CombatUtility.ApplyHealing(data.TriggerReference.CardData, target, data.Value);
+                        CombatUtility.ApplyHealing(cd, target, value);
                     }
                 );
 
@@ -849,7 +852,7 @@ public static class PhysicianCards
             damage_u = 2,
             duration_u = 3,
             range_u = 4,
-            area_u = 2,
+            radius_u = 3,
 
             targetingData = new()
             {
@@ -859,29 +862,45 @@ public static class PhysicianCards
             },
 
             CardDescription = (User, d) =>
-                d.cardDescription = $"Deal {d.Damage} poison damage in a small area. A poisonous clod stays on the field.",
+                d.cardDescription = $"Deal {d.Damage} poison damage in a small area. A poisonous cloud stays on the field.",
 
-            CardEffect = (User, Target, d) =>
+            CardEffectGround = (User, TargetTile, d) =>
             {
-                string name = $"Poison#{d.cardID}";
-                var poison = new EntityModifier(
-                    modifierName: name,
-                    baseValue: d.Damage,
-                    toTriggerRefs: new() { GameplayRef.onPoison },
-                    duration: d.Duration,
-                    onRef_Trigger: new TriggerRef
+                CombatUtility.SpawnGroundEffect(d, TargetTile, new GroundEffect_Enter_EntityData
+                (
+                    cardData: d,
+                    relevantTrigger: new RelevantTriggerCheck
                     {
                         OnTriggerReference = new() { GameplayRef.onTurnStart },
-                        AffectedEntities = new() { Target },
-                        UserEntity = User
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = User,
                     },
-                    onRef_Action: (data,target) =>
+                    duration: d.Duration,
+                    removeOnExit: false,
+                    removeOnEnd: false,
+                    modifier: new EntityModifier(
+                        modifierName: "Poison",
+                        owner: null,
+                        baseValue: d.Damage,
+                        toTriggerRefs: new() { GameplayRef.onPoison },
+                        duration: d.Duration,
+                        onRef_Trigger: new RelevantTriggerCheck
+                        {
+                            OnTriggerReference = new() { GameplayRef.onTurnStart },
+                            CheckType = CheckEntityType.Target,
+                        },
+                        onRef_Action: (target, cd, value) =>
+                        {
+                            CombatUtility.ApplyDamage(null, target, value);
+                        }),
+                    onEnter: (modifier, target) =>
                     {
-                        CombatUtility.ApplyDamage(null, target, data.Value);
-                    });
-
-                CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
-
+                        CombatUtility.ApplyEntityModifier(d, target, modifier, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    },
+                    onExit: (modifier, target) =>
+                    {
+                        
+                    }));
                 // ToDO: Posion Cloud sollte länger auf dem Spielfeld und ALLE vergiften die durchgehen wollen
             }
         });

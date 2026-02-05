@@ -1,6 +1,10 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+
 
 public class CardScript : MonoBehaviour
 {
@@ -16,6 +20,10 @@ public class CardScript : MonoBehaviour
 
     public bool isLocked;
     public bool inPlay;
+    
+    private static readonly Regex TokenRegex =new Regex(@"\{([A-Za-z]+)(?:_(\d+))?\}", RegexOptions.Compiled);
+
+    private static Dictionary<string, IStatResolver> _resolvers;
 
     public void SetupLock(bool b)
     {
@@ -43,7 +51,50 @@ public class CardScript : MonoBehaviour
 
             range.text = GetRangeText(cardData);
         }
+
+        StartCoroutine("DescriptionUpdate");
     }
+
+    private IEnumerator DescriptionUpdate()
+    {
+        while (true)
+        {
+            descriptionText.text = FormatCardDescription(cardData);
+            range.text = FormatCardRange(cardData);
+
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+    private string FormatCardDescription(CardData d)
+    {
+        EnsureResolvers();
+
+        EntityScript owner = d.Owner;
+
+        return TokenRegex.Replace(d.cardDescription, match =>
+        {
+            string key = match.Groups[1].Value;
+
+            if (!_resolvers.TryGetValue(key, out var resolver))
+                return match.Value;
+
+            // Override form: Power_10
+            if (match.Groups[2].Success)
+            {
+                int baseValue = int.Parse(match.Groups[2].Value);
+                return resolver.ResolveOverride(baseValue, d, owner).ToString();
+            }
+
+            // Default form: Power
+            return resolver.ResolveDefault(d, owner).ToString();
+        });
+    }
+
+    private string FormatCardRange(CardData d)
+    {
+        return GetRangeText(cardData);
+    }
+
     public static string GetRangeText(CardData cardData)
     {
         var t = cardData.targetingData;
@@ -132,6 +183,94 @@ public class CardScript : MonoBehaviour
         return string.Join(" ", parts);
     }
 
+    public interface IStatResolver
+    {
+        int ResolveDefault(CardData d, EntityScript owner);
+        int ResolveOverride(int baseValue, CardData d, EntityScript owner);
+    }
+    private abstract class SimpleStatResolver : IStatResolver
+    {
+        protected abstract int GetDefault(CardData d);
+
+        public int ResolveDefault(CardData d, EntityScript owner)
+        {
+            return GetDefault(d);
+        }
+
+        public int ResolveOverride(int baseValue, CardData d, EntityScript owner)
+        {
+            return baseValue;
+        }
+    }
+    private static void EnsureResolvers()
+    {
+        if (_resolvers != null)
+            return;
+
+        _resolvers = new Dictionary<string, IStatResolver>(StringComparer.OrdinalIgnoreCase)
+{
+    { "Power", new PowerResolver() },
+    { "Damage", new DamageResolver() },
+    { "Healing", new HealingResolver() },
+    { "Duration", new DurationResolver() },
+    { "Charges", new ChargesResolver() },
+    { "Repeats", new RepeatsResolver() },
+    { "Range", new RangeResolver() },
+    { "Area", new AreaResolver() },
+    { "Radius", new RadiusResolver() },
+    { "MaxTarget", new MaxTargetResolver() }
+};
+    }
+
+    private class PowerResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Power;
+    }
+
+    private class DamageResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Damage;
+    }
+
+    private class HealingResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Healing;
+    }
+
+    private class DurationResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Duration;
+    }
+
+    private class ChargesResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Charges;
+    }
+
+    private class RepeatsResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Repeats;
+    }
+
+    private class RangeResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Range;
+    }
+
+    private class AreaResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Area;
+    }
+
+    private class RadiusResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.Radius;
+    }
+
+    private class MaxTargetResolver : SimpleStatResolver
+    {
+        protected override int GetDefault(CardData d) => d.MaxTarget;
+    }
 
 
     public void ResetCard()

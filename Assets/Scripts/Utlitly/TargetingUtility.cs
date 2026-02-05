@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Buffers;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,22 +9,25 @@ namespace Utility
     public static class TargetingUtility
     {
         #region Entity Validation
-        public static List<EntityScript> GetValidTargets(CardScript card, EntityScript owner, List<EntityScript> candidates)
+        public static List<EntityScript> GetValidTargets(CardData card, List<EntityScript> candidates)
         {
+            EntityScript owner = card.Owner;
+
             if (card == null || owner == null || candidates == null) return new List<EntityScript>();
 
-            return candidates.Where(target => target != null && IsTargetValid(card, owner, target)).ToList();
+            return candidates.Where(target => target != null && IsTargetValid(card, target)).ToList();
         }
-        public static bool IsTargetValid(CardScript card, EntityScript owner, EntityScript target)
+        public static bool IsTargetValid(CardData cardData, EntityScript target)
         {
-            if(target == null) return false;
+            if (target == null) return false;
 
-            var targeting = card.cardData.targetingData;
+            EntityScript owner = cardData.Owner;
+
+            var targeting = cardData.targetingData;
             var targetAff = target.entityAffiliation;
             var ownerAff = owner.entityAffiliation;
 
-            if (target.HasReference(GameplayRef.untargetableByAll).found)
-                return false;
+            if (target.HasReference(GameplayRef.untargetableByAll).found) return false;
 
             bool baseValid = targeting.CardTargetAffiliation switch
             {
@@ -42,11 +46,9 @@ namespace Utility
             bool isEnemyTarget = targetAff != ownerAff && targetAff != EntityAffiliation.Neutral;
             bool isAllyTarget = targetAff == ownerAff && targetAff != EntityAffiliation.Neutral;
 
-            if (isEnemyTarget && target.HasReference(GameplayRef.untargetableByEnemies).found)
-                return false;
+            if (isEnemyTarget && target.HasReference(GameplayRef.untargetableByEnemies).found) return false;
 
-            if (isAllyTarget && target.HasReference(GameplayRef.untargetableByAllies).found)
-                return false;
+            if (isAllyTarget && target.HasReference(GameplayRef.untargetableByAllies).found) return false;
 
             return true;
         }
@@ -57,8 +59,7 @@ namespace Utility
         {
             if (tiles == null || allEntities == null) return new List<EntityScript>();
 
-            return allEntities.Where(e => e != null && e.GetComponent<EntityOnMap>() != null &&
-                                          tiles.Contains(e.GetComponent<EntityOnMap>().currentCell)).ToList();
+            return allEntities.Where(e => e != null && e.GetComponent<EntityOnMap>() != null && tiles.Contains(e.GetComponent<EntityOnMap>().currentCell)).ToList();
         }
         public static Vector3Int? GetHoveredTile(PointerEventData eventData)
         {
@@ -146,7 +147,7 @@ namespace Utility
             targetingModeData.targetedTiles = tiles;
             if (isVetted)
             {
-                targetingModeData.targetedEntities = GetValidTargets(card, owner, entities);
+                targetingModeData.targetedEntities = GetValidTargets(card.cardData, entities);
             }
             else
             {
@@ -246,7 +247,7 @@ namespace Utility
 
         protected List<EntityScript> GetValidEntities(CardScript card, List<EntityScript> entities, EntityScript owner)
         {
-            return TargetingUtility.GetValidTargets(card, owner, entities);
+            return TargetingUtility.GetValidTargets(card.cardData, entities);
         }
 
         protected List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles, List<EntityScript> allEntities, int maxTargets = 9999)
