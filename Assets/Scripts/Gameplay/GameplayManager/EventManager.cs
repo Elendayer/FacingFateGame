@@ -1,27 +1,31 @@
 using UnityEngine;
 
-public class EventManager : MonoBehaviour
+namespace facingfate
 {
-    public static EventManager Instance { get; private set; }
-
-    protected void Awake()
+    public class EventManager : MonoBehaviour
     {
-        // Singleton enforcement
-        if (Instance != null && Instance != this)
+        public static EventManager Instance { get; private set; }
+
+        protected void Awake()
         {
-            Destroy(gameObject); // Ensure only one instance exists
-            return;
-        }
+            // Singleton enforcement
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject); // Ensure only one instance exists
+                return;
+            }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject); // Optional: persist between scenes
-    }
-    public void Endturn()
-    {
-        GameEvents.TriggerTurnEnd();
-    }
-    public void Startturn()
-    {
-        GameEvents.TriggerTurnStart();
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Optional: persist between scenes
+        }
+        public void Endturn()
+        {
+            GameEvents.TriggerTurnEnd();
+            Invoke(nameof(Startturn), 0.1f);
+        }
+        public void Startturn()
+        {
+            GameEvents.TriggerTurnStart();
+        }
     }
 }
