@@ -2,56 +2,59 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 
-public class HandManager : MonoBehaviour
+namespace facingfate
 {
-    public static HandManager Instance { get; private set; }
-
-    public Transform handAnchor;
-    public GameObject cardPrefab;
-    public float cardSpacing = 100f;
-    public float cardFanAngle = -5f;
-
-    public float maxHandsize = 8;
-
-    public List<GameObject> cardsInHand = new List<GameObject>();
-
-    private void Awake()
+    public class HandManager : MonoBehaviour
     {
-        if (Instance != null && Instance != this)
+        public static HandManager Instance { get; private set; }
+
+        public Transform handAnchor;
+        public GameObject cardPrefab;
+        public float cardSpacing = 100f;
+        public float cardFanAngle = -5f;
+
+        public float maxHandsize = 8;
+
+        public List<GameObject> cardsInHand = new List<GameObject>();
+
+        private void Awake()
         {
-            Destroy(gameObject);
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                Instance = this;
+            }
         }
-        else
-        {
-            Instance = this;
-        }
-    }
 
-    public void AddCard(GameObject newCard)
-    {
-        newCard.GetComponent<CardScript>().SetHidden();
-        newCard.transform.SetParent(handAnchor, false);
-        cardsInHand.Add(newCard);
-    }
-    public void RemoveCard(GameObject cardObject)
-    {
-        if (cardsInHand.Contains(cardObject))
+        public void AddCard(GameObject newCard)
         {
-            cardsInHand.Remove(cardObject);
+            newCard.GetComponent<CardScript>().SetHidden();
+            newCard.transform.SetParent(handAnchor, false);
+            cardsInHand.Add(newCard);
         }
-    }
-    public void DiscardCard(GameObject cardObject)
-    {
-        if (cardsInHand.Contains(cardObject))
+        public void RemoveCard(GameObject cardObject)
         {
-            HandUtility.Discard(cardObject);
+            if (cardsInHand.Contains(cardObject))
+            {
+                cardsInHand.Remove(cardObject);
+            }
         }
-    }
-    public void DiscardAllInHand()
-    {
-        while (cardsInHand.Count < 0)
+        public void DiscardCard(GameObject cardObject)
         {
-            HandUtility.Discard(cardsInHand[0]);
+            if (cardsInHand.Contains(cardObject))
+            {
+                HandUtility.Discard(cardObject);
+            }
+        }
+        public void DiscardAllInHand()
+        {
+            while (cardsInHand.Count < 0)
+            {
+                HandUtility.Discard(cardsInHand[0]);
+            }
         }
     }
 }

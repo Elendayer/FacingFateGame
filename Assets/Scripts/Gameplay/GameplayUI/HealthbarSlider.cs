@@ -2,42 +2,45 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-public class HealthbarSlider : MonoBehaviour
+namespace facingfate
 {
-    public TextMeshProUGUI textMeshPro;
-    public EntityScript eM;
-
-    float maxHealth => eM.entityStats.MaxHealth.Value();
-    float currentHealth => eM.entityStats.CurrentHealth;
-
-    float maxStamina => eM.entityStats.MaxStamina.Value();
-    float currentStamina => eM.entityStats.CurrentStamina;
-
-    public MeshRenderer healthRenderer;
-    public MeshRenderer staminaRenderer;   
-
-
-    private void Start()
+    public class HealthbarSlider : MonoBehaviour
     {
-        eM = GetComponentInParent<EntityScript>();
+        public TextMeshProUGUI textMeshPro;
+        public EntityScript eM;
 
-        MeshRenderer renderer = GetComponent<MeshRenderer>();
+        float maxHealth => eM.entityStats.MaxHealth.Value();
+        float currentHealth => eM.entityStats.CurrentHealth;
 
-        StartCoroutine(SlowUpdate());
-    }
+        float maxStamina => eM.entityStats.MaxStamina.Value();
+        float currentStamina => eM.entityStats.CurrentStamina;
 
-    // Update is called once per frame
-    IEnumerator SlowUpdate()
-    {
-        while (true)
+        public MeshRenderer healthRenderer;
+        public MeshRenderer staminaRenderer;
+
+
+        private void Start()
         {
-            if (currentHealth != 0)
+            eM = GetComponentInParent<EntityScript>();
+
+            MeshRenderer renderer = GetComponent<MeshRenderer>();
+
+            StartCoroutine(SlowUpdate());
+        }
+
+        // Update is called once per frame
+        IEnumerator SlowUpdate()
+        {
+            while (true)
             {
-                healthRenderer.material.SetFloat("_ratio", currentHealth / maxHealth);
-                staminaRenderer.material.SetFloat("_ratio", currentStamina / maxStamina);
-                //textMeshPro.text = $"{current} / {max}"; 
+                if (currentHealth != 0)
+                {
+                    healthRenderer.material.SetFloat("_ratio", currentHealth / maxHealth);
+                    staminaRenderer.material.SetFloat("_ratio", currentStamina / maxStamina);
+                    //textMeshPro.text = $"{current} / {max}"; 
+                }
+                yield return new WaitForSeconds(0.5f);
             }
-            yield return new WaitForSeconds(0.5f);
         }
     }
 }

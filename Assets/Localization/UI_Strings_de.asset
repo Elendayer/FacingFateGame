@@ -1,0 +1,103 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_Strings_de
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: 1b3b6d1527a7eeb4db5176f106431bc7, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 416974155776
+    m_Localized: Start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 41556934963200
+    m_Localized: Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 41646810509312
+    m_Localized: Credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42019747049472
+    m_Localized: Beenden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 42143177027584
+    m_Localized: "Zur\xFCck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43013725794304
+    m_Localized: mit Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45970542342144
+    m_Localized: "Gesamtlautst\xE4rke"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46026364334080
+    m_Localized: "Effektlautst\xE4rke"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47102706626560
+    m_Localized: "Musiklautst\xE4rke"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47538830356480
+    m_Localized: Stumm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47581104746496
+    m_Localized: Sprache
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48441050312704
+    m_Localized: Vollbild
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700033724571648
+    m_Localized: Weiter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700333831217152
+    m_Localized: Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700468350935040
+    m_Localized: "Zur\xFCck zum Hauptmenu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700850565275648
+    m_Localized: Ja
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8700893699497984
+    m_Localized: Nein
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8701721738993664
+    m_Localized: Bist du sicher?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8704270651088896
+    m_Localized: Steuerung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8704437936709632
+    m_Localized: Legende
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

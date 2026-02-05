@@ -1,17 +1,35 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerScript : EntityScript
+namespace facingfate
 {
-    private void Awake()
+    public class PlayerScript : EntityScript
     {
-        base.entityAffiliation = EntityAffiliation.Player;
-    }
-    public override void StartUp()
-    {
-        base.StartUp();
+        private void Awake()
+        {
+            base.entityAffiliation = EntityAffiliation.Player;
+        }
+        public override void StartUp()
+        {
+            base.StartUp();
 
-        Debug.Log($"[PlayerScript] Setup complete for {name}");
-        DeckManager.Instance.BuildDeckFromIDs(this);
+            Debug.Log($"[PlayerScript] Setup complete for {name}");
+            DeckManager.Instance.BuildDeckFromIDs(this);
+        }
+
+        public override void StartTurn()
+        {
+            base.StartTurn();
+
+            if (entityStats.IsStunned)
+            {
+                ActionQueueUtility.EnqueueAction(() =>
+                {
+                    GameEvents.TriggerTurnEnd();
+                    entityStats.IsStunned = false;
+                });
+
+                return;
+            }
+        }
     }
 }

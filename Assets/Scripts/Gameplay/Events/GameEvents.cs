@@ -3,185 +3,232 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static class GameEvents
+namespace facingfate
 {
-    public static event Action OnTurnStart;
-    public static event Action OnTurnEnd;
-    public static event Action OnRoundEnd;
-    public static event Action OnRoundStart;
-    public static event Action OnCombatStart;
-    public static event Action OnCombatEnd;
-
-    public static event Action<TriggerRef> OnGameplayReference;
-
-    public static void TriggerTurnStart() => OnTurnStart?.Invoke();
-    public static void TriggerTurnEnd() => OnTurnEnd?.Invoke();
-
-    public static void TriggerRoundEnd() => OnRoundEnd?.Invoke();
-    public static void TriggerRoundStart() => OnRoundStart?.Invoke();
-
-    public static void TriggerCombatStart() => OnCombatStart?.Invoke();
-    public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
-
-    public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());
-
-    public static void TriggerRefEvent(TriggerRef grs)
+    public static class GameEvents
     {
-        TimelineManager.AddToTimeline(grs);
-        OnGameplayReference?.Invoke(grs);
-    }
-    public static bool CheckIfRelevantTrigger(TriggerRef sendReference, TriggerRef checkReference)
-    {
-        if (sendReference.AffectedEntities != null && checkReference.AffectedEntities != null)
+        public static event Action OnTurnStart;
+        public static event Action OnTurnEnd;
+        public static event Action OnRoundEnd;
+        public static event Action OnRoundStart;
+        public static event Action OnCombatStart;
+        public static event Action OnCombatEnd;
+
+        public static event Action<ToSendTriggerReference> OnGameplayReference;
+
+        public static void TriggerTurnStart() => OnTurnStart?.Invoke();
+        public static void TriggerTurnEnd() => OnTurnEnd?.Invoke();
+
+        public static void TriggerRoundEnd() => OnRoundEnd?.Invoke();
+        public static void TriggerRoundStart() => OnRoundStart?.Invoke();
+
+        public static void TriggerCombatStart() => OnCombatStart?.Invoke();
+        public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
+
+        public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());
+
+        public static void TriggerRefEvent(ToSendTriggerReference grs)
         {
-            if (checkReference.AffectedEntities.Any(entity => sendReference.AffectedEntities.Contains(entity)))
-            {
-                if (sendReference.OnTriggerReference == null || sendReference.OnTriggerReference.Count == 0)
-                {
-                    return false;
-                }
-                return sendReference.OnTriggerReference.Any(tr => checkReference.OnTriggerReference.Contains(tr));
-            }
+            TimelineManager.AddToTimeline(grs);
+            OnGameplayReference?.Invoke(grs);
         }
-        return false;
+
+        public static bool CheckIfRelevantTrigger(ToSendTriggerReference sendReference, RelevantTriggerCheck checkReference)
+        {
+            // Null checks – positive condition: both references must be non-null
+            if (sendReference.OnTriggerReference != null && checkReference.OnTriggerReference != null)
+            {
+                // Check for overlap in OnTriggerReference – positive condition: there is at least one overlapping trigger
+                if (sendReference.OnTriggerReference.Intersect(checkReference.OnTriggerReference).Any())
+                {
+                    // Check entity relevance based on type
+                    switch (checkReference.CheckType)
+                    {
+                        case CheckEntityType.User:
+                            if (sendReference.UserEntity == checkReference.CheckEntity)
+                                return true;
+                            break;
+
+                        case CheckEntityType.Target:
+                            if (sendReference.AffectedEntities != null && sendReference.AffectedEntities.Contains(checkReference.CheckEntity))
+                                return true;
+                            break;
+                    }
+                }
+            }
+
+            // If none of the positive checks succeed, return false
+            return false;
+        }
     }
-}
 
-// -------------------- Referenece Struct --------------------
-public struct TriggerRef
-{
-    public List<GameplayRef> OnTriggerReference;
-    public EntityScript UserEntity;
-    public List<EntityScript> AffectedEntities;
-    public CardData CardData;
-    public int Throughput;
-
-    public TriggerRef(
-        List<GameplayRef> references, 
-        EntityScript userEntity,
-        List<EntityScript> affectedEntities,
-        CardData cardData = null,
-        int throughput = 0
-        )
+    // -------------------- Referenece Struct --------------------
+    public struct ToSendTriggerReference
     {
-        OnTriggerReference = references;
-        UserEntity = userEntity;
-        AffectedEntities = affectedEntities;
-        CardData = cardData;
-        Throughput = throughput;
+        public List<GameplayRef> OnTriggerReference;
+        public EntityScript UserEntity;
+        public List<EntityScript> AffectedEntities;
+        public CardData CardData;
+        public int Throughput;
+
+        public ToSendTriggerReference(
+            List<GameplayRef> references,
+            EntityScript userEntity,
+            List<EntityScript> affectedEntities,
+            CardData cardData = null,
+            int throughput = 0
+            )
+        {
+            OnTriggerReference = references;
+            UserEntity = userEntity;
+            AffectedEntities = affectedEntities;
+            CardData = cardData;
+            Throughput = throughput;
+        }
     }
-}
 
-// -------------------- Gameplay References Enum --------------------
-public enum GameplayRef
-{
-    None,
+    public struct RelevantTriggerCheck
+    {
+        public List<GameplayRef> OnTriggerReference;
+        public CheckEntityType CheckType;
+        public EntityScript CheckEntity;
+        public CardData CardData;
 
-    //Status Effects
-    onBurn,
-    onBleed,
-    onPoison,
-    onThorns,
-    onDebuffed,
-    onSlowed,
-    onStunned,
-    onRooted,
-    onSilenced,
-    onWeakened,
-    onEmpowered,
-    onShielded,
-    onHasted,
-    onFreeze,
-    onTaunted,
-    onInvisible,
-    onCharmed,
-    onCleansed,
-    onRevived,
-    onEnraged,
+        public RelevantTriggerCheck(
+            List<GameplayRef> references,
+            CheckEntityType checkType,
+            EntityScript checkEntity,
+            CardData cardData = null
+            )
+        {
+            OnTriggerReference = references;
+            CheckType = checkType;
+            CheckEntity = checkEntity;
+            CardData = cardData;
+        }
+    }
 
-    //Targeting
-    untargetableByAll,
-    untargetableByEnemies,
-    untargetableByAllies,
+    public enum CheckEntityType
+    {
+        User,
+        Target
+    }
+    // -------------------- Gameplay References Enum --------------------
+    public enum GameplayRef
+    {
+        None,
 
-    taunt,
+        //Status Effects
+        onBurn,
+        onBleed,
+        onPoison,
+        onThorns,
+        onDebuffed,
+        onSlowed,
+        onStunned,
+        onRooted,
+        onSilenced,
+        onWeakened,
+        onEmpowered,
+        onShielded,
+        onHasted,
+        onFreeze,
+        onTaunted,
+        onInvisible,
+        onCharmed,
+        onCleansed,
+        onRevived,
+        onEnraged,
 
-    //Combat Events
-    onDamage,
-    onBlocking,
-    onBuffed,
-    onAttack,
-    onHeal,
-    onDeath,
-    onSummon,
-    onLifesteal,
-    onCounterRecieved,
-    onDamageRecieved,
-    onHealRecieved,
-    onBuffRecieved,
-    onDebuffRecieved,
-    
-    //Game Flow
-    onTurnStart,
-    onTurnEnd,
-    onRoundStart,
-    onRoundEnd,
-    onCardPlayed,
-    onCardDrawn,
-    onCardDiscarded,
-    onStatChanged,
-    onModifierApplied,
-    onModifierExpired,
-    onHitLanded,
+        //Targeting
+        untargetableByAll,
+        untargetableByEnemies,
+        untargetableByAllies,
 
-    //Misc
-    onMove,
+        taunt,
 
-    //Card Types
-    Skill,
-    Item,
-    Ability,
-    Technique,
-    Spell,
-    Blessing,
-    Curse,
+        //Combat Events
+        onDamage,
+        onBlocking,
+        onBuffed,
+        onAttack,
+        onHeal,
+        onDeath,
+        onSummon,
+        onLifesteal,
+        onCounterRecieved,
+        onDamageRecieved,
+        onHealRecieved,
+        onBuffRecieved,
+        onDebuffRecieved,
 
-    //Identites
-    Non,
-    Physical,
-    Fire,
-    Ice,
-    Air,
-    Earth,
-    Shadow,
-    Poison,
-    Light,
-    Blood,
-    Arcane,
-    Soul,
-    Divine,
-    Occult,
-    Melee,
-    Ranged,
+        //Game Flow
+        onTurnStart,
+        onTurnEnd,
+        onRoundStart,
+        onRoundEnd,
+        onCardPlayed,
+        onCardEffectEnd,
+        onCardDrawn,
+        onCardDiscarded,
+        onStatChanged,
+        onModifierApplied,
+        onModifierExpired,
+        onHitLanded,
 
-    //Classes
-    Spearman,
-    Assassin,
-    Mystic,
-    Physician,
-    Neutral,
+        //Misc
+        onMove,
+
+        //Card Types
+        Skill,
+        Item,
+        Ability,
+        Technique,
+        Spell,
+        Blessing,
+        Curse,
+
+        //Identites
+        Non,
+        Physical,
+        Fire,
+        Ice,
+        Air,
+        Earth,
+        Shadow,
+        Poison,
+        Light,
+        Blood,
+        Arcane,
+        Soul,
+        Divine,
+        Occult,
+        Melee,
+        Ranged,
+
+        //Alchemy
+        Venom,
+
+        //Classes
+        Spearman,
+        Assassin,
+        Mystic,
+        Physician,
+        Neutral,
 
 
-    //Classes Old
-    Knight,
-    Rogue,
-    Wizard,
-    Cleric,
-    Paladin,
-    Warlock,
-    Ranger,
-    Druid,
-    Barbarian,
-    Alchemist,
-    Monster,
+        //Classes Old
+        Knight,
+        Rogue,
+        Wizard,
+        Cleric,
+        Paladin,
+        Warlock,
+        Ranger,
+        Druid,
+        Barbarian,
+        Alchemist,
+        Monster,
+
+    }
 }

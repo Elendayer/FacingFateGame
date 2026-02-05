@@ -6,6 +6,9 @@ public class AssetManager : MonoBehaviour
 {
     public static AssetManager Instance { get; private set; }
 
+    public Sprite HexThin;
+    public Sprite HexThick;
+
     [System.Serializable]
     public struct AssetEntry
     {
@@ -19,6 +22,8 @@ public class AssetManager : MonoBehaviour
 
     [Header("Entity")]
     public GameObject entityPrefab;
+
+    public GameObject groundEffectPrefab;
 
     private void Awake()
     {

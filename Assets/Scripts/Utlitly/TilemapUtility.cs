@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using facingfate;
 
 namespace Utility
 {
@@ -11,6 +12,10 @@ namespace Utility
         public static Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
         public static Tilemap BaseTilemap => UnityEngine.Object.FindObjectsByType<Tilemap>(0).FirstOrDefault(tilemap => tilemap.CompareTag("Basemap"));
         public static CostInfoScript CostInfoScript => BaseTilemap?.GetComponent<CostInfoScript>();
+
+        public static Sprite HexThick => AssetManager.Instance.HexThick;
+        public static Sprite HexThin => AssetManager.Instance.HexThin; 
+
 
         // >>> CONFIG: Point-top offset type (Odd-R by default). Flip if your rows are shifted the other way.
         public static bool UseOddROffset = true; // true = Odd-R, false = Even-R
@@ -228,16 +233,6 @@ namespace Utility
 
         #endregion
 
-        public static List<Vector3Int> GetTilesInRange(Vector3Int targetPos, int range)
-        {
-            switch (range)
-            {
-                case <= 0: return new List<Vector3Int> { targetPos };
-                default:
-                    return GetTilesInRadius(targetPos, range);
-            }
-        }
-
         // Return the closest reachable tile within range of the target position
         public static Vector3Int GetReachableTileWithinRangeOfTarget(Vector3Int startPos, Vector3Int targetPos, int range)
         {
@@ -271,6 +266,7 @@ namespace Utility
                 SpriteRenderer sr = tileObj.GetComponentInChildren<SpriteRenderer>();
                 if (sr != null)
                 {
+                    sr.sprite = HexThin;
                     sr.color = Color.black;
                     continue;
                 }
@@ -286,37 +282,50 @@ namespace Utility
                 GameObject tileObj = BaseTilemap.GetInstantiatedObject(pos);
                 if (tileObj == null) continue;
                 // Reset UI Image color
-                SpriteRenderer img = tileObj.GetComponentInChildren<SpriteRenderer>();
-                if (img != null)
+                SpriteRenderer sr = tileObj.GetComponentInChildren<SpriteRenderer>();
+                if (sr != null)
                 {
-                    img.color = Color.clear;
+                    sr.sprite = HexThin;
+                    sr.color = Color.black;
                     continue;
                 }
             }
         }
         public static void SetTilesHighlight(List<Vector3Int> tiles, HighlightType ht)
         {
-            Color color = Color.clear;
+            Color color = Color.black;
+            Sprite texture = null;
 
             switch (ht)
             {
                 case HighlightType.Path:
                     color = Color.cyan;
+                    texture = HexThin;
                     break;
+
                 case HighlightType.Target:
                     color = Color.red;
+                    texture = HexThick;
                     break;
+
                 case HighlightType.Selected:
                     color = Color.yellow;
+                    texture = HexThick;
                     break;
+
                 case HighlightType.Range:
                     color = Color.green;
+                    texture = HexThin;
                     break;
+
                 case HighlightType.Line:
                     color = Color.blueViolet;
+                    texture = HexThin;
                     break;
+
                 case HighlightType.Blocked:
                     color = Color.gray;  
+                    texture = HexThick;
                     break;
             }
 
@@ -332,6 +341,7 @@ namespace Utility
                     SpriteRenderer sr = tileObj.GetComponentInChildren<SpriteRenderer>();
                     if (sr != null)
                     {
+                        sr.sprite = texture;
                         sr.color = color;
                         continue;
                     }

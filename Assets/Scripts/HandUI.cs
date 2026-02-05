@@ -1,19 +1,22 @@
 using UnityEngine;
 
-public static class HandUI
+namespace facingfate
 {
-    public static void RefreshHandLocks(EntityScript user)
+    public static class HandUI
     {
-        if (HandManager.Instance == null || user == null) return;
-        int stamina = user.entityStats.CurrentStamina;
-
-        foreach (var go in HandManager.Instance.cardsInHand)
+        public static void RefreshHandLocks(EntityScript user)
         {
-            var cs = go.GetComponent<CardScript>();
-            if (cs?.cardData == null) continue;
+            if (HandManager.Instance == null || user == null) return;
+            int stamina = user.entityStats.CurrentStamina;
 
-            bool lockIt = stamina < cs.cardData.Cost;
-            cs.SetupLock(lockIt);
+            foreach (var go in HandManager.Instance.cardsInHand)
+            {
+                var cs = go.GetComponent<CardScript>();
+                if (cs?.cardData == null) continue;
+
+                bool lockIt = stamina < cs.cardData.Cost;
+                cs.SetupLock(lockIt);
+            }
         }
     }
 }

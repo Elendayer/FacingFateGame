@@ -1,48 +1,52 @@
 using UnityEngine;
 
-public class StartupManager : MonoBehaviour
+namespace facingfate
 {
-    public static StartupManager Instance { get; private set; }
-    public void Awake()
+
+    public class StartupManager : MonoBehaviour
     {
-        // Singleton enforcement
-        if (Instance != null && Instance != this)
+        public static StartupManager Instance { get; private set; }
+        public void Awake()
         {
-            Destroy(gameObject); // Ensure only one instance exists
+            // Singleton enforcement
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject); // Ensure only one instance exists
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Optional: persist between scenes
+
+            new WaitForSeconds(1f);
+
+            Invoke(nameof(HandleMapStartup), 0.1f);
+            Invoke(nameof(HandleStartup), 0.2f);
+            Invoke(nameof(HandlePostStartup), 2f);
+        }
+        private void HandleMapStartup()
+        {
+            CombatMapMaster mapGenMaster = FindAnyObjectByType<CombatMapMaster>();
+
+            mapGenMaster.SetUp();
+        }
+        private void HandleStartup()
+        {
+            CardDatabase.RegisterAll();
+            AiBiasDatabase.RegisterAll();
+            NpcDatabase.RegisterAll();
+
+            DeckManager.Instance.StartUp();
+            TurnManager.Instance.StartUp();
+
+            foreach (var entity in GameObject.FindObjectsByType<EntityScript>(0))
+            {
+                entity.StartUp();
+            }
         }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject); // Optional: persist between scenes
-
-        new WaitForSeconds(1f);
-
-        Invoke(nameof(HandleMapStartup), 0.1f);
-        Invoke(nameof(HandleStartup), 0.2f);
-        Invoke(nameof(HandlePostStartup), 2f);
-    }
-    private void HandleMapStartup()
-    {
-        CombatMapMaster mapGenMaster = FindAnyObjectByType<CombatMapMaster>();
-
-        mapGenMaster.SetUp();
-    }
-    private void HandleStartup()
-    {
-        CardDatabase.RegisterAll();
-        AiBiasDatabase.RegisterAll();
-        NpcDatabase.RegisterAll();
-
-        DeckManager.Instance.StartUp();
-        TurnManager.Instance.StartUp();
-
-        foreach (var entity in GameObject.FindObjectsByType<EntityScript>(0))
+        private void HandlePostStartup()
         {
-            entity.StartUp();
+            GameEvents.TriggerCombatStart();
         }
-    }
-
-    private void HandlePostStartup()
-    {
-        GameEvents.TriggerCombatStart();
     }
 }
