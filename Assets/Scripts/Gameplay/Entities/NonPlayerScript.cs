@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utility;
+using static TimelineManager;
 
 public class NonPlayerScript : EntityScript
 {
@@ -17,100 +18,116 @@ public class NonPlayerScript : EntityScript
     public override void StartUp()
     {
         base.StartUp();
-        NpcData npcData = NpcDatabase.GetNpcById(NpcID, this);
-        // Load NPC data and initialize AI
+
+        // Load NPC data
+        npcData = NpcDatabase.GetNpcById(NpcID, this);
+
+        // Initialize AI
         npcAIController = new NpcAIController(this, npcData);
 
+        // Set entity name
         name = $"{entityAffiliation}_{npcData.name}";
 
-        // Load Cards from NpcData
+        // Build deck from NPC data
         deckCardIDs = npcData.cardIds;
         DeckManager.Instance.BuildDeckFromIDs(this);
 
         Debug.Log($"[NonPlayerScript] Setup complete for {name}");
     }
 
+    public override void StartTurn()
+    {
+        base.StartTurn();
+
+        if (entityStats.IsStunned)
+        {
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                Debug.Log($"[NonPlayerScript] {name} has completed all planned actions for this turn.");
+                EventManager.Instance.Endturn();
+            });
+            
+            entityStats.IsStunned = false;
+
+            return;
+        }
+        else
+        {
+            TakeTurn();
+        }
+    }
+
+    /// <summary>
+    /// Starts the NPC's turn by building a plan and executing all actions via the global queue.
+    /// </summary>
     public void TakeTurn()
     {
         plan.Clear();
-        Debug.Log($" ---------{name}'s Turn ----------------------------------------------------------------------------------------------");
 
-        plan = npcAIController.BuildTurnPlan();
+        ActionQueueUtility.EnqueueAction(() =>
+        {
+            // Step 1: Build the plan
+            plan = npcAIController.BuildTurnPlan();
+        });
 
-        Debug.Log($"[NonPlayerScript] {name} has planned {plan.Count} actions for this turn.");
-        StartCoroutine(ExecutePlan(plan));
+        ActionQueueUtility.EnqueueAction(() =>
+        {
+            // Step 2: Execute the plan (enqueue actions)
+            ExecutePlan(plan);
+
+            // Step 3: Enqueue Endturn AFTER the plan actions
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                EventManager.Instance.Endturn();
+            }, 1f);
+        });
     }
 
-    private IEnumerator ExecutePlan(List<PlannedAction> plan)
+
+    /// <summary>
+    /// Executes a list of planned actions sequentially via the global action queue.
+    /// </summary>
+    private void ExecutePlan(List<PlannedAction> plan)
     {
         foreach (PlannedAction action in plan)
         {
             switch (action.Type)
             {
                 case PlannedAction.ActionType.Move:
-                    yield return ExecuteMove(action);
+                    EnqueueMoveAction(action);
                     break;
 
                 case PlannedAction.ActionType.PlayCard:
-                    yield return ExecuteCard(action);
+                    EnqueueCardAction(action);
                     break;
             }
-            yield return new WaitForSeconds(0.25f);
         }
-        yield return new WaitForSeconds(0.5f);
-
-        EventManager.Instance.Endturn();
     }
 
-    private IEnumerator ExecuteMove(PlannedAction action)
+    /// <summary>
+    /// Enqueues a movement action through the ActionQueueUtility.
+    /// </summary>
+    private void EnqueueMoveAction(PlannedAction action)
     {
-        float start = Time.time;
-
-        GameEvents.TriggerRefEvent(new TriggerRef
-        {
-            OnTriggerReference = new() { GameplayRef.onMove },
-            UserEntity = this,
-            AffectedEntities = new() { this }
-        });
-
         var entityOnMap = GetComponent<EntityOnMap>();
         bool moveComplete = false;
 
-        StartCoroutine(MoveToViaPathWithCallback(entityOnMap, action.PathData, () => moveComplete = true));
-
-        while (!moveComplete)
-            yield return null;
-
-        float end = Time.time;
-        Debug.Log($"Move completed in {end - start:0.000} seconds");
+        // Enqueue movement with callback
+        ActionQueueUtility.EnqueueMovement(entityOnMap, action.PathData);
     }
 
-    private IEnumerator ExecuteCard(PlannedAction action)
+    /// <summary>
+    /// Enqueues a card action through the ActionQueueUtility.
+    /// </summary>
+    private void EnqueueCardAction(PlannedAction action)
     {
-        Debug.Log($"[NPC] {name} plays {action.Card.cardData.cardName} on {string.Join(", ", action.TargetingModeData.targetedEntities.Select(t => t.name))}");
+        // Enqueue card effects (handles repeats internally)
+        ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData);
 
-        bool cardComplete = false;
-
-        StartCoroutine(PlayCardWithCallback(action, () => cardComplete = true));
-
-        while (!cardComplete)
-            yield return null;
-    }
-
-    private IEnumerator MoveToViaPathWithCallback(EntityOnMap entityOnMap, PathData pathData, System.Action onComplete)
-    {
-        // Wait for FollowPath to finish
-        yield return entityOnMap.StartMove(pathData);
-
-        // Now safe to fire callback
-        onComplete?.Invoke();
-    }
-
-    private IEnumerator PlayCardWithCallback(PlannedAction action, System.Action onComplete)
-    {
-        // Activate card effects
-        action.Card.cardData.ActivateCardEffect(action.TargetingModeData, gameObject);
-        onComplete?.Invoke();
-        yield return null;
+        // After all repeats resolve, discard the card
+        ActionQueueUtility.EnqueueAction(() =>
+        {
+            HandManager.Instance.DiscardCard(action.Card.gameObject);
+        });
     }
 }

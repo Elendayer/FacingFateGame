@@ -7,7 +7,9 @@ public class TimelineManager : MonoBehaviour
 {
     public static TimelineManager Instance { get; private set; }
 
-    public static Dictionary<string,List<TriggerRef>> Timeline = new();
+    public static Dictionary<string,List<ToSendTriggerReference>> Timeline = new();
+
+    public static ActionQueue GlobalActionQueue;
 
     private void Awake()
     {
@@ -17,16 +19,19 @@ public class TimelineManager : MonoBehaviour
             return;
         }
 
+        // Ensure ActionQueue component exists
+        if (GlobalActionQueue == null)
+        {
+            GlobalActionQueue = gameObject.GetComponent<ActionQueue>() ?? gameObject.AddComponent<ActionQueue>();
+        }
+
         DontDestroyOnLoad(gameObject);
         Instance = this;
     }
 
-    public void StartUp()
-    {
 
-    }
-
-    public static void AddToTimeline(TriggerRef triggerRef)
+    #region Timeline
+    public static void AddToTimeline(ToSendTriggerReference triggerRef)
     {
         if(triggerRef.OnTriggerReference == null) return;
 
@@ -39,7 +44,8 @@ public class TimelineManager : MonoBehaviour
             Timeline.Last().Value.Add(triggerRef);
         }
     }
-    public static List<TriggerRef> GetDataFromTimeline(
+
+    public static List<ToSendTriggerReference> GetDataFromTimeline(
         EntityScript entity,
         TimelineFilter filter,
         object filterValue = null,
@@ -59,7 +65,7 @@ public class TimelineManager : MonoBehaviour
             .OrderByDescending(x => x.Turn) // Start from the most recent turn
             .ToList();
 
-        var result = new List<TriggerRef>();
+        var result = new List<ToSendTriggerReference>();
 
         foreach (var entry in flatTimeline)
         {
@@ -70,11 +76,18 @@ public class TimelineManager : MonoBehaviour
 
             bool matches = filter switch
             {
-                TimelineFilter.User => isUser ? tr.UserEntity == entity : tr.AffectedEntities.Contains(entity),
-                TimelineFilter.CardData => tr.CardData == filterValue as CardData,
-                TimelineFilter.CardIdentity => tr.CardData.cardIdentities.Contains((CardIdentity)filterValue),
-                TimelineFilter.CardClass => tr.CardData.cardClass == (CardClass)filterValue,
-                TimelineFilter.CardType => tr.CardData.cardType == (CardType)filterValue,
+                TimelineFilter.User => isUser
+                    ? tr.UserEntity == entity
+                    : tr.AffectedEntities != null && tr.AffectedEntities.Contains(entity),
+
+                TimelineFilter.CardData => tr.CardData != null && tr.CardData == filterValue as CardData,
+
+                TimelineFilter.CardIdentity => tr.CardData != null && tr.CardData.cardIdentities != null && tr.CardData.cardIdentities.Contains((CardIdentity)filterValue),
+
+                TimelineFilter.CardClass => tr.CardData != null && tr.CardData.cardClass == (CardClass)filterValue,
+
+                TimelineFilter.CardType => tr.CardData != null && tr.CardData.cardType == (CardType)filterValue,
+
                 _ => false
             };
 
@@ -92,4 +105,5 @@ public class TimelineManager : MonoBehaviour
         CardType,
         CardData
     }
+    #endregion
 }

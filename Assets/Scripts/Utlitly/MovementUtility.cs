@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace Utility
@@ -313,7 +313,7 @@ namespace Utility
             }
             return path;
         }
-        public static void ForcedMove(ForcedMovementType type, EntityScript entity, Vector3Int ReferencePos, int Distance, float speed = 3f)
+        public static void ForcedMove(ForcedMovementType type, EntityScript entity, Vector3Int ReferencePos, int Distance = 99, float speed = 3f)
         {
             EntityOnMap entityOnMap = entity.GetComponent<EntityOnMap>();
             PathData pathData = new();
@@ -322,24 +322,88 @@ namespace Utility
             {
                 case ForcedMovementType.Random:
                     pathData = GetRandomInRange(entityOnMap.currentCell, Distance);
+                    ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
+
                     break;
                 case ForcedMovementType.Targeted:
                     pathData = FindPathWithMaxLength(entityOnMap.currentCell, ReferencePos, Distance);
+                    ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
+
                     break;
                 case ForcedMovementType.Flee:
                      pathData = GetFleePosition(Distance, entityOnMap, entity);
+                    ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
+
                     break;
                 case ForcedMovementType.Push:
                      pathData = GetFurtherPosition(ReferencePos, Distance, entityOnMap);
+                    ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
+
                     break;
                 case ForcedMovementType.Pull:
                     pathData = GetPathDataToCloserPosition(ReferencePos, Distance, entityOnMap);
+                    ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
+
+                    break;
+                case ForcedMovementType.Jump:
+                    Vector3Int targetPosition = FindPositionToBeMoveTo(entityOnMap, ReferencePos);
+
+                    ActionQueueUtility.EnqueueActionRoutine(
+                        entityOnMap,
+                        () => entityOnMap.StartJumpRoutine(targetPosition) 
+                    );
+                    break;
+                case ForcedMovementType.Teleport:
+                    ActionQueueUtility.EnqueueAction(() =>
+                    {
+                        Vector3Int targetPosition = FindPositionToBeMoveTo(entityOnMap, ReferencePos);
+                        entityOnMap.TeleportTo(targetPosition);
+                    });
                     break;
             }
-            entityOnMap.MoveTo(pathData);
 
         }
+        public static Vector3Int FindPositionToBeMoveTo(EntityOnMap eom, Vector3Int targetPosition)
+        {
+            // If target tile is valid, use it immediately
+            if (IsTileUsable(targetPosition))
+            {
+                return targetPosition;
+            }
 
+            // Search outward (ring radius 1 -> N)
+            const int maxRadius = 2;
+
+            for (int radius = 1; radius <= maxRadius; radius++)
+            {
+                List<Vector3Int> tiles = TilemapUtilityScript.GetTilesInRing(targetPosition, radius, radius);
+
+                // Sort by distance to ensure closest-first selection
+                tiles.Sort((a, b) =>
+                    Vector3Int.Distance(a, targetPosition)
+                        .CompareTo(Vector3Int.Distance(b, targetPosition)));
+
+                foreach (Vector3Int tile in tiles)
+                {
+                    if (IsTileUsable(tile))
+                    {
+                        return tile;
+                    }
+                }
+            }
+
+            // Optional: no valid tile found
+            Debug.LogWarning($"Teleport failed: no valid tile near {targetPosition}");
+            return TilemapUtilityScript.InvalidPosition;
+        }
+
+        private static bool IsTileUsable(Vector3Int position)
+        {
+            if (!CostInfoScript.costInfoDict.TryGetValue(position, out var costInfo))
+                return false;
+
+            return !costInfo.isOccupied && !costInfo.isUnwalkable;
+        }
         public static void SwapLocations(EntityScript entityA, EntityScript entityB)
         {
             EntityOnMap entityOnMapA = entityA.GetComponent<EntityOnMap>();
@@ -473,5 +537,7 @@ namespace Utility
         Flee,
         Pull,
         Push,
+        Jump,
+        Teleport
     }
 }

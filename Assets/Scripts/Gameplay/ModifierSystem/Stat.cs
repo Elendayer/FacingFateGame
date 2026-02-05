@@ -1,8 +1,6 @@
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Stat
@@ -11,8 +9,7 @@ public class Stat
 
     public int Value(EntityScript entityScript = null, CardData cardData = null) => GetFinalValue(entityScript, cardData);
 
-    private readonly List<IStatModifier> statModifiers = new();
-
+    public readonly List<IStatModifier> statModifiers = new();
     public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
     {
         //Debug.Log($"[Stat] Adding modifier: {modifier.ModifierName} with strategy: {strategy} for {modifier.BaseValue}");
@@ -63,11 +60,14 @@ public class Stat
                     statModifiers.Add(modifier);
                 }
                 break;
-
         }
+        modifier.Init();
     }
 
-    public void RemoveModifier(IStatModifier modifier) => statModifiers.Remove(modifier);
+    public void RemoveModifier(IStatModifier modifier)
+    {
+        modifier.OnRemove();
+    }
 
     public int GetFlatValue()
     {
@@ -107,7 +107,6 @@ public class Stat
 
     }
 
-
     private int GetFinalValue(EntityScript entityScript = null, CardData cardData = null)
     {
         int BaseValue = 0;
@@ -116,12 +115,6 @@ public class Stat
 
         foreach (var mod in statModifiers.Where(m => !m.IsExpired))
         {
-            if (mod.ModifierName == "MeleeRangeIncrease")
-            {
-                Debug.Log($"[Stat] Applying modifier: {mod.ModifierName} with value: {mod.BaseValue}");
-                Debug.Log(mod.Condition(entityScript, cardData));
-            }
-
             // Check for conditional modifier and its condition
             if (mod.Condition(entityScript, cardData))
             {
@@ -145,13 +138,17 @@ public class Stat
         }
 
         BaseValue = BaseValue * (100 + percent) / 100;
+        float floatBaseValue = (float)BaseValue;
 
         foreach (var mult in multipliers)
         {
-            float pMulti = (float)mult / 100f;
+            float pM = mult;
+            float pMulti = pM / 100f;
 
-            BaseValue = (int)((float)BaseValue * pMulti);
+            floatBaseValue = floatBaseValue * pMulti;
         }
+
+        BaseValue = Mathf.RoundToInt(floatBaseValue);
 
         return BaseValue;
     }
@@ -194,10 +191,14 @@ public class Stat
 
         baseValue = baseValue * (100 + percent) / 100;
 
+        float floatBaseValue = (float)baseValue;
+
         foreach (var mult in multipliers)
         {
-            baseValue = (baseValue * mult) / 100;
+            floatBaseValue = (floatBaseValue * mult) / 100;
         }
+
+        baseValue = Mathf.RoundToInt(floatBaseValue);
 
         return baseValue;
     }
@@ -222,6 +223,25 @@ public class Stat
         var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
         if (existing != null) statModifiers.Remove(existing);
         statModifiers.Add(modifier);
+    }
+
+    public void Tick()
+    {
+        foreach (IStatModifier mod in statModifiers)
+        {
+            if (mod != null)
+            {
+                mod.Tick();
+            }
+        }
+    }
+
+    public void UpdateStat()
+    {
+        foreach (IStatModifier mod in statModifiers)
+        {
+            mod.UpdateStatModifier();
+        }
     }
 }
 

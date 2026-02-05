@@ -72,8 +72,7 @@ public class DraggableCard : DraggableUI
         }
 
         Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
-        List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRange(currentCell, cardScript.cardData.Range);
-
+        List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
 
         if (cardScript.cardData.targetingData.TargetingUsesVision)
         {
@@ -89,7 +88,7 @@ public class DraggableCard : DraggableUI
             {
                 List<EntityScript> t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell }, FindObjectsByType<EntityScript>(0).ToList());
 
-                if (!TargetingUtility.IsTargetValid(cardScript, cardScript.cardData.Owner, t.FirstOrDefault()))
+                if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
                 {
                     return;
                 }
@@ -147,8 +146,10 @@ public class DraggableCard : DraggableUI
 
             TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
         }
-
-        TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
+        else
+        {
+            TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
+        }
 
         if (!validTiles.Contains(hoveredTile.Value))
         {

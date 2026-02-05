@@ -24,6 +24,8 @@ public class EntityScript : MonoBehaviour
 
     public virtual void StartUp()
     {
+
+
         EntityVisual = GetComponentInChildren<EntityVisualScript>();
         entityOnMap = GetComponentInChildren<EntityOnMap>();
         
@@ -38,13 +40,13 @@ public class EntityScript : MonoBehaviour
     {
         GameEvents.OnGameplayReference += TriggerAnimation;
     }
-    private void TriggerAnimation(TriggerRef triggerRef)
+    private void TriggerAnimation(ToSendTriggerReference triggerRef)
     {
-        var checkTrigger = new TriggerRef
+        var checkTrigger = new RelevantTriggerCheck
         {
-            UserEntity = this,
-            AffectedEntities = new() { this },
-            OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed }
+            OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed },
+            CheckType = CheckEntityType.User,
+            CheckEntity = this
         };
 
         if (GameEvents.CheckIfRelevantTrigger(triggerRef, checkTrigger))
@@ -53,7 +55,7 @@ public class EntityScript : MonoBehaviour
             PlayEffectAnimation(triggerRef);
         }
     }
-    public void PlayEffectAnimation(TriggerRef triggerRef)
+    public void PlayEffectAnimation(ToSendTriggerReference triggerRef)
     {
         foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
         {
@@ -139,7 +141,16 @@ public class EntityScript : MonoBehaviour
 
         modifier.AddListener();
 
-        modifier.OnApply_ActionTrigger();
+        ToSendTriggerReference OnApplyTrigger = new ToSendTriggerReference
+        {
+            OnTriggerReference = new() { GameplayRef.onModifierApplied},
+            UserEntity = this,
+            AffectedEntities = new List<EntityScript> { this },
+            CardData = null,
+            Throughput = modifier.BaseValue
+        };
+
+        modifier.OnApply_ActionTrigger(OnApplyTrigger);
     }
 
     public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
@@ -178,7 +189,7 @@ public class EntityScript : MonoBehaviour
         return c;
     }
 
-    public bool ActivateModifierWithReferenceOnce(GameplayRef reference, TriggerRef triggerRef, bool consumeCharges = false)
+    public bool ActivateModifierWithReferenceOnce(GameplayRef reference, ToSendTriggerReference triggerRef, bool consumeCharges = false)
     {
         var modifier = entityModifiers.FirstOrDefault(m => m.ToTriggerGameplayRefs.Contains(reference) && !m.IsExpired);
         if (modifier != null)
@@ -196,6 +207,16 @@ public class EntityScript : MonoBehaviour
     {
         modifierNames.Clear();
         modifierNames.AddRange(entityModifiers.Select(c => c.ModifierName));
+    }
+
+    public virtual void StartTurn()
+    {
+        entityStats.CurrentStamina = entityStats.MaxStamina.Value();
+
+        ActionQueueUtility.EnqueueAction(() =>
+        {
+            entityStats.TickAllStats();
+        });
     }
 }
 
