@@ -44,4 +44,19 @@ namespace facingfate
             NeutralCards.RegisterAll();
         }
     }
+
+    public static void RegisterAll()
+    {
+        // Register cards from all classes
+        SpearmanCards.RegisterAll();
+        AssassinCards.RegisterAll();
+        MysticCards.RegisterAll();
+        PhysicianCards.RegisterAll();
+        NeutralCards.RegisterAll();
+
+        //ReGister Effects
+        EffectDatabase.RegisterAll();
+
+        //Register completed
+    }
 }

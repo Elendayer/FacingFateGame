@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using Utility;
+using static TimelineManager;
 
 namespace facingfate
 {
@@ -23,56 +23,113 @@ namespace facingfate
         public CardClass cardClass;
         public List<CardIdentity> cardIdentities = new();
 
-        [Header("Cost")]
-        public int cost_u = 0;
-        public Stat cost_s = new();
-        public int Cost => Owner.entityStats.PowerModifier.ApplyFinalValue(cost_s.ApplyFinalValue(cost_u, Owner, this), Owner, this);
+    [Header("Cost")]
+    public Func<CardData, int> costFunc;
+    public int cost_u = 0;
+    public Stat cost_s = new();
+    public int Cost =>
+        Owner.entityStats.CardCostModifier.ApplyFinalValue(
+            cost_s.ApplyFinalValue(Resolve(costFunc, cost_u), Owner, this),
+            Owner,
+            this
+        );
 
-        [Header("Power")]
-        public int power_u = 0;
-        public Stat power_s = new();
-        public int Power => Owner.entityStats.PowerModifier.ApplyFinalValue(power_s.ApplyFinalValue(power_u, Owner, this), Owner, this);
+    [Header("Power")]
+    public Func<CardData, int> powerFunc;
+    public int power_u = 0;
+    public Stat power_s = new();
+    public int Power =>
+        Owner.entityStats.PowerModifier.ApplyFinalValue(
+            power_s.ApplyFinalValue(Resolve(powerFunc, power_u), Owner, this),
+            Owner,
+            this
+        );
 
-        [Header("Damage")]
-        public int damage_u = 0;
-        public Stat damage_s = new();
-        public int Damage => Owner.entityStats.DamageOutModifier.ApplyFinalValue(damage_s.ApplyFinalValue(damage_u, Owner, this), Owner, this);
+    [Header("Damage")]
+    public Func<CardData, int> damageFunc;
+    public int damage_u = 0;
+    public Stat damage_s = new();
+    public int Damage =>
+        Owner.entityStats.DamageOutModifier.ApplyFinalValue(
+            damage_s.ApplyFinalValue(Resolve(damageFunc, damage_u), Owner, this),
+            Owner,
+            this
+        );
 
-        [Header("Healing")]
-        public int healing_u = 0;
-        public Stat healing_s = new();
-        public int Healing => Owner.entityStats.HealingOutModifier.ApplyFinalValue(healing_s.ApplyFinalValue(healing_u, Owner, this), Owner, this);
+    [Header("Healing")]
+    public Func<CardData, int> healingFunc;
+    public int healing_u = 0;
+    public Stat healing_s = new();
+    public int Healing =>
+        Owner.entityStats.HealingOutModifier.ApplyFinalValue(
+            healing_s.ApplyFinalValue(Resolve(healingFunc, healing_u), Owner, this),
+            Owner,
+            this
+        );
 
-        [Header("Duration")]
-        public int duration_u = 0;
-        public Stat duration_s = new();
-        public int Duration => Owner.entityStats.HealingOutModifier.ApplyFinalValue(duration_s.ApplyFinalValue(duration_u, Owner, this), Owner, this);
+    [Header("Duration")]
+    public Func<CardData, int> durationFunc;
+    public int duration_u = 99999;
+    public Stat duration_s = new();
+    public int Duration =>
+        Owner.entityStats.DurationModifier.ApplyFinalValue(
+            duration_s.ApplyFinalValue(Resolve(durationFunc, duration_u), Owner, this),
+            Owner,
+            this
+        );
 
-        [Header("Repeats")]
-        public int repeats_u = 0;
-        public Stat repeats_s = new();
-        public int Repeats => repeats_u + repeats_s.Value(Owner, this);
+    [Header("Repeats")]
+    public Func<CardData, int> repeatsFunc;
+    public int repeats_u = 1;
+    public Stat repeats_s = new();
+    public int Repeats =>
+        Resolve(repeatsFunc, repeats_u) + repeats_s.Value(Owner, this);
 
-        [Header("Area of Effect")]
-        public int range_u = 1;
-        public Stat range_s = new();
-        public int Range => Owner.entityStats.RangeModifier.ApplyFinalValue(range_s.ApplyFinalValue(range_u, Owner, this), Owner, this);
+    [Header("Area of Effect")]
+    public Func<CardData, int> rangeFunc;
+    public int range_u = 1;
+    public Stat range_s = new();
+    public int Range =>
+        Owner.entityStats.RangeModifier.ApplyFinalValue(
+            range_s.ApplyFinalValue(Resolve(rangeFunc, range_u), Owner, this),
+            Owner,
+            this
+        );
 
-        public int area_u = 1;
-        public Stat area_s = new();
-        public int Area => Owner.entityStats.AreaModifier.ApplyFinalValue(area_s.ApplyFinalValue(area_u, Owner, this), Owner, this);
+    public Func<CardData, int> areaFunc;
+    public int area_u = 1;
+    public Stat area_s = new();
+    public int Area =>
+        Owner.entityStats.AreaModifier.ApplyFinalValue(
+            area_s.ApplyFinalValue(Resolve(areaFunc, area_u), Owner, this),
+            Owner,
+            this
+        );
 
-        public int radius_u = 1;
-        public Stat radius_s = new();
-        public int Radius => Owner.entityStats.RadiusModifier.ApplyFinalValue(radius_s.ApplyFinalValue(radius_u, Owner, this), Owner, this);
+    public Func<CardData, int> radiusFunc;
+    public int radius_u = 1;
+    public Stat radius_s = new();
+    public int Radius =>
+        Owner.entityStats.RadiusModifier.ApplyFinalValue(
+            radius_s.ApplyFinalValue(Resolve(radiusFunc, radius_u), Owner, this),
+            Owner,
+            this
+        );
 
-        public int maxtarget_u = 1;
-        public Stat maxTarget_s = new();
-        public int MaxTarget => Owner.entityStats.MaxTargetModifier.ApplyFinalValue(maxTarget_s.ApplyFinalValue(maxtarget_u, Owner, this), Owner, this);
+    public Func<CardData, int> maxTargetFunc;
+    public int maxtarget_u = 0;
+    public Stat maxTarget_s = new();
+    public int MaxTarget =>
+        Owner.entityStats.MaxTargetModifier.ApplyFinalValue(
+            maxTarget_s.ApplyFinalValue(Resolve(maxTargetFunc, maxtarget_u), Owner, this),
+            Owner,
+            this
+        );
 
-        [Header("Charges")]
-        public int charges_u = 0;
-        public int Charges => charges_u;
+    [Header("Charges")]
+    public Func<CardData, int> chargesFunc;
+    public int charges_u = 0;
+    public int Charges => Resolve(chargesFunc, charges_u);
 
         [Header("StatusEffects")]
         public bool isFrozen = false;
@@ -100,7 +157,12 @@ namespace facingfate
         [Header("AI")]
         public CardAiBias CardAiBias = new();
 
-        public CardData Clone()
+    private int Resolve(Func<CardData, int> func, int fallback)
+    {
+        return func != null ? func(this) : fallback;
+    }
+
+    public CardData Clone()
         {
             return new CardData
             {
@@ -116,33 +178,43 @@ namespace facingfate
                 cardClass = cardClass,
                 cardIdentities = cardIdentities != null ? new List<CardIdentity>(cardIdentities) : new List<CardIdentity>(),
 
-                // Werte (u = base, s = eigene Stat-Container pro Instanz)
-                cost_u = cost_u,
-                power_u = power_u,
-                damage_u = damage_u,
-                healing_u = healing_u,
+            // Werte (u = base, s = eigene Stat-Container pro Instanz)
+            cost_u = cost_u,
+            costFunc = costFunc,
+            power_u = power_u,
+            powerFunc = powerFunc,
+            damage_u = damage_u,
+            damageFunc = damageFunc,
+            healing_u = healing_u,
+            healingFunc = healingFunc,
 
-                duration_u = duration_u,
-                repeats_u = repeats_u,
-                range_u = range_u,
-                area_u = area_u,
-                radius_u = radius_u,
-                maxtarget_u = maxtarget_u,
+            duration_u = duration_u,
+            durationFunc = durationFunc,
+            repeats_u = repeats_u,
+            repeatsFunc = repeatsFunc,
+            range_u = range_u,
+            rangeFunc = rangeFunc,
+            area_u = area_u,
+            areaFunc = areaFunc,
+            radius_u = radius_u,
+            radiusFunc = radiusFunc,
+            maxtarget_u = maxtarget_u,
+            maxTargetFunc = maxTargetFunc,
 
-                charges_u = charges_u,
+            charges_u = charges_u,
+            chargesFunc = chargesFunc,
 
-                cost_s = new Stat(),
-                power_s = new Stat(),
-                damage_s = new Stat(),
-                healing_s = new Stat(),
+            cost_s = new Stat(),
+            power_s = new Stat(),
+            damage_s = new Stat(),
+            healing_s = new Stat(),
 
-
-                duration_s = new Stat(),
-                repeats_s = new Stat(),
-                range_s = new Stat(),
-                area_s = new Stat(),
-                radius_s = new Stat(),
-                maxTarget_s = new Stat(),
+            duration_s = new Stat(),
+            repeats_s = new Stat(),
+            range_s = new Stat(),
+            area_s = new Stat(),
+            radius_s = new Stat(),
+            maxTarget_s = new Stat(),
 
 
                 // Targeting-Flags (keine Ziel-Referenzen übernehmen)
@@ -153,27 +225,16 @@ namespace facingfate
                 CardEffect = CardEffect,
                 CardEffectGround = CardEffectGround,
 
-                // AI
-                CardAiBias = CardAiBias,
-            };
-        }
-        public void ActivateCardEffect(TargetingModeData targetingModeData, GameObject cardObj)
-        {
-            CombatUtility.HandlePreCombatTrigger(targetingModeData.targetedEntities, this);
+            // AI
+            CardAiBias = CardAiBias,
+        };
+    }
+    public void ActivateCardEffect(TargetingModeData targetingModeData, GameObject cardObj)
+    {
+        CardData cardData = cardObj.GetComponent<CardScript>().cardData;
 
-            foreach (EntityScript target in targetingModeData.targetedEntities)
-            {
-                CardEffect?.Invoke(Owner, target, this);
-            }
-
-            foreach (Vector3Int target in targetingModeData.targetedTiles)
-            {
-                CardEffectGround?.Invoke(Owner, target, this);
-            }
-
-            //Discard
-            HandManager.Instance.DiscardCard(cardObj);
-        }
+        // Enqueue the card execution in the action queue
+        ActionQueueUtility.EnqueueCardExecution(cardData.Owner, cardData, targetingModeData, cardObj);
     }
     public class CardAiBias
     {
@@ -377,11 +438,12 @@ namespace facingfate
         Buff,
         Debuff,
 
-        //Alchemy 
-        Alchemical,
-        Potion,
-        Brew,
-        Tonic,
+    //Alchemy 
+    Alchemical,
+    Potion,
+    Brew,
+    Tonic,
+    Venom,
 
         Mechanical,
     }

@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 6208202023648593538}
   - component: {fileID: 8935636570208141450}
   - component: {fileID: 4777331206848150532}
+  - component: {fileID: 1263019130342493916}
+  - component: {fileID: 7505124071678357189}
   m_Layer: 0
   m_Name: Character Npc
   m_TagString: Untagged
@@ -54,6 +56,12 @@ MonoBehaviour:
   deckCardIDs: 
   entityStats:
     Owner: {fileID: 0}
+    CurrentHealth: 0
+    CurrentStamina: 0
+    Block: 0
+    IsStunned: 0
+    IsRooted: 0
+    tauntTarget: {fileID: 0}
   modifierNames: []
   NpcID: 0001
 --- !u!114 &9001171521745787760
@@ -68,8 +76,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10ba6d1c153c2384bb92f441c93238ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 3
   currentCell: {x: 0, y: 0, z: 0}
+  defaultMovementSpeed: 3
 --- !u!114 &2899245957936834516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222,6 +230,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5925646098595141539}
   m_CullTransparentMesh: 1
+--- !u!135 &1263019130342493916
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925646098595141539}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.4
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &7505124071678357189
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925646098595141539}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1385159108900819579
 PrefabInstance:
   m_ObjectHideFlags: 0

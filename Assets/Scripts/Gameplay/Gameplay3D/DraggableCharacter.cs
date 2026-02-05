@@ -2,6 +2,8 @@ using facingfate;
 using TMPro;
 using UnityEngine;
 using Utility;
+using TMPro;
+using System.Collections;
 
 [RequireComponent(typeof(Collider))]
 public class DraggableCharacter : Draggable3D
@@ -28,7 +30,6 @@ public class DraggableCharacter : Draggable3D
         if (TurnManager.Instance.CurrentTurnEntity == characterEntity)
         {        
             base.OnMouseDown();
-            startPosition = characterOnMap.currentCell;
         }
     }
 
@@ -42,23 +43,24 @@ public class DraggableCharacter : Draggable3D
     {
         Vector3Int dropCell = pathData.End;
 
-        if (dropCell == TilemapUtilityScript.InvalidPosition ||
-            TilemapUtilityScript.CostInfoScript.costInfoDict[dropCell].isOccupied ||
-            TilemapUtilityScript.CostInfoScript.costInfoDict[dropCell].isUnwalkable)
+        // Validate target cell
+        if (dropCell == TilemapUtilityScript.InvalidPosition || TilemapUtilityScript.CostInfoScript.costInfoDict[dropCell].isOccupied || TilemapUtilityScript.CostInfoScript.costInfoDict[dropCell].isUnwalkable)
         {
             return;
         }
 
-        // Move the character
+        // Only move if enough stamina
         if (characterEntity.entityStats.CurrentStamina >= pathData.PathCost)
-{        
-            characterOnMap.MoveTo(pathData, characterEntity);
-        }
+        {
+            bool moveComplete = false;
 
+            // Enqueue movement via global action queue
+            ActionQueueUtility.EnqueueMovement(characterOnMap, pathData, () => moveComplete = true);
+        }
+        // Clear movement previews and reset tile highlights
         ClearMovementPreview();
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
     }
-
 
     public override void HandleHover(Vector3Int hoverCell)
     {

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace facingfate
@@ -15,6 +14,21 @@ namespace facingfate
 
             Debug.Log($"[PlayerScript] Setup complete for {name}");
             DeckManager.Instance.BuildDeckFromIDs(this);
+        }
+    }
+    public override void StartTurn()
+    {
+        base.StartTurn();
+
+        if (entityStats.IsStunned)
+        {
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                GameEvents.TriggerTurnEnd();
+                entityStats.IsStunned = false;
+            });
+
+            return;
         }
     }
 }

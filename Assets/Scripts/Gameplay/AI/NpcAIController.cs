@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utility;
+using static UnityEngine.GraphicsBuffer;
 
 namespace facingfate
 {
@@ -101,21 +102,21 @@ namespace facingfate
             return candidates;
         }
 
-        private ScoredCard EvaluateCard(CardScript card, int stamina, Vector3Int virtualPosition)
-        {
-            // STEP 1 — Get final list of valid targets
-            var validTargets = TargetingUtility.GetValidTargets(card, npcScript, allEntities);
-            if (validTargets.Count == 0)
-                return null;
+    private ScoredCard EvaluateCard(CardScript card, int stamina, Vector3Int virtualPosition)
+    {
+        // STEP 1 ï¿½ Get final list of valid targets
+        var validTargets = TargetingUtility.GetValidTargets(card.cardData, allEntities);
+        if (validTargets.Count == 0)
+            return null;
 
-            // STEP 2 — Produce TARGETING TEMPLATES
+            // STEP 2 ï¿½ Produce TARGETING TEMPLATES
             var targetingMode = TargetingModeFactory.Create(card);
             var templates = targetingMode.GetTargetingData(card, validTargets, npcScript);
             if (templates == null || templates.Count == 0)
                 return null;
 
 
-            // STEP 3 — Pathfinding only to those tiles (fast)
+            // STEP 3 ï¿½ Pathfinding only to those tiles (fast)
             var reachableMoves = TargetingUtility.GetReachableCandidates(
                 card,
                 templates,
@@ -126,7 +127,7 @@ namespace facingfate
             if (reachableMoves == null || reachableMoves.Count == 0)
                 return null;
 
-            // STEP 5 — Evaluate (movement + aim) using templates + reachable paths
+            // STEP 5 ï¿½ Evaluate (movement + aim) using templates + reachable paths
             return EvaluateMovementAndAim(card, reachableMoves);
         }
 
@@ -143,17 +144,22 @@ namespace facingfate
             {
                 if (move.Item2.targetedEntities == null || move.Item2.targetedEntities.Count == 0) continue;
 
-                int score = EvaluateCardScore(card, move.Item2.targetedEntities, move.Item1.PathCost);
-
-                if (score > best.score)
+            if (score > best.score)
+            {
+                best.score = score;
+                best.pseudoName = $"Play {card.cardData.cardName}";
+                // remove targets over the maximum allowed
+                if (card.cardData.MaxTarget > 0)
                 {
-                    best.score = score;
-                    best.pseudoName = $"Play {card.cardData.cardName}";
-                    best.targets = move.Item2.targetedEntities;
-                    best.targetingModeData = move.Item2;
-                    best.pathData = move.Item1;
-                    best.executionOption = CardExecutionOption.PlayCard;
+                    best.targets = move.Item2.targetedEntities.Take(card.cardData.MaxTarget).ToList();
                 }
+                else
+                {
+                    best.targets = move.Item2.targetedEntities;
+                }
+                best.targetingModeData = move.Item2;
+                best.pathData = move.Item1;
+                best.executionOption = CardExecutionOption.PlayCard;
             }
             Debug.Log($"[NpcAI] Best action for card {card.cardData.cardName} is score {best.score} with movement cost {best.pathData.PathCost}, at {best.targetingModeData.castingPosition} for NPC {npcScript.name}");
             return best;
@@ -228,8 +234,14 @@ namespace facingfate
                 if (totalCost <= stamina) return candidate;
             }
 
-            return null;
+        // remove targets over the maximum allowed
+        if (card.cardData.MaxTarget > 0)
+        {
+            targets = targets.Take(card.cardData.MaxTarget).ToList();
         }
+
+        int throughput = card.cardData.CardAiBias?.ThroughputOverride(npcAIBias, card.cardData, targets) ?? 0;
+        int cost = Mathf.Max(1, card.cardData.Cost + moveCost);
 
         private int EvaluateCardScore(CardScript card, List<EntityScript> targets, int moveCost)
         {
@@ -355,7 +367,7 @@ namespace facingfate
             int hostileCount = allEntities.Count(e => e.entityAffiliation != entity.entityAffiliation);
             if (hostileCount == 0)
             {
-                // No enemies — stay in place
+                // No enemies ï¿½ stay in place
                 return new ScoredCard
                 {
                     pseudoName = "No Enemies Move",

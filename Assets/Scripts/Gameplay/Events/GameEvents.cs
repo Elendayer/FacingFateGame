@@ -14,7 +14,7 @@ namespace facingfate
         public static event Action OnCombatStart;
         public static event Action OnCombatEnd;
 
-        public static event Action<TriggerRef> OnGameplayReference;
+    public static event Action<ToSendTriggerReference> OnGameplayReference;
 
         public static void TriggerTurnStart() => OnTurnStart?.Invoke();
         public static void TriggerTurnEnd() => OnTurnEnd?.Invoke();
@@ -27,30 +27,43 @@ namespace facingfate
 
         public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());
 
-        public static void TriggerRefEvent(TriggerRef grs)
+    public static void TriggerRefEvent(ToSendTriggerReference grs)
+    {
+        TimelineManager.AddToTimeline(grs);
+        OnGameplayReference?.Invoke(grs);
+    }
+
+    public static bool CheckIfRelevantTrigger(ToSendTriggerReference sendReference, RelevantTriggerCheck checkReference)
+    {
+        // Null checks � positive condition: both references must be non-null
+        if (sendReference.OnTriggerReference != null && checkReference.OnTriggerReference != null)
         {
-            TimelineManager.AddToTimeline(grs);
-            OnGameplayReference?.Invoke(grs);
-        }
-        public static bool CheckIfRelevantTrigger(TriggerRef sendReference, TriggerRef checkReference)
-        {
-            if (sendReference.AffectedEntities != null && checkReference.AffectedEntities != null)
+            // Check for overlap in OnTriggerReference � positive condition: there is at least one overlapping trigger
+            if (sendReference.OnTriggerReference.Intersect(checkReference.OnTriggerReference).Any())
             {
-                if (checkReference.AffectedEntities.Any(entity => sendReference.AffectedEntities.Contains(entity)))
+                // Check entity relevance based on type
+                switch (checkReference.CheckType)
                 {
-                    if (sendReference.OnTriggerReference == null || sendReference.OnTriggerReference.Count == 0)
-                    {
-                        return false;
-                    }
-                    return sendReference.OnTriggerReference.Any(tr => checkReference.OnTriggerReference.Contains(tr));
+                    case CheckEntityType.User:
+                        if (sendReference.UserEntity == checkReference.CheckEntity)
+                            return true;
+                        break;
+
+                    case CheckEntityType.Target:
+                        if (sendReference.AffectedEntities != null && sendReference.AffectedEntities.Contains(checkReference.CheckEntity))
+                            return true;
+                        break;
                 }
             }
             return false;
         }
+
+        // If none of the positive checks succeed, return false
+        return false;
     }
 
     // -------------------- Referenece Struct --------------------
-    public struct TriggerRef
+    public struct ToSendTriggerReference
     {
         public List<GameplayRef> OnTriggerReference;
         public EntityScript UserEntity;
@@ -58,7 +71,7 @@ namespace facingfate
         public CardData CardData;
         public int Throughput;
 
-        public TriggerRef(
+        public ToSendTriggerReference(
             List<GameplayRef> references,
             EntityScript userEntity,
             List<EntityScript> affectedEntities,
@@ -74,10 +87,36 @@ namespace facingfate
         }
     }
 
-    // -------------------- Gameplay References Enum --------------------
-    public enum GameplayRef
+    public struct RelevantTriggerCheck
     {
-        None,
+        public List<GameplayRef> OnTriggerReference;
+        public CheckEntityType CheckType;
+        public EntityScript CheckEntity;
+        public CardData CardData;
+
+        public RelevantTriggerCheck(
+            List<GameplayRef> references,
+            CheckEntityType checkType,
+            EntityScript checkEntity,
+            CardData cardData = null
+            )
+        {
+            OnTriggerReference = references;
+            CheckType = checkType;
+            CheckEntity = checkEntity;
+            CardData = cardData;
+        }
+    }
+
+    public enum CheckEntityType
+    {
+        User,
+        Target
+    }
+// -------------------- Gameplay References Enum --------------------
+public enum GameplayRef
+{
+    None,
 
         //Status Effects
         onBurn,
@@ -108,20 +147,34 @@ namespace facingfate
 
         taunt,
 
-        //Combat Events
-        onDamage,
-        onBlocking,
-        onBuffed,
-        onAttack,
-        onHeal,
-        onDeath,
-        onSummon,
-        onLifesteal,
-        onCounterRecieved,
-        onDamageRecieved,
-        onHealRecieved,
-        onBuffRecieved,
-        onDebuffRecieved,
+    //Combat Events
+    onDamage,
+    onBlocking,
+    onBuffed,
+    onAttack,
+    onHeal,
+    onDeath,
+    onSummon,
+    onLifesteal,
+    onCounterRecieved,
+    onDamageRecieved,
+    onHealRecieved,
+    onBuffRecieved,
+    onDebuffRecieved,
+
+    //Game Flow
+    onTurnStart,
+    onTurnEnd,
+    onRoundStart,
+    onRoundEnd,
+    onCardPlayed,
+    onCardEffectEnd,
+    onCardDrawn,
+    onCardDiscarded,
+    onStatChanged,
+    onModifierApplied,
+    onModifierExpired,
+    onHitLanded,
 
         //Game Flow
         onTurnStart,
@@ -148,23 +201,15 @@ namespace facingfate
         Blessing,
         Curse,
 
-        //Identites
-        Non,
-        Physical,
-        Fire,
-        Ice,
-        Air,
-        Earth,
-        Shadow,
-        Poison,
-        Light,
-        Blood,
-        Arcane,
-        Soul,
-        Divine,
-        Occult,
-        Melee,
-        Ranged,
+    //Alchemy
+    Venom,
+
+    //Classes
+    Spearman,
+    Assassin,
+    Mystic,
+    Physician,
+    Neutral,
 
         //Classes
         Spearman,
@@ -173,18 +218,17 @@ namespace facingfate
         Physician,
         Neutral,
 
+    //Classes Old
+    Knight,
+    Rogue,
+    Wizard,
+    Cleric,
+    Paladin,
+    Warlock,
+    Ranger,
+    Druid,
+    Barbarian,
+    Alchemist,
+    Monster,
 
-        //Classes Old
-        Knight,
-        Rogue,
-        Wizard,
-        Cleric,
-        Paladin,
-        Warlock,
-        Ranger,
-        Druid,
-        Barbarian,
-        Alchemist,
-        Monster,
-    }
 }

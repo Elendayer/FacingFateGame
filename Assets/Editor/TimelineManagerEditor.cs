@@ -1,4 +1,4 @@
-﻿// Editor/TimelineManagerEditor.cs
+// Editor/TimelineManagerEditor.cs
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -106,7 +106,13 @@ namespace facingfate
             EditorGUI.indentLevel--;
         }
 
-        private void DrawTriggerBox(TriggerRef triggerRef, Color bgColor)
+        EditorGUILayout.EndScrollView();
+        EditorGUI.indentLevel--;
+    }
+
+    private void DrawTriggerBox(ToSendTriggerReference triggerRef, Color bgColor)
+    {
+        var boxStyle = new GUIStyle()
         {
             var boxStyle = new GUIStyle()
             {

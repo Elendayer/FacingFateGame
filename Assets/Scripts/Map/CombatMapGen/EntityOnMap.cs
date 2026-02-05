@@ -1,14 +1,13 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using Utility;
 
 namespace facingfate
 {
-    public class EntityOnMap : MonoBehaviour
-    {
-        [Header("Movement Settings")]
-        public Vector3Int currentCell = new Vector3Int(0, 0, 0);            // Current logical cell
-        public float defaultMovementSpeed = 3f;                                      // Movement speed in units per second
+    [Header("Movement Settings")]
+    public Vector3Int currentCell = new Vector3Int(0,0,0);      // Current logical cell
+    public float defaultMovementSpeed = 3f;                     // Movement speed in units per second
 
         private Coroutine moveRoutine;
         private bool isDragging = false;
@@ -23,80 +22,105 @@ namespace facingfate
             SetOccupied(currentCell, true);
         }
 
-        public void Spawn(Vector3Int desiredCell)
+    public void Spawn(Vector3Int desiredCell)
+    {
+        currentCell = desiredCell;
+        transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(currentCell);
+        SetOccupied(desiredCell, false);
+    }
+    public void TeleportTo(Vector3Int targetCell)
+    {
+        SetOccupied(currentCell, false);
+        Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(targetCell);
+        transform.position = targetPos;
+        currentCell = targetCell;
+        SetOccupied(currentCell, true);
+    }
+
+    public IEnumerator StartJumpRoutine(Vector3Int targetTile)
+    {
+        if (moveRoutine != null)
         {
-            currentCell = desiredCell;
-            transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(currentCell);
-            SetOccupied(desiredCell, false);
+            StopCoroutine(moveRoutine);
+            moveRoutine = null;
         }
 
-
-        public void MoveTo(PathData pathData, EntityScript entityScript = null, float moveSpeed = 3f)
+        moveRoutine = StartCoroutine(JumpTo(targetTile));
+        yield return moveRoutine;
+    }
+    public IEnumerator StartMoveRoutine(PathData pathData)
+    {
+        if (moveRoutine != null)
         {
-            if (moveRoutine != null) StopCoroutine(moveRoutine);
-            Stat moveCostModifier = entityScript.entityStats.MovementCostModifier;
-
-            if (pathData != null && pathData.Path.Count > 0)
-            {
-                TilemapUtilityScript.SetTilesHighlight(pathData.Path, TilemapUtilityScript.HighlightType.Path);
-
-                moveRoutine = StartCoroutine(FollowPath(pathData, moveSpeed));
-
-                if (entityScript != null)
-                {
-                    entityScript.entityStats.CurrentStamina -= pathData.PathCost;
-                }
-            }
-            else
-            {
-                Debug.LogWarning("No path found");
-            }
-        }
-        public void TeleportTo(Vector3Int targetCell)
-        {
-            SetOccupied(currentCell, false);
-            Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(targetCell);
-            transform.position = targetPos;
-            currentCell = targetCell;
-            SetOccupied(currentCell, true);
+            StopCoroutine(moveRoutine);
+            moveRoutine = null;
         }
 
-        public Coroutine StartMove(PathData pathData)
-        {
-            return StartCoroutine(FollowPath(pathData, defaultMovementSpeed));
-        }
+        moveRoutine = StartCoroutine(FollowPath(pathData, defaultMovementSpeed));
+        yield return moveRoutine;
+    }
 
-        private IEnumerator FollowPath(PathData pathData, float speed = 3f)
+    private IEnumerator FollowPath(PathData pathData, float speed)
+    {
+        SetOccupied(currentCell, false);
+
+        foreach (var cell in pathData.Path)
         {
             SetOccupied(pathData.Start, false);
 
-            foreach (var cell in pathData.Path)
+            while ((transform.position - targetPos).sqrMagnitude > 0.0025f)
             {
-                Vector3 targetPos = TilemapUtilityScript.BaseTilemap.GetCellCenterWorld(cell);
-
-                // Smooth movement toward target cell
-                while (Vector3.Distance(transform.position, targetPos) > 0.05f)
-                {
-                    transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-                    yield return null;
-                }
-
-                // Snap exactly to cell center
-                transform.position = targetPos;
-
-                // Update logical cell
-                currentCell = cell;
+                transform.position = Vector3.MoveTowards(
+                    transform.position,
+                    targetPos,
+                    speed * Time.deltaTime
+                );
+                yield return null;
             }
 
-            moveRoutine = null;
-            SetOccupied(pathData.End, true);
-
-            TilemapUtilityScript.ResetMaphightlight(pathData.Path);
+            transform.position = targetPos;
+            currentCell = cell;
         }
 
-        public void SetOccupied(Vector3Int pos, bool b)
+        moveRoutine = null;
+        SetOccupied(currentCell, true);
+        TilemapUtilityScript.ResetMaphightlight(pathData.Path);
+    }
+
+
+    [SerializeField] private float jumpDuration = 0.35f;
+    [SerializeField] private float jumpHeight = 1.5f;
+
+    private IEnumerator JumpTo(Vector3Int targetTile)
+    {
+        Vector3 startWorldPos = transform.position;
+        Vector3 endWorldPos = TilemapUtilityScript.BaseTilemap.CellToWorld(targetTile);
+
+        float elapsed = 0f;
+
+        while (elapsed < jumpDuration)
         {
-            costInfoScript.costInfoDict[pos].isOccupied = b;
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / jumpDuration);
+
+            // Horizontal interpolation
+            Vector3 position = Vector3.Lerp(startWorldPos, endWorldPos, t);
+
+            // Vertical arc (parabolic)
+            float heightOffset = jumpHeight * 4f * t * (1f - t);
+            position.y += heightOffset;
+
+            transform.position = position;
+            yield return null;
         }
+
+        transform.position = endWorldPos;
+        currentCell = targetTile;
+
+        SetOccupied(currentCell, true);
+    }
+    public void SetOccupied(Vector3Int pos, bool b)
+    {
+        costInfoScript.costInfoDict[pos].isOccupied = b;
     }
 }
