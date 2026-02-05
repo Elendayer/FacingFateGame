@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using Utility;
 
@@ -12,9 +13,14 @@ namespace facingfate
         public int curveResolution = 6;
         public float arrowHeightOffset = 1f;
 
-        protected bool isDragging = false;
-        protected Vector3 startPosition;
-        protected Vector3Int lastHoveredTile = TilemapUtilityScript.InvalidPosition;
+    protected bool isDragging = false;
+    protected Vector3 currentPosition;
+    protected Vector3Int currentTile =>
+        new Vector3Int(
+            TilemapUtilityScript.BaseTilemap.WorldToCell(currentPosition).x,
+            TilemapUtilityScript.BaseTilemap.WorldToCell(currentPosition).y,
+            0
+        ); protected Vector3Int lastHoveredTile = TilemapUtilityScript.InvalidPosition;
 
         public Stat moveCostModifer;
 
@@ -22,7 +28,7 @@ namespace facingfate
         {
             isDragging = true;
 
-            startPosition = transform.position;
+        currentPosition = transform.position;
 
             if (lineRenderer != null)
             {
@@ -39,13 +45,14 @@ namespace facingfate
             if (lineRenderer != null)
                 lineRenderer.enabled = false;
 
-            // Trigger drag-end event
-            Vector3Int dropCell = lastHoveredTile;
-            PathData pathData = MovementUtility.FindPath(
-                Vector3Int.RoundToInt(startPosition),
-                dropCell,
-                movementCostModifier: moveCostModifer
-            );
+        // Trigger drag-end event
+        Vector3Int dropCell = lastHoveredTile;
+        PathData pathData = MovementUtility.FindPath
+            (
+            currentTile,
+            dropCell,
+            movementCostModifier:  moveCostModifer
+        );
 
             Debug.Log($"[Draggable3D] Drag ended on tile: {dropCell}");
             HandleMove(pathData);
@@ -54,11 +61,9 @@ namespace facingfate
             TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
         }
 
-
-
-        void Update()
-        {
-            if (!isDragging) return;
+    void Update()
+    {
+        if (!isDragging) return;
 
             // Raycast to world
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -67,9 +72,9 @@ namespace facingfate
             {
                 Vector3 cursorPosition = hit.point;
 
-                // Update arrow preview
-                if (lineRenderer != null)
-                    UpdateArrow(startPosition, cursorPosition);
+            // Update arrow preview
+            if (lineRenderer != null)
+                UpdateArrow(currentPosition, cursorPosition);
 
                 // Update hovered tile
                 Vector3Int hoveredTile = TargetingUtility.GetHoveredTile(ray);
@@ -82,25 +87,20 @@ namespace facingfate
                     // Trigger drag-update event
                     HandleHover(hoveredTile);
 
-                    // Highlight the hovered tile
-                    TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
-                    if (hoveredTile != TilemapUtilityScript.InvalidPosition)
-                    {
-                        Vector3Int vector3Int = Vector3Int.RoundToInt(startPosition);
-                        TilemapUtilityScript.SetTilesHighlight(
-                            MovementUtility.FindPath(vector3Int, hoveredTile).Path,
-                            TilemapUtilityScript.HighlightType.Path
-                        );
-                    }
+                // Highlight the hovered tile
+                TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
+                if (hoveredTile != TilemapUtilityScript.InvalidPosition)
+                {
+                    TilemapUtilityScript.SetTilesHighlight(MovementUtility.FindPath(currentTile, hoveredTile).Path,TilemapUtilityScript.HighlightType.Path);
                 }
             }
         }
-        public virtual void HandleMove(PathData pathData)
-        {
-
-        }
-        public virtual void HandleHover(Vector3Int hoveredTile)
-        {
+    }
+    public virtual void HandleMove(PathData pathData)
+    {
+    }
+    public virtual void HandleHover(Vector3Int hoveredTile)
+    {
 
         }
 

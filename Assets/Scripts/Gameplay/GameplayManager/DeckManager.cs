@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -243,14 +244,10 @@ namespace facingfate
             }
         }
 
-        public void EndTurn(EntityScript entity)
-        {
-            if (entity.GetType() == typeof(PlayerScript))
-            {
-                MoveOutDeck(entity);
-            }
-        }
-        public void StartTurn(EntityScript entity)
+    public void StartTurn(EntityScript entity)
+    {
+        // Only for player for now
+        if (entity.GetType() == typeof(PlayerScript))
         {
             if (entity.GetType() == typeof(PlayerScript))
             {
@@ -263,8 +260,15 @@ namespace facingfate
             }
             else
             {
-                (entity as NonPlayerScript).TakeTurn();
-            }
+                DrawTopCard();
+            } 
+        }        
+    }
+    public void EndTurn(EntityScript entity)
+    {
+        if (entity.GetType() == typeof(PlayerScript))
+        {
+            MoveOutDeck(entity);
         }
     }
 }

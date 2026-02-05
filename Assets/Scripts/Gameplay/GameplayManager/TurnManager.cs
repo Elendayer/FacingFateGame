@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Utility;
 
 namespace facingfate
 {
@@ -59,19 +60,32 @@ namespace facingfate
         {
             GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
 
-            DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
-        }
-        private void OnTurnEnd()
-        {
-            GameEvents.TriggerRefEvent(new TriggerRef(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
-            DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
+    private void OnTurnStart()
+    {      
+        //Trigger Reference Event
+        GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() {TurnOrder[CurrentTurnIndex] }));
 
-            CurrentTurnIndex++;
-            if (CurrentTurnIndex >= TurnOrder.Count)
-            {
-                CurrentTurnIndex = 0;
-                CurrentRoundIndex++;
-            }
+        // Start the Turn for the Current Entity
+        DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
+        TurnOrder[CurrentTurnIndex].StartTurn();
+    }
+    private void OnTurnEnd()
+    {
+        //Trigger Reference Event
+        GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
+
+        // End the Turn for the current Entity
+        DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
+
+        //Increment Turn Order
+        CurrentTurnIndex++;
+        if (CurrentTurnIndex >= TurnOrder.Count)
+        {
+            CurrentTurnIndex = 0;
+            CurrentRoundIndex++;
         }
+
+        //Start the next Turn
+        ActionQueueUtility.EnqueueAction(new Action(OnTurnStart),0.5f);
     }
 }    

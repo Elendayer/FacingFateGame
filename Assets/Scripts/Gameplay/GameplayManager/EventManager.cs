@@ -28,4 +28,12 @@ namespace facingfate
             GameEvents.TriggerTurnStart();
         }
     }
+    public void Endturn()
+    {
+        GameEvents.TriggerTurnEnd();
+    }
+    public void Startturn()
+    {
+        GameEvents.TriggerTurnStart();
+    }
 }

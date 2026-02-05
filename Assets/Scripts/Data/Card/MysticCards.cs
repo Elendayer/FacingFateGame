@@ -22,7 +22,7 @@ namespace facingfate
 
         private static void RegisterMartialArts()
         {
-            // 130101 – Mind Shock – direct damage
+            // 130101 ï¿½ Mind Shock ï¿½ direct damage
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130101,
@@ -48,7 +48,7 @@ namespace facingfate
                 }
             });
 
-            // 130102 – Staff Swing – melee damage
+            // 130102 ï¿½ Staff Swing ï¿½ melee damage
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130102,
@@ -73,7 +73,7 @@ namespace facingfate
                 }
             });
 
-            // 130103 – Absorb Qi – damage + resource (resource part TODO)
+            // 130103 ï¿½ Absorb Qi ï¿½ damage + resource (resource part TODO)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130103,
@@ -103,7 +103,7 @@ namespace facingfate
 
         private static void RegisterAbilities()
         {
-            // 130201 – Dancing Shadow – all entities attack if possible (non-damage)
+            // 130201 ï¿½ Dancing Shadow ï¿½ all entities attack if possible (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130201,
@@ -124,7 +124,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) => { /* TODO */ }
             });
 
-            // 130202 – Meditation – regenerate mana? (non-damage)
+            // 130202 ï¿½ Meditation ï¿½ regenerate mana? (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130202,
@@ -146,7 +146,7 @@ namespace facingfate
         }
         private static void RegisterSpells()
         {
-            // 130301 – Illusionary Double – summon/aggro (non-damage)
+            // 130301 ï¿½ Illusionary Double ï¿½ summon/aggro (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130301,
@@ -171,7 +171,7 @@ namespace facingfate
                 }
             });
 
-            // 130302 – Phantom Spear Battalion – ring blockers (non-damage)
+            // 130302 ï¿½ Phantom Spear Battalion ï¿½ ring blockers (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130302,
@@ -192,7 +192,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) => { /* TODO spawn 3 entities */ }
             });
 
-            // 130303 – Warp Intention – target attacks someone else (non-damage)
+            // 130303 ï¿½ Warp Intention ï¿½ target attacks someone else (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130303,
@@ -218,7 +218,7 @@ namespace facingfate
                 }
             });
 
-            // 130304 – Sleepwalking – force move 2 spaces (non-damage)
+            // 130304 ï¿½ Sleepwalking ï¿½ force move 2 spaces (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130304,
@@ -244,7 +244,7 @@ namespace facingfate
                 }
             });
 
-            // 130305 – Spectral Barrier – blocks 1 space (non-damage)
+            // 130305 ï¿½ Spectral Barrier ï¿½ blocks 1 space (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130305,
@@ -268,7 +268,7 @@ namespace facingfate
                 }
             });
 
-            // 130306 – Spacial Reversal – swap positions (non-damage)
+            // 130306 ï¿½ Spacial Reversal ï¿½ swap positions (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130306,
@@ -294,7 +294,7 @@ namespace facingfate
                 }
             });
 
-            // 130307 – Bloody Hex – proc Bleed (non-damage trigger)
+            // 130307 ï¿½ Bloody Hex ï¿½ proc Bleed (non-damage trigger)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130307,
@@ -319,7 +319,7 @@ namespace facingfate
                 }
             });
 
-            // 130308 – Venom Hex – proc Poison (non-damage trigger)
+            // 130308 ï¿½ Venom Hex ï¿½ proc Poison (non-damage trigger)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130308,
@@ -344,7 +344,7 @@ namespace facingfate
                 }
             });
 
-            // 130309 – Crimson Hex – Ignite proc (non-damage trigger)
+            // 130309 ï¿½ Crimson Hex ï¿½ Ignite proc (non-damage trigger)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130309,
@@ -366,7 +366,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) => { /* TODO */ }
             });
 
-            // 130310 – Mental Chains – cannot attack this turn (non-damage)
+            // 130310 ï¿½ Mental Chains ï¿½ cannot attack this turn (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130310,
@@ -390,7 +390,7 @@ namespace facingfate
                 }
             });
 
-            // 130311 – Rainbow Hex – proc all (non-damage trigger, AOE sphere)
+            // 130311 ï¿½ Rainbow Hex ï¿½ proc all (non-damage trigger, AOE sphere)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130311,
@@ -416,7 +416,7 @@ namespace facingfate
                 }
             });
 
-            // 130312 – Pure Flames – Ignite DoT
+            // 130312 ï¿½ Pure Flames ï¿½ Ignite DoT
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130312,
@@ -458,15 +458,28 @@ namespace facingfate
 
         private static void RegisterCurses()
         {
-            // 130401 – Psychic Backlash – spells cost more (non-damage)
+            // 130401 ï¿½ Psychic Backlash ï¿½ spells cost more (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 130401,
-                cardName = "Psychic Backlash",
-                cardType = CardType.Curse,
-                cardClass = CardClass.Mystic,
-                cardIdentities = new() { CardIdentity.None },
-                cost_u = 0,
+                var ignite = new EntityModifier(
+                    modifierName: "Burn",
+                    owner: Target,
+                    baseValue: d.Power,
+                    toTriggerRefs: new() { GameplayRef.onBurn },
+                    duration: d.Duration,
+                    onRef_Trigger: new RelevantTriggerCheck 
+                    {
+                        OnTriggerReference = new() { GameplayRef.onTurnStart }, 
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target
+                    },
+                    onRef_Action: (target, cd, value) =>
+                    {
+                        CombatUtility.ApplyDamage(null, target, value);
+                    });
+                CombatUtility.ApplyEntityModifier(d, Target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
+            }
+        });
 
                 targetingData = new()
                 {
@@ -481,7 +494,7 @@ namespace facingfate
 
         private static void RegisterBlessings()
         {
-            // 130501 – Inner Calm – spells cheaper (non-damage)
+            // 130501 ï¿½ Inner Calm ï¿½ spells cheaper (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = 130501,

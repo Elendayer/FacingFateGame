@@ -1,4 +1,6 @@
+using facingfate;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using UnityEngine;
 using Utility;
 
@@ -40,10 +42,26 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardAiBias = new()
-                {
-                    triggerConditionTargets = (entitiy) => entitiy.HasCondition(GameplayCondition.isDamaged)
-                },
+            CardEffect = (User, Target, d) =>
+            {
+                // Heal-over-time as positive “on turn start” tick
+                var regen = new EntityModifier(
+                    modifierName: "Regeneration",
+                    owner: Target,
+                    baseValue: d.Healing,
+                    toTriggerRefs: new() { GameplayRef.onHealRecieved },
+                    duration: d.Duration,
+                    onRef_Trigger: new RelevantTriggerCheck
+                    {
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = Target,
+                    },
+                    onRef_Action: (target, cd, value) =>
+                    {
+                        CombatUtility.ApplyHealing(cd, target, value);
+                    }
+                );
 
                 CardDescription = (User, d) =>
                 {
@@ -832,11 +850,11 @@ namespace facingfate
                 CardDescription = (User, d) =>
                     d.cardDescription = $"Cleanses Target of all DoTs.",
 
-                CardEffect = (User, Target, d) =>
-                {
-                    //TODO Cleanse
-                }
-            });
+            cost_u = 30,
+            damage_u = 2,
+            duration_u = 3,
+            range_u = 4,
+            radius_u = 3,
 
             // 140614 – Mandrake Poison Cloud – Throws Poison Cloud
             CardDatabase.RegisterCard(new CardData()
@@ -847,40 +865,50 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.Poison },
 
-                cost_u = 30,
-                damage_u = 2,
-                duration_u = 3,
-                range_u = 4,
-                area_u = 2,
+            CardDescription = (User, d) =>
+                d.cardDescription = $"Deal {d.Damage} poison damage in a small area. A poisonous cloud stays on the field.",
 
-                targetingData = new()
-                {
-                    CardTargetType = CardTargetType.CombatTile,
-                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
-                },
-
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Deal {d.Damage} poison damage in a small area. A poisonous clod stays on the field.",
-
-                CardEffect = (User, Target, d) =>
-                {
-                    string name = $"Poison#{d.cardID}";
-                    var poison = new EntityModifier(
-                        modifierName: name,
+            CardEffectGround = (User, TargetTile, d) =>
+            {
+                CombatUtility.SpawnGroundEffect(d, TargetTile, new GroundEffect_Enter_EntityData
+                (
+                    cardData: d,
+                    relevantTrigger: new RelevantTriggerCheck
+                    {
+                        OnTriggerReference = new() { GameplayRef.onTurnStart },
+                        CheckType = CheckEntityType.User,
+                        CheckEntity = User,
+                    },
+                    duration: d.Duration,
+                    removeOnExit: false,
+                    removeOnEnd: false,
+                    modifier: new EntityModifier(
+                        modifierName: "Poison",
+                        owner: null,
                         baseValue: d.Damage,
                         toTriggerRefs: new() { GameplayRef.onPoison },
                         duration: d.Duration,
-                        onRef_Trigger: new TriggerRef
+                        onRef_Trigger: new RelevantTriggerCheck
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            AffectedEntities = new() { Target },
-                            UserEntity = User
+                            CheckType = CheckEntityType.Target,
                         },
-                        onRef_Action: (data, target) =>
+                        onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, data.Value);
-                        });
+                            CombatUtility.ApplyDamage(null, target, value);
+                        }),
+                    onEnter: (modifier, target) =>
+                    {
+                        CombatUtility.ApplyEntityModifier(d, target, modifier, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    },
+                    onExit: (modifier, target) =>
+                    {
+                        
+                    }));
+                // ToDO: Posion Cloud sollte länger auf dem Spielfeld und ALLE vergiften die durchgehen wollen
+            }
+        });
+    }
 
                     CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
 

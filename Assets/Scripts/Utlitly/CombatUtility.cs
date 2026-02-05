@@ -10,7 +10,7 @@ namespace Utility
     {
         public static void ApplyCost(CardData cardData, Stat resourceStat, int cost)
         {
-            resourceStat.AddModifier(new StatModifier(resourceStat, -cost, ModifierScaling.Flat, name: "BaseValue"), ModifierMergeStrategy.Merge);
+            resourceStat.AddModifier(new StatModifier("BaseValue", resourceStat, -cost, ModifierScaling.Flat), ModifierMergeStrategy.Merge);
         }
 
         // Direct Damage that bypasses armour and block
@@ -123,35 +123,41 @@ namespace Utility
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, mod.BaseValue);
         }
 
-        public static void ApplyStatDebuff(CardData cardData, EntityScript target, Stat targetStat, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyStatDebuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            List<GameplayRef> refs = new();
-            refs.Add(GameplayRef.onDebuffRecieved);
+            List<GameplayRef> refs = new() { GameplayRef.onDebuffRecieved };
 
-            targetStat.AddModifier(mod, mergeStrategy);
+            mod.Stat.AddModifier(mod, mergeStrategy);
 
-            var dbg = target.GetComponent<StatusDebugView>();
-            if (dbg != null)
-            {
-                var label = string.IsNullOrEmpty(mod.ModifierName) ? "DEBUFF" : mod.ModifierName;
-                var eff = targetStat.GetModifierByName(mod.ModifierName) ?? mod;
-                dbg.SyncDot(label, eff.BaseValue, eff.Duration);
-            }
             Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);        }
 
-        public static void ApplyEntityModifier(CardData cardData, EntityScript target, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyEntityModifier(CardData cardData, EntityScript EffectOwner, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
         {
-            List<GameplayRef> refs = new();
-            refs.Add(GameplayRef.onModifierApplied);
+            List<GameplayRef> refs = new() { GameplayRef.onModifierApplied };
 
-            if (target == null || mod == null) return;
+            if (EffectOwner == null || mod == null) return;
 
-            target.AddModifier(mod, mergeStrategy);
-            target.GetComponent<StatusDebugView>()?.Track(mod);
+            if ( mod.Owner == null)
+            {
+                mod.Owner = EffectOwner;
+            }
 
-            Debug.Log($"Applied Modifier {mod.ModifierName} to {target.name}");
-            HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);
+            if (mod.OnRef_Trigger.CheckEntity == null)
+            {
+                mod.OnRef_Trigger = new RelevantTriggerCheck()
+                {
+                    OnTriggerReference = mod.OnRef_Trigger.OnTriggerReference,
+                    CheckType = mod.OnRef_Trigger.CheckType,
+                    CheckEntity = EffectOwner,
+                    CardData = cardData
+                };
+            }
+
+            EffectOwner.AddModifier(mod, mergeStrategy);
+
+            Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
+            HandlePostCombatTrigger(refs, cardData.Owner, EffectOwner, cardData);
         }
 
         public static void SpawnEntity(CardData cardData, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation)
@@ -173,11 +179,19 @@ namespace Utility
 
             HandlePostCombatTrigger(refs, cardData.Owner, spawnedEntity, cardData);
         }
-
+        public static void SpawnGroundEffect(CardData cardData, Vector3Int spawnPosition, GroundEffectDataBase groundEffectData)
+        {
+            List<GameplayRef> refs = new();
+            GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.groundEffectPrefab, parent: cardData.Owner.transform.parent);
+            GroundEffectScript groundEffectScript = SpawnObj.GetComponent<GroundEffectScript>();
+            SpawnObj.transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(spawnPosition);
+            groundEffectScript.EffectData = groundEffectData;
+            HandlePostCombatTrigger(refs, cardData.Owner, null, cardData);
+        }
         public static void HandlePreCombatTrigger(List<EntityScript> targets, CardData cardData)
         {
             if (cardData == null) return;
-            List<GameplayRef> refs = new();
+            List<GameplayRef> refs = new() { GameplayRef.onCardPlayed };
             refs.AddRange(cardData.cardIdentities.Select(c => (GameplayRef)Enum.Parse(typeof(GameplayRef), c.ToString())).ToList());
 
             GameplayRef classRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData.cardClass.ToString());
@@ -186,18 +200,20 @@ namespace Utility
             GameplayRef typeRef = (GameplayRef)Enum.Parse(typeof(GameplayRef), cardData.cardType.ToString());
             refs.Add(typeRef);
 
-            GameEvents.TriggerRefEvent(new TriggerRef(refs, cardData.Owner, targets, cardData, cardData.CardAiBias.ThroughputOverride(null, cardData, targets)));
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, cardData.Owner, targets, cardData, cardData.CardAiBias.ThroughputOverride(null, cardData, targets)));
         }
         public static void HandlePostCombatTrigger(List<GameplayRef> gameplayRefs, EntityScript user, EntityScript target, CardData cardData = null, int throughput = 0)
         {
-            List<GameplayRef> refs = gameplayRefs;
+            List<GameplayRef> refs = new() {};
+            refs.AddRange(gameplayRefs);
+
             if (cardData != null)
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(refs, user, new() { target }, cardData, throughput));
+                GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, user, new() { target }, cardData, throughput));
             }
             else
             {
-                GameEvents.TriggerRefEvent(new TriggerRef(refs, user, new() { target }, null, throughput));
+                GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, user, new() { target }, null, throughput));
             }
         }
     }

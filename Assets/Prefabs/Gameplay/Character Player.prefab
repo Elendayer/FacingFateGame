@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 8935636570208141450}
   - component: {fileID: 4777331206848150532}
   - component: {fileID: 4947648441073929551}
+  - component: {fileID: 1076676489531789042}
   m_Layer: 0
   m_Name: Character Player
   m_TagString: Untagged
@@ -55,6 +56,12 @@ MonoBehaviour:
   deckCardIDs: 
   entityStats:
     Owner: {fileID: 0}
+    CurrentHealth: 0
+    CurrentStamina: 0
+    Block: 0
+    IsStunned: 0
+    IsRooted: 0
+    tauntTarget: {fileID: 0}
   modifierNames: []
 --- !u!114 &9001171521745787760
 MonoBehaviour:
@@ -68,8 +75,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10ba6d1c153c2384bb92f441c93238ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 3
   currentCell: {x: 0, y: 0, z: 0}
+  defaultMovementSpeed: 3
 --- !u!114 &3567744316417343318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,8 +92,10 @@ MonoBehaviour:
   lineRenderer: {fileID: 8935636570208141450}
   curveResolution: 3
   arrowHeightOffset: 1
-  character: {fileID: 9001171521745787760}
-  targetTilemap: {fileID: 0}
+  characterOnMap: {fileID: 0}
+  characterEntity: {fileID: 0}
+  previewPathCost: 0
+  staminaPreviewText: {fileID: 0}
 --- !u!225 &6208202023648593538
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -145,7 +154,7 @@ LineRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 589123887
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
@@ -241,12 +250,39 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.4
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &1076676489531789042
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925646098595141539}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1801920520880176978
 PrefabInstance:
   m_ObjectHideFlags: 0
