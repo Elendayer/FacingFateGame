@@ -41,7 +41,7 @@ namespace facingfate
             {
                 ActionQueueUtility.EnqueueAction(() =>
                 {
-                    Debug.Log($"[NonPlayerScript] {name} has completed all planned actions for this turn.");
+                    Debug.Log($"[NonPlayerScript] {name} is stunned and skips their turn.");
                     EventManager.Instance.Endturn();
                 });
 

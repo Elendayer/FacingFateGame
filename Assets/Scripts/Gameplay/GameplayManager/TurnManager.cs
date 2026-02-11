@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Utility;
 
 namespace facingfate
 {
@@ -16,6 +15,7 @@ namespace facingfate
 
         public int CurrentTurnIndex = 0;
         public int CurrentRoundIndex = 1;
+
         private void Awake()
         {
             // Singleton enforcement
@@ -52,11 +52,11 @@ namespace facingfate
         {
             // Find all PlayerCharacter entities
             TurnOrder = FindObjectsByType<EntityScript>(0)
-                .OrderByDescending(e => UnityEngine.Random.Range(1, 21))
+                .OrderByDescending(e => UnityEngine.Random.Range(0, 100))
                 .ToList();
         }
 
-    private void OnTurnStart()
+        private void OnTurnStart()
         {
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
@@ -65,6 +65,7 @@ namespace facingfate
             DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
             TurnOrder[CurrentTurnIndex].StartTurn();
         }
+
         private void OnTurnEnd()
         {
             //Trigger Reference Event
