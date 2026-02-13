@@ -13,6 +13,7 @@
 				<Language Name="SFX" ID="{402EC492-C29D-4862-93E1-04CB6380A568}" />
 			</LanguageList>
 			<PropertyList>
+				<Property Name="AutoSoundBankEnabled" Type="bool" Value="True" />
 				<Property Name="ExternalSourcesInputPath" Type="string">
 					<ValueList>
 						<Value Platform="Mac"></Value>
@@ -25,7 +26,8 @@
 						<Value Platform="Windows">GeneratedSoundBanks\Windows\</Value>
 					</ValueList>
 				</Property>
-				<Property Name="SoundBankGenerateEstimatedDuration" Type="bool" Value="True" /><Property Name="GenerateSoundBankXML" Type="bool" Value="False" /><Property Name="SoundBankGenerateHeaderFile" Type="bool" Value="True" /><Property Name="SoundBankGenerateMaxAttenuationInfo" Type="bool" Value="True" /><Property Name="GenerateSoundBankJSON" Type="bool" Value="True" /><Property Name="SoundBankGeneratePrintGUID" Type="bool" Value="True" /><Property Name="SoundBankGeneratePrintPath" Type="bool" Value="True" /><Property Name="AutoSoundBankEnabled" Type="bool" Value="True" /><Property Name="SoundBankHeaderFilePath" Type="string" Value="../../FacingFateGame/FacingFateGame_WwiseProject/GeneratedSoundBanks/" />
+				<Property Name="SoundBankGenerateHeaderFile" Type="bool" Value="True" />
+				<Property Name="SoundBankGenerateEstimatedDuration" Type="bool" Value="True" /><Property Name="SoundBankHeaderFilePath" Type="string" Value="../../FacingFateGame/FacingFateGame_WwiseProject/GeneratedSoundBanks/" />
 				<Property Name="SoundBankPaths" Type="string">
 					<ValueList>
 						<Value Platform="Mac">GeneratedSoundBanks\Mac\</Value>
@@ -12535,6 +12537,18 @@
 				</PhysicalFolder>
 				<PhysicalFolder Path="Containers">
 					<WorkUnit Name="Containers" ID="{5EA7BBF8-64C0-4A50-8821-A07E8BE21D68}" PersistMode="Standalone" />
+				</PhysicalFolder>
+				<PhysicalFolder Path="Containers\ATMO">
+					<WorkUnit Name="ATMO" ID="{339D6280-76DB-453F-90EC-D3F16BF5BCF0}" PersistMode="Standalone" />
+				</PhysicalFolder>
+				<PhysicalFolder Path="Containers\Dialog">
+					<WorkUnit Name="Dialog" ID="{1F9EC197-857E-4593-B7A8-C3DE162FE00E}" PersistMode="Standalone" />
+				</PhysicalFolder>
+				<PhysicalFolder Path="Containers\Music">
+					<WorkUnit Name="Music" ID="{5195AD1F-D1BF-401A-8F7F-59A84D666325}" PersistMode="Standalone" />
+				</PhysicalFolder>
+				<PhysicalFolder Path="Containers\SFX">
+					<WorkUnit Name="SFX" ID="{669C48D4-E6BF-41BB-BF07-81FE5BF1DDBF}" PersistMode="Standalone" />
 				</PhysicalFolder>
 				<PhysicalFolder Path="Control Surface Sessions">
 					<WorkUnit Name="Control Surface Sessions" ID="{1751E4CD-8018-4E2C-9A8A-C77764D1D653}" PersistMode="Standalone" />

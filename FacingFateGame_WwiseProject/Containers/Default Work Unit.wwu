@@ -25,6 +25,28 @@
 						<ActiveSource Name="WS_Back-to-title-screen" ID="{18C790A5-5C14-43BE-8EE9-A715401BDE7F}" Platform="Linked"/>
 					</ActiveSourceList>
 				</Sound>
+				<Sound Name="UI all_buttons" ID="{9A3C7FD5-628A-4778-8143-A901B1879753}" ShortID="1008631826">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<AudioFileSource Name="UI Sound  04" ID="{8FA95785-BD65-4488-8D9F-AD0F628E967B}">
+							<Language>SFX</Language>
+							<AudioFile>UI Sound  04.wav</AudioFile>
+							<MediaIDList>
+								<MediaID ID="883134344"/>
+							</MediaIDList>
+						</AudioFileSource>
+					</ChildrenList>
+					<ActiveSourceList>
+						<ActiveSource Name="UI Sound  04" ID="{8FA95785-BD65-4488-8D9F-AD0F628E967B}" Platform="Linked"/>
+					</ActiveSourceList>
+				</Sound>
 			</ChildrenList>
 		</WorkUnit>
 	</Containers>

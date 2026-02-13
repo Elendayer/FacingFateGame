@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{EABB8CD1-D178-433C-A4BA-C47FE45CFE00}" SchemaVersion="133">
+	<Containers>
+		<WorkUnit Name="SFX_UI" ID="{EABB8CD1-D178-433C-A4BA-C47FE45CFE00}" PersistMode="Standalone"/>
+	</Containers>
+</WwiseDocument>
