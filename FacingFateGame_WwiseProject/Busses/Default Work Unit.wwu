@@ -13,6 +13,7 @@
 						<Bus Name="BUS_sfx" ID="{44DA34F6-72C5-4BF2-8CF5-AB9D16F88306}"/>
 						<Bus Name="BUS_music" ID="{669729E3-FBFB-4484-9B87-11D521BF2EA3}"/>
 						<Bus Name="BUS_dialoge" ID="{BB6F8413-45F4-436B-926D-87C498DE748F}"/>
+						<Bus Name="BUS_atmo" ID="{519D0971-ADD0-482B-AC79-C2EDC431F2C9}"/>
 					</ChildrenList>
 				</Bus>
 			</ChildrenList>

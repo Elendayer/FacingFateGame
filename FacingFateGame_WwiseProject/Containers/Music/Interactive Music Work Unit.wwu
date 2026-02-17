@@ -3,7 +3,7 @@
 	<Containers>
 		<WorkUnit Name="Interactive Music Work Unit" ID="{200E256C-B349-4231-A6C0-A35956D8C2AC}" PersistMode="Standalone">
 			<ChildrenList>
-				<MusicPlaylistContainer Name="Title Screen" ID="{4DC70960-0829-41B9-925A-14E184CA6CA9}" ShortID="510735328">
+				<MusicPlaylistContainer Name="Music_Title Screen" ID="{4DC70960-0829-41B9-925A-14E184CA6CA9}" ShortID="510735328">
 					<ReferenceList>
 						<Reference Name="Conversion">
 							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -13,7 +13,12 @@
 						</Reference>
 						<Reference Name="PlaylistRoot">
 							<Custom>
-								<MusicPlaylistItem Name="" ID="{4834708C-6DC8-44EB-9A31-C592C0B303A4}" ShortID="305857281"/>
+								<MusicPlaylistItem Name="" ID="{4834708C-6DC8-44EB-9A31-C592C0B303A4}" ShortID="305857281">
+									<PropertyList>
+										<Property Name="LoopCount" Type="int16" Value="0"/>
+										<Property Name="RandomAvoidRepeatingCount" Type="int32" Value="0"/>
+									</PropertyList>
+								</MusicPlaylistItem>
 							</Custom>
 						</Reference>
 						<Reference Name="TransitionRoot">
@@ -33,9 +38,9 @@
 						</Reference>
 					</ReferenceList>
 					<ChildrenList>
-						<MusicSegment Name="TS_Music_01" ID="{D664F82B-02FF-47E5-95E8-AE33AAF0A7E5}" ShortID="841714162">
+						<MusicSegment Name="Facing-Fate_Skizze2" ID="{BFDB6FF5-EE4B-46FE-A4A9-D6A96103B814}" ShortID="386789289">
 							<PropertyList>
-								<Property Name="EndPosition" Type="Real64" Value="65799.625"/>
+								<Property Name="EndPosition" Type="Real64" Value="48000.0208333333"/>
 							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
@@ -46,14 +51,14 @@
 								</Reference>
 							</ReferenceList>
 							<ChildrenList>
-								<MusicTrack Name="Facing-Fate_Skizze4" ID="{6D16838F-5F19-4451-ABB6-B3CD054743EF}" ShortID="493713546">
+								<MusicTrack Name="Facing-Fate_Skizze2" ID="{9244FD04-3562-40C8-8461-522D798CBF16}" ShortID="911791178">
 									<ReferenceList>
 										<Reference Name="OutputBus">
 											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
 										</Reference>
 										<Reference Name="TransitionRoot">
 											<Custom>
-												<MusicTransition Name="Root" ID="{F3ADC45E-178C-4060-9E61-64BF47205042}">
+												<MusicTransition Name="Root" ID="{03EEEAED-1561-41B5-BEC4-783B0822D074}">
 													<PropertyList>
 														<Property Name="IsFolder" Type="bool" Value="True"/>
 													</PropertyList>
@@ -63,26 +68,26 @@
 										</Reference>
 									</ReferenceList>
 									<ChildrenList>
-										<AudioFileSource Name="Facing-Fate_Skizze4" ID="{21833D35-7479-4BE7-97BD-AB4CA0AFA797}">
+										<AudioFileSource Name="Facing-Fate_Skizze2" ID="{8272499C-DC7E-41D1-86B8-DD2A548E67A8}">
 											<Language>SFX</Language>
-											<AudioFile>Facing-Fate_Skizze4.wav</AudioFile>
+											<AudioFile>Facing-Fate_Skizze2.wav</AudioFile>
 											<MediaIDList>
-												<MediaID ID="797581196"/>
+												<MediaID ID="191038975"/>
 											</MediaIDList>
 										</AudioFileSource>
 									</ChildrenList>
 									<ObjectLists>
 										<ObjectList Name="Sequences">
-											<MusicTrackSequence Name="" ID="{149FFC85-3F1F-4C3D-8753-C7E6C21C0CC4}">
+											<MusicTrackSequence Name="" ID="{7DC398DD-7B3B-4C6F-879E-BCBFBBCA98E0}">
 												<ObjectLists>
 													<ObjectList Name="Clips">
-														<MusicClip Name="Facing-Fate_Skizze4" ID="{79A2976A-9C23-460C-82EB-D33EB659CF60}">
+														<MusicClip Name="Facing-Fate_Skizze2" ID="{F3098BC7-715B-4483-B8C7-15CA9E363088}">
 															<PropertyList>
-																<Property Name="EndTrimOffset" Type="Real64" Value="65799.625"/>
+																<Property Name="EndTrimOffset" Type="Real64" Value="48000.0208333333"/>
 																<Property Name="FadeInMode" Type="int16" Value="0"/>
 																<Property Name="FadeOutMode" Type="int16" Value="0"/>
 															</PropertyList>
-															<AudioSourceRef Name="Facing-Fate_Skizze4" ID="{21833D35-7479-4BE7-97BD-AB4CA0AFA797}"/>
+															<AudioSourceRef Name="Facing-Fate_Skizze2" ID="{8272499C-DC7E-41D1-86B8-DD2A548E67A8}"/>
 														</MusicClip>
 													</ObjectList>
 												</ObjectLists>
@@ -93,11 +98,81 @@
 							</ChildrenList>
 							<ObjectLists>
 								<ObjectList Name="Cues">
-									<MusicCue Name="Entry Cue" ID="{58F4BC2F-CBF6-49FF-8BD3-C9B0AE41AD64}"/>
-									<MusicCue Name="Exit Cue" ID="{D3B75A89-F659-4167-B2A2-C8D4B3FB0BF2}">
+									<MusicCue Name="Entry Cue" ID="{C147A5ED-7B27-4835-924C-9FDF7596966D}"/>
+									<MusicCue Name="Exit Cue" ID="{128664C9-7E54-410F-BC56-FD35E14A84E1}">
 										<PropertyList>
 											<Property Name="CueType" Type="int16" Value="1"/>
-											<Property Name="TimeMs" Type="Real64" Value="1000"/>
+											<Property Name="TimeMs" Type="Real64" Value="48000.0208333333"/>
+										</PropertyList>
+									</MusicCue>
+								</ObjectList>
+							</ObjectLists>
+						</MusicSegment>
+						<MusicSegment Name="Facing-Fate_Skizze6" ID="{7E84FFF1-E3BD-4A33-8CEC-9B0DAE8227A4}" ShortID="771258648">
+							<PropertyList>
+								<Property Name="EndPosition" Type="Real64" Value="78092.0833333333"/>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<MusicTrack Name="Facing-Fate_Skizze6" ID="{24F0CCAF-EE2A-4C65-B630-582898264727}" ShortID="866253780">
+									<ReferenceList>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+										<Reference Name="TransitionRoot">
+											<Custom>
+												<MusicTransition Name="Root" ID="{058895A6-B4B2-44AD-B4A0-8EF67E822392}">
+													<PropertyList>
+														<Property Name="IsFolder" Type="bool" Value="True"/>
+													</PropertyList>
+													<TransitionInfo/>
+												</MusicTransition>
+											</Custom>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="Facing-Fate_Skizze6" ID="{A1E3B674-2FB5-46DE-A342-8ECA5F161A51}">
+											<Language>SFX</Language>
+											<AudioFile>Facing-Fate_Skizze6.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="248337119"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ObjectLists>
+										<ObjectList Name="Sequences">
+											<MusicTrackSequence Name="" ID="{23C69C06-BE46-4307-BA40-0009B13D63C0}">
+												<ObjectLists>
+													<ObjectList Name="Clips">
+														<MusicClip Name="Facing-Fate_Skizze6" ID="{4160D063-68C1-4EE0-9D9C-AD8A2F1ACA24}">
+															<PropertyList>
+																<Property Name="EndTrimOffset" Type="Real64" Value="78092.0833333333"/>
+																<Property Name="FadeInMode" Type="int16" Value="0"/>
+																<Property Name="FadeOutMode" Type="int16" Value="0"/>
+															</PropertyList>
+															<AudioSourceRef Name="Facing-Fate_Skizze6" ID="{A1E3B674-2FB5-46DE-A342-8ECA5F161A51}"/>
+														</MusicClip>
+													</ObjectList>
+												</ObjectLists>
+											</MusicTrackSequence>
+										</ObjectList>
+									</ObjectLists>
+								</MusicTrack>
+							</ChildrenList>
+							<ObjectLists>
+								<ObjectList Name="Cues">
+									<MusicCue Name="Entry Cue" ID="{7B6B7FE7-2AF8-4F9C-B603-50E62335B889}"/>
+									<MusicCue Name="Exit Cue" ID="{E0446DC7-0010-4957-BB25-93BB60E4C1FD}">
+										<PropertyList>
+											<Property Name="CueType" Type="int16" Value="1"/>
+											<Property Name="TimeMs" Type="Real64" Value="78092.0833333333"/>
 										</PropertyList>
 									</MusicCue>
 								</ObjectList>
@@ -105,7 +180,7 @@
 						</MusicSegment>
 					</ChildrenList>
 				</MusicPlaylistContainer>
-				<MusicPlaylistContainer Name="Scene_01" ID="{9D0FCD4E-3655-4257-83D3-72A4D746A5E9}" ShortID="821513627">
+				<MusicPlaylistContainer Name="Music_Scene_01" ID="{9D0FCD4E-3655-4257-83D3-72A4D746A5E9}" ShortID="821513627">
 					<ReferenceList>
 						<Reference Name="Conversion">
 							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -135,7 +210,7 @@
 						</Reference>
 					</ReferenceList>
 				</MusicPlaylistContainer>
-				<MusicPlaylistContainer Name="Overworld" ID="{6EFEA421-BB99-4CA3-BB6B-B4FBB24AA782}" ShortID="345350536">
+				<MusicPlaylistContainer Name="Music_Overworld" ID="{6EFEA421-BB99-4CA3-BB6B-B4FBB24AA782}" ShortID="345350536">
 					<ReferenceList>
 						<Reference Name="Conversion">
 							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>

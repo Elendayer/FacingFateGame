@@ -1,6 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}" SchemaVersion="133">
 	<Containers>
-		<WorkUnit Name="ATMO_Work Unit" ID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}" PersistMode="Standalone"/>
+		<WorkUnit Name="ATMO_Work Unit" ID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}" PersistMode="Standalone">
+			<ChildrenList>
+				<MusicSegment Name="ATMO_TitleScreen" ID="{09F90104-0073-4CC5-93CB-2DF37576C16C}" ShortID="408027117">
+					<PropertyList>
+						<Property Name="EndPosition" Type="Real64" Value="290980.916666667"/>
+					</PropertyList>
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<MusicTrack Name="Atmo_cave_deebnoise" ID="{12484A32-9002-43E4-96B5-DC4B402B23D2}" ShortID="488398835">
+							<ReferenceList>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+								<Reference Name="TransitionRoot">
+									<Custom>
+										<MusicTransition Name="Root" ID="{D15E45DD-1688-45BF-A061-690DA2CE4E57}">
+											<PropertyList>
+												<Property Name="IsFolder" Type="bool" Value="True"/>
+											</PropertyList>
+											<TransitionInfo/>
+										</MusicTransition>
+									</Custom>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="Atmo_cave_deebnoise" ID="{8087276F-0C2A-49D0-B58C-88201E3512C9}">
+									<Language>SFX</Language>
+									<AudioFile>Atmo_cave_deebnoise.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="384199141"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ObjectLists>
+								<ObjectList Name="Sequences">
+									<MusicTrackSequence Name="" ID="{0C2D61FA-4098-4BDA-94FF-D57C7DEB4300}">
+										<ObjectLists>
+											<ObjectList Name="Clips">
+												<MusicClip Name="Atmo_cave_deebnoise" ID="{4EF55778-5B11-424E-93D6-3A7DC7CE60EE}">
+													<PropertyList>
+														<Property Name="EndTrimOffset" Type="Real64" Value="290980.916666667"/>
+														<Property Name="FadeInMode" Type="int16" Value="0"/>
+														<Property Name="FadeOutMode" Type="int16" Value="0"/>
+													</PropertyList>
+													<AudioSourceRef Name="Atmo_cave_deebnoise" ID="{8087276F-0C2A-49D0-B58C-88201E3512C9}"/>
+												</MusicClip>
+											</ObjectList>
+										</ObjectLists>
+									</MusicTrackSequence>
+								</ObjectList>
+							</ObjectLists>
+						</MusicTrack>
+					</ChildrenList>
+					<ObjectLists>
+						<ObjectList Name="Cues">
+							<MusicCue Name="Entry Cue" ID="{B68C3DC5-B01F-4AFD-AA07-3C6BF857198F}"/>
+							<MusicCue Name="Exit Cue" ID="{A00B2BBA-C027-4423-B869-8EAFDB258A70}">
+								<PropertyList>
+									<Property Name="CueType" Type="int16" Value="1"/>
+									<Property Name="TimeMs" Type="Real64" Value="1000"/>
+								</PropertyList>
+							</MusicCue>
+						</ObjectList>
+					</ObjectLists>
+				</MusicSegment>
+				<MusicSegment Name="ATMO_Scene_01" ID="{6BEF4718-9249-4401-848E-F8E22C7416CA}" ShortID="405341113">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+					</ReferenceList>
+					<ObjectLists>
+						<ObjectList Name="Cues">
+							<MusicCue Name="Entry Cue" ID="{A79719FB-6EC9-4ED8-A103-A917EA34DB90}"/>
+							<MusicCue Name="Exit Cue" ID="{40D7CA12-DCA4-45C8-8ECB-44582D7430DA}">
+								<PropertyList>
+									<Property Name="CueType" Type="int16" Value="1"/>
+									<Property Name="TimeMs" Type="Real64" Value="1000"/>
+								</PropertyList>
+							</MusicCue>
+						</ObjectList>
+					</ObjectLists>
+				</MusicSegment>
+				<MusicSegment Name="ATMO_Overworld" ID="{5D8799C8-A2EC-4762-952F-AF49562C2F10}" ShortID="966238366">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+					</ReferenceList>
+					<ObjectLists>
+						<ObjectList Name="Cues">
+							<MusicCue Name="Entry Cue" ID="{C3FBD5EE-CDBF-4385-B55D-639F1AEF6C13}"/>
+							<MusicCue Name="Exit Cue" ID="{1D204D84-CE68-4658-92B1-B0CABE56F3CA}">
+								<PropertyList>
+									<Property Name="CueType" Type="int16" Value="1"/>
+									<Property Name="TimeMs" Type="Real64" Value="1000"/>
+								</PropertyList>
+							</MusicCue>
+						</ObjectList>
+					</ObjectLists>
+				</MusicSegment>
+			</ChildrenList>
+		</WorkUnit>
 	</Containers>
 </WwiseDocument>
