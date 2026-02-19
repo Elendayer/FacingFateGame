@@ -1,6 +1,8 @@
 Event	ID	Name			Wwise Object Path	Notes
-	4012838884	Play_WS_Back_to_title_screen			\Default Work Unit\Play_WS_Back_to_title_screen	
+	1055782521	Play_Back_to_title_screen			\Default Work Unit\01_Options_Basic-UI\Play_Back_to_title_screen	
+	1975323918	Play_UI_all_buttons			\Default Work Unit\01_Options_Basic-UI\Play_UI_all_buttons	
 
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
-	988404399	WS_Back-to-title-screen	.cache\D2\{D20A6E46-A0CB-CEDF-9CA5-15945700ACB4}.wem		\Containers\Default Work Unit\WS_Back-to-title-screen		768096
+	187254997	SFX_UI_button_click	.cache\D2\{D26D4DCA-0162-9ECD-BF84-7BB892F09F58}.wem		\Containers\SFX\SFX_UI\SFX_UI_button_click		124180
+	988404399	SFX_UI_back-to-title-screen	.cache\D2\{D20A6E46-A0CB-CEDF-9CA5-15945700ACB4}.wem		\Containers\SFX\SFX_UI\SFX_UI_back-to-title-screen		768096
 

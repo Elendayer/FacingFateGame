@@ -1,0 +1,30 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1039155902",
+    "Type": "Bus",
+    "GUID": "{DBC526F8-C830-4DA4-A8F5-AC2CAF6390C1}",
+    "Language": "SFX",
+    "Hash": "{F30B1CA6-FFA9-B139-38A5-651E430CEB7F}",
+    "ObjectPath": "AUX_hall_Big",
+    "ShortName": "AUX_hall_Big",
+    "Path": "Bus/AUX_hall_Big.bnk",
+    "AuxBusses": [
+     {
+      "Id": "1039155902",
+      "Name": "AUX_hall_Big",
+      "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus\\AUX_hall_Big",
+      "GUID": "{DBC526F8-C830-4DA4-A8F5-AC2CAF6390C1}",
+      "Color": "10"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{0CC4F456-03A4-105B-B3B3-49B39641AA93}"
+ }
+}
