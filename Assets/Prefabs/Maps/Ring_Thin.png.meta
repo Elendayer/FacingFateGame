@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0aaa33ed8b471ba49b5ff645e6f90fbd
+guid: 32d213a9b2de78a429f6890b92c15e26
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4040740942608075030
-    second: e161c95f7c6d1135dc1251d3961180cb_0
+      213: 8390448420431932177
+    second: Ring_Thin_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,9 +40,9 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 0
-    wrapV: 0
-    wrapW: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -54,7 +54,7 @@ TextureImporter:
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
-  alphaUsage: 1
+  alphaUsage: 2
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
   textureType: 8
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: e161c95f7c6d1135dc1251d3961180cb_0
+      name: Ring_Thin_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1080
-        height: 505
+        width: 512
+        height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 120, y: 120, z: 120, w: 120}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 754b10ee6b084d6418328dd0413e0cc7
-      internalID: -625600180
+      spriteID: 11b2516426cd07470800000000000000
+      internalID: 8390448420431932177
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 98335efaeac4e2944afe9002619e2feb
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      e161c95f7c6d1135dc1251d3961180cb_0: -625600180
+      Ring_Thin_0: 8390448420431932177
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
