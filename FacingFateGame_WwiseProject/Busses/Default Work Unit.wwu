@@ -4,6 +4,10 @@
 		<WorkUnit Name="Default Work Unit" ID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}" PersistMode="Standalone">
 			<ChildrenList>
 				<Bus Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}">
+					<PropertyList>
+						<Property Name="Color" Type="int16" Value="10"/>
+						<Property Name="OverrideColor" Type="bool" Value="True"/>
+					</PropertyList>
 					<ReferenceList>
 						<Reference Name="AudioDevice" PluginName="System" CompanyID="0" PluginID="174" PluginType="7">
 							<ObjectRef Name="System" ID="{03E7A908-F78F-48C3-B3D6-4D06B63ED496}" WorkUnitID="{0B11DEFD-1BF8-4DF1-B73D-226D8EB59970}"/>
@@ -11,6 +15,13 @@
 					</ReferenceList>
 					<ChildrenList>
 						<Bus Name="BUS_sfx" ID="{44DA34F6-72C5-4BF2-8CF5-AB9D16F88306}">
+							<PropertyList>
+								<Property Name="Color" Type="int16" Value="3"/>
+								<Property Name="OverrideColor" Type="bool" Value="True"/>
+							</PropertyList>
+							<ChildrenList>
+								<Bus Name="SFX_UI" ID="{BF17C337-F4E4-4148-BD1F-9F5670B2CAFC}"/>
+							</ChildrenList>
 							<ObjectLists>
 								<ObjectList Name="RTPC">
 									<RTPC Name="" ID="{0A7F3BCF-225E-4AB5-85BF-0570040FF16E}" ShortID="1070137528">
@@ -48,6 +59,24 @@
 							</ObjectLists>
 						</Bus>
 						<Bus Name="BUS_music" ID="{669729E3-FBFB-4484-9B87-11D521BF2EA3}">
+							<PropertyList>
+								<Property Name="Color" Type="int16" Value="5"/>
+								<Property Name="OverrideColor" Type="bool" Value="True"/>
+							</PropertyList>
+							<ChildrenList>
+								<Bus Name="MX_Overworld" ID="{0DA30F9C-B5F4-41AD-B292-3403631BC4C7}">
+									<PropertyList>
+										<Property Name="Color" Type="int16" Value="5"/>
+										<Property Name="OverrideColor" Type="bool" Value="True"/>
+									</PropertyList>
+								</Bus>
+								<Bus Name="MX_Trainingsground" ID="{4734F796-9978-4738-A71F-15A4A5EA0D54}">
+									<PropertyList>
+										<Property Name="Color" Type="int16" Value="5"/>
+										<Property Name="OverrideColor" Type="bool" Value="True"/>
+									</PropertyList>
+								</Bus>
+							</ChildrenList>
 							<ObjectLists>
 								<ObjectList Name="RTPC">
 									<RTPC Name="" ID="{D226A480-777B-4AC9-8FCE-BCC3398A7DB7}" ShortID="59948373">
@@ -85,6 +114,14 @@
 							</ObjectLists>
 						</Bus>
 						<Bus Name="BUS_dialogue" ID="{BB6F8413-45F4-436B-926D-87C498DE748F}">
+							<PropertyList>
+								<Property Name="Color" Type="int16" Value="12"/>
+								<Property Name="OverrideColor" Type="bool" Value="True"/>
+							</PropertyList>
+							<ChildrenList>
+								<Bus Name="DX_2D_Narrator" ID="{6CB0AFF0-19A1-440A-907F-B79D03580BDB}"/>
+								<Bus Name="DX_3D_NPC" ID="{279F5BC2-821F-4782-AC48-E2CB868ADA4F}"/>
+							</ChildrenList>
 							<ObjectLists>
 								<ObjectList Name="RTPC">
 									<RTPC Name="" ID="{F9E62512-9CED-4E5C-BA25-219EE0F15F9B}" ShortID="171027939">
@@ -122,6 +159,10 @@
 							</ObjectLists>
 						</Bus>
 						<Bus Name="BUS_atmo" ID="{519D0971-ADD0-482B-AC79-C2EDC431F2C9}">
+							<PropertyList>
+								<Property Name="Color" Type="int16" Value="1"/>
+								<Property Name="OverrideColor" Type="bool" Value="True"/>
+							</PropertyList>
 							<ObjectLists>
 								<ObjectList Name="RTPC">
 									<RTPC Name="" ID="{395E6069-DCCE-4E43-8A1A-1A9749B9749E}" ShortID="255876825">
