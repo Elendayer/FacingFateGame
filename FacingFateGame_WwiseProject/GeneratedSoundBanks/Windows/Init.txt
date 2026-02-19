@@ -1,5 +1,4 @@
 Game Parameter	ID	Name			Wwise Object Path	Notes
-	460070935	RTPC_master_Vol			\Default Work Unit\Volume Slider\RTPC_master_Vol	
 	1766928022	RTPC_atmo_Vol			\Default Work Unit\Volume Slider\RTPC_atmo_Vol	
 	3061620274	RTPC_music_Vol			\Default Work Unit\Volume Slider\RTPC_music_Vol	
 	3502123226	RTPC_sfx_Vol			\Default Work Unit\Volume Slider\RTPC_sfx_Vol	
