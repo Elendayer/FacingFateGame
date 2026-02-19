@@ -32,7 +32,7 @@ namespace facingfate
 
         [Header("RTPC Range")]
         [SerializeField] private float rtpcMin = 0f;
-        [SerializeField] private float rtpcMax = 1f;
+        [SerializeField] private float rtpcMax = 10f;
 
         private const string PREF_MASTER = "opt_master_01";
         private const string PREF_MUSIC = "opt_music_01";
@@ -101,7 +101,7 @@ namespace facingfate
 
         public void SetDialogueVolume01(float slider01)
         {
-            sfxSlider01 = Mathf.Clamp01(slider01);
+            dialogueSlider01 = Mathf.Clamp01(slider01);
             PlayerPrefs.SetFloat(PREF_DIALOGUE, dialogueSlider01);
             PlayerPrefs.Save();
 
@@ -110,7 +110,7 @@ namespace facingfate
 
         public void SetAtmoVolume01(float slider01)
         {
-            sfxSlider01 = Mathf.Clamp01(slider01);
+            atmoSlider01 = Mathf.Clamp01(slider01);
             PlayerPrefs.SetFloat(PREF_ATMO, atmoSlider01);
             PlayerPrefs.Save();
 

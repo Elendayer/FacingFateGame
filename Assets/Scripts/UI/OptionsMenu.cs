@@ -89,6 +89,11 @@ namespace facingfate
             if (_dataManager != null)
                 _dataManager.SetAtmoVolume01(sliderValue);
         }
+        public void SetDialogueVolume(float sliderValue)
+        {
+            if (_dataManager != null)
+                _dataManager.SetDialogueVolume01(sliderValue);
+        }
 
         public void MuteToggle(bool muted)
         {
@@ -137,6 +142,8 @@ namespace facingfate
             if (masterSlider != null) masterSlider.SetValueWithoutNotify(_dataManager.Master01);
             if (musicSlider != null) musicSlider.SetValueWithoutNotify(_dataManager.Music01);
             if (sfxSlider != null) sfxSlider.SetValueWithoutNotify(_dataManager.Sfx01);
+            if (dialogSlider != null) dialogSlider.SetValueWithoutNotify(_dataManager.Dialogue01);
+            if (atmoSlider != null) atmoSlider.SetValueWithoutNotify(_dataManager.Atmo01);
             if (muteToggle != null) muteToggle.SetIsOnWithoutNotify(_dataManager.IsMuted);
 
             if (fullscreenToggle != null)
@@ -178,8 +185,14 @@ namespace facingfate
             var locale = LocalizationSettings.AvailableLocales.Locales[index];
             if (_dataManager != null)
             {
-                //_dataManager.SetLanguage(locale.Identifier.Code);
+                _dataManager.SetLanguage(locale.Identifier.Code);
             }
+        }
+
+        private void OnEnable()
+        {
+            _dataManager = OptionDataManager.Instance;
+            LoadSettingsIntoUI();
         }
     }
 }
