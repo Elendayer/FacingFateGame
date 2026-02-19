@@ -19,7 +19,7 @@
 										</PropertyList>
 										<ReferenceList>
 											<Reference Name="ControlInput">
-												<ObjectRef Name="RTPC_BUS_sfx_Volume" ID="{95123801-F166-489F-B832-BD7716F6E07B}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+												<ObjectRef Name="RTPC_sfx_Vlm" ID="{95123801-F166-489F-B832-BD7716F6E07B}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
 											</Reference>
 											<Reference Name="Curve">
 												<Custom>
@@ -56,7 +56,7 @@
 										</PropertyList>
 										<ReferenceList>
 											<Reference Name="ControlInput">
-												<ObjectRef Name="RTPC_BUS_music_Volume" ID="{B971A8B5-4273-4DF0-9252-7CAD29F623F8}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+												<ObjectRef Name="RTPC_music_Vlm" ID="{B971A8B5-4273-4DF0-9252-7CAD29F623F8}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
 											</Reference>
 											<Reference Name="Curve">
 												<Custom>
@@ -93,7 +93,7 @@
 										</PropertyList>
 										<ReferenceList>
 											<Reference Name="ControlInput">
-												<ObjectRef Name="RTPC_BUS_dialogue_Volume" ID="{4C117E67-5FB3-4F45-89C6-4A4AE4E227E9}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+												<ObjectRef Name="RTPC_dialogue_Vlm" ID="{4C117E67-5FB3-4F45-89C6-4A4AE4E227E9}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
 											</Reference>
 											<Reference Name="Curve">
 												<Custom>
@@ -130,7 +130,7 @@
 										</PropertyList>
 										<ReferenceList>
 											<Reference Name="ControlInput">
-												<ObjectRef Name="RTPC_BUS_atmo" ID="{FAFAB309-AA38-431D-847E-37E1F294699A}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+												<ObjectRef Name="RTPC_atmo_Vlm" ID="{FAFAB309-AA38-431D-847E-37E1F294699A}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
 											</Reference>
 											<Reference Name="Curve">
 												<Custom>
