@@ -83,7 +83,8 @@ namespace facingfate
             }
 
             //Start the next Turn
-            ActionQueueUtility.EnqueueAction(new Action(OnTurnStart), 0.5f);
+            //ActionQueueUtility.EnqueueAction(new Action(OnTurnStart), 0.5f);
+            ActionQueueUtility.EnqueueAction(GameEvents.TriggerTurnStart, 0.5f);
         }
     }
 }

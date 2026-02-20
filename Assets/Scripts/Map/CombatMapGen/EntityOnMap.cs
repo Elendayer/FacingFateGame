@@ -10,7 +10,7 @@ public class EntityOnMap : MonoBehaviour
     public float defaultMovementSpeed = 3f;                     // Movement speed in units per second
 
     private Coroutine moveRoutine;
-    private bool isDragging = false;
+    //private bool isDragging = false;
 
     private CostInfoScript costInfoScript;
 

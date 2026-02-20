@@ -118,7 +118,7 @@ namespace facingfate
                 ShuffleDiscard();
                 return;
             }
-            if (HandManager.Instance.handAnchor.childCount > HandManager.Instance.maxHandsize)
+            if (HandManager.Instance.cardsInHand.Count >= HandManager.Instance.maxHandsize)
             {
                 Debug.Log("DeckManager] Hand is full.");
                 return;
@@ -134,6 +134,7 @@ namespace facingfate
         }
         public void DiscardCardFromHand(GameObject cardobject)
         {
+            HandManager.Instance.RemoveCard(cardobject);
             if (cardobject == null) return;
 
             CardScript cs = cardobject.GetComponent<CardScript>();

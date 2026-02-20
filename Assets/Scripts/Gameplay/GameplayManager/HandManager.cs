@@ -44,16 +44,18 @@ namespace facingfate
         }
         public void DiscardCard(GameObject cardObject)
         {
-            if (cardsInHand.Contains(cardObject))
-            {
-                HandUtility.Discard(cardObject);
-            }
+            if (cardObject == null) return;
+            if (!cardsInHand.Contains(cardObject)) return;
+
+            cardsInHand.Remove(cardObject);
+            DeckManager.Instance.DiscardCardFromHand(cardObject);
         }
+
         public void DiscardAllInHand()
         {
-            while (cardsInHand.Count < 0)
+            while (cardsInHand.Count > 0)
             {
-                HandUtility.Discard(cardsInHand[0]);
+                DiscardCard(cardsInHand[0]);
             }
         }
     }
