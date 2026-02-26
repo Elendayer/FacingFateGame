@@ -70,7 +70,7 @@
 										<Property Name="OverrideColor" Type="bool" Value="True"/>
 									</PropertyList>
 								</Bus>
-								<Bus Name="MX_Trainingsground" ID="{4734F796-9978-4738-A71F-15A4A5EA0D54}">
+								<Bus Name="MX_TrainGr" ID="{4734F796-9978-4738-A71F-15A4A5EA0D54}">
 									<PropertyList>
 										<Property Name="Color" Type="int16" Value="5"/>
 										<Property Name="OverrideColor" Type="bool" Value="True"/>
@@ -98,6 +98,7 @@
 																<XPos>0</XPos>
 																<YPos>-96</YPos>
 																<Flags>5</Flags>
+																<SegmentShape>Exp3</SegmentShape>
 															</Point>
 															<Point>
 																<XPos>100</XPos>
@@ -207,7 +208,32 @@
 								<PropertyList>
 									<Property Name="PropertyName" Type="string" Value="BusVolume"/>
 								</PropertyList>
-								<ReferenceList/>
+								<ReferenceList>
+									<Reference Name="ControlInput">
+										<ObjectRef Name="RTPC_master_Vol" ID="{DFCD2DB9-93CE-4BF8-B37F-394A6D87C41F}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+									</Reference>
+									<Reference Name="Curve">
+										<Custom>
+											<Curve Name="" ID="{C350770F-488D-4A1A-AF9D-3ED00B98EA6A}">
+												<PropertyList>
+													<Property Name="Flags" Type="int32" Value="3"/>
+												</PropertyList>
+												<PointList>
+													<Point>
+														<XPos>0</XPos>
+														<YPos>-96</YPos>
+														<Flags>5</Flags>
+													</Point>
+													<Point>
+														<XPos>100</XPos>
+														<YPos>0</YPos>
+														<Flags>37</Flags>
+													</Point>
+												</PointList>
+											</Curve>
+										</Custom>
+									</Reference>
+								</ReferenceList>
 							</RTPC>
 						</ObjectList>
 					</ObjectLists>

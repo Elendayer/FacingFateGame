@@ -1,16 +1,17 @@
 Game Parameter	ID	Name			Wwise Object Path	Notes
+	460070935	RTPC_master_Vol			\Default Work Unit\Volume Slider\RTPC_master_Vol	
 	1766928022	RTPC_atmo_Vol			\Default Work Unit\Volume Slider\RTPC_atmo_Vol	
 	3061620274	RTPC_music_Vol			\Default Work Unit\Volume Slider\RTPC_music_Vol	
 	3502123226	RTPC_sfx_Vol			\Default Work Unit\Volume Slider\RTPC_sfx_Vol	
 	3553633719	RTPC_dialogue_Vol			\Default Work Unit\Volume Slider\RTPC_dialogue_Vol	
 
 Audio Bus	ID	Name			Wwise Object Path	Notes
-	691797427	MX_Trainingsground			\Default Work Unit\Main Audio Bus\BUS_music\MX_Trainingsground	
 	857912162	DX_2D_Narrator			\Default Work Unit\Main Audio Bus\BUS_dialogue\DX_2D_Narrator	
 	1162281553	BUS_music			\Default Work Unit\Main Audio Bus\BUS_music	
 	1437783383	BUS_atmo			\Default Work Unit\Main Audio Bus\BUS_atmo	
 	1552314449	DX_3D_NPC			\Default Work Unit\Main Audio Bus\BUS_dialogue\DX_3D_NPC	
 	2216040922	BUS_dialogue			\Default Work Unit\Main Audio Bus\BUS_dialogue	
+	2218867906	MX_TrainGr			\Default Work Unit\Main Audio Bus\BUS_music\MX_TrainGr	
 	2246998526	Main Audio Bus			\Default Work Unit\Main Audio Bus	
 	3132888017	MX_Overworld			\Default Work Unit\Main Audio Bus\BUS_music\MX_Overworld	
 	3862737079	SFX_UI			\Default Work Unit\Main Audio Bus\BUS_sfx\SFX_UI	

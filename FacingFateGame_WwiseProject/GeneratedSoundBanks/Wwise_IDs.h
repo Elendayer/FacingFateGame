@@ -47,7 +47,7 @@ namespace AK
         static const AkUniqueID DX_3D_NPC = 1552314449U;
         static const AkUniqueID MAIN_AUDIO_BUS = 2246998526U;
         static const AkUniqueID MX_OVERWORLD = 3132888017U;
-        static const AkUniqueID MX_TRAININGSGROUND = 691797427U;
+        static const AkUniqueID MX_TRAINGR = 2218867906U;
         static const AkUniqueID SFX_UI = 3862737079U;
     } // namespace BUSSES
 

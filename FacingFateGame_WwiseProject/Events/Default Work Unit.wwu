@@ -55,7 +55,7 @@
 								<Action Name="" ID="{59F8170B-1B34-4260-AF7B-37C5AC1763A3}" ShortID="985783872">
 									<ReferenceList>
 										<Reference Name="Target">
-											<ObjectRef Name="ATMO_Scene_01" ID="{6BEF4718-9249-4401-848E-F8E22C7416CA}" WorkUnitID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}"/>
+											<ObjectRef Name="ATMO_TrainGr" ID="{6BEF4718-9249-4401-848E-F8E22C7416CA}" WorkUnitID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}"/>
 										</Reference>
 									</ReferenceList>
 								</Action>

@@ -10,7 +10,7 @@
     "Type": "User",
     "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
     "Language": "SFX",
-    "Hash": "{AC0C1E9F-2FE6-BA4B-0025-275F5E713C2A}",
+    "Hash": "{BB0228A6-7BD6-BF06-0CE6-73F51669DE25}",
     "ObjectPath": "Init",
     "ShortName": "Init",
     "Path": "Init.bnk",
@@ -35,13 +35,6 @@
      ]
     },
     "Busses": [
-     {
-      "Id": "691797427",
-      "Name": "MX_Trainingsground",
-      "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus\\BUS_music\\MX_Trainingsground",
-      "GUID": "{4734F796-9978-4738-A71F-15A4A5EA0D54}",
-      "Color": "5"
-     },
      {
       "Id": "857912162",
       "Name": "DX_2D_Narrator",
@@ -76,6 +69,13 @@
       "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus\\BUS_dialogue",
       "GUID": "{BB6F8413-45F4-436B-926D-87C498DE748F}",
       "Color": "12"
+     },
+     {
+      "Id": "2218867906",
+      "Name": "MX_TrainGr",
+      "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus\\BUS_music\\MX_TrainGr",
+      "GUID": "{4734F796-9978-4738-A71F-15A4A5EA0D54}",
+      "Color": "5"
      },
      {
       "Id": "2246998526",
@@ -149,6 +149,6 @@
     ]
    }
   ],
-  "FileHash": "{19D7AD96-8334-BCDA-B327-4664E8471816}"
+  "FileHash": "{E6FFF241-C2A5-A441-E512-41367D4EBE9B}"
  }
 }
