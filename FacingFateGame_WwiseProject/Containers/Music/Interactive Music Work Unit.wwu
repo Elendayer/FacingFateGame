@@ -63,6 +63,11 @@
 						<MusicSegment Name="Facing-Fate_Skizze2" ID="{BFDB6FF5-EE4B-46FE-A4A9-D6A96103B814}" ShortID="386789289">
 							<PropertyList>
 								<Property Name="EndPosition" Type="Real64" Value="48000.0208333333"/>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-10</Value>
+									</ValueList>
+								</Property>
 							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
@@ -133,6 +138,11 @@
 						<MusicSegment Name="Facing-Fate_Skizze6" ID="{7E84FFF1-E3BD-4A33-8CEC-9B0DAE8227A4}" ShortID="771258648">
 							<PropertyList>
 								<Property Name="EndPosition" Type="Real64" Value="78092.0833333333"/>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-10</Value>
+									</ValueList>
+								</Property>
 							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
