@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{FC6C730F-88AA-4790-BDCA-A26ACB0D2741}",
     "Language": "SFX",
-    "Hash": "{003B8562-8E93-74F4-D9D8-5B6530821AF9}",
+    "Hash": "{4143DA08-D3A9-3598-908D-3EB12B9CBBE7}",
     "ObjectPath": "Start_TitleScreen",
     "ShortName": "Start_TitleScreen",
     "Path": "Event/Start_TitleScreen.bnk",
@@ -65,6 +65,6 @@
     ]
    }
   ],
-  "FileHash": "{4490808D-DE0B-0DCD-3D1F-43A4F0CD736A}"
+  "FileHash": "{BD70D03C-0EA9-1308-4A43-76E8A0D90D4D}"
  }
 }
