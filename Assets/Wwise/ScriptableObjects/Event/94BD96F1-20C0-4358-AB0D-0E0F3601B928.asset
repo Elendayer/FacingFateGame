@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f75553abcd38a14486ded0fb0575374, type: 3}
-  m_Name: D733D6F0-7B0A-44CD-B254-0797CB491D5D
+  m_Name: 94BD96F1-20C0-4358-AB0D-0E0F3601B928
   m_EditorClassIdentifier: AK.Wwise.Unity.API.WwiseTypes::WwiseEventReference
-  objectName: Play_SFX_UI_button_drop_down
-  id: 1765053760
-  guid: D733D6F0-7B0A-44CD-B254-0797CB491D5D
+  objectName: Play_SFX_UI_pause_menu_open
+  id: 3507907538
+  guid: 94BD96F1-20C0-4358-AB0D-0E0F3601B928
   IsInUserDefinedSoundBank: 0
