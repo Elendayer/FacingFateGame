@@ -74,7 +74,7 @@
 					<PropertyList>
 						<Property Name="CooldownTime" Type="Real32">
 							<ValueList>
-								<Value>0.5</Value>
+								<Value>0.15</Value>
 							</ValueList>
 						</Property>
 						<Property Name="InstanceLimit" Type="int16">

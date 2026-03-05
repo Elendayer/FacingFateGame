@@ -1,7 +1,7 @@
 {
  "SoundBanksInfo": {
-  "Platform": "Windows",
-  "BasePlatform": "Windows",
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
   "SchemaVersion": "16",
   "SoundBankVersion": "172",
   "SoundBanks": [
@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{E1EDDD63-1A4A-47B9-9675-635896D2613F}",
     "Language": "SFX",
-    "Hash": "{F8802518-FE39-0707-EB1F-6F990BB039DC}",
+    "Hash": "{8CDF92C0-562B-6C7D-4623-DE6C7DF6F1F3}",
     "ObjectPath": "Play_SFX_UI_slider",
     "ShortName": "Play_SFX_UI_slider",
     "Path": "Event/Play_SFX_UI_slider.bnk",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{96CA6290-FC7A-5647-781D-6CA095F8C66B}"
+  "FileHash": "{87D3090C-530B-FEB1-F166-CE8773C5F017}"
  }
 }
