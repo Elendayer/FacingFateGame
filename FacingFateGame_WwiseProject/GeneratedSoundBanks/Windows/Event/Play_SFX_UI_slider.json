@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{E1EDDD63-1A4A-47B9-9675-635896D2613F}",
     "Language": "SFX",
-    "Hash": "{4E89576E-93C1-7FEA-3E58-18114B77A7C5}",
+    "Hash": "{722792A0-A434-ED16-AF11-B34226B825F0}",
     "ObjectPath": "Play_SFX_UI_slider",
     "ShortName": "Play_SFX_UI_slider",
     "Path": "Event/Play_SFX_UI_slider.bnk",
@@ -29,7 +29,7 @@
      {
       "Id": "1901608880",
       "Name": "Play_SFX_UI_slider",
-      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Play_SFX_UI_slider",
+      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Options_Basic-UI\\Play_SFX_UI_slider",
       "GUID": "{E1EDDD63-1A4A-47B9-9675-635896D2613F}",
       "DurationType": "OneShot",
       "DurationMin": "0.18825762",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{52840DF4-44FE-8B0F-DA00-F708870810A9}"
+  "FileHash": "{230E99D8-1043-5123-323D-0AD019455E02}"
  }
 }
