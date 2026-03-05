@@ -9,6 +9,7 @@ namespace facingfate
     {
         public static TurnManager Instance { get; private set; }
 
+        [HideInInspector]
         public List<EntityScript> TurnOrder = new List<EntityScript>();
 
         public EntityScript CurrentTurnEntity => TurnOrder[CurrentTurnIndex];
@@ -39,6 +40,24 @@ namespace facingfate
             GameEvents.OnCombatStart += GameEvents_OnCombatStart;
         }
 
+        public void AddTurn(EntityScript entityScript)
+        {
+            TurnOrder.Insert(CurrentTurnIndex++, entityScript);
+        }
+
+        public void RemoveTurn(EntityScript entityScript)
+        {
+            if (TurnOrder.Take(CurrentTurnIndex).Contains(entityScript))
+            {
+                CurrentTurnIndex--;
+                TurnOrder.Remove(entityScript);
+            }
+            else
+            {
+                TurnOrder.Remove(entityScript);
+            }
+        }
+
         private void GameEvents_OnCombatStart()
         {
             SetTurnOrder();
@@ -52,7 +71,7 @@ namespace facingfate
         {
             // Find all PlayerCharacter entities
             TurnOrder = FindObjectsByType<EntityScript>(0)
-                .OrderByDescending(e => UnityEngine.Random.Range(0, 100))
+                .OrderByDescending(e => e.entityStats.Dexterity.Value())
                 .ToList();
         }
 

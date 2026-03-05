@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using facingfate;
+using UnityEngine.Rendering;
 
 namespace Utility
 {
@@ -21,6 +22,7 @@ namespace Utility
         public static bool IsTargetValid(CardData cardData, EntityScript target)
         {
             if (target == null) return false;
+            if (target.enabled == false) return false;
 
             EntityScript owner = cardData.Owner;
 

@@ -1,6 +1,5 @@
 using UnityEngine;
 using Utility;
-using static facingfate.GameEvents;
 
 namespace facingfate
 {
@@ -298,8 +297,8 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 40,
-                damage_u = 90,
+                cost_u = 10,
+                damage_u = 500,
 
                 range_u = 3,
                 area_u = 2,

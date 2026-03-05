@@ -33,12 +33,11 @@ namespace facingfate
         {
             while (true)
             {
-                if (currentHealth != 0)
-                {
-                    healthRenderer.material.SetFloat("_ratio", currentHealth / maxHealth);
-                    staminaRenderer.material.SetFloat("_ratio", currentStamina / maxStamina);
-                    //textMeshPro.text = $"{current} / {max}"; 
-                }
+
+                healthRenderer.material.SetFloat("_ratio", currentHealth / maxHealth);
+                staminaRenderer.material.SetFloat("_ratio", currentStamina / maxStamina);
+                //textMeshPro.text = $"{current} / {max}"; 
+
                 yield return new WaitForSeconds(0.5f);
             }
         }

@@ -79,18 +79,24 @@ namespace facingfate
                 if (!_resolvers.TryGetValue(key, out var resolver))
                     return match.Value;
 
-                // Override form: Power_10
-                if (match.Groups[2].Success)
-                {
-                    int baseValue = int.Parse(match.Groups[2].Value);
-                    return resolver.ResolveOverride(baseValue, d, owner).ToString();
-                }
+                int baseValue = resolver.GetBaseValue(d);
+                int currentValue = resolver.ResolveCurrent(d, owner);
 
-                // Default form: Power
-                return resolver.ResolveDefault(d, owner).ToString();
+                return ColorizeValue(currentValue, baseValue);
             });
         }
 
+
+        private static string ColorizeValue(int value, int baseValue)
+        {
+            if (value > baseValue)
+                return $"<color=#00FF00>{value}</color>"; // Green
+
+            if (value < baseValue)
+                return $"<color=#FF0000>{value}</color>"; // Red
+
+            return $"<color=#FFFFFF>{value}</color>"; // White
+        }
         private string FormatCardRange(CardData d)
         {
             return GetRangeText(cardData);
@@ -186,21 +192,22 @@ namespace facingfate
 
         public interface IStatResolver
         {
-            int ResolveDefault(CardData d, EntityScript owner);
-            int ResolveOverride(int baseValue, CardData d, EntityScript owner);
+            int GetBaseValue(CardData d);
+            int ResolveCurrent(CardData d, EntityScript owner);
         }
         private abstract class SimpleStatResolver : IStatResolver
         {
-            protected abstract int GetDefault(CardData d);
+            protected abstract int GetBase(CardData d);
+            protected abstract int GetCurrent(CardData d);
 
-            public int ResolveDefault(CardData d, EntityScript owner)
+            public int GetBaseValue(CardData d)
             {
-                return GetDefault(d);
+                return GetBase(d);
             }
 
-            public int ResolveOverride(int baseValue, CardData d, EntityScript owner)
+            public int ResolveCurrent(CardData d, EntityScript owner)
             {
-                return baseValue;
+                return GetCurrent(d);
             }
         }
         private static void EnsureResolvers()
@@ -209,68 +216,78 @@ namespace facingfate
                 return;
 
             _resolvers = new Dictionary<string, IStatResolver>(StringComparer.OrdinalIgnoreCase)
-{
-    { "Power", new PowerResolver() },
-    { "Damage", new DamageResolver() },
-    { "Healing", new HealingResolver() },
-    { "Duration", new DurationResolver() },
-    { "Charges", new ChargesResolver() },
-    { "Repeats", new RepeatsResolver() },
-    { "Range", new RangeResolver() },
-    { "Area", new AreaResolver() },
-    { "Radius", new RadiusResolver() },
-    { "MaxTarget", new MaxTargetResolver() }
-};
+        {
+            { "Power", new PowerResolver() },
+            { "Damage", new DamageResolver() },
+            { "Healing", new HealingResolver() },
+            { "Duration", new DurationResolver() },
+            { "Charges", new ChargesResolver() },
+            { "Repeats", new RepeatsResolver() },
+            { "Range", new RangeResolver() },
+            { "Area", new AreaResolver() },
+            { "Radius", new RadiusResolver() },
+            { "MaxTarget", new MaxTargetResolver() }
+        };
         }
 
         private class PowerResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Power;
+            protected override int GetBase(CardData d) => d.power_u;
+            protected override int GetCurrent(CardData d) => d.Power;
         }
 
         private class DamageResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Damage;
+            protected override int GetBase(CardData d) => d.damage_u;
+            protected override int GetCurrent(CardData d) => d.Damage;
         }
 
         private class HealingResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Healing;
+            protected override int GetBase(CardData d) => d.healing_u;
+            protected override int GetCurrent(CardData d) => d.Healing;
         }
 
         private class DurationResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Duration;
+            protected override int GetBase(CardData d) => d.duration_u;
+            protected override int GetCurrent(CardData d) => d.Duration;
         }
 
         private class ChargesResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Charges;
+            protected override int GetBase(CardData d) => d.charges_u;
+            protected override int GetCurrent(CardData d) => d.Charges;
         }
 
         private class RepeatsResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Repeats;
+            protected override int GetBase(CardData d) => d.repeats_u;
+            protected override int GetCurrent(CardData d) => d.Repeats;
         }
 
         private class RangeResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Range;
+            protected override int GetBase(CardData d) => d.range_u;
+            protected override int GetCurrent(CardData d) => d.Range;
         }
 
         private class AreaResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Area;
+            protected override int GetBase(CardData d) => d.area_u;
+            protected override int GetCurrent(CardData d) => d.Area;
         }
 
         private class RadiusResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.Radius;
+            protected override int GetBase(CardData d) => d.radius_u;
+            protected override int GetCurrent(CardData d) => d.Radius;
         }
 
         private class MaxTargetResolver : SimpleStatResolver
         {
-            protected override int GetDefault(CardData d) => d.MaxTarget;
+            protected override int GetBase(CardData d) => d.maxtarget_u;
+            protected override int GetCurrent(CardData d) => d.MaxTarget;
         }
 
 

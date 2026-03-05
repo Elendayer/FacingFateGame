@@ -21,14 +21,15 @@ namespace facingfate
 
         [Header("Entity Gameplay References")]
         private EntityVisualScript EntityVisual;
+        public GameObject EntityModel;
 
         [Header("Entity on Map Reference")]
         private EntityOnMap entityOnMap;
 
+
+
         public virtual void StartUp()
         {
-
-
             EntityVisual = GetComponentInChildren<EntityVisualScript>();
             entityOnMap = GetComponentInChildren<EntityOnMap>();
 
@@ -43,6 +44,8 @@ namespace facingfate
         {
             GameEvents.OnGameplayReference += TriggerAnimation;
         }
+
+        #region Events
         private void TriggerAnimation(ToSendTriggerReference triggerRef)
         {
             var checkTrigger = new RelevantTriggerCheck
@@ -85,6 +88,9 @@ namespace facingfate
             effectObj = AssetManager.Instance.GetEffectPrefab(name);
             var CreatedObj = Instantiate(effectObj, EntityVisual.transform);
         }
+        #endregion
+
+        #region Modifier System
 
         [Header("Modifier System")]
         [SerializeField]
@@ -157,6 +163,11 @@ namespace facingfate
         }
 
         public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
+
+        public void RemoveAllModifiers()
+        {
+            entityModifiers.Clear();
+        }
         public void AddOrReplaceModifier(IEntityModifier modifier)
         {
             var existing = entityModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
@@ -211,6 +222,7 @@ namespace facingfate
             modifierNames.Clear();
             modifierNames.AddRange(entityModifiers.Select(c => c.ModifierName));
         }
+#endregion
 
         public virtual void StartTurn()
         {

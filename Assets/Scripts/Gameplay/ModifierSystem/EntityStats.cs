@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.UIElements.UxmlAttributeDescription;
 
 namespace facingfate
 {
@@ -82,8 +83,7 @@ namespace facingfate
         }
         public void TickAllStats()
         {
-            var statFields = typeof(EntityStats).GetFields()
-                                .Where(f => f.FieldType == typeof(Stat));
+            var statFields = typeof(EntityStats).GetFields().Where(f => f.FieldType == typeof(Stat));
 
             foreach (var field in statFields)
             {
@@ -93,15 +93,29 @@ namespace facingfate
             }
         }
 
-        internal void UpdateStats()
+        public void UpdateStats()
         {
-            var statFields = typeof(EntityStats).GetFields()
-                                       .Where(f => f.FieldType == typeof(Stat));
+            var statFields = typeof(EntityStats).GetFields().Where(f => f.FieldType == typeof(Stat));
 
             foreach (var field in statFields)
             {
                 var stat = (Stat)field.GetValue(this);
                 stat?.UpdateStat();
+            }
+
+            if (CurrentHealth <= 0)
+            {
+                ActionQueueUtility.EnqueueAction(() =>
+                {
+                    TurnManager.Instance.RemoveTurn(Owner);
+                    Owner.GetComponent<EntityOnMap>().enabled = false;
+                    Owner.enabled = false;
+
+                    GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onDeath }, Owner, new() { Owner }));
+                    Owner.RemoveAllModifiers();
+
+                    Owner.EntityModel.transform.rotation = new();
+                });
             }
         }
     }

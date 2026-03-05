@@ -357,9 +357,7 @@ namespace facingfate
                     // Direktschaden
                     CombatUtility.ApplyDamage(d, Target);
 
-                    d.damage_u = 10;
-
-                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.OverrideFromData, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge);
+                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.OverrideFromData, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge,10);
                 }
             });
 

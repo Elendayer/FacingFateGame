@@ -43,8 +43,8 @@ namespace facingfate
         {
             RegisterNpc(new NpcData()
             {
-                id = "0000",
-                name = "Heal",
+                id = "Spear_Test_Npc",
+                name = "Spear",
                 aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
 
                 cardIds = new List<int>()
@@ -56,8 +56,8 @@ namespace facingfate
 
             RegisterNpc(new NpcData()
             {
-                id = "0001",
-                name = "ConeTargets",
+                id = "Mystic_Test_Npc",
+                name = "Mystic",
                 aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
 
                 cardIds = new List<int>()
@@ -68,8 +68,8 @@ namespace facingfate
             });
             RegisterNpc(new NpcData()
             {
-                id = "0002",
-                name = "Test",
+                id = "Assassin_Test_Npc",
+                name = "Assassin",
                 aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
                 cardIds = new List<int>()
             {
@@ -79,35 +79,14 @@ namespace facingfate
 
             RegisterNpc(new NpcData()
             {
-                id = "0003",
-                name = "Selection",
+                id = "Physician_Test_Npc",
+                name = "Physician",
                 aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
                 cardIds = new List<int>()
             {
                 110104,
             }
             });
-            RegisterNpc(new NpcData()
-            {
-                id = "0004",
-                name = "LineSelf",
-                aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
-                cardIds = new List<int>()
-            {
-                110102
-            }
-            });
-            RegisterNpc(new NpcData()
-            {
-                id = "0005",
-                name = "LineFree",
-                aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
-                cardIds = new List<int>()
-            {
-                110105
-            }
-            });
-
         }
     }
 
