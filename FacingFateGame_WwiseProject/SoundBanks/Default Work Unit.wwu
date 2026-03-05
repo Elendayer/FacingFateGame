@@ -4,11 +4,7 @@
 		<WorkUnit Name="Default Work Unit" ID="{94DA1E86-491C-443E-8311-BF8B15195791}" PersistMode="Standalone">
 			<ChildrenList>
 				<SoundBank Name="Main" ID="{EAEF9EFB-DF7A-4B87-9297-2153FBB83F24}">
-					<ObjectInclusionList>
-						<ObjectRef Name="Play_Back_to_title_screen" ID="{AD1CCFBC-7CD9-448E-BD24-A74D64856A5D}" WorkUnitID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}" Origin="Manual" Filter="7"/>
-						<ObjectRef Name="Play_UI_all_buttons" ID="{2B9CB9B2-847B-4645-B3FF-355BAD11896A}" WorkUnitID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}" Origin="Manual" Filter="7"/>
-						<ObjectRef Name="Play_TS_Music_01" ID="{DBA1F80B-AA44-4CA8-9B48-37615E7D200F}" WorkUnitID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}" Origin="Manual" Filter="7"/>
-					</ObjectInclusionList>
+					<ObjectInclusionList/>
 					<ObjectExclusionList/>
 					<GameSyncExclusionList/>
 				</SoundBank>

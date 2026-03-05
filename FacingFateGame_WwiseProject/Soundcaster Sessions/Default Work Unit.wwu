@@ -3,34 +3,8 @@
 	<SoundcasterSessions>
 		<WorkUnit Name="Default Work Unit" ID="{A8162011-0F1E-4B7C-8CF5-8641D486D3EE}" PersistMode="Standalone">
 			<ChildrenList>
-				<SoundcasterSession Name="New Soundcaster Session" ID="{D976C34A-837A-4F1C-BBA8-2E1FA046186F}">
-					<ModuleList>
-						<Module>
-							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
-							<Position X="0" Y="0"/>
-						</Module>
-						<Module>
-							<ObjectRef Name="Start_Game" ID="{CD32789C-DF13-4FB2-A770-E2156EB996D9}" WorkUnitID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}"/>
-							<Position X="0" Y="1"/>
-						</Module>
-						<Module>
-							<ObjectRef Name="BUS_atmo" ID="{519D0971-ADD0-482B-AC79-C2EDC431F2C9}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
-							<Position X="1" Y="0"/>
-						</Module>
-						<Module>
-							<ObjectRef Name="BUS_dialogue" ID="{BB6F8413-45F4-436B-926D-87C498DE748F}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
-							<Position X="2" Y="0"/>
-						</Module>
-						<Module>
-							<ObjectRef Name="BUS_music" ID="{669729E3-FBFB-4484-9B87-11D521BF2EA3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
-							<Position X="3" Y="0"/>
-						</Module>
-						<Module>
-							<ObjectRef Name="BUS_sfx" ID="{44DA34F6-72C5-4BF2-8CF5-AB9D16F88306}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
-							<Position X="4" Y="0"/>
-						</Module>
-					</ModuleList>
-				</SoundcasterSession>
+				<SoundcasterSession Name="New Soundcaster Session" ID="{D976C34A-837A-4F1C-BBA8-2E1FA046186F}"/>
+				<SoundcasterSession Name="New Soundcaster Session_01" ID="{D196F566-C65D-4B16-9F77-8FA8759C9A73}"/>
 			</ChildrenList>
 		</WorkUnit>
 	</SoundcasterSessions>

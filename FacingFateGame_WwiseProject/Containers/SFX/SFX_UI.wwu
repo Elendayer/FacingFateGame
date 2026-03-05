@@ -142,16 +142,6 @@
 						<ActiveSource Name="DP_UI_open-lvl-menu" ID="{DD109EAF-8711-4B57-9AB0-54C7209A1F36}" Platform="Linked"/>
 					</ActiveSourceList>
 				</Sound>
-				<Sound Name="SFX_UI_credits_close" ID="{8A8F2EA3-F5E0-41D0-BEB5-E33162CFF407}" ShortID="310144480">
-					<ReferenceList>
-						<Reference Name="Conversion">
-							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
-						</Reference>
-						<Reference Name="OutputBus">
-							<ObjectRef Name="SFX_UI" ID="{BF17C337-F4E4-4148-BD1F-9F5670B2CAFC}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
-						</Reference>
-					</ReferenceList>
-				</Sound>
 				<Sound Name="SFX_UI_credits_open" ID="{23CA8C4D-0A52-4D8E-800E-FE0BC4F623E9}" ShortID="164808617">
 					<ReferenceList>
 						<Reference Name="Conversion">
@@ -242,6 +232,28 @@
 					</ChildrenList>
 					<ActiveSourceList>
 						<ActiveSource Name="UI_volume-slider" ID="{9CDE99C0-9181-4437-B03E-5649C497B19F}" Platform="Linked"/>
+					</ActiveSourceList>
+				</Sound>
+				<Sound Name="SFX_UI_credits_close" ID="{B3A05C71-CD21-4E25-8A25-9473146A88EC}" ShortID="605179352">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="SFX_UI" ID="{BF17C337-F4E4-4148-BD1F-9F5670B2CAFC}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<AudioFileSource Name="Unbenannt" ID="{D83ECF2D-8C00-407D-B4E5-829C5B2C506B}">
+							<Language>SFX</Language>
+							<AudioFile>Unbenannt.wav</AudioFile>
+							<MediaIDList>
+								<MediaID ID="446966568"/>
+							</MediaIDList>
+						</AudioFileSource>
+					</ChildrenList>
+					<ActiveSourceList>
+						<ActiveSource Name="Unbenannt" ID="{D83ECF2D-8C00-407D-B4E5-829C5B2C506B}" Platform="Linked"/>
 					</ActiveSourceList>
 				</Sound>
 			</ChildrenList>

@@ -1,0 +1,48 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1373152090",
+    "Type": "Event",
+    "GUID": "{7C3A0F8B-E692-4E87-A75F-E4C4A2A62508}",
+    "Language": "SFX",
+    "Hash": "{4712A9BC-A072-7AF1-4265-811C7FA4FDB1}",
+    "ObjectPath": "Play_SFX_UI_start_game",
+    "ShortName": "Play_SFX_UI_start_game",
+    "Path": "Event/Play_SFX_UI_start_game.bnk",
+    "Media": [
+     {
+      "Id": "809942632",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "GP_Player_enter-GP.wav",
+      "Path": "Media/809942632.wem",
+      "CachePath": "B2/{B29E9C62-E3AA-57EB-C5EE-BF8E5EC2FAF9}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "1373152090",
+      "Name": "Play_SFX_UI_start_game",
+      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Play_SFX_UI_start_game",
+      "GUID": "{7C3A0F8B-E692-4E87-A75F-E4C4A2A62508}",
+      "DurationType": "OneShot",
+      "DurationMin": "2.8046875",
+      "DurationMax": "2.8046875",
+      "MediaRefs": [
+       {
+        "Id": "809942632"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{0D848CA0-F9A1-AFD2-3912-18992A06B428}"
+ }
+}

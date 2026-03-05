@@ -14,8 +14,18 @@ namespace AK
     namespace EVENTS
     {
         static const AkUniqueID END_GAME = 3717848113U;
-        static const AkUniqueID PLAY_BACK_TO_TITLE_SCREEN = 1055782521U;
-        static const AkUniqueID PLAY_UI_ALL_BUTTONS = 1975323918U;
+        static const AkUniqueID PLAY_SFX_UI_BACK_TO_TITLE_SCREEN = 3206396784U;
+        static const AkUniqueID PLAY_SFX_UI_BACK_TO_TITLE_SCREEN_01 = 3083091558U;
+        static const AkUniqueID PLAY_SFX_UI_BUTTON_CLICK = 15941370U;
+        static const AkUniqueID PLAY_SFX_UI_BUTTON_HOVER = 4180039856U;
+        static const AkUniqueID PLAY_SFX_UI_CREDITS_CLOSE = 3223191906U;
+        static const AkUniqueID PLAY_SFX_UI_CREDITS_OPEN = 2400083638U;
+        static const AkUniqueID PLAY_SFX_UI_OPTIONS_MENU_CLOSE = 3690523182U;
+        static const AkUniqueID PLAY_SFX_UI_OPTIONS_MENU_OPEN = 1741661546U;
+        static const AkUniqueID PLAY_SFX_UI_PAUSE_MENU_CLOSE = 451036422U;
+        static const AkUniqueID PLAY_SFX_UI_PAUSE_MENU_OPEN = 3507907538U;
+        static const AkUniqueID PLAY_SFX_UI_SLIDER = 1901608880U;
+        static const AkUniqueID PLAY_SFX_UI_START_GAME = 1373152090U;
         static const AkUniqueID START_GAME = 1114964412U;
         static const AkUniqueID START_OVERWORLD = 3224649440U;
         static const AkUniqueID START_SCENE_01 = 851434184U;

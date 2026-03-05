@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "3223191906",
+    "Type": "Event",
+    "GUID": "{6BFDC80A-888C-4D84-8147-636E0DC7BF4A}",
+    "Language": "SFX",
+    "Hash": "{76515DE1-595D-52EA-7E6A-B2338AA90E71}",
+    "ObjectPath": "Play_SFX_UI_credits_close",
+    "ShortName": "Play_SFX_UI_credits_close",
+    "Path": "Event/Play_SFX_UI_credits_close.bnk",
+    "Events": [
+     {
+      "Id": "3223191906",
+      "Name": "Play_SFX_UI_credits_close",
+      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Play_SFX_UI_credits_close",
+      "GUID": "{6BFDC80A-888C-4D84-8147-636E0DC7BF4A}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{FE172FED-73FA-782B-160E-FF10EE63C140}"
+ }
+}
