@@ -210,7 +210,6 @@
 				</Sound>
 				<Sound Name="SFX_UI_slider" ID="{850E1CB2-B295-4756-B6CF-8FB764E3EC40}" ShortID="619312696">
 					<PropertyList>
-						<Property Name="IgnoreParentMaxSoundInstance" Type="bool" Value="True"/>
 						<Property Name="MaxSoundPerInstance" Type="int16">
 							<ValueList>
 								<Value>3</Value>
@@ -269,7 +268,7 @@
 						<ActiveSource Name="Unbenannt" ID="{D83ECF2D-8C00-407D-B4E5-829C5B2C506B}" Platform="Linked"/>
 					</ActiveSourceList>
 				</Sound>
-				<Sound Name="SFX_UI_button_drob-down" ID="{DC0B7BF8-0687-472F-84EE-A88E81D6BDF3}" ShortID="317517579">
+				<Sound Name="SFX_UI_button_drop-down" ID="{DC0B7BF8-0687-472F-84EE-A88E81D6BDF3}" ShortID="317517579">
 					<ReferenceList>
 						<Reference Name="Conversion">
 							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -291,6 +290,16 @@
 						<ActiveSource Name="TS_tutorial on off" ID="{5DF3B55C-554C-4D43-BAC9-B404BD612C3C}" Platform="Linked"/>
 					</ActiveSourceList>
 				</Sound>
+				<RandomSequenceContainer Name="New Random Container" ID="{01CB8215-DB1E-4CD0-B75C-0E15F05227AD}" ShortID="922688708">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+					</ReferenceList>
+				</RandomSequenceContainer>
 			</ChildrenList>
 		</WorkUnit>
 	</Containers>

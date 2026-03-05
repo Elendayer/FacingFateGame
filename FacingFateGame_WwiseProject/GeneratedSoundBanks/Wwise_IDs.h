@@ -16,7 +16,7 @@ namespace AK
         static const AkUniqueID END_GAME = 3717848113U;
         static const AkUniqueID PLAY_SFX_UI_BACK_TO_TITLE_SCREEN = 3206396784U;
         static const AkUniqueID PLAY_SFX_UI_BUTTON_CLICK = 15941370U;
-        static const AkUniqueID PLAY_SFX_UI_BUTTON_DROB_DOWN = 3586026766U;
+        static const AkUniqueID PLAY_SFX_UI_BUTTON_DROP_DOWN = 1765053760U;
         static const AkUniqueID PLAY_SFX_UI_BUTTON_HOVER = 4180039856U;
         static const AkUniqueID PLAY_SFX_UI_CREDITS_CLOSE = 3223191906U;
         static const AkUniqueID PLAY_SFX_UI_CREDITS_OPEN = 2400083638U;

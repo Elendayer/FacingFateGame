@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{4B56BC21-111C-4626-92C1-E4C4948790CE}",
     "Language": "SFX",
-    "Hash": "{BB413EE9-CBE0-B7DD-8718-8B49014681B2}",
+    "Hash": "{3AA1123E-FD99-A371-0171-4F5549C1D474}",
     "ObjectPath": "Play_SFX_UI_button_hover",
     "ShortName": "Play_SFX_UI_button_hover",
     "Path": "Event/Play_SFX_UI_button_hover.bnk",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{456E8E21-8939-E37F-58CA-BDEE60DDE74A}"
+  "FileHash": "{C4B8B9ED-BA65-1C1E-08BE-7112C425746B}"
  }
 }
