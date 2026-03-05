@@ -34,20 +34,26 @@ namespace facingfate
 
             if (titleText != null) titleText.text = boundEntity.gameObject.name;
 
+            // Robustere Keys: falls deine Stat-Namen variieren
             float hpCur = EntityStatReader.TryGetStat(boundEntity, new[] { "HP", "Health", "health" }, -1f);
-            float hpMax = EntityStatReader.TryGetStat(boundEntity, new[] { "MaxHP", "MaxHealth", "healthMax" }, -1f);
+            float hpMax = EntityStatReader.TryGetStat(boundEntity, new[] { "MaxHP", "MaxHealth", "HPMax", "healthMax" }, -1f);
 
-            if (hpText != null)
-            {
-                if (hpCur >= 0f && hpMax > 0f) hpText.text = $"{hpCur:0}/{hpMax:0}";
-                else if (hpCur >= 0f) hpText.text = $"{hpCur:0}";
-                else hpText.text = "-";
-            }
+            string hpString;
+            if (hpCur >= 0f && hpMax > 0f)
+                hpString = $"{hpCur:0}/{hpMax:0}";
+            else if (hpCur >= 0f)
+                hpString = $"{hpCur:0}/??";
+            else
+                hpString = "-";
+
+            if (hpText != null && hpText.text != hpString)
+                hpText.text = hpString;
 
             if (hpFill != null)
             {
-                if (hpCur >= 0f && hpMax > 0f) hpFill.fillAmount = Mathf.Clamp01(hpCur / hpMax);
-                else hpFill.fillAmount = 0f;
+                float fill = (hpCur >= 0f && hpMax > 0f) ? Mathf.Clamp01(hpCur / hpMax) : 0f;
+                if (!Mathf.Approximately(hpFill.fillAmount, fill))
+                    hpFill.fillAmount = fill;
             }
 
             statusBar?.Refresh();

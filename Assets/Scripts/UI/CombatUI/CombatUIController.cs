@@ -114,10 +114,20 @@ namespace facingfate
             if (hoverTimer < hoverPollInterval) return;
             hoverTimer = 0f;
 
+            // Wenn kein neues Ziel gefunden wird, behalten wir das alte (sticky)
             EntityScript found = FindHoveredEntity();
-            if (found != hoveredEntity)
+
+            if (found != null && found != hoveredEntity)
             {
                 hoveredEntity = found;
+                MarkDirty(DirtyFlags.Hover);
+            }
+
+            // Falls das aktuell gespeicherte Ziel zerstört wurde -> leeren
+            if (hoveredEntity == null) return;
+            if (hoveredEntity.gameObject == null)
+            {
+                hoveredEntity = null;
                 MarkDirty(DirtyFlags.Hover);
             }
         }
@@ -126,7 +136,16 @@ namespace facingfate
         {
             if (hoverCamera == null) return null;
 
-            Ray ray = hoverCamera.ScreenPointToRay(Input.mousePosition);
+            Vector3 mousePos = Input.mousePosition;
+
+            // Guard gegen (inf, inf) / NaN
+            if (!IsFinite(mousePos)) return null;
+
+            // Optional: nur wenn im Game-Fenster
+            if (mousePos.x < 0f || mousePos.y < 0f || mousePos.x > Screen.width || mousePos.y > Screen.height)
+                return null;
+
+            Ray ray = hoverCamera.ScreenPointToRay(mousePos);
             Vector3Int cell = TargetingUtility.GetHoveredTile(ray);
 
             if (cell == TilemapUtilityScript.InvalidPosition)
@@ -134,6 +153,9 @@ namespace facingfate
 
             if (cachedEntities.Count == 0)
                 CacheEntities();
+
+            // Wenn mehrere Entities auf einem Tile sind: Gegner bevorzugen
+            EntityScript playerCandidate = null;
 
             for (int i = 0; i < cachedEntities.Count; i++)
             {
@@ -143,11 +165,26 @@ namespace facingfate
                 EntityOnMap eom = e.GetComponent<EntityOnMap>();
                 if (eom == null) continue;
 
-                if (eom.currentCell == cell)
+                if (eom.currentCell != cell) continue;
+
+                // Gegner bevorzugen: alles ohne PlayerScript ist "enemy candidate"
+                if (e.GetComponent<PlayerScript>() == null)
                     return e;
+
+                playerCandidate = e;
             }
 
-            return null;
+            return playerCandidate;
+        }
+
+        private static bool IsFinite(Vector3 v)
+        {
+            return IsFinite(v.x) && IsFinite(v.y) && IsFinite(v.z);
+        }
+
+        private static bool IsFinite(float f)
+        {
+            return !(float.IsNaN(f) || float.IsInfinity(f));
         }
 
         private EntityScript GetActiveEntitySafe()
