@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using facingfate;
@@ -110,9 +112,10 @@ namespace Utility
             }
             return TilemapUtilityScript.InvalidPosition;
         }
+
         public static TargetingModeData GetAffected(CardScript card, Vector3Int aimTile, EntityScript owner, bool usesVision, List<Vector3Int> selectedTiles = null, bool isVetted = false)
         {
-            List<EntityScript> allEntities = Object.FindObjectsByType<EntityScript>(0).ToList();
+            List<EntityScript> allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0).ToList();
             List<EntityScript> entities = new();
             List<Vector3Int> tiles = new();
 
@@ -196,6 +199,8 @@ namespace Utility
         {
             var results = new List<(PathData, TargetingModeData)>();
 
+            int stepcost = card.cardData.Owner.entityStats.MovementCostModifier.ApplyFinalValue(5);
+
             foreach (var template in templates)
             {
                 var castTile = template.castingPosition;
@@ -206,7 +211,7 @@ namespace Utility
                 int minSteps = MovementUtility.Heuristic(virtualPosition, castTile);
                 int remainingStaminaAfterCard = stamina - card.cardData.Cost;
                 if (remainingStaminaAfterCard < 0) continue;
-                if (minSteps > remainingStaminaAfterCard)
+                if (minSteps*stepcost > remainingStaminaAfterCard)
                 {
                     continue;
                 }
@@ -248,6 +253,90 @@ namespace Utility
             }
   
             return results;
+        }
+
+        // Coroutine variant that evaluates templates in batches and yields to avoid blocking a frame.
+        public static IEnumerator GetReachableCandidatesCoroutine(
+            CardScript card,
+            List<TargetingModeData> templates,
+            int stamina,
+            Vector3Int virtualPosition,
+            int batchSize,
+            System.Action<List<(PathData, TargetingModeData)>> onComplete)
+        {
+            var results = new List<(PathData, TargetingModeData)>(templates != null ? templates.Count : 0);
+
+            if (templates == null || card == null)
+            {
+                onComplete?.Invoke(results);
+                yield break;
+            }
+
+            int cardCost = card.cardData.Cost;
+            int remainingStaminaAfterCard = stamina - cardCost;
+            if (remainingStaminaAfterCard < 0)
+            {
+                onComplete?.Invoke(results);
+                yield break;
+            }
+
+            // Cache movement modifier and compute a conservative per-step cost with a 25% buffer
+            var movementMod = card.cardData.Owner.entityStats.MovementCostModifier;
+            int baseStepCost = movementMod.ApplyFinalValue(5);
+            int bufferedStepCost = Mathf.CeilToInt(baseStepCost * 1.25f);
+
+            for (int i = 0; i < templates.Count; i++)
+            {
+                var template = templates[i];
+                var castTile = template.castingPosition;
+
+                // Heuristic prune using buffered per-step cost to account for unknown factors
+                int minSteps = MovementUtility.Heuristic(virtualPosition, castTile);
+                if (minSteps * bufferedStepCost > remainingStaminaAfterCard)
+                {
+                    if (batchSize > 0 && (i % batchSize) == batchSize - 1)
+                        yield return null;
+                    continue;
+                }
+
+                var path = MovementUtility.FindPath(virtualPosition, castTile, movementCostModifier: movementMod);
+                if (path != null && path.Path != null)
+                {
+                    if (path.Path.Count == 0)
+                    {
+                        if (cardCost < stamina)
+                        {
+                            path.PathCost = 0;
+                            results.Add((path, template));
+                        }
+                    }
+                        else
+                        {
+                            if (card.cardData.Owner.entityStats.IsRooted)
+                            {
+                                path.PathCost = 0;
+                                results.Add((path, template));
+                            }
+                            else
+                            {
+                                // Use the real computed path cost for final validation (no buffer)
+                                int totalCost = path.PathCost + cardCost;
+                                if (totalCost <= stamina)
+                                {   
+                                    results.Add((path, template));
+                                }
+                            }
+                        }
+                }
+
+                if (batchSize > 0 && (i % batchSize) == batchSize - 1)
+                {
+                    yield return null;
+                }
+            }
+
+            onComplete?.Invoke(results);
+            yield break;
         }
         #endregion
     }

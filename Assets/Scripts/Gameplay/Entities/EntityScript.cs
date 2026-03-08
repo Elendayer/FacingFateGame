@@ -57,7 +57,6 @@ namespace facingfate
 
             if (GameEvents.CheckIfRelevantTrigger(triggerRef, checkTrigger))
             {
-                Debug.Log("Playing Effect Animation for " + this.name);
                 PlayEffectAnimation(triggerRef);
             }
         }

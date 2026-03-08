@@ -74,6 +74,7 @@ namespace Utility
             var gScore = new Dictionary<Vector3Int, int> { [start] = 0 };
             PathData pathData = new PathData();
 
+            // Fast-return if start equals goal
             if (start == goal)
             {
                 pathData = new()
@@ -86,14 +87,31 @@ namespace Utility
                 return pathData;
             }
 
+            // Local caches for performance
+            var costInfoScript = CostInfoScript;
+            var costDict = costInfoScript?.costInfoDict;
+            var cubeDirs = CubeDirs;
+            var oddR = UseOddROffset;
+
+            if (costDict == null)
+            {
+                // No cost info available -> no path
+                return new PathData();
+            }
+
             while (openSet.Count > 0)
             {
                 var current = openSet.Dequeue();
 
+                // Skip stale queue entries: if current has no gScore entry or dequeued priority is stale
+                if (!gScore.TryGetValue(current, out int currentG))
+                    continue;
+
+                // If we've reached goal by dequeuing it, reconstruct and return
                 if (current == goal)
                 {
                     int totalCost;
-                    var path = ReconstructPath(cameFrom, start, goal, out totalCost, CostInfoScript, ignoreCost, walkClose, movementCostModifier);
+                    var path = ReconstructPath(cameFrom, start, goal, out totalCost, costInfoScript, ignoreCost, walkClose, movementCostModifier);
 
                     pathData = new()
                     {
@@ -105,27 +123,66 @@ namespace Utility
                     return pathData;
                 }
 
-                var currentCube = OffsetToCube_PointTop(current, UseOddROffset);
-                for (int dir = 0; dir < CubeDirs.Length; dir++)
+                // Convert current to cube once per node
+                var currentCube = OffsetToCube_PointTop(current, oddR);
+
+                // Explore neighbors
+                for (int dir = 0; dir < cubeDirs.Length; dir++)
                 {
-                    var neighborCube = currentCube + CubeDirs[dir];
-                    var neighbor = CubeToOffset_PointTop(neighborCube, UseOddROffset);
+                    var neighborCube = currentCube + cubeDirs[dir];
+                    var neighbor = CubeToOffset_PointTop(neighborCube, oddR);
 
-                    // If ignoreCost, all tiles have cost 1
-                    if (!CostInfoScript.costInfoDict.ContainsKey(neighbor))
+                    // Skip tiles that don't exist in cost dictionary
+                    if (!costDict.TryGetValue(neighbor, out var neighborCostInfo))
                         continue;
-                    int tentativeGScore = gScore[current] + (ignoreCost ? 1 : CostInfoScript.costInfoDict[current].costCheck);
 
-                    if (!gScore.ContainsKey(neighbor) || tentativeGScore < gScore[neighbor])
+                    // Compute step cost using neighbor's cost (fixed bug: previously used current's cost)
+                    int stepCost;
+                    if (ignoreCost)
+                    {
+                        stepCost = 1;
+                    }
+                    else if (movementCostModifier != null)
+                    {
+                        stepCost = movementCostModifier.ApplyFinalValue(neighborCostInfo.costCheck);
+                    }
+                    else
+                    {
+                        stepCost = neighborCostInfo.costCheck;
+                    }
+
+                    int tentativeGScore = currentG + stepCost;
+
+                    // If this path to neighbor is better, record it
+                    if (!gScore.TryGetValue(neighbor, out int neighborG) || tentativeGScore < neighborG)
                     {
                         cameFrom[neighbor] = current;
                         gScore[neighbor] = tentativeGScore;
+
+                        // Early exit: if we discovered the goal, reconstruct immediately
+                        if (neighbor == goal)
+                        {
+                            int totalCost;
+                            var path = ReconstructPath(cameFrom, start, goal, out totalCost, costInfoScript, ignoreCost, walkClose, movementCostModifier);
+
+                            pathData = new()
+                            {
+                                Start = start,
+                                End = goal,
+                                Path = path,
+                                PathCost = totalCost,
+                            };
+                            return pathData;
+                        }
+
                         int fScore = tentativeGScore + Heuristic(neighbor, goal);
                         openSet.Enqueue(neighbor, fScore);
                     }
                 }
             }
-            return new(); // No path found
+
+            // No path found
+            return new PathData();
         }
 
         public static PathData FindPathWithMaxLength(Vector3Int start, Vector3Int goal, int maxLength, bool ignoreCost = false, bool walkClose = false)
@@ -234,6 +291,7 @@ namespace Utility
             var bc = OffsetToCube_PointTop(b, UseOddROffset);
             return (Mathf.Abs(ac.x - bc.x) + Mathf.Abs(ac.y - bc.y) + Mathf.Abs(ac.z - bc.z)) / 2;
         }
+
         private static int CostStep(Vector3Int position, Stat moveCostModifier, bool ignoreCost = false)
         {
             if (ignoreCost)

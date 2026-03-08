@@ -27,6 +27,89 @@ namespace facingfate
             Debug.Log($"[NpcAI] Initialized for {npc.name} at cell {mover.currentCell}");
         }
 
+        private IEnumerator EvaluateCardCoroutine(
+            CardScript card,
+            int stamina,
+            Vector3Int virtualPosition,
+            List<EntityScript> allEntities,
+            Action<ScoredCard> onComplete)
+        {
+            // Step 0: quick validation
+            if (card == null || card.cardData == null)
+            {
+                Debug.Log("[NpcAI][EvaluateCard] Invalid card or missing cardData - aborting evaluation.");
+                onComplete?.Invoke(null);
+                yield break;
+            }
+
+            // Timing
+            var cardName = card.cardData.cardName;
+            float tStart = Time.realtimeSinceStartup;
+            float tPrev = tStart;
+            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Starting evaluation at {tStart:0.000}s");
+
+            // Step 1: valid targets (cheap)
+            var validTargets = TargetingUtility.GetValidTargets(card.cardData, allEntities);
+            yield return null;
+            float tAfterStep1 = Time.realtimeSinceStartup;
+            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 1 (validTargets) took {tAfterStep1 - tPrev:0.000}s");
+            tPrev = tAfterStep1;
+            if (validTargets == null || validTargets.Count == 0)
+            {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - no valid targets, aborting after {Time.realtimeSinceStartup - tStart:0.000}s");
+                onComplete?.Invoke(null);
+                yield break;
+            }
+
+            // Step 2: create targeting mode
+            var targetingMode = TargetingModeFactory.Create(card);
+            yield return null;
+            float tAfterStep2 = Time.realtimeSinceStartup;
+            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 2 (create targeting mode) took {tAfterStep2 - tPrev:0.000}s");
+            tPrev = tAfterStep2;
+            if (targetingMode == null)
+            {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - no targeting mode, aborting after {Time.realtimeSinceStartup - tStart:0.000}s");
+                onComplete?.Invoke(null);
+                yield break;
+            }
+
+            // Step 3: generate templates (may be heavier); yield after call
+            var templates = targetingMode.GetTargetingData(card, validTargets, npcScript);
+            yield return null;
+            float tAfterStep3 = Time.realtimeSinceStartup;
+            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 3 (generate templates) took {tAfterStep3 - tPrev:0.000}s");
+            tPrev = tAfterStep3;
+            if (templates == null || templates.Count == 0)
+            {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - no templates, aborting after {Time.realtimeSinceStartup - tStart:0.000}s");
+                onComplete?.Invoke(null);
+                yield break;
+            }
+
+            // Step 4: compute reachable candidates via coroutine (batched pathfinding)
+            List<(PathData, TargetingModeData)> reachableMoves = null;
+            yield return npcScript.StartCoroutine(TargetingUtility.GetReachableCandidatesCoroutine(card, templates, stamina, virtualPosition, 4, (res) => reachableMoves = res));
+            float tAfterStep4 = Time.realtimeSinceStartup;
+            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 4 (reachable candidates/pathfinding) of {templates.Count} _Templates took {tAfterStep4 - tPrev:0.000}s");
+            tPrev = tAfterStep4;
+            if (reachableMoves == null || reachableMoves.Count == 0)
+            {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - no reachable moves, aborting after {Time.realtimeSinceStartup - tStart:0.000}s");
+                onComplete?.Invoke(null);
+                yield break;
+            }
+
+            // Step 5: evaluate movement and aim (cheap in comparison)
+            var best = EvaluateMovementAndAim(card, reachableMoves);
+            float tAfterStep5 = Time.realtimeSinceStartup;
+            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 5 (evaluate movement & aim) took {tAfterStep5 - tPrev:0.000}s");
+            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' evaluation complete in {Time.realtimeSinceStartup - tStart:0.000}s (best score {best?.score})");
+
+            onComplete?.Invoke(best);
+            yield break;
+        }
+
         #region Core Turn Planning
 
         public void BuildTurnPlan(Action<List<PlannedAction>> callback)
@@ -54,26 +137,40 @@ namespace facingfate
             {
                 var actionCandidates = new List<ScoredCard>();
 
-                // Evaluate hand cards in small batches to avoid long single-frame stalls.
-                var handCandidates = new List<ScoredCard>();
+                // Evaluate all cards concurrently via coroutines, wait for all to finish.
+                var handCount = hand.Count;
+                var remaining = handCount;
+                var results = new ScoredCard[handCount];
 
-                const int batchSize = 1; // tuneable: number of cards to evaluate per frame
-
-                for (int i = 0; i < hand.Count; i++)
+                if (handCount > 0)
                 {
-                    var scored = EvaluateCard(hand[i], virtualStamina, virtualPosition, allEntities);
-                    if (scored != null && scored.score > 0)
+                    for (int i = 0; i < handCount; i++)
                     {
-                        handCandidates.Add(scored);
-                    }
-                    
-                    // Yield periodically so heavy targeting calculations don't stall the frame.
-                    if ((i % batchSize) == batchSize - 1)
+                        int idx = i;
+                        npcScript.StartCoroutine(EvaluateCardCoroutine(hand[idx], virtualStamina, virtualPosition, allEntities, (res) =>
+                        {
+                            results[idx] = res;
+                            remaining--;
+                        }));
+                        // Slight yield to spread coroutine starts across frames
                         yield return null;
-                }
+                    }
 
-                if (handCandidates.Count > 0)
-                    actionCandidates.AddRange(handCandidates);
+                    // Wait for all evaluations to complete
+                    while (remaining > 0)
+                        yield return null;
+
+                    var handCandidates = new List<ScoredCard>();
+                    for (int i = 0; i < handCount; i++)
+                    {
+                        var r = results[i];
+                        if (r != null && r.score > 0)
+                            handCandidates.Add(r);
+                    }
+
+                    if (handCandidates.Count > 0)
+                        actionCandidates.AddRange(handCandidates);
+                }
 
                 var repositionCandidate = TryGetRepositionCandidate(virtualPosition, allEntities);
 
@@ -140,25 +237,6 @@ namespace facingfate
         #endregion
 
         #region Hand Evaluation
-
-        private List<ScoredCard> EvaluateHandActions(
-            List<CardScript> hand,
-            int stamina,
-            Vector3Int virtualPosition,
-            List<EntityScript> allEntities)
-        {
-            var candidates = new List<ScoredCard>();
-
-            foreach (var card in hand)
-            {
-                var scored = EvaluateCard(card, stamina, virtualPosition, allEntities);
-
-                if (scored != null && scored.score > 0)
-                    candidates.Add(scored);
-            }
-
-            return candidates;
-        }
 
         private ScoredCard EvaluateCard(
             CardScript card,
