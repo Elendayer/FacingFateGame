@@ -62,22 +62,26 @@ namespace facingfate
         {
             plan.Clear();
 
+            // Step 1: Build plan
             ActionQueueUtility.EnqueueAction(() =>
             {
-                // Step 1: Build the plan
-                plan = npcAIController.BuildTurnPlan();
-            });
-
-            ActionQueueUtility.EnqueueAction(() =>
-            {
-                // Step 2: Execute the plan (enqueue actions)
-                ExecutePlan(plan);
-
-                // Step 3: Enqueue Endturn AFTER the plan actions
-                ActionQueueUtility.EnqueueAction(() =>
+                npcAIController.BuildTurnPlan((builtPlan) =>
                 {
-                    EventManager.Instance.Endturn();
-                }, 1f);
+                    plan = builtPlan;
+
+                    // Step 2: Execute plan AFTER planning finishes
+                    ActionQueueUtility.EnqueueAction(() =>
+                    {
+                        ExecutePlan(plan);
+
+                        // Step 3: End turn after plan finishes
+                        ActionQueueUtility.EnqueueAction(() =>
+                        {
+                            EventManager.Instance.Endturn();
+                        }, 1f);
+
+                    });
+                });
             });
         }
 
@@ -121,12 +125,6 @@ namespace facingfate
         {
             // Enqueue card effects (handles repeats internally)
             ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData);
-
-            // After all repeats resolve, discard the card
-            ActionQueueUtility.EnqueueAction(() =>
-            {
-                HandManager.Instance.DiscardCard(action.Card.gameObject);
-            });
         }
     }
 }

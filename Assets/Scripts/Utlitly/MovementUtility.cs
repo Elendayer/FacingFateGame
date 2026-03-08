@@ -319,56 +319,44 @@ namespace Utility
             EntityOnMap entityOnMap = entity.GetComponent<EntityOnMap>();
             PathData pathData = new();
 
+            Vector3Int targetPosition = FindPositionToBeMoveTo(entityOnMap, ReferencePos);
+
             switch (type)
             {
                 case ForcedMovementType.Random:
                     pathData = GetRandomInRange(entityOnMap.currentCell, Distance);
                     ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
-
                     break;
                 case ForcedMovementType.Targeted:
-                    pathData = FindPathWithMaxLength(entityOnMap.currentCell, ReferencePos, Distance);
+                    pathData = FindPathWithMaxLength(entityOnMap.currentCell, targetPosition, Distance);
                     ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
-
                     break;
                 case ForcedMovementType.Flee:
-                     pathData = GetFleePosition(Distance, entityOnMap, entity);
+                    pathData = GetFleePosition(Distance, entityOnMap, entity);
                     ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
-
                     break;
                 case ForcedMovementType.Push:
-                     pathData = GetFurtherPosition(ReferencePos, Distance, entityOnMap);
+                    pathData = GetFurtherPosition(ReferencePos, Distance, entityOnMap);
                     ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
-
                     break;
                 case ForcedMovementType.Pull:
                     pathData = GetPathDataToCloserPosition(ReferencePos, Distance, entityOnMap);
                     ActionQueueUtility.EnqueueMovement(entityOnMap, pathData);
-
                     break;
                 case ForcedMovementType.Jump:
-                    Vector3Int targetPosition = FindPositionToBeMoveTo(entityOnMap, ReferencePos);
-
-                    ActionQueueUtility.EnqueueActionRoutine(
-                        entityOnMap,
-                        () => entityOnMap.StartJumpRoutine(targetPosition) 
-                    );
+                    ActionQueueUtility.EnqueueActionRoutine(entityOnMap, () => entityOnMap.StartJumpRoutine(targetPosition));
                     break;
                 case ForcedMovementType.Teleport:
-                    ActionQueueUtility.EnqueueAction(() =>
-                    {
-                        Vector3Int targetPosition = FindPositionToBeMoveTo(entityOnMap, ReferencePos);
-                        entityOnMap.TeleportTo(targetPosition);
-                    });
+                    ActionQueueUtility.EnqueueAction(() => { entityOnMap.TeleportTo(targetPosition); });
                     break;
             }
-
         }
         public static Vector3Int FindPositionToBeMoveTo(EntityOnMap eom, Vector3Int targetPosition)
         {
             // If target tile is valid, use it immediately
             if (IsTileUsable(targetPosition))
             {
+                Debug.Log($"[MovementUtility] Target tile {targetPosition} is valid for teleportation.");
                 return targetPosition;
             }
 
@@ -388,6 +376,7 @@ namespace Utility
                 {
                     if (IsTileUsable(tile))
                     {
+                        Debug.Log($"[MovementUtility] Found valid tile {tile} at radius {radius} for teleportation.");  
                         return tile;
                     }
                 }
@@ -400,10 +389,16 @@ namespace Utility
 
         private static bool IsTileUsable(Vector3Int position)
         {
+            // Check if tile exists in costInfoDict
             if (!CostInfoScript.costInfoDict.TryGetValue(position, out var costInfo))
+            {
                 return false;
+            }
 
-            return !costInfo.isOccupied && !costInfo.isUnwalkable;
+            if (costInfo.isOccupied) return false;
+            if (costInfo.isUnwalkable) return false;
+
+            return true;
         }
         public static void SwapLocations(EntityScript entityA, EntityScript entityB)
         {

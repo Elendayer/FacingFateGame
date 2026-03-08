@@ -1,10 +1,8 @@
-﻿using System.Buffers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using facingfate;
-using UnityEngine.Rendering;
 
 namespace Utility
 {
@@ -13,11 +11,19 @@ namespace Utility
         #region Entity Validation
         public static List<EntityScript> GetValidTargets(CardData card, List<EntityScript> candidates)
         {
-            EntityScript owner = card.Owner;
-
-            if (card == null || owner == null || candidates == null) return new List<EntityScript>();
-
-            return candidates.Where(target => target != null && IsTargetValid(card, target)).ToList();
+            if (card == null || card.Owner == null || candidates == null) return new List<EntityScript>();
+    
+            var owner = card.Owner;
+            var results = new List<EntityScript>(candidates.Count);
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                var target = candidates[i];
+                if (target != null && IsTargetValid(card, target))
+                {
+                    results.Add(target);
+                }
+            }
+            return results;
         }
         public static bool IsTargetValid(CardData cardData, EntityScript target)
         {
@@ -62,7 +68,24 @@ namespace Utility
         {
             if (tiles == null || allEntities == null) return new List<EntityScript>();
 
-            return allEntities.Where(e => e != null && e.GetComponent<EntityOnMap>() != null && tiles.Contains(e.GetComponent<EntityOnMap>().currentCell)).ToList();
+            var tileSet = new HashSet<Vector3Int>(tiles);
+            var results = new List<EntityScript>();
+
+            for (int i = 0; i < allEntities.Count; i++)
+            {
+                var e = allEntities[i];
+                if (e == null) continue;
+
+                var onMap = e.GetComponent<EntityOnMap>();
+                if (onMap == null) continue;
+
+                if (tileSet.Contains(onMap.currentCell))
+                {
+                    results.Add(e);
+                }
+            }
+
+            return results;
         }
         public static Vector3Int? GetHoveredTile(PointerEventData eventData)
         {
@@ -177,9 +200,21 @@ namespace Utility
             {
                 var castTile = template.castingPosition;
 
+                // Quick heuristic check: skip expensive pathfinding when estimated minimum steps
+                // are greater than remaining stamina (after card cost). This avoids many full
+                // path searches that are guaranteed to be unaffordable.
+                int minSteps = MovementUtility.Heuristic(virtualPosition, castTile);
+                int remainingStaminaAfterCard = stamina - card.cardData.Cost;
+                if (remainingStaminaAfterCard < 0) continue;
+                if (minSteps > remainingStaminaAfterCard)
+                {
+                    continue;
+                }
+
                 var path = MovementUtility.FindPath(virtualPosition, castTile, movementCostModifier: card.cardData.Owner.entityStats.MovementCostModifier);
 
-                if (path == null)
+                // MovementUtility may return an empty PathData instance with a null Path when no path is found.
+                if (path == null || path.Path == null)  
                 {
                     continue;
                 }
@@ -189,15 +224,19 @@ namespace Utility
                 {
                     if (card.cardData.Cost < stamina)
                     {
-                        results.Add((new PathData { Start = path.Start, End = path.End, Path = path.Path, PathCost = 0 }, template));
+                        // Use returned PathData directly to avoid an extra allocation/copy.
+                        path.PathCost = 0;
+                        results.Add((path, template));
                     }
                     continue;
                 }
 
-                if (card.cardData.Owner.entityStats.IsRooted) 
+                if (card.cardData.Owner.entityStats.IsRooted)
                 {
-                    results.Add((new PathData { Start = path.Start, End = path.End, Path = path.Path, PathCost = 0 }, template));
-                    continue; 
+                    // If owner is rooted, movement cost is zero (we treat as zero path cost)
+                    path.PathCost = 0;
+                    results.Add((path, template));
+                    continue;
                 }
 
                 int totalCost = path.PathCost + card.cardData.Cost;
@@ -205,7 +244,7 @@ namespace Utility
                 {
                     continue;
                 }
-                results.Add((new PathData { Start = path.Start, End = path.End, Path = path.Path, PathCost = path.PathCost }, template));
+                results.Add((path, template));
             }
   
             return results;
@@ -401,7 +440,7 @@ namespace Utility
 
             var candidatePositions = new Dictionary<Vector3Int, int>();
 
-            // Step 1: Generate candidate positions
+            // Step 1: Generate candidate positions 
             foreach (var t in targets)
             {
                 var targetCell = t.GetComponent<EntityOnMap>().currentCell;

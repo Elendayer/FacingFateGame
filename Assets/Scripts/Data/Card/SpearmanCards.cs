@@ -18,7 +18,7 @@ namespace facingfate
             // 110101 – Tempest of a Hundred Spears (Ring 1, repeats=2)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110101,
+                cardID = "Spear_Tech_Tempest_of_a_Hundred_Spears",
                 cardName = "Tempest of a Hundred Spears",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -28,7 +28,7 @@ namespace facingfate
                 damage_u = 20,
                 repeats_u = 2,
 
-                range_u = 16,
+                range_u = 6,
                 radius_u = 3,
                 area_u = 1,
 
@@ -59,7 +59,7 @@ namespace facingfate
             // 110102 – Piercing Light (LineSelf 3)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110102,
+                cardID = "Spear_Tech_Piercing_Light",
                 cardName = "Piercing Light",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -95,7 +95,7 @@ namespace facingfate
             // 110103 – Sky-Piercing Leap (LineSelf 2)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110103,
+                cardID = "Spear_Tech_Sky_Piercing_Leap",
                 cardName = "Sky-Piercing Leap",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -125,14 +125,14 @@ namespace facingfate
                 },
                 CardEffectGround = (User, Target, d) =>
                 {
-                    MovementUtility.ForcedMove(ForcedMovementType.Targeted, User, Target, d.Power, 100f);
+                    MovementUtility.ForcedMove(ForcedMovementType.Jump, User, Target, d.Power, 100f);
                 }
             });
 
             // 110104 – Heaven Piercing Spear (Single, Range 1) – Bleed DoT
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110104,
+                cardID = "Spear_Tech_Heaven_Piercing_Spear",
                 cardName = "Heaven Piercing Spear",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -170,7 +170,7 @@ namespace facingfate
             // 110105 – Salamander Sweep (Cone 1)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110105,
+                cardID = "Spear_Tech_Salamander_Tail_Sweep",
                 cardName = "Salamander Tail Sweep",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -207,7 +207,7 @@ namespace facingfate
             // 110106 – Dragon Fang Thrust (Cone)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110106,
+                cardID = "Spear_Tech_Snake_Tail_Sweep",
                 cardName = "Snake Tail Sweep",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -256,7 +256,7 @@ namespace facingfate
             // 110107 – Dragon Tail Sweep (cone)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110107,
+                cardID = "Spear_Tech_Dragon_Tail_Sweep",
                 cardName = "Dragon Tail Sweep",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -291,17 +291,17 @@ namespace facingfate
             // 110108 – Earthshatter Pole 
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110108,
+                cardID = "Spear_Tech_Earthshatter_Pole",
                 cardName = "Earthshatter Pole",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 10,
-                damage_u = 500,
+                damage_u = 60,
 
                 range_u = 3,
-                area_u = 2,
+                radius_u = 2,
 
                 targetingData = new()
                 {
@@ -328,7 +328,7 @@ namespace facingfate
             // 110109 – Azure Dragon's Roar (Self; until end of turn)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110109,
+                cardID = "Spear_Tech_Azure_Dragons_Roar",
                 cardName = "Azure Dragon's Roar",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -376,7 +376,7 @@ namespace facingfate
             // 110110 – Pillar of the Earth (Radius Stun)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110110,
+                cardID = "Spear_Tech_Pillar_of_the_Earth",
                 cardName = "Pillar of the Earth",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
@@ -436,7 +436,7 @@ namespace facingfate
             // 110201 – Extending Heaven's Lance (Self; +range until end of turn)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110201,
+                cardID = "Spear_Abil_Extending_Heavens_Lance",
                 cardName = "Extending Heaven's Lance",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
@@ -478,7 +478,7 @@ namespace facingfate
             // 110202 – Iron Wall Reversal (Self; fixed melee counter once)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110202,
+                cardID = "Spear_Abil_Iron_Wall_Reversal",
                 cardName = "Iron Wall Reversal",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
@@ -529,7 +529,7 @@ namespace facingfate
             // 110203 – Whirling Heaven Ward (Self; deflect ranged once)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110203,
+                cardID = "Spear_Abil_Whirling_Heaven_Ward",
                 cardName = "Whirling Heaven Ward",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
@@ -564,7 +564,7 @@ namespace facingfate
             // 110204 – Unyielding Spear Stance (Self; Taunt + Armour +10 for 1 turn)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110204,
+                cardID = "Spear_Abil_Unyielding_Spear_Stance",
                 cardName = "Unyielding Spear Stance",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
@@ -610,7 +610,7 @@ namespace facingfate
             // 110205 – Sky-Rending Reversal (Self; stronger fixed counter)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110205,
+                cardID = "Spear_Abil_Sky_Rending_Reversal",
                 cardName = "Sky-Rending Reversal",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
@@ -658,7 +658,7 @@ namespace facingfate
             // 110206 – Phalanx Guard (Self; defensive placeholder)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110206,
+                cardID = "Spear_Abil_Phalanx_Guard",
                 cardName = "Phalanx Guard",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
@@ -720,7 +720,7 @@ namespace facingfate
             // 110401 – Brittle Courage (Self)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110401,
+                cardID = "Spear_Curse_Brittle_Courage",
                 cardName = "Brittle Courage",
                 cardType = CardType.Curse,
                 cardClass = CardClass.Spearman,
@@ -763,7 +763,7 @@ namespace facingfate
             // 110501 – Brilliant Spear (Self)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 110501,
+                cardID = "Spear_Bless_Brilliant_Spear",
                 cardName = "Brilliant Spear",
                 cardType = CardType.Blessing,
                 cardClass = CardClass.Spearman,

@@ -15,12 +15,22 @@ namespace facingfate
         private class QueuedAction
         {
             public Action Action;
+            public Func<IEnumerator> CoroutineAction;
+            public bool IsCoroutine;
             public float Delay;
 
             public QueuedAction(Action action, float delay = 0f)
             {
                 Action = action;
                 Delay = delay;
+                IsCoroutine = false;
+            }
+
+            public QueuedAction(Func<IEnumerator> coroutineAction, float delay = 0f)
+            {
+                CoroutineAction = coroutineAction;
+                Delay = delay;
+                IsCoroutine = true;
             }
         }
 
@@ -49,6 +59,21 @@ namespace facingfate
         }
 
         /// <summary>
+        /// Enqueue a coroutine-producing function. The queue will wait until the coroutine completes.
+        /// </summary>
+        public void Enqueue(Func<IEnumerator> coroutineAction, float delay = 0f)
+        {
+            if (coroutineAction == null) return;
+
+            queue.Enqueue(new QueuedAction(coroutineAction, delay));
+
+            if (!isProcessing)
+            {
+                StartCoroutine(ProcessQueue());
+            }
+        }
+
+        /// <summary>
         /// Processes the queue sequentially.
         /// </summary>
         private IEnumerator ProcessQueue()
@@ -59,8 +84,16 @@ namespace facingfate
             {
                 var item = queue.Dequeue();
 
-                // Execute the action
-                item.Action?.Invoke();
+                if (item.IsCoroutine)
+                {
+                    // Run the coroutine and wait for it to finish
+                    yield return StartCoroutine(item.CoroutineAction());
+                }
+                else
+                {
+                    // Execute the action
+                    item.Action?.Invoke();
+                }
 
                 // Wait for the specified delay
                 if (item.Delay > 0f)

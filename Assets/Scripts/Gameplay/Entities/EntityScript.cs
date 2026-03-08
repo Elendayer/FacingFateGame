@@ -14,7 +14,7 @@ namespace facingfate
 
         [Header("Deck Settings")]
         [SerializeField]
-        public List<int> deckCardIDs = new List<int>();  // Populate with card IDs
+        public List<string> deckCardIDs = new List<string>();  // Populate with card IDs
 
         [Header("Entity Stats")]
         public EntityStats entityStats;

@@ -19,7 +19,7 @@ namespace facingfate
             // 100101 – Strike – normal attack
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100101,
+                cardID = "Neutral_Tech_Strike",
                 cardName = "Strike",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -50,7 +50,7 @@ namespace facingfate
             // 100102 – Heavy Blow – slow heavy hit (TODO: -1 Movement)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100102,
+                cardID = "Neutral_Tech_Heavy_Blow",
                 cardName = "Heavy Blow",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -85,7 +85,7 @@ namespace facingfate
             // 100103 – Quick Jab – fast poke
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100103,
+                cardID = "Neutral_Tech_Quick_Jab",
                 cardName = "Quick Jab",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -111,7 +111,7 @@ namespace facingfate
             // 100104 – Double Cut – strike twice
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100104,
+                cardID = "Neutral_Tech_Double_Cut",
                 cardName = "Double Cut",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -138,7 +138,7 @@ namespace facingfate
             // 100105 – Shove – push 1 space (minor damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100105,
+                cardID = "Neutral_Tech_Shove",
                 cardName = "Shove",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -167,7 +167,7 @@ namespace facingfate
             // 100106 – Charge – move both 1 space 
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100106,
+                cardID = "Neutral_Tech_Charge",
                 cardName = "Charge",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -198,7 +198,7 @@ namespace facingfate
             // 100107 – Step Back – disengage after attack (Self)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100107,
+                cardID = "Neutral_Tech_Step_Back",
                 cardName = "Step Back",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -225,7 +225,7 @@ namespace facingfate
             // 100108 – Bite – small hit
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100108,
+                cardID = "Neutral_Tech_Bite",
                 cardName = "Bite",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -251,7 +251,7 @@ namespace facingfate
             // 100109 – Gnaw – bite until bleed (repeat 2) – now applies Bleed DoT (with fallback duration)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100109,
+                cardID = "Neutral_Tech_Gnaw",
                 cardName = "Gnaw",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -302,7 +302,7 @@ namespace facingfate
             // 100110 – Sting – damage + Poison DoT
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100110,
+                cardID = "Neutral_Tech_Sting",
                 cardName = "Sting",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -350,7 +350,7 @@ namespace facingfate
             // 100111 – Arrowshot – ranged hit
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100111,
+                cardID = "Neutral_Tech_Arrowshot",
                 cardName = "Arrowshot",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -377,7 +377,7 @@ namespace facingfate
             // 100112 – Multishot – multi-target (repeat 2)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100112,
+                cardID = "Neutral_Tech_Multishot",
                 cardName = "Multishot",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
@@ -408,7 +408,7 @@ namespace facingfate
             // 100201 – Focus – empower next attack (Self)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100201,
+                cardID = "Neutral_Ab_Focus",
                 cardName = "Focus",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -443,7 +443,7 @@ namespace facingfate
             // 100202 – Growl – demoralize enemies (AOE debuff)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100202,
+                cardID = "Neutral_Ab_Growl",
                 cardName = "Growl",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -478,7 +478,7 @@ namespace facingfate
             // 100203 – Howl – improve allies' stats (AOE buff)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100203,
+                cardID = "Neutral_Ab_Howl",
                 cardName = "Howl",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -516,7 +516,7 @@ namespace facingfate
             // 100204 – Guard Up – raise defense until end of turn
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100204,
+                cardID = "Neutral_Ab_Guard_Up",
                 cardName = "Guard Up",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -555,7 +555,7 @@ namespace facingfate
             // 100601 – Throw Poison – Single/Radius; apply Poison DoT (with immediate tick)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100601,
+                cardID = "Neutral_Item_Throw_Poison",
                 cardName = "Throw Poison",
                 cardType = CardType.Item,
                 cardClass = CardClass.Neutral,
@@ -601,7 +601,7 @@ namespace facingfate
             // 100602 – Throw Firebomb – Single/Radius; apply Burn DoT (with immediate tick)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 100602,
+                cardID = "Neutral_Item_Throw_Firebomb",
                 cardName = "Throw Firebomb",
                 cardType = CardType.Item,
                 cardClass = CardClass.Neutral,

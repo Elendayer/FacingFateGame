@@ -10,7 +10,7 @@ namespace facingfate
     public class CardData
     {
         [Header("Meta")]
-        public int cardID = 0;
+        public string cardID = "MissingID";
         public string cardName = string.Empty;
         public EntityScript Owner = null;
 
@@ -146,13 +146,22 @@ namespace facingfate
 
 
         public Action<EntityScript, CardData> CardDescription =
-            (user, data) => Debug.Log($"Not defined Description of {data.cardName}");
+            (user, data) => 
+            { 
+                Debug.Log($"Not defined Description of {data.cardName}");
+            };
 
         public Action<EntityScript, EntityScript, CardData> CardEffect =
-            (user, target, data) => Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
+            (user, target, data) =>
+            {
+                Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
+            };
 
         public Action<EntityScript, Vector3Int, CardData> CardEffectGround =
-            (user, target, data) => Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
+            (user, target, data) => 
+            {
+                // Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
+            };
 
         [Header("AI")]
         public CardAiBias CardAiBias = new();

@@ -25,7 +25,7 @@ namespace facingfate
             // 120101 – Shadowfang Strike (LineSelf)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120101,
+                cardID = "Ass_Tech_Shadowfang_Strike",
                 cardName = "Shadowfang Strike",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -44,8 +44,9 @@ namespace facingfate
                 },
 
                 CardDescription = (User, d) =>
-                    d.cardDescription = "Deal {Damage} damage",
-
+                {
+                    d.cardDescription = "Deal {Damage} damage";
+                },
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target);
@@ -55,7 +56,7 @@ namespace facingfate
             // 120102 – Dance of a Hundred Cuts (Ring, repeats)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120102,
+                cardID = "Ass_Tech_Dance_of_a_Hundred_Cuts",
                 cardName = "Dance of a Hundred Cuts",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -84,7 +85,7 @@ namespace facingfate
             // 120103 – Lotus Death Kiss (Execute <10% HP)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120103,
+                cardID = "Ass_Tech_Lotus_Death_Kiss",
                 cardName = "Lotus Death Kiss",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -119,7 +120,7 @@ namespace facingfate
             // 120104 – Moonlit Needlestorm (3 DoTs)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120104,
+                cardID = "Ass_Tech_Moonlit_Needlestorm",
                 cardName = "Moonlit Needlestorm",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -154,7 +155,7 @@ namespace facingfate
             // 120105 – Black Lotus Needle (Single heavy hit)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120105,
+                cardID = "Ass_Tech_Black_Lotus_Needle",
                 cardName = "Black Lotus Needle",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -182,7 +183,7 @@ namespace facingfate
             // 120106 – Moon Piercing Arrow (LineSelf; multi-hit along the line)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120106,
+                cardID = "Ass_Tech_Moon_Piercing_Arrow",
                 cardName = "Moon Piercing Arrow",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -213,7 +214,7 @@ namespace facingfate
             // 120107 – Midnight Rain (Small AOE)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120107,
+                cardID = "Ass_Tech_Midnight_Rain",
                 cardName = "Midnight Rain",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -243,7 +244,7 @@ namespace facingfate
             // 120108 – Bouncing Shot (chain with ally/enemy + hop distance <= 2)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120108,
+                cardID = "Ass_Tech_Bouncing_Shot",
                 cardName = "Bouncing Shot",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -330,7 +331,7 @@ namespace facingfate
             // 120109 – Barbed Needle Volley (Damage + Bleed)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120109,
+                cardID = "Ass_Tech_Barbed_Needle_Volley",
                 cardName = "Barbed Needle Volley",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -364,7 +365,7 @@ namespace facingfate
             // 120111 – Merciful Headshot (Stun + Damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120111,
+                cardID = "Ass_Tech_Merciful_Headshot",
                 cardName = "Merciful Headshot",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -398,7 +399,7 @@ namespace facingfate
             // 120112 – Crimson Thorn Array (Bleed DoT AOE)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120112,
+                cardID = "Ass_Tech_Crimson_Thorn_Array",
                 cardName = "Crimson Thorn Array",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -449,7 +450,7 @@ namespace facingfate
             //120201 - Phantom Step - Moves Behind an Enemy
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120201,
+                cardID = "Ass_Abil_Phantom_Step",
                 cardName = "Phantom Step",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -479,7 +480,7 @@ namespace facingfate
             // 120202 – Apply Scorching Blood Venom – next X hits apply Burn DoT
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120202,
+                cardID = "Ass_Abil_Apply_Scorching_Blood_Venom",
                 cardName = "Apply Scorching Blood Venom",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -511,7 +512,7 @@ namespace facingfate
             // 120203 – Apply Black Lotus Venom – next X hits apply Poison DoT
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120203,
+                cardID = "Ass_Abil_Apply_Black_Lotus_Venom",
                 cardName = "Apply Black Lotus Venom",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -561,7 +562,7 @@ namespace facingfate
             // 120204 – Apply Dazzlying Numbing Venom (Stun for next X attacks)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120204,
+                cardID = "Ass_Abil_Apply_Dazzlying_Numbing_Venom",
                 cardName = "Apply Dazzlying Numbing Venom",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -609,7 +610,7 @@ namespace facingfate
             // 120205 – Reapply Venom (top-up to X charges of your last venom card)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120205,
+                cardID = "Ass_Abil_Reapply_Venom",
                 cardName = "Reapply Venom",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -656,7 +657,7 @@ namespace facingfate
             // 120206 – Eye of the Nighthawk – dmg/crit up (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120206,
+                cardID = "Ass_Abil_Eye_of_the_Nighthawk",
                 cardName = "Eye of the Nighthawk",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -705,7 +706,7 @@ namespace facingfate
             // 120401 – Fumble – self-random (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120401,
+                cardID = "Ass_Curse_Fumble",    
                 cardName = "Fumble",
                 cardType = CardType.Curse,
                 cardClass = CardClass.Assassin,
@@ -728,7 +729,7 @@ namespace facingfate
             // 120501 – Lucky Strike – next attack repeats (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120501,
+                cardID = "Ass_Bless_Lucky_Strike",
                 cardName = "Lucky Strike",
                 cardType = CardType.Blessing,
                 cardClass = CardClass.Assassin,

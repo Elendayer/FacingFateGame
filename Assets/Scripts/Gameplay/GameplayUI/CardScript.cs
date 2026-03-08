@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace facingfate
 {
+    [Serializable]
     public class CardScript : MonoBehaviour
     {
         [SerializeField]

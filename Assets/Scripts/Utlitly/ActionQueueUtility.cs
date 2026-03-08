@@ -1,5 +1,4 @@
-﻿using facingfate;
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using Utility;
@@ -19,10 +18,7 @@ namespace facingfate
             )
         {
             // Wrap all steps in a coroutine to allow async completion
-            GlobalActionQueue.Enqueue(() =>
-            {
-                source.StartCoroutine(CardExecutionCoroutine(source, cardData, targetingData, cardObj, repeatDelay, onComplete));
-            });
+            GlobalActionQueue.Enqueue(() => CardExecutionCoroutine(source, cardData, targetingData, cardObj, repeatDelay, onComplete));
         }
 
         private static IEnumerator CardExecutionCoroutine(
@@ -43,9 +39,12 @@ namespace facingfate
             for (int i = 0; i < repeats; i++)
             {
                 if (i > 0)
+                {
                     yield return new WaitForSeconds(repeatDelay);
+                }
 
                 ApplyCardEffects(source, cardData, targetingData);
+
                 yield return null; // wait a frame after applying effects
             }
 
@@ -94,6 +93,7 @@ namespace facingfate
         Action onComplete)
         {
             yield return entityOnMap.StartMoveRoutine(pathData);
+
             onComplete?.Invoke();
         }
 
@@ -103,10 +103,7 @@ namespace facingfate
             PathData pathData,
             Action onComplete = null)
         {
-            GlobalActionQueue.Enqueue(() =>
-            {
-                entityOnMap.StartCoroutine(MoveCoroutine(entityOnMap, pathData, onComplete));
-            });
+            GlobalActionQueue.Enqueue(() => MoveCoroutine(entityOnMap, pathData, onComplete));
         }
 
         private static IEnumerator ActionCoroutine(
@@ -121,10 +118,7 @@ namespace facingfate
         Func<IEnumerator> action,
         Action onComplete = null)
         {
-            TimelineManager.GlobalActionQueue.Enqueue(() =>
-            {
-                source.StartCoroutine(ActionCoroutine(action, onComplete));
-            });
+            TimelineManager.GlobalActionQueue.Enqueue(() => ActionCoroutine(action, onComplete));
         }
 
 

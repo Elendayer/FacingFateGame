@@ -40,7 +40,12 @@ namespace facingfate
 
             if (triggerRef.OnTriggerReference.Contains(GameplayRef.onTurnStart))
             {
-                Timeline.TryAdd($"{TurnManager.Instance.CurrentRoundIndex}_{triggerRef.UserEntity.name}", new() { triggerRef });
+                string roundIndex = TurnManager.Instance.CurrentRoundIndex.ToString();
+                string entityName = triggerRef.UserEntity.name;
+
+                string key = string.Concat(roundIndex, "_", entityName);
+
+                Timeline.TryAdd(key, new() { triggerRef });
             }
             else
             {
