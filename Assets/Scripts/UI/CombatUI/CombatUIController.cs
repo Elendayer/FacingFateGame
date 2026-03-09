@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using Utility;
 
@@ -37,6 +38,9 @@ namespace facingfate
 
         private EntityScript currentActiveEntity;
         private EntityScript hoveredEntity;
+
+        private EntityScript lockedEntity;  // per Klick gesperrte Entity
+        private EntityScript lastHoverOutlined; // für sauberes Outline-Reset
 
         [Flags]
         private enum DirtyFlags
@@ -91,6 +95,7 @@ namespace facingfate
 
         private void Update()
         {
+            HandleEntityClick();
             UpdateHover();
 
             EntityScript active = GetActiveEntitySafe();
@@ -114,22 +119,93 @@ namespace facingfate
             if (hoverTimer < hoverPollInterval) return;
             hoverTimer = 0f;
 
-            // Wenn kein neues Ziel gefunden wird, behalten wir das alte (sticky)
+            // Klick auf Entity → lock/unlock togglen
+            if (Input.GetMouseButtonDown(0))
+            {
+                /*
+                EntityScript clicked = FindHoveredEntity();
+                if (clicked != null)
+                {
+                    if (lockedEntity == clicked)
+                    {
+                        // nochmal klicken = entsperren
+                        SetOutline(lockedEntity, OutlineState.Normal);
+                        lockedEntity = null;
+                    }
+                    else
+                    {
+                        // alten Lock entfernen
+                        if (lockedEntity != null)
+                            SetOutline(lockedEntity, OutlineState.Normal);
+
+                        lockedEntity = clicked;
+                        SetOutline(lockedEntity, OutlineState.Locked);
+                    }
+                }
+                */
+            }
+
+            // Wenn eine Entity gelockt ist, bleibt der HoverTargetPanel darauf
+            if (lockedEntity != null)
+            {
+                if (hoveredEntity != lockedEntity)
+                {
+                    hoveredEntity = lockedEntity;
+                    MarkDirty(DirtyFlags.Hover);
+                }
+                return;
+            }
+
+            // Normales Hovern
             EntityScript found = FindHoveredEntity();
 
-            if (found != null && found != hoveredEntity)
+            if (found != lastHoverOutlined)
+            {
+                if (lastHoverOutlined != null)
+                    SetOutline(lastHoverOutlined, OutlineState.Normal);
+
+                lastHoverOutlined = found;
+
+                if (found != null)
+                    SetOutline(found, OutlineState.Hover);
+            }
+
+            if (found != hoveredEntity)
             {
                 hoveredEntity = found;
                 MarkDirty(DirtyFlags.Hover);
             }
 
-            // Falls das aktuell gespeicherte Ziel zerstört wurde -> leeren
-            if (hoveredEntity == null) return;
-            if (hoveredEntity.gameObject == null)
+            if (hoveredEntity != null && hoveredEntity.gameObject == null)
             {
                 hoveredEntity = null;
                 MarkDirty(DirtyFlags.Hover);
             }
+        }
+
+        private void HandleEntityClick()
+        {
+            if (!Input.GetMouseButtonDown(0)) return;
+
+            EntityScript clicked = FindHoveredEntity();
+            if (clicked == null) return;
+
+            if (lockedEntity == clicked)
+            {
+                SetOutline(lockedEntity, OutlineState.Normal);
+                lockedEntity = null;
+            }
+            else
+            {
+                if (lockedEntity != null)
+                    SetOutline(lockedEntity, OutlineState.Normal);
+
+                lockedEntity = clicked;
+                SetOutline(lockedEntity, OutlineState.Locked);
+            }
+
+            hoveredEntity = lockedEntity ?? clicked;
+            MarkDirty(DirtyFlags.Hover);
         }
 
         private EntityScript FindHoveredEntity()
@@ -307,6 +383,22 @@ namespace facingfate
 
             if (refreshPilesOnGameplayEvents)
                 MarkDirty(DirtyFlags.Piles);
+        }
+
+        private enum OutlineState { Normal, Hover, Locked }
+
+        private static void SetOutline(EntityScript entity, OutlineState state)
+        {
+            if (entity == null) return;
+            EntityOutline outline = entity.GetComponent<EntityOutline>();
+            if (outline == null) return;
+
+            switch (state)
+            {
+                case OutlineState.Hover: outline.SetHover(true); break;
+                case OutlineState.Locked: outline.SetLocked(true); break;
+                case OutlineState.Normal: outline.SetNormal(); break;
+            }
         }
     }
 }

@@ -76,15 +76,18 @@ namespace Utility
 
         public static Vector3Int GetHoveredTile(Ray ray)
         {
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            RaycastHit[] hits = Physics.RaycastAll(ray);
+            foreach (RaycastHit hit in hits)
             {
-                if (hit.collider.TryGetComponent<DraggableTarget>(out var dt) && dt.draggableTargetType == DraggableTargetType.CombatTile)
-                { // Convert world position to tilemap cell
+                if (hit.collider.TryGetComponent<DraggableTarget>(out var dt) &&
+                    dt.draggableTargetType == DraggableTargetType.CombatTile)
+                {
                     return TilemapUtilityScript.BaseTilemap.WorldToCell(hit.collider.transform.position);
                 }
             }
             return TilemapUtilityScript.InvalidPosition;
         }
+
         public static TargetingModeData GetAffected(CardScript card, Vector3Int aimTile, EntityScript owner, bool usesVision, List<Vector3Int> selectedTiles = null, bool isVetted = false)
         {
             List<EntityScript> allEntities = Object.FindObjectsByType<EntityScript>(0).ToList();

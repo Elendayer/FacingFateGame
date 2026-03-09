@@ -32,11 +32,9 @@ namespace facingfate
                 return;
             }
 
-            if (titleText != null) titleText.text = boundEntity.gameObject.name;
+            if (titleText != null) titleText.text = GetEntityName(boundEntity);
 
-            // Robustere Keys: falls deine Stat-Namen variieren
-            float hpCur = EntityStatReader.TryGetStat(boundEntity, new[] { "HP", "Health", "health" }, -1f);
-            float hpMax = EntityStatReader.TryGetStat(boundEntity, new[] { "MaxHP", "MaxHealth", "HPMax", "healthMax" }, -1f);
+            EntityStatReader.TryGetHealth(boundEntity, out float hpCur, out float hpMax);
 
             string hpString;
             if (hpCur >= 0f && hpMax > 0f)
@@ -57,6 +55,22 @@ namespace facingfate
             }
 
             statusBar?.Refresh();
+        }
+        private static string GetEntityName(Component entity)
+        {
+            // Versucht zuerst NpcData.name über NonPlayerScript zu lesen
+            object npcData = ReflectionUtility.TryGetFieldOrProperty(entity, "npcData")
+                          ?? ReflectionUtility.TryGetFieldOrProperty(entity, "NpcData");
+
+            if (npcData != null)
+            {
+                object nameObj = ReflectionUtility.TryGetFieldOrProperty(npcData, "name");
+                if (nameObj != null && !string.IsNullOrWhiteSpace(nameObj.ToString()))
+                    return nameObj.ToString();
+            }
+
+            // Fallback: GameObject-Name
+            return entity.gameObject.name;
         }
     }
 }

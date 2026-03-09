@@ -25,41 +25,55 @@ namespace facingfate
         {
             if (boundEntity == null)
             {
-                if (nameText != null) nameText.text = "-";
-                if (hpText != null) hpText.text = "-";
-                if (staminaText != null) staminaText.text = "-";
-                if (hpFill != null) hpFill.fillAmount = 0f;
+                SetText(nameText, "-"); SetText(hpText, "-"); SetText(staminaText, "-");
+                SetFill(hpFill, 0f);
                 statusBar?.Refresh();
                 return;
             }
 
-            if (nameText != null) nameText.text = boundEntity.gameObject.name;
+            SetText(nameText, GetEntityName(boundEntity));
 
-            // Best-effort stat read (robust against unknown stat model)
-            float hpCur = EntityStatReader.TryGetStat(boundEntity, new[] { "HP", "Health", "health" }, -1f);
-            float hpMax = EntityStatReader.TryGetStat(boundEntity, new[] { "MaxHP", "MaxHealth", "healthMax" }, -1f);
-            float stamina = EntityStatReader.TryGetStat(boundEntity, new[] { "Stamina", "Energy", "AP" }, -1f);
-
-            if (hpText != null)
+            if (EntityStatReader.TryGetHealth(boundEntity, out float hpCur, out float hpMax))
             {
-                if (hpCur >= 0f && hpMax > 0f) hpText.text = $"{hpCur:0}/{hpMax:0}";
-                else if (hpCur >= 0f) hpText.text = $"{hpCur:0}";
-                else hpText.text = "-";
+                SetText(hpText, hpMax > 0f ? $"{hpCur:0}/{hpMax:0}" : $"{hpCur:0}/??");
+                SetFill(hpFill, hpMax > 0f ? Mathf.Clamp01(hpCur / hpMax) : 0f);
             }
+            else { SetText(hpText, "-"); SetFill(hpFill, 0f); }
 
-            if (hpFill != null)
-            {
-                if (hpCur >= 0f && hpMax > 0f) hpFill.fillAmount = Mathf.Clamp01(hpCur / hpMax);
-                else hpFill.fillAmount = 0f;
-            }
-
-            if (staminaText != null)
-            {
-                if (stamina >= 0f) staminaText.text = stamina.ToString("0");
-                else staminaText.text = "-";
-            }
+            if (EntityStatReader.TryGetStamina(boundEntity, out float stCur, out float stMax))
+                SetText(staminaText, stMax > 0f ? $"{stCur:0}/{stMax:0}" : $"{stCur:0}/??");
+            else
+                SetText(staminaText, "-");
 
             statusBar?.Refresh();
+        }
+
+        private static void SetText(TMP_Text t, string s)
+        {
+            if (t == null) return;
+            if (t.text != s) t.text = s;
+        }
+
+        private static void SetFill(Image img, float v)
+        {
+            if (img == null) return;
+            if (!Mathf.Approximately(img.fillAmount, v)) img.fillAmount = v;
+        }
+        private static string GetEntityName(Component entity)
+        {
+            // Versucht zuerst NpcData.name über NonPlayerScript zu lesen
+            object npcData = ReflectionUtility.TryGetFieldOrProperty(entity, "npcData")
+                          ?? ReflectionUtility.TryGetFieldOrProperty(entity, "NpcData");
+
+            if (npcData != null)
+            {
+                object nameObj = ReflectionUtility.TryGetFieldOrProperty(npcData, "name");
+                if (nameObj != null && !string.IsNullOrWhiteSpace(nameObj.ToString()))
+                    return nameObj.ToString();
+            }
+
+            // Fallback: GameObject-Name
+            return entity.gameObject.name;
         }
     }
 }

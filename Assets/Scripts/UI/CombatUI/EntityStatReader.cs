@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -23,6 +24,63 @@ namespace facingfate
             }
 
             return fallback;
+        }
+
+        public static bool TryGetHealth(Component entity, out float current, out float max)
+        {
+            current = -1f;
+            max = -1f;
+
+            object statsObj = TryGetEntityStatsObject(entity);
+            if (statsObj == null) return false;
+
+            current = TryReadFloat(statsObj,
+                "CurrentHealth", "currentHealth", "HealthCurrent", "healthCurrent");
+
+            // MaxHealth ist ein Stat-Objekt mit Value()-Methode → TryReadStatLikeFloat
+            max = TryReadStatLikeFloat(statsObj,
+                "MaxHealth", "maxHealth", "HealthMax", "healthMax", "MaxHP", "maxHP");
+
+            if (max <= 0f)
+            {
+                float fb = TryGetStat(entity, new[] { "MaxHealth", "Health", "HP" }, -1f);
+                if (fb > 0f) max = fb;
+            }
+            if (current < 0f)
+            {
+                float fb = TryGetStat(entity, new[] { "CurrentHealth", "Health", "HP" }, -1f);
+                if (fb >= 0f) current = fb;
+            }
+
+            return current >= 0f;
+        }
+
+        public static bool TryGetStamina(Component entity, out float current, out float max)
+        {
+            current = -1f;
+            max = -1f;
+
+            object statsObj = TryGetEntityStatsObject(entity);
+            if (statsObj == null) return false;
+
+            current = TryReadFloat(statsObj,
+                "CurrentStamina", "currentStamina", "StaminaCurrent", "staminaCurrent");
+
+            max = TryReadStatLikeFloat(statsObj,
+                "MaxStamina", "maxStamina", "StaminaMax", "staminaMax", "MaxEnergy", "maxEnergy");
+
+            if (max <= 0f)
+            {
+                float fb = TryGetStat(entity, new[] { "MaxStamina", "Stamina", "AP" }, -1f);
+                if (fb > 0f) max = fb;
+            }
+            if (current < 0f)
+            {
+                float fb = TryGetStat(entity, new[] { "CurrentStamina", "Stamina", "AP" }, -1f);
+                if (fb >= 0f) current = fb;
+            }
+
+            return current >= 0f;
         }
 
         public static IEnumerable<object> TryGetModifiers(Component entity)
@@ -134,6 +192,58 @@ namespace facingfate
             }
 
             return false;
+        }
+
+        private static float TryReadFloat(object obj, params string[] members)
+        {
+            if (obj == null || members == null) return -1f;
+
+            for (int i = 0; i < members.Length; i++)
+            {
+                object v = ReflectionUtility.TryGetFieldOrProperty(obj, members[i]);
+                float f = TryConvertFloat(v, -1f);
+                if (f >= 0f) return f;
+            }
+
+            return -1f;
+        }
+
+        private static float TryReadStatLikeFloat(object obj, params string[] members)
+        {
+            if (obj == null || members == null) return -1f;
+
+            for (int i = 0; i < members.Length; i++)
+            {
+                object v = ReflectionUtility.TryGetFieldOrProperty(obj, members[i]);
+                if (v == null) continue;
+
+                // Direkter float
+                float direct = TryConvertFloat(v, -1f);
+                if (direct >= 0f) return direct;
+
+                // Stat-Objekt mit Value()-Methode (z.B. EntityStats.MaxHealth.Value())
+                Type vType = v.GetType();
+                MethodInfo valueMethod = vType.GetMethod("Value",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (valueMethod != null && valueMethod.GetParameters().All(p => p.IsOptional))
+                {
+                    // Optionale Parameter müssen explizit mit Type.Missing übergeben werden
+                    var paramInfos = valueMethod.GetParameters();
+                    object[] args = new object[paramInfos.Length];
+                    for (int j = 0; j < paramInfos.Length; j++)
+                        args[j] = Type.Missing;
+
+                    object result = valueMethod.Invoke(v, args);
+                    float fromMethod = TryConvertFloat(result, -1f);
+                    if (fromMethod >= 0f) return fromMethod;
+                }
+
+                // Stat-Objekt mit Value-Property
+                if (TryReadStatValue(v, out float fromProp)) return fromProp;
+            }
+
+            return -1f;
         }
 
         private static bool TryReadStatValue(object statObj, out float value)
