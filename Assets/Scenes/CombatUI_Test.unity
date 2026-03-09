@@ -2011,6 +2011,26 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e7ebf54929f828d43bc212726ed3dae3, type: 3}
+--- !u!1 &296036874 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+  m_PrefabInstance: {fileID: 1804769186}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &296036883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 296036874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb6d315731398a4190d9a6a50c3c568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.EntityOutline
+  hoverColor: {r: 1, g: 1, b: 0.5, a: 1}
+  lockedColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &310717938
 GameObject:
   m_ObjectHideFlags: 0
@@ -3577,6 +3597,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: 3
       addedObject: {fileID: 829168199}
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 829168208}
     - targetCorrespondingSourceObject: {fileID: 4461433850390885681, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -4918,6 +4941,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1810367177}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1429200816}
     - targetCorrespondingSourceObject: {fileID: 4461433850390885681, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -6220,6 +6246,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
   _rows: []
+--- !u!114 &829168208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829168192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb6d315731398a4190d9a6a50c3c568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.EntityOutline
+  hoverColor: {r: 1, g: 1, b: 0.5, a: 1}
+  lockedColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &855252074
 GameObject:
   m_ObjectHideFlags: 0
@@ -6833,6 +6874,11 @@ RectTransform:
   m_AnchoredPosition: {x: 829, y: -225}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1013244696 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+  m_PrefabInstance: {fileID: 1022218317}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1022218317
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7076,6 +7122,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1623108791}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1147649552}
     - targetCorrespondingSourceObject: {fileID: 4461433850390885681, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -7395,6 +7444,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
   _rows: []
+--- !u!114 &1078621943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1078621927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb6d315731398a4190d9a6a50c3c568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.EntityOutline
+  hoverColor: {r: 1, g: 1, b: 0.5, a: 1}
+  lockedColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1082925271 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8653719598885068355, guid: 95a7eec3cc28b9744b4cc6400376b5e7, type: 3}
@@ -7806,6 +7870,21 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2832468515761090220, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
   m_PrefabInstance: {fileID: 1022218317}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1147649552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013244696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb6d315731398a4190d9a6a50c3c568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.EntityOutline
+  hoverColor: {r: 1, g: 1, b: 0.5, a: 1}
+  lockedColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &1159380548 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8900714129456991338, guid: e7ebf54929f828d43bc212726ed3dae3, type: 3}
@@ -7871,6 +7950,11 @@ Transform:
   - {fileID: 2005198403}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1245166393 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+  m_PrefabInstance: {fileID: 1554013786}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1246056724 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8900714129456991338, guid: e7ebf54929f828d43bc212726ed3dae3, type: 3}
@@ -9004,6 +9088,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1425228122}
   m_CullTransparentMesh: 1
+--- !u!1 &1429200807 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+  m_PrefabInstance: {fileID: 567672602}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1429200816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1429200807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb6d315731398a4190d9a6a50c3c568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.EntityOutline
+  hoverColor: {r: 1, g: 1, b: 0.5, a: 1}
+  lockedColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1457096108
 GameObject:
   m_ObjectHideFlags: 0
@@ -9903,6 +10007,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: 3
       addedObject: {fileID: 1525487530}
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1525487539}
     - targetCorrespondingSourceObject: {fileID: 4461433850390885681, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -9925,6 +10032,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
   _rows: []
+--- !u!114 &1525487539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 138531299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb6d315731398a4190d9a6a50c3c568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.EntityOutline
+  hoverColor: {r: 1, g: 1, b: 0.5, a: 1}
+  lockedColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1535296002
 GameObject:
   m_ObjectHideFlags: 0
@@ -10304,6 +10426,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 74306344}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1554013796}
     - targetCorrespondingSourceObject: {fileID: 4461433850390885681, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -10313,6 +10438,21 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2832468515761090220, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
   m_PrefabInstance: {fileID: 1554013786}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1554013796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1245166393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb6d315731398a4190d9a6a50c3c568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.EntityOutline
+  hoverColor: {r: 1, g: 1, b: 0.5, a: 1}
+  lockedColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &1557524735 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2832468515761090220, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
@@ -11170,6 +11310,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1744721391 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+  m_PrefabInstance: {fileID: 1831024234}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1744721400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1744721391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb6d315731398a4190d9a6a50c3c568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.EntityOutline
+  hoverColor: {r: 1, g: 1, b: 0.5, a: 1}
+  lockedColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1759885801
 GameObject:
   m_ObjectHideFlags: 0
@@ -11498,6 +11658,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: 3
       addedObject: {fileID: 1078621934}
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1078621943}
     - targetCorrespondingSourceObject: {fileID: 4461433850390885681, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -11852,6 +12015,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1025434587}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 296036883}
     - targetCorrespondingSourceObject: {fileID: 4022441825633638424, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -12198,6 +12364,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1795858200}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1744721400}
     - targetCorrespondingSourceObject: {fileID: 4461433850390885681, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -20508,6 +20677,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c569f996a0bc88841b146c93e6b4c596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::facingfate.TileHoverOutline
+  hoverCamera: {fileID: 0}
+  pollInterval: 0.05
 --- !u!1001 &2082178551
 PrefabInstance:
   m_ObjectHideFlags: 0
