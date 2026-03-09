@@ -182,6 +182,12 @@ namespace facingfate
                 }
             }
 
+            // If the trigger is not relevant for the modifier, we still want to tick duration if its a turn start or end trigger, as well as check for expiration
+            if (OnRef_Trigger.OnTriggerReference == null || OnRef_Trigger.OnTriggerReference.Count == 0)
+            {
+                return;
+            }
+
             // Tick Duration if its not triggered at TurnStart and has Duration
             if (!OnRef_Trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
             {

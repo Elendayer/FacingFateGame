@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,7 +12,23 @@ namespace Utility
     {
         public static Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
         public static Tilemap BaseTilemap => UnityEngine.Object.FindObjectsByType<Tilemap>(0).FirstOrDefault(tilemap => tilemap.CompareTag("Basemap"));
-        public static CostInfoScript CostInfoScript => BaseTilemap?.GetComponent<CostInfoScript>();
+        public static TileInfoScript CostInfoScript => BaseTilemap?.GetComponent<TileInfoScript>();
+
+        // Map indexing configuration - must match CombatMapMaster CollectMap
+        public const int MapWidth = 50;
+        public const int MapOffset = 25; // maps -25..24 to 0..49
+
+        public static int PositionToKey(Vector3Int pos)
+        {
+            return (pos.x + MapOffset) * MapWidth + (pos.y + MapOffset);
+        }   
+
+        public static Vector3Int KeyToPosition(int key)
+        {
+            int x = (key / MapWidth) - MapOffset;
+            int y = (key % MapWidth) - MapOffset;
+            return new Vector3Int(x, y, 0);
+        }
 
         public static Sprite HexThick => AssetManager.Instance.HexThick;
         public static Sprite HexThin => AssetManager.Instance.HexThin; 
@@ -226,25 +243,200 @@ namespace Utility
 
             return tiles;
         }
-        public static List<EntityScript> GetEntitiesOnTiles(List<Vector3Int> tiles, List<EntityScript> entities)
-        {
-            return entities.Where(entitity => tiles.Contains(entitity.GetComponent<EntityOnMap>().currentCell)).ToList();
-        }
-
         #endregion
 
-        // Return the closest reachable tile within range of the target position
+        // Return the closest reachable tile within movement range of the start that minimizes distance to the target
+        // Flood-fill (BFS) from the start up to `range` steps (movement range), collect reachable tiles,
+        // then pick the reachable tile closest to the target (hex distance). Tie-breaker: fewer steps.
         public static Vector3Int GetReachableTileWithinRangeOfTarget(Vector3Int startPos, Vector3Int targetPos, int range)
         {
-            var tile = GetTilesInRadius(targetPos, range)
-                 .OrderBy(tile => MovementUtility.Heuristic(startPos, tile))
-                 .FirstOrDefault(tile =>
-                 {
-                     var pathData = MovementUtility.FindPath(startPos, tile, ignoreCost: false);
-                     return pathData.Path != null && pathData.Path.Count > 0;
-                 });
+            var costInfo = CostInfoScript;
+            if (costInfo == null) return InvalidPosition;
 
-            return tile;
+            int startKey = PositionToKey(startPos);
+            if (!costInfo.tileInfoDict.ContainsKey(startKey)) return InvalidPosition;
+
+            var reachable = new Dictionary<Vector3Int, int>(); // pos -> steps from start
+            var q = new Queue<Vector3Int>();
+
+            reachable[startPos] = 0;
+            q.Enqueue(startPos);
+
+            while (q.Count > 0)
+            {
+                var cur = q.Dequeue();
+                int curDist = reachable[cur];
+
+                // do not expand beyond movement range
+                if (curDist >= range)
+                    continue;
+
+                // use cached cube when available
+                int curKey = PositionToKey(cur);
+                Vector3Int curCube = costInfo.tileInfoDict.TryGetValue(curKey, out var curInfo) && curInfo != null
+                    ? curInfo.cube
+                    : OffsetToCube_PointTop(cur, UseOddROffset);
+
+                for (int d = 0; d < CubeDirs.Length; d++)
+                {
+                    var neighborCube = curCube + CubeDirs[d];
+                    var neighborOffset = CubeToOffset_PointTop(neighborCube, UseOddROffset);
+                    int nKey = PositionToKey(neighborOffset);
+
+                    if (!costInfo.tileInfoDict.TryGetValue(nKey, out var nInfo))
+                        continue;
+
+                    if (nInfo.isUnwalkable || nInfo.isOccupied)
+                        continue;
+
+                    if (reachable.ContainsKey(neighborOffset))
+                        continue;
+
+                    reachable[neighborOffset] = curDist + 1;
+                    q.Enqueue(neighborOffset);
+                }
+            }
+
+            // Pick reachable tile closest to the target (hex distance). Tie-breaker: fewer steps.
+            Vector3Int best = InvalidPosition;
+            int bestHeu = int.MaxValue;
+            int bestSteps = int.MaxValue;
+
+            foreach (var kv in reachable)
+            {
+                // use cached cube coord for reachable tile
+                var pos = kv.Key;
+                int posKey = PositionToKey(pos);
+                Vector3Int posCube = costInfo.tileInfoDict.TryGetValue(posKey, out var posInfo) && posInfo != null
+                    ? posInfo.cube
+                    : OffsetToCube_PointTop(pos, UseOddROffset);
+
+                // target cube: prefer cached if present
+                int targetKey = PositionToKey(targetPos);
+                Vector3Int targetCube = costInfo.tileInfoDict.TryGetValue(targetKey, out var tInfo) && tInfo != null
+                    ? tInfo.cube
+                    : OffsetToCube_PointTop(targetPos, UseOddROffset);
+
+                int heu = MovementUtility.Heuristic(posCube, targetCube);
+                int steps = kv.Value;
+
+                if (heu < bestHeu || (heu == bestHeu && steps < bestSteps))
+                {
+                    best = kv.Key;
+                    bestHeu = heu;
+                    bestSteps = steps;
+                }
+            }
+
+            return best;
+        }
+
+        // Coroutine version: runs the BFS flood-fill over multiple frames to avoid frame spikes.
+        // onComplete will be invoked with the selected best tile when finished.
+        public static IEnumerator GetReachableTileWithinRangeOfTargetCoroutine(
+            Vector3Int startPos,
+            Vector3Int targetPos,
+            int range,
+            Action<Vector3Int> onComplete,
+            int batchSize = 200)
+        {
+            var costInfo = CostInfoScript;
+            if (costInfo == null)
+            {
+                onComplete?.Invoke(InvalidPosition);
+                yield break;
+            }
+
+            int startKey = PositionToKey(startPos);
+            if (!costInfo.tileInfoDict.ContainsKey(startKey))
+            {
+                onComplete?.Invoke(InvalidPosition);
+                yield break;
+            }
+
+            var reachable = new Dictionary<Vector3Int, int>(); // pos -> steps from start
+            var q = new Queue<Vector3Int>();
+
+            reachable[startPos] = 0;
+            q.Enqueue(startPos);
+
+            int processed = 0;
+
+            while (q.Count > 0)
+            {
+                var cur = q.Dequeue();
+                int curDist = reachable[cur];
+
+                // do not expand beyond movement range
+                if (curDist < range)
+                {
+                    // use cached cube when available
+                    int curKey = PositionToKey(cur);
+                    Vector3Int curCube = costInfo.tileInfoDict.TryGetValue(curKey, out var curInfo) && curInfo != null
+                        ? curInfo.cube
+                        : OffsetToCube_PointTop(cur, UseOddROffset);
+
+                    for (int d = 0; d < CubeDirs.Length; d++)
+                    {
+                        var neighborCube = curCube + CubeDirs[d];
+                        var neighborOffset = CubeToOffset_PointTop(neighborCube, UseOddROffset);
+                        int nKey = PositionToKey(neighborOffset);
+
+                        if (!costInfo.tileInfoDict.TryGetValue(nKey, out var nInfo))
+                            continue;
+
+                        if (nInfo.isUnwalkable || nInfo.isOccupied)
+                            continue;
+
+                        if (reachable.ContainsKey(neighborOffset))
+                            continue;
+
+                        reachable[neighborOffset] = curDist + 1;
+                        q.Enqueue(neighborOffset);
+                    }
+                }
+
+                processed++;
+                if (processed >= batchSize)
+                {
+                    processed = 0;
+                    // yield control to avoid frame spike
+                    yield return null;
+                }
+            }
+
+            // Pick reachable tile closest to the target (hex distance). Tie-breaker: fewer steps.
+            Vector3Int best = InvalidPosition;
+            int bestHeu = int.MaxValue;
+            int bestSteps = int.MaxValue;
+
+            foreach (var kv in reachable)
+            {
+                int heu = MovementUtility.Heuristic(kv.Key, targetPos);
+                int steps = kv.Value;
+
+                if (heu < bestHeu || (heu == bestHeu && steps < bestSteps))
+                {
+                    best = kv.Key;
+                    bestHeu = heu;
+                    bestSteps = steps;
+                }
+            }
+
+            onComplete?.Invoke(best);
+        }
+
+        // Helper to start the coroutine via a runner MonoBehaviour. Creates a persistent runner if none exists.
+        public static Coroutine StartGetReachableTileWithinRangeOfTarget(Vector3Int startPos, Vector3Int targetPos, int range, Action<Vector3Int> onComplete, int batchSize = 200)
+        {
+            if (CoroutineRunner.Instance == null)
+            {
+                var go = new GameObject("Utility.CoroutineRunner");
+                UnityEngine.Object.DontDestroyOnLoad(go);
+                go.AddComponent<CoroutineRunner>();
+            }
+
+            return CoroutineRunner.Instance.StartCoroutineManaged(GetReachableTileWithinRangeOfTargetCoroutine(startPos, targetPos, range, onComplete, batchSize));
         }
 
 
@@ -387,20 +579,62 @@ namespace Utility
     #region PriorityQueue Helper
     public class PriorityQueue<T>
     {
-        private readonly List<(T item, int priority)> elements = new List<(T, int)>();
-        public int Count => elements.Count;
+        private List<(T item, int priority)> heap = new();
 
-        public void Enqueue(T item, int priority) => elements.Add((item, priority));
+        public int Count => heap.Count;
+
+        public void Enqueue(T item, int priority)
+        {
+            heap.Add((item, priority));
+            HeapifyUp(heap.Count - 1);
+        }
 
         public T Dequeue()
         {
-            int best = 0;
-            for (int i = 1; i < elements.Count; i++)
-                if (elements[i].priority < elements[best].priority)
-                    best = i;
-            var item = elements[best].item;
-            elements.RemoveAt(best);
-            return item;
+            var root = heap[0].item;
+            heap[0] = heap[^1];
+            heap.RemoveAt(heap.Count - 1);
+            HeapifyDown(0);
+            return root;
+        }
+
+        void HeapifyUp(int i)
+        {
+            while (i > 0)
+            {
+                int parent = (i - 1) / 2;
+
+                if (heap[parent].priority <= heap[i].priority)
+                    break;
+
+                (heap[parent], heap[i]) = (heap[i], heap[parent]);
+
+                i = parent;
+            }
+        }
+
+        void HeapifyDown(int i)
+        {
+            while (true)
+            {
+                int left = i * 2 + 1;
+                int right = i * 2 + 2;
+
+                int smallest = i;
+
+                if (left < heap.Count && heap[left].priority < heap[smallest].priority)
+                    smallest = left;
+
+                if (right < heap.Count && heap[right].priority < heap[smallest].priority)
+                    smallest = right;
+
+                if (smallest == i)
+                    break;
+
+                (heap[i], heap[smallest]) = (heap[smallest], heap[i]);
+
+                i = smallest;
+            }
         }
     }
     #endregion

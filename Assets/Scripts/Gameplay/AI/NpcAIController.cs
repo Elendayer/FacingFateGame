@@ -50,7 +50,7 @@ namespace facingfate
 
             // Step 1: valid targets (cheap)
             var validTargets = TargetingUtility.GetValidTargets(card.cardData, allEntities);
-            yield return null;
+            //yield return null;
             float tAfterStep1 = Time.realtimeSinceStartup;
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 1 (validTargets) took {tAfterStep1 - tPrev:0.000}s");
             tPrev = tAfterStep1;
@@ -63,7 +63,7 @@ namespace facingfate
 
             // Step 2: create targeting mode
             var targetingMode = TargetingModeFactory.Create(card);
-            yield return null;
+            //yield return null;
             float tAfterStep2 = Time.realtimeSinceStartup;
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 2 (create targeting mode) took {tAfterStep2 - tPrev:0.000}s");
             tPrev = tAfterStep2;
@@ -76,7 +76,7 @@ namespace facingfate
 
             // Step 3: generate templates (may be heavier); yield after call
             var templates = targetingMode.GetTargetingData(card, validTargets, npcScript);
-            yield return null;
+            //yield return null;
             float tAfterStep3 = Time.realtimeSinceStartup;
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 3 (generate templates) took {tAfterStep3 - tPrev:0.000}s");
             tPrev = tAfterStep3;
@@ -89,7 +89,7 @@ namespace facingfate
 
             // Step 4: compute reachable candidates via coroutine (batched pathfinding)
             List<(PathData, TargetingModeData)> reachableMoves = null;
-            yield return npcScript.StartCoroutine(TargetingUtility.GetReachableCandidatesCoroutine(card, templates, stamina, virtualPosition, 4, (res) => reachableMoves = res));
+            yield return CoroutineRunner.Instance.StartCoroutineManaged(TargetingUtility.GetReachableCandidatesCoroutine(card, templates, stamina, virtualPosition, 4, (res) => reachableMoves = res));
             float tAfterStep4 = Time.realtimeSinceStartup;
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 4 (reachable candidates/pathfinding) of {templates.Count} _Templates took {tAfterStep4 - tPrev:0.000}s");
             tPrev = tAfterStep4;
@@ -147,7 +147,7 @@ namespace facingfate
                     for (int i = 0; i < handCount; i++)
                     {
                         int idx = i;
-                        npcScript.StartCoroutine(EvaluateCardCoroutine(hand[idx], virtualStamina, virtualPosition, allEntities, (res) =>
+                        CoroutineRunner.Instance.StartCoroutineManaged(EvaluateCardCoroutine(hand[idx], virtualStamina, virtualPosition, allEntities, (res) =>
                         {
                             results[idx] = res;
                             remaining--;
@@ -201,7 +201,7 @@ namespace facingfate
 
                 ApplyActionToPlan(plan, bestAction, ref virtualPosition, ref virtualStamina);
 
-                yield return null;
+                //yield return null;
             }
 
             float duration = Time.realtimeSinceStartup - start;
@@ -237,43 +237,6 @@ namespace facingfate
         #endregion
 
         #region Hand Evaluation
-
-        private ScoredCard EvaluateCard(
-            CardScript card,
-            int stamina,
-            Vector3Int virtualPosition,
-            List<EntityScript> allEntities)
-        {
-            if (card == null || card.cardData == null)
-                return null;
-
-            var validTargets = TargetingUtility.GetValidTargets(card.cardData, allEntities);
-
-            if (validTargets.Count == 0)
-                return null;
-
-            var targetingMode = TargetingModeFactory.Create(card);
-
-            if (targetingMode == null)
-                return null;
-
-            var templates = targetingMode.GetTargetingData(card, validTargets, npcScript);
-
-            if (templates == null || templates.Count == 0)
-                return null;
-
-            var reachableMoves = TargetingUtility.GetReachableCandidates(
-                card,
-                templates,
-                stamina,
-                virtualPosition
-            );
-
-            if (reachableMoves == null || reachableMoves.Count == 0)
-                return null;
-
-            return EvaluateMovementAndAim(card, reachableMoves);
-        }
 
         private ScoredCard EvaluateMovementAndAim(
             CardScript card,

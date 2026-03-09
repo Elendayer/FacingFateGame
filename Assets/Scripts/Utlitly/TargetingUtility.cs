@@ -283,22 +283,22 @@ namespace Utility
             // Cache movement modifier and compute a conservative per-step cost with a 25% buffer
             var movementMod = card.cardData.Owner.entityStats.MovementCostModifier;
             int baseStepCost = movementMod.ApplyFinalValue(5);
-            int bufferedStepCost = Mathf.CeilToInt(baseStepCost * 1.25f);
 
             for (int i = 0; i < templates.Count; i++)
             {
                 var template = templates[i];
                 var castTile = template.castingPosition;
 
-                // Heuristic prune using buffered per-step cost to account for unknown factors
+                // Heuristic
                 int minSteps = MovementUtility.Heuristic(virtualPosition, castTile);
-                if (minSteps * bufferedStepCost > remainingStaminaAfterCard)
+                if (minSteps * baseStepCost > remainingStaminaAfterCard)
                 {
                     if (batchSize > 0 && (i % batchSize) == batchSize - 1)
                         yield return null;
                     continue;
                 }
 
+                // Perform the actual pathfinding
                 var path = MovementUtility.FindPath(virtualPosition, castTile, movementCostModifier: movementMod);
                 if (path != null && path.Path != null)
                 {
@@ -329,6 +329,7 @@ namespace Utility
                         }
                 }
 
+                // Yield after processing each batch to keep the UI responsive
                 if (batchSize > 0 && (i % batchSize) == batchSize - 1)
                 {
                     yield return null;

@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 public class MapGeneration : MonoBehaviour
 {
     public HexagonalRuleTile hexagonalTile;
-    public CostInfoScript costInfoScript = null;
+    public TileInfoScript costInfoScript = null;
 
     public Tilemap tilemap;
     public int SizeX;

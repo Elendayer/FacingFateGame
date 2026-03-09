@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class TileCostDebug : MonoBehaviour
 {
     public Tilemap baseMap;
-    public CostInfoScript costInfo;
+    public TileInfoScript costInfo;
     public Text readout; // optional
 
     void Update()
@@ -18,7 +18,8 @@ public class TileCostDebug : MonoBehaviour
         var world = cam.ScreenToWorldPoint(new Vector3(mp.x, mp.y, z)); world.z = 0f;
 
         var cell = baseMap.WorldToCell(world);
-        if (costInfo.costInfoDict.TryGetValue(cell, out var info))
+        int key = Utility.TilemapUtilityScript.PositionToKey(cell);
+        if (costInfo.tileInfoDict.TryGetValue(key, out var info))
         {
             string s = $"Cell {cell.x},{cell.y} | cost={info.cost} | unwalk={info.isUnwalkable} | occ={info.isOccupied}";
             if (readout != null) readout.text = s; else Debug.Log(s);
