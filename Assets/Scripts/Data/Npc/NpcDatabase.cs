@@ -68,6 +68,7 @@ namespace facingfate
                      "Spear_Abil_Phalanx_Guard",
                     //"Spear_Curse_Brittle_Courage",*/
                     //"Spear_Bless_Brilliant_Spear",
+
                 }
             });
 
