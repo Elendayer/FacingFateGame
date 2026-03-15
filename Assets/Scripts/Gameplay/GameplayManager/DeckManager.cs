@@ -22,8 +22,8 @@ namespace facingfate
 
         public Dictionary<EntityScript, Transform> DeckManagement = new Dictionary<EntityScript, Transform>();
 
-        private Stack<GameObject> cardStack = new Stack<GameObject>();
-        private Stack<GameObject> discardStack = new Stack<GameObject>();
+        public Stack<GameObject> cardStack = new Stack<GameObject>();
+        public Stack<GameObject> discardStack = new Stack<GameObject>();
 
         void Start()
         {
@@ -226,21 +226,21 @@ namespace facingfate
         {
             cardStack.Clear();
             discardStack.Clear();
+
             Transform dock = DeckManagement[entity];
             Debug.Log($"[DeckManager] Moving cards into deck of {entity.name} from {dock.name}");
-            List<CardScript> cards = new();
 
-            cards = dock.GetComponentsInChildren<CardScript>().ToList();
+            List<CardScript> cards = dock.GetComponentsInChildren<CardScript>().ToList();
+            cards.AddRange(deckParent.GetComponentsInChildren<CardScript>().ToList());
+
+            cards = cards.Distinct().ToList();
 
             foreach (CardScript c in cards)
             {
                 c.cardData.Owner = entity;
-
                 RectTransform ct = c.GetComponent<RectTransform>();
-
                 ct.SetParent(deckParent);
                 TransformUtility.ZeroLocalRectTransform(ct);
-
                 cardStack.Push(ct.gameObject);
             }
         }

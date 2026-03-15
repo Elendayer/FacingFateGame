@@ -5,26 +5,23 @@ namespace facingfate
 {
     public class CardListEntryUI : MonoBehaviour
     {
-        [SerializeField] private TMP_Text labelText;
-        [SerializeField] private TooltipTrigger tooltip;
+        [Header("Preview Settings")]
+        [SerializeField] private float previewScale = 0.7f; // 70% der Originalgröße
 
-        public void SetText(string text)
+        public void SetCard(CardScript sourceCard)
         {
-            if (labelText != null) labelText.text = text;
-        }
+            if (sourceCard == null) return;
 
-        public void SetTooltip(string body)
-        {
-            if (tooltip == null) return;
-
-            if (string.IsNullOrWhiteSpace(body))
+            CardScript ownCS = GetComponent<CardScript>();
+            if (ownCS != null)
             {
-                tooltip.enabled = false;
-                return;
+                ownCS.cardData = sourceCard.cardData;
+                ownCS.ApplyCardDataVisuals();
             }
-
-            tooltip.enabled = true;
-            tooltip.Set("Card", body);
         }
+        public void SetText(string text) { }
+
+        public void SetTooltip(string body) { }
+
     }
 }
