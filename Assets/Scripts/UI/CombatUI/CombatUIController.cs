@@ -338,6 +338,8 @@ namespace facingfate
                 {
                     hoverTargetPanel.Bind(hoveredEntity);
                     hoverTargetPanel.Refresh();
+
+                    hoverTargetPanel.gameObject.SetActive(hoveredEntity != null);
                 }
             }
 

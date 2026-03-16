@@ -130,18 +130,18 @@ namespace facingfate
             CardScript cs = topCard.GetComponent<CardScript>();
             cs.SetRevealed(); // Hide discarded card
 
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardDrawn }, null, null));
             //Debug.Log($"Drew card: {topCard.name}");
         }
         public void DiscardCardFromHand(GameObject cardobject)
         {
-            HandManager.Instance.RemoveCard(cardobject);
             if (cardobject == null) return;
-
+            HandManager.Instance.RemoveCard(cardobject);
             CardScript cs = cardobject.GetComponent<CardScript>();
-
             HandUtility.Discard(cs);
-
             discardStack.Push(cardobject);
+
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardPlayed }, null, null));
         }
 
         public void ShuffleDeck()
@@ -230,10 +230,9 @@ namespace facingfate
             Transform dock = DeckManagement[entity];
             Debug.Log($"[DeckManager] Moving cards into deck of {entity.name} from {dock.name}");
 
-            List<CardScript> cards = dock.GetComponentsInChildren<CardScript>().ToList();
-            cards.AddRange(deckParent.GetComponentsInChildren<CardScript>().ToList());
-
-            cards = cards.Distinct().ToList();
+            List<CardScript> cards = dock.GetComponentsInChildren<CardScript>()
+                .Where(c => c.cardData != null && c.cardData.Owner == entity)
+                .ToList();
 
             foreach (CardScript c in cards)
             {

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +21,7 @@ namespace facingfate
         [SerializeField] private CardListEntryUI entryPrefab;
 
         private readonly List<CardListEntryUI> entries = new();
+        private static CardPilePeekPanel currentlyOpen;
 
         public Transform PileRoot => pileRoot;
 
@@ -54,12 +56,30 @@ namespace facingfate
         public void Toggle()
         {
             if (popupRoot == null) return;
-            popupRoot.SetActive(!popupRoot.activeSelf);
 
-            if (popupRoot.activeSelf)
+            bool willOpen = !popupRoot.activeSelf;
+
+            // Anderes Panel schließen
+            if (willOpen && currentlyOpen != null && currentlyOpen != this)
+                currentlyOpen.Close();
+
+            popupRoot.SetActive(willOpen);
+
+            if (willOpen)
             {
+                currentlyOpen = this;
                 RebuildList();
             }
+            else
+            {
+                currentlyOpen = null;
+            }
+        }
+
+        public void Close()
+        {
+            if (popupRoot != null) popupRoot.SetActive(false);
+            if (currentlyOpen == this) currentlyOpen = null;
         }
 
         private void RebuildList()
