@@ -10,6 +10,7 @@ namespace facingfate
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text hpText;
         [SerializeField] private Image hpFill;
+
         [SerializeField] private TMP_Text staminaText;
         [SerializeField] private StatusEffectBarUI statusBar;
 

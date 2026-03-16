@@ -17,6 +17,8 @@ namespace facingfate
             {
                 ownCS.cardData = sourceCard.cardData;
                 ownCS.ApplyCardDataVisuals();
+                if (ownCS.cardBack != null)
+                    ownCS.cardBack.SetActive(false);
             }
         }
         public void SetText(string text) { }
