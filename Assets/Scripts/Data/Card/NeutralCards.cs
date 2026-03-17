@@ -44,7 +44,12 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, d.Damage);
+                },
+                CardVfx = (Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAtUnifiedPositions("SpearsFromGround", Target.targetedTiles);
                 }
+
             });
 
             // 100102 – Heavy Blow – slow heavy hit (TODO: -1 Movement)

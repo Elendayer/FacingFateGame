@@ -162,6 +162,11 @@ namespace facingfate
             {
                 // Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
             };
+        public Action<TargetingModeData> CardVfx =
+            (targetData) =>
+            {
+                AssetManager.Instance.CreateVFXAttachedToGameObjects("LightningStrike", targetData.targetedEntities);           
+            };
 
         [Header("AI")]
         public CardAiBias CardAiBias = new();
@@ -233,6 +238,7 @@ namespace facingfate
                 CardDescription = CardDescription,
                 CardEffect = CardEffect,
                 CardEffectGround = CardEffectGround,
+                CardVfx = CardVfx,
 
                 // AI
                 CardAiBias = CardAiBias,

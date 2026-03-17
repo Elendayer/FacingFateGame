@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +20,7 @@ namespace facingfate
 
         [Header("Entity Gameplay References")]
         private EntityVisualScript EntityVisual;
-        public GameObject EntityModel;
+        public MeshFilter EntityModel;
 
         [Header("Entity on Map Reference")]
         private EntityOnMap entityOnMap;
@@ -74,7 +73,7 @@ namespace facingfate
                         CreateFX("DamageEffect");
                         break;
                     case GameplayRef.onBleed:
-                        CreateFX("BloodEffect");
+                        CreateFX("BleedEffect");
                         break;
                 }
             }
@@ -82,10 +81,7 @@ namespace facingfate
 
         private void CreateFX(string name)
         {
-            GameObject effectObj;
-
-            effectObj = AssetManager.Instance.GetEffectPrefab(name);
-            var CreatedObj = Instantiate(effectObj, EntityVisual.transform);
+            AssetManager.Instance.CreateVFXAttachedToEntityMesh(name, this);
         }
         #endregion
 

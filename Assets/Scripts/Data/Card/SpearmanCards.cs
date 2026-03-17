@@ -50,10 +50,6 @@ namespace facingfate
                 {
                     CombatUtility.ApplyDamage(d, Target);
                 },
-                CardEffectGround = (User, Target, d) =>
-                {
-                    AssetManager.Instance.CreateFX("SpearFx", Target);
-                }
             });
 
             // 110102 – Piercing Light (LineSelf 3)
@@ -86,9 +82,9 @@ namespace facingfate
                 {
                     CombatUtility.ApplyDamage(d, Target);
                 },
-                CardEffectGround = (User, Target, d) =>
+                CardVfx = (Target) =>
                 {
-                    AssetManager.Instance.CreateFX("SpearFx", Target);
+                    AssetManager.Instance.CreateVFXAtUnifiedPositions("SpearsFromGround", Target.targetedTiles);
                 }
             });
 
@@ -200,7 +196,7 @@ namespace facingfate
                 },
                 CardEffectGround = (User, Target, d) =>
                 {
-                    AssetManager.Instance.CreateFX("FirestormFx", Target);
+                    AssetManager.Instance.CreateFxAtPosition("Firestorm", Target);
                 }
             });
 
@@ -321,7 +317,7 @@ namespace facingfate
                 },
                 CardEffectGround = (User, Target, d) =>
                 {
-                    AssetManager.Instance.CreateFX("FirestormFx", Target);
+                    AssetManager.Instance.CreateFxAtPosition("Firestorm", Target);
                 }
             });
 
@@ -426,7 +422,7 @@ namespace facingfate
                 },
                 CardEffectGround = (User, Target, d) =>
                 {
-                    AssetManager.Instance.CreateFX("SpearFx", Target);
+                    AssetManager.Instance.CreateFxAtPosition("SpearsFromGround", Target);
                 }
             });
         }

@@ -438,7 +438,7 @@ namespace facingfate
                         duration: d.Duration,
                         onRef: (target) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, d.Damage); AssetManager.Instance.CreateFX("BloodEffect", Target);
+                            CombatUtility.ApplyDamage(null, target, d.Damage); AssetManager.Instance.CreateFxAtPosition("BleedEffect", Target);
                         }
                        ));
                 }

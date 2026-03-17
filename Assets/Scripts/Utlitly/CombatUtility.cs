@@ -31,12 +31,10 @@ namespace Utility
             int damage;
             if (cardData != null)
             {
-                Debug.Log($"Card Data Damage: {cardData.Damage}");
                 damage = cardData.Damage;
             }
             else
             {
-                Debug.Log($"Raw Damage: {rawDamage}");
                 damage = rawDamage;
             }
 
