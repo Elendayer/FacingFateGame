@@ -9,7 +9,7 @@ namespace facingfate
         [Header("UI")]
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text hpText;
-        [SerializeField] private Image hpFill;
+        [SerializeField] private Slider hpSlider;
 
         [SerializeField] private TMP_Text staminaText;
         [SerializeField] private StatusEffectBarUI statusBar;
@@ -26,8 +26,10 @@ namespace facingfate
         {
             if (boundEntity == null)
             {
-                SetText(nameText, "-"); SetText(hpText, "-"); SetText(staminaText, "-");
-                SetFill(hpFill, 0f);
+                SetText(nameText, "-"); 
+                SetText(hpText, "-"); 
+                SetText(staminaText, "-");
+                SetSlider(hpSlider, 0f, 1f);
                 statusBar?.Refresh();
                 return;
             }
@@ -37,9 +39,9 @@ namespace facingfate
             if (EntityStatReader.TryGetHealth(boundEntity, out float hpCur, out float hpMax))
             {
                 SetText(hpText, hpMax > 0f ? $"{hpCur:0}/{hpMax:0}" : $"{hpCur:0}/??");
-                SetFill(hpFill, hpMax > 0f ? Mathf.Clamp01(hpCur / hpMax) : 0f);
+                SetSlider(hpSlider, hpCur, hpMax);
             }
-            else { SetText(hpText, "-"); SetFill(hpFill, 0f); }
+            else { SetText(hpText, "-"); SetSlider(hpSlider, 0f, 1f); }
 
             if (EntityStatReader.TryGetStamina(boundEntity, out float stCur, out float stMax))
                 SetText(staminaText, stMax > 0f ? $"{stCur:0}/{stMax:0}" : $"{stCur:0}/??");
@@ -54,11 +56,12 @@ namespace facingfate
             if (t == null) return;
             if (t.text != s) t.text = s;
         }
-
-        private static void SetFill(Image img, float v)
+        private static void SetSlider(Slider s, float current, float max)
         {
-            if (img == null) return;
-            if (!Mathf.Approximately(img.fillAmount, v)) img.fillAmount = v;
+            if (s == null) return;
+            s.minValue = 0f;
+            s.maxValue = max > 0f ? max : 1f;
+            s.value = current >= 0f ? current : 0f;
         }
         private static string GetEntityName(Component entity)
         {

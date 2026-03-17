@@ -10,7 +10,7 @@ namespace facingfate
         [Header("UI")]
         [SerializeField] private TMP_Text titleText;
         [SerializeField] private TMP_Text hpText;
-        [SerializeField] private Image hpFill;
+        [SerializeField] private Slider hpSlider;
         [SerializeField] private StatusEffectBarUI statusBar;
 
         private Component boundEntity;
@@ -27,7 +27,7 @@ namespace facingfate
             {
                 if (titleText != null) titleText.text = "Hover Target";
                 if (hpText != null) hpText.text = "-";
-                if (hpFill != null) hpFill.fillAmount = 0f;
+                if (hpSlider != null) SetSlider(hpSlider, 0f, 1f);
                 statusBar?.Refresh();
                 return;
             }
@@ -47,11 +47,9 @@ namespace facingfate
             if (hpText != null && hpText.text != hpString)
                 hpText.text = hpString;
 
-            if (hpFill != null)
+            if (hpSlider != null)
             {
-                float fill = (hpCur >= 0f && hpMax > 0f) ? Mathf.Clamp01(hpCur / hpMax) : 0f;
-                if (!Mathf.Approximately(hpFill.fillAmount, fill))
-                    hpFill.fillAmount = fill;
+                SetSlider(hpSlider, hpCur, hpMax);
             }
 
             statusBar?.Refresh();
@@ -71,6 +69,14 @@ namespace facingfate
 
             // Fallback: GameObject-Name
             return entity.gameObject.name;
+        }
+
+        private static void SetSlider(Slider s, float current, float max)
+        {
+            if (s == null) return;
+            s.minValue = 0f;
+            s.maxValue = max > 0f ? max : 1f;
+            s.value = current >= 0f ? current : 0f;
         }
     }
 }

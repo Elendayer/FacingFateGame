@@ -13,6 +13,7 @@ namespace facingfate
         [Header("Pile Source")]
         [SerializeField] private Transform pileRoot;
         [SerializeField] private bool isDeckPanel = true;
+        private static EntityScript lastActivePlayer;
 
         [Header("UI")]
         [SerializeField] private TMP_Text countText;
@@ -42,7 +43,17 @@ namespace facingfate
                 DeckManager dm = DeckManager.Instance;
                 int c = 0;
                 if (dm != null)
-                    c = isDeckPanel ? dm.cardStack.Count : dm.discardStack.Count;
+                {
+                    EntityScript activePlayer = GetActivePlayer();
+                    Stack<GameObject> source = isDeckPanel ? dm.cardStack : dm.discardStack;
+                    foreach (GameObject go in source)
+                    {
+                        CardScript cs = go?.GetComponent<CardScript>();
+                        if (cs?.cardData == null) continue;
+                        if (activePlayer != null && cs.cardData.Owner == activePlayer)
+                            c++;
+                    }
+                }
                 else
                     c = pileRoot != null ? pileRoot.childCount : 0;
 
@@ -93,10 +104,16 @@ namespace facingfate
 
             if (dm != null)
             {
-                if (isDeckPanel)
-                    cards = new List<GameObject>(dm.cardStack);
-                else
-                    cards = new List<GameObject>(dm.discardStack);
+                EntityScript activePlayer = GetActivePlayer();
+                Stack<GameObject> source = isDeckPanel ? dm.cardStack : dm.discardStack;
+
+                foreach (GameObject go in source)
+                {
+                    CardScript cs = go?.GetComponent<CardScript>();
+                    if (cs?.cardData == null) continue;
+                    if (activePlayer != null && cs.cardData.Owner == activePlayer)
+                        cards.Add(go);
+                }
             }
             else if (pileRoot != null)
             {
@@ -127,6 +144,37 @@ namespace facingfate
                 e.SetCard(cs);
                 entries.Add(e);
             }
+        }
+
+        private static EntityScript GetActivePlayer()
+        {
+            TurnManager tm = TurnManager.Instance;
+            if (tm == null || tm.TurnOrder == null || tm.TurnOrder.Count == 0)
+                return lastActivePlayer;
+
+            int idx = tm.CurrentTurnIndex;
+            if (idx < 0 || idx >= tm.TurnOrder.Count) idx = 0;
+
+            EntityScript current = tm.TurnOrder[idx];
+
+            if (current != null && current.GetComponent<PlayerScript>() != null)
+                lastActivePlayer = current;
+
+            // ALT: return lastActivePlayer;
+            // NEU: Wenn noch kein Player bekannt, ersten PlayerScript in TurnOrder suchen
+            if (lastActivePlayer == null)
+            {
+                foreach (EntityScript e in tm.TurnOrder)
+                {
+                    if (e != null && e.GetComponent<PlayerScript>() != null)
+                    {
+                        lastActivePlayer = e;
+                        break;
+                    }
+                }
+            }
+
+            return lastActivePlayer;
         }
 
         private static CardType GetCardType(GameObject go)

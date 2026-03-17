@@ -570,7 +570,7 @@ MonoBehaviour:
     EffectTargetTypes: 
     TargetCard: {fileID: 0}
   artworkRenderer: {fileID: 1164257742831152466}
-  cardBack: {fileID: 1322525944986289178}
+  cardBack: {fileID: 0}
   nameText: {fileID: 178179671123220696}
   descriptionText: {fileID: 4496651106365643064}
   range: {fileID: 8142973932069549543}
