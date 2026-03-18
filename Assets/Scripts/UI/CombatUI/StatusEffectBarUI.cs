@@ -40,9 +40,9 @@ namespace facingfate
                 string modName = EntityStatReader.TryGetModifierName(mod);
                 if (string.IsNullOrWhiteSpace(modName)) continue;
 
-                float duration = EntityStatReader.TryGetModifierFloat(mod, "Duration", -1f);
-                float charges = EntityStatReader.TryGetModifierFloat(mod, "Charges", -1f);
-                float baseValue = EntityStatReader.TryGetModifierFloat(mod, "BaseValue", -1f);
+                int duration = EntityStatReader.TryGetModifierInt(mod, "Duration", -1);
+                int charges = EntityStatReader.TryGetModifierInt(mod, "Charges", -1);
+                int baseValue = EntityStatReader.TryGetModifierInt(mod, "BaseValue", -1);
 
                 bool isExpired = EntityStatReader.TryGetModifierBool(mod, "IsExpired", false);
                 if (isExpired) continue;
@@ -61,7 +61,7 @@ namespace facingfate
             }
         }
 
-        private string BuildTooltip(string title, string desc, float duration, float charges, float baseValue)
+        private string BuildTooltip(string title, string desc, int duration, int charges, int baseValue)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
 

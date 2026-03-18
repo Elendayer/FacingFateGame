@@ -34,7 +34,7 @@ namespace facingfate
 
             if (titleText != null) titleText.text = GetEntityName(boundEntity);
 
-            EntityStatReader.TryGetHealth(boundEntity, out float hpCur, out float hpMax);
+            EntityStatReader.TryGetHealth(boundEntity, out int hpCur, out int hpMax);
 
             string hpString;
             if (hpCur >= 0f && hpMax > 0f)

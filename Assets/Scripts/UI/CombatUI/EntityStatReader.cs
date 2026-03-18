@@ -10,7 +10,7 @@ namespace facingfate
 
     public static class EntityStatReader
     {
-        public static float TryGetStat(Component entity, string[] keys, float fallback)
+        public static int TryGetStat(Component entity, string[] keys, int fallback)
         {
             if (entity == null || keys == null || keys.Length == 0) return fallback;
 
@@ -19,65 +19,65 @@ namespace facingfate
 
             for (int i = 0; i < keys.Length; i++)
             {
-                if (TryGetStatFromStatsObject(stats, keys[i], out float value))
+                if (TryGetStatFromStatsObject(stats, keys[i], out int value))
                     return value;
             }
 
             return fallback;
         }
 
-        public static bool TryGetHealth(Component entity, out float current, out float max)
+        public static bool TryGetHealth(Component entity, out int current, out int max)
         {
-            current = -1f;
-            max = -1f;
+            current = -1;
+            max = -1;
 
             object statsObj = TryGetEntityStatsObject(entity);
             if (statsObj == null) return false;
 
-            current = TryReadFloat(statsObj,
+            current = TryReadInt(statsObj,
                 "CurrentHealth", "currentHealth", "HealthCurrent", "healthCurrent");
 
             // MaxHealth ist ein Stat-Objekt mit Value()-Methode → TryReadStatLikeFloat
-            max = TryReadStatLikeFloat(statsObj,
+            max = TryReadStatLikeInt(statsObj,
                 "MaxHealth", "maxHealth", "HealthMax", "healthMax", "MaxHP", "maxHP");
 
-            if (max <= 0f)
+            if (max <= 0)
             {
-                float fb = TryGetStat(entity, new[] { "MaxHealth", "Health", "HP" }, -1f);
-                if (fb > 0f) max = fb;
+                int fb = TryGetStat(entity, new[] { "MaxHealth", "Health", "HP" }, -1);
+                if (fb > 0) max = fb;
             }
             if (current < 0f)
             {
-                float fb = TryGetStat(entity, new[] { "CurrentHealth", "Health", "HP" }, -1f);
-                if (fb >= 0f) current = fb;
+                int fb = TryGetStat(entity, new[] { "CurrentHealth", "Health", "HP" }, -1);
+                if (fb >= 0) current = fb;
             }
 
-            return current >= 0f;
+            return current >= 0;
         }
 
-        public static bool TryGetStamina(Component entity, out float current, out float max)
+        public static bool TryGetStamina(Component entity, out int current, out int max)
         {
-            current = -1f;
-            max = -1f;
+            current = -1;
+            max = -1;
 
             object statsObj = TryGetEntityStatsObject(entity);
             if (statsObj == null) return false;
 
-            current = TryReadFloat(statsObj,
+            current = TryReadInt(statsObj,
                 "CurrentStamina", "currentStamina", "StaminaCurrent", "staminaCurrent");
 
-            max = TryReadStatLikeFloat(statsObj,
+            max = TryReadStatLikeInt(statsObj,
                 "MaxStamina", "maxStamina", "StaminaMax", "staminaMax", "MaxEnergy", "maxEnergy");
 
             if (max <= 0f)
             {
-                float fb = TryGetStat(entity, new[] { "MaxStamina", "Stamina", "AP" }, -1f);
-                if (fb > 0f) max = fb;
+                int fb = TryGetStat(entity, new[] { "MaxStamina", "Stamina", "AP" }, -1);
+                if (fb > 0) max = fb;
             }
-            if (current < 0f)
+            if (current < 0)
             {
-                float fb = TryGetStat(entity, new[] { "CurrentStamina", "Stamina", "AP" }, -1f);
-                if (fb >= 0f) current = fb;
+                int fb = TryGetStat(entity, new[] { "CurrentStamina", "Stamina", "AP" }, -1);
+                if (fb >= 0) current = fb;
             }
 
             return current >= 0f;
@@ -115,12 +115,12 @@ namespace facingfate
             return v != null ? v.ToString() : null;
         }
 
-        public static float TryGetModifierFloat(object modifier, string member, float fallback)
+        public static int TryGetModifierInt(object modifier, string member, int fallback)
         {
             if (modifier == null) return fallback;
             object v = ReflectionUtility.TryGetFieldOrProperty(modifier, member)
                      ?? ReflectionUtility.TryGetFieldOrProperty(modifier, char.ToLowerInvariant(member[0]) + member.Substring(1));
-            return TryConvertFloat(v, fallback);
+            return TryConvertInt(v, fallback);
         }
 
         public static bool TryGetModifierBool(object modifier, string member, bool fallback)
@@ -152,9 +152,9 @@ namespace facingfate
             return null;
         }
 
-        private static bool TryGetStatFromStatsObject(object stats, string key, out float value)
+        private static bool TryGetStatFromStatsObject(object stats, string key, out int value)
         {
-            value = 0f;
+            value = 0;
             if (stats == null || string.IsNullOrWhiteSpace(key)) return false;
 
             Type t = stats.GetType();
@@ -196,23 +196,23 @@ namespace facingfate
             return false;
         }
 
-        private static float TryReadFloat(object obj, params string[] members)
+        private static int TryReadInt(object obj, params string[] members)
         {
-            if (obj == null || members == null) return -1f;
+            if (obj == null || members == null) return -1;
 
             for (int i = 0; i < members.Length; i++)
             {
                 object v = ReflectionUtility.TryGetFieldOrProperty(obj, members[i]);
-                float f = TryConvertFloat(v, -1f);
+                int f = TryConvertInt(v, -1);
                 if (f >= 0f) return f;
             }
 
-            return -1f;
+            return -1;
         }
 
-        private static float TryReadStatLikeFloat(object obj, params string[] members)
+        private static int TryReadStatLikeInt(object obj, params string[] members)
         {
-            if (obj == null || members == null) return -1f;
+            if (obj == null || members == null) return -1;
 
             for (int i = 0; i < members.Length; i++)
             {
@@ -220,8 +220,8 @@ namespace facingfate
                 if (v == null) continue;
 
                 // Direkter float
-                float direct = TryConvertFloat(v, -1f);
-                if (direct >= 0f) return direct;
+                int direct = TryConvertInt(v, -1);
+                if (direct >= 0) return direct;
 
                 // Stat-Objekt mit Value()-Methode (z.B. EntityStats.MaxHealth.Value())
                 Type vType = v.GetType();
@@ -237,20 +237,20 @@ namespace facingfate
                         args[j] = Type.Missing;
 
                     object result = valueMethod.Invoke(v, args);
-                    float fromMethod = TryConvertFloat(result, -1f);
+                    int fromMethod = TryConvertInt(result, -1);
                     if (fromMethod >= 0f) return fromMethod;
                 }
 
                 // Stat-Objekt mit Value-Property
-                if (TryReadStatValue(v, out float fromProp)) return fromProp;
+                if (TryReadStatValue(v, out int fromProp)) return fromProp;
             }
 
-            return -1f;
+            return -1;
         }
 
-        private static bool TryReadStatValue(object statObj, out float value)
+        private static bool TryReadStatValue(object statObj, out int value)
         {
-            value = 0f;
+            value = 0;
             if (statObj == null) return false;
 
             object v = ReflectionUtility.TryGetFieldOrProperty(statObj, "Value")
@@ -260,20 +260,20 @@ namespace facingfate
 
             if (v == null) return false;
 
-            value = TryConvertFloat(v, 0f);
+            value = TryConvertInt(v, 0);
             return true;
         }
 
-        private static float TryConvertFloat(object v, float fallback)
+        private static int TryConvertInt(object v, int fallback)
         {
             if (v == null) return fallback;
 
             try
             {
-                if (v is float f) return f;
+                if (v is int f) return f;
                 if (v is int i) return i;
-                if (v is double d) return (float)d;
-                if (float.TryParse(v.ToString(), out float parsed)) return parsed;
+                if (v is double d) return (int)d;
+                if (int.TryParse(v.ToString(), out int parsed)) return parsed;
             }
             catch { }
 

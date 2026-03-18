@@ -39,14 +39,14 @@ namespace facingfate
 
             SetText(nameText, GetEntityName(boundEntity));
 
-            if (EntityStatReader.TryGetHealth(boundEntity, out float hpCur, out float hpMax))
+            if (EntityStatReader.TryGetHealth(boundEntity, out int hpCur, out int hpMax))
             {
                 SetText(hpText, hpMax > 0f ? $"{hpCur:0}/{hpMax:0}"+" HP" : $"{hpCur:0}/??");
                 SetSlider(hpSlider, hpCur, hpMax);
             }
             else { SetText(hpText, "-"); SetSlider(hpSlider, 0f, 1f); }
 
-            if (EntityStatReader.TryGetStamina(boundEntity, out float stCur, out float stMax))
+            if (EntityStatReader.TryGetStamina(boundEntity, out int stCur, out int stMax))
                 SetText(staminaText, stMax > 0f ? $"{stCur:0}/{stMax:0}"+" Stamina" : $"{stCur:0}/??");
             else
                 SetText(staminaText, "-");
