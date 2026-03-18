@@ -24,6 +24,8 @@ namespace facingfate
 
         private void EndTurn()
         {
+            if (HandManager.Instance != null)
+                HandManager.Instance.DiscardAllInHand();
             // Try EventManager.Instance.Endturn()
             Type eventManagerType = ReflectionUtility.FindTypeByName("EventManager");
             if (eventManagerType != null)

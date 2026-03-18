@@ -139,7 +139,7 @@ namespace facingfate
             HandManager.Instance.RemoveCard(cardobject);
             CardScript cs = cardobject.GetComponent<CardScript>();
             HandUtility.Discard(cs);
-            discardStack.Push(cardobject);
+            //discardStack.Push(cardobject);
 
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardPlayed }, null, null));
         }

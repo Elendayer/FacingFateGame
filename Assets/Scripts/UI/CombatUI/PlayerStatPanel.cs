@@ -19,11 +19,14 @@ namespace facingfate
         public void Bind(Component entity)
         {
             boundEntity = entity;
+            Debug.Log($"[PlayerStatPanel] Bind – entity={entity?.gameObject.name ?? "NULL"}");
             if (statusBar != null) statusBar.Bind(entity);
+            else Debug.Log("[PlayerStatPanel] statusBar ist NULL!");
         }
 
         public void Refresh()
         {
+            Debug.Log($"[PlayerStatPanel] Refresh – boundEntity={boundEntity?.gameObject.name ?? "NULL"}, statusBar={statusBar?.name ?? "NULL"}");
             if (boundEntity == null)
             {
                 SetText(nameText, "-"); 
@@ -38,13 +41,13 @@ namespace facingfate
 
             if (EntityStatReader.TryGetHealth(boundEntity, out float hpCur, out float hpMax))
             {
-                SetText(hpText, hpMax > 0f ? $"{hpCur:0}/{hpMax:0}" : $"{hpCur:0}/??");
+                SetText(hpText, hpMax > 0f ? $"{hpCur:0}/{hpMax:0}"+" HP" : $"{hpCur:0}/??");
                 SetSlider(hpSlider, hpCur, hpMax);
             }
             else { SetText(hpText, "-"); SetSlider(hpSlider, 0f, 1f); }
 
             if (EntityStatReader.TryGetStamina(boundEntity, out float stCur, out float stMax))
-                SetText(staminaText, stMax > 0f ? $"{stCur:0}/{stMax:0}" : $"{stCur:0}/??");
+                SetText(staminaText, stMax > 0f ? $"{stCur:0}/{stMax:0}"+" Stamina" : $"{stCur:0}/??");
             else
                 SetText(staminaText, "-");
 

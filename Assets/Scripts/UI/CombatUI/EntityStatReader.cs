@@ -91,6 +91,8 @@ namespace facingfate
             object listObj = ReflectionUtility.TryGetFieldOrProperty(entity, "entityModifiers")
                           ?? ReflectionUtility.TryGetFieldOrProperty(entity, "EntityModifiers");
 
+            Debug.Log($"[TryGetModifiers] listObj={listObj?.GetType().Name ?? "NULL"}");
+
             if (listObj is IEnumerable enumerable)
             {
                 List<object> res = new List<object>();

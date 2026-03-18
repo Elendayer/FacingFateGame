@@ -59,11 +59,16 @@ public static class ReflectionUtility
             {
                 Type type = obj.GetType();
 
-                var f = type.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (f != null) return f.GetValue(obj);
+                while (type != null)
+                {
+                    var f = type.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                    if (f != null) return f.GetValue(obj);
 
-                var p = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (p != null) return p.GetValue(obj);
+                    var p = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                    if (p != null) return p.GetValue(obj);
+
+                    type = type.BaseType;
+                }
             }
             catch { }
 

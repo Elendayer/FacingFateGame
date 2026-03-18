@@ -9,7 +9,6 @@ namespace facingfate
     {
         [SerializeField] private Transform iconContainer;
         [SerializeField] private StatusEffectIconUI iconPrefab;
-        [SerializeField] private StatusIconDatabase iconDatabase;
         [SerializeField] private int maxIcons = 12;
 
         private Component boundEntity;
@@ -22,10 +21,13 @@ namespace facingfate
 
         public void Refresh()
         {
+            Debug.Log($"[StatusBar] auf {gameObject.name} – boundEntity={boundEntity?.gameObject.name ?? "NULL"}");
             Clear();
 
             if (boundEntity == null || iconContainer == null || iconPrefab == null)
+            {
                 return;
+            }
 
             var modifiers = EntityStatReader.TryGetModifiers(boundEntity);
             if (modifiers == null) return;
@@ -48,20 +50,11 @@ namespace facingfate
                 var ui = Instantiate(iconPrefab, iconContainer);
 
                 // Resolve icon + display text
-                Sprite icon = null;
-                string displayName = modName;
-                string desc = "";
-
-                if (iconDatabase != null && iconDatabase.TryGet(modName, out var entry))
-                {
-                    icon = entry.icon;
-                    if (!string.IsNullOrWhiteSpace(entry.displayName)) displayName = entry.displayName;
-                    desc = entry.description ?? "";
-                }
+                EffectDatabase.TryGetUIInfo(modName, out string desc, out Sprite icon);
 
                 ui.SetIcon(icon);
-                ui.SetCounters(duration, charges);
-                ui.SetTooltip(displayName, BuildTooltip(displayName, desc, duration, charges, baseValue));
+                ui.SetCounters(duration, baseValue);
+                ui.SetTooltip(modName, BuildTooltip(modName, desc, duration, charges, baseValue));
 
                 spawned.Add(ui);
                 shown++;
