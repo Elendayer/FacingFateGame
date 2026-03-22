@@ -13,7 +13,6 @@ namespace facingfate
         [SerializeField] private RectTransform root;
         [SerializeField] private TMP_Text headerText;
         [SerializeField] private TMP_Text bodyText;
-        [SerializeField] private Vector2 screenOffset = new Vector2(16f, -16f);
 
         [Header("Fade Settings")]
         //[SerializeField] private float displayDuration = 2f; 
@@ -36,15 +35,11 @@ namespace facingfate
             Hide();
         }
 
-        private void LateUpdate()
-        {
-            if (root == null || !root.gameObject.activeSelf) return;
-            FollowMouse();
-        }
-
         public void Show(string header, string body)
         {
             if (root == null) return;
+
+            bool wasVisible = root.gameObject.activeSelf && canvasGroup.alpha > 0f;
 
             if (headerText != null) headerText.text = header ?? "";
             if (bodyText != null) bodyText.text = body ?? "";
@@ -58,7 +53,10 @@ namespace facingfate
 
             root.gameObject.SetActive(true);
             canvasGroup.alpha = 1f;
-            FollowMouse();
+            if (!wasVisible)
+            {
+                FollowMouse();
+            }
         }
 
         public void Hide()
@@ -93,9 +91,34 @@ namespace facingfate
         {
             if (root == null) return;
 
-            Vector2 pos = Input.mousePosition;
-            pos += screenOffset;
-            root.position = pos;
+            Canvas.ForceUpdateCanvases();
+
+            float w = root.rect.width;
+            float h = root.rect.height;
+            float margin = 20f;
+            Vector2 mouse = Input.mousePosition;
+
+            // Untere linke Ecke = Mausposition
+            float x = mouse.x + margin;
+            float y = mouse.y + margin;
+
+            // Rechter Rand
+            if (x + w > Screen.width - margin)
+                x = mouse.x - w - margin;
+
+            // Oberer Rand
+            if (y + h > Screen.height - margin)
+                y = Screen.height - h - margin;
+
+            // Linker Rand
+            if (x < margin)
+                x = margin;
+
+            // Unterer Rand
+            if (y < margin)
+                y = margin;
+
+            root.position = new Vector2(x, y);
         }
     }
 }

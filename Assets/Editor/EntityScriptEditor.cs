@@ -176,13 +176,13 @@ namespace facingfate
         private void DrawEntityModifiers(EntityScript entity)
         {
             EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("🧩 Active Entity Modifiers", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Active Entity Modifiers", EditorStyles.boldLabel);
 
             // Use reflection to get the private 'entityModifiers' field
             FieldInfo modifiersField = typeof(EntityScript).GetField("entityModifiers", BindingFlags.NonPublic | BindingFlags.Instance);
             if (modifiersField == null)
             {
-                EditorGUILayout.LabelField("❌ Could not find entityModifiers field.");
+                EditorGUILayout.LabelField("Could not find entityModifiers field.");
                 return;
             }
 

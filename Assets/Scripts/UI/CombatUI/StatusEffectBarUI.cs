@@ -61,7 +61,7 @@ namespace facingfate
             }
         }
 
-        private string BuildTooltip(string title, string desc, int duration, int charges, int baseValue)
+        private string BuildTooltip(string title, string desc, float duration, float charges, float baseValue)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -71,9 +71,19 @@ namespace facingfate
                 sb.AppendLine();
             }
 
-            if (duration >= 0f) sb.AppendLine($"Duration: {duration:0}");
-            if (charges >= 0f) sb.AppendLine($"Stacks: {charges:0}");
-            if (baseValue >= 0f) sb.AppendLine($"Value: {baseValue:0}");
+            string stats = "";
+
+            if (duration >= 0f && duration < 9999f)
+                stats += $"Duration: {duration:0}";
+
+            if (baseValue > 0f)
+                stats += (stats.Length > 0 ? "  |  " : "") + $"Damage: {baseValue:0}";
+
+            if (charges >= 0f && charges < 9999f)
+                stats += (stats.Length > 0 ? "  |  " : "") + $"Stacks: {charges:0}";
+
+            if (stats.Length > 0)
+                sb.AppendLine(stats);
 
             return sb.ToString().Trim();
         }
