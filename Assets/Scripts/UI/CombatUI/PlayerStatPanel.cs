@@ -19,14 +19,14 @@ namespace facingfate
         public void Bind(Component entity)
         {
             boundEntity = entity;
-            Debug.Log($"[PlayerStatPanel] Bind – entity={entity?.gameObject.name ?? "NULL"}");
+            //Debug.Log($"[PlayerStatPanel] Bind – entity={entity?.gameObject.name ?? "NULL"}");
             if (statusBar != null) statusBar.Bind(entity);
             else Debug.Log("[PlayerStatPanel] statusBar ist NULL!");
         }
 
         public void Refresh()
         {
-            Debug.Log($"[PlayerStatPanel] Refresh – boundEntity={boundEntity?.gameObject.name ?? "NULL"}, statusBar={statusBar?.name ?? "NULL"}");
+            //Debug.Log($"[PlayerStatPanel] Refresh – boundEntity={boundEntity?.gameObject.name ?? "NULL"}, statusBar={statusBar?.name ?? "NULL"}");
             if (boundEntity == null)
             {
                 SetText(nameText, "-"); 

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.VersionControl;
+//using UnityEditor.VersionControl;
 using UnityEngine;
 using Utility;
 
@@ -71,6 +71,7 @@ namespace facingfate
             GameEvents.OnTurnStart += HandleTurnStart;
             GameEvents.OnTurnEnd += HandleTurnEnd;
             GameEvents.OnGameplayReference += HandleGameplayReference;
+            GameEvents.OnActivePlayerChanged += HandleActivePlayerChanged;
         }
 
         private void OnDisable()
@@ -80,6 +81,7 @@ namespace facingfate
             GameEvents.OnTurnStart -= HandleTurnStart;
             GameEvents.OnTurnEnd -= HandleTurnEnd;
             GameEvents.OnGameplayReference -= HandleGameplayReference;
+            GameEvents.OnActivePlayerChanged -= HandleActivePlayerChanged;
         }
 
         private void Start()
@@ -97,13 +99,6 @@ namespace facingfate
         {
             HandleEntityClick();
             UpdateHover();
-
-            EntityScript active = GetActiveEntitySafe();
-            if (active != currentActiveEntity)
-            {
-                currentActiveEntity = active;
-                MarkDirty(DirtyFlags.Active);
-            }
 
             ApplyRefreshIfDirty();
         }
@@ -370,12 +365,12 @@ namespace facingfate
 
         private void HandleTurnStart()
         {
-            MarkDirty(DirtyFlags.Active | DirtyFlags.Piles);
+            MarkDirty(DirtyFlags.Piles);
         }
 
         private void HandleTurnEnd()
         {
-            MarkDirty(DirtyFlags.Active | DirtyFlags.Piles);
+            MarkDirty(DirtyFlags.Piles);
         }
 
         private void HandleGameplayReference(ToSendTriggerReference _)
@@ -401,6 +396,11 @@ namespace facingfate
                 case OutlineState.Locked: outline.SetLocked(true); break;
                 case OutlineState.Normal: outline.SetNormal(); break;
             }
+        }
+        private void HandleActivePlayerChanged(EntityScript entity)
+        {
+            currentActiveEntity = entity;
+            MarkDirty(DirtyFlags.Active);
         }
     }
 }
