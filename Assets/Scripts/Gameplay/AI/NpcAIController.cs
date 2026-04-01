@@ -31,7 +31,6 @@ namespace facingfate
             CardScript card,
             int stamina,
             Vector3Int virtualPosition,
-            List<EntityScript> allEntities,
             Action<ScoredCard> onComplete)
         {
             // Step 0: quick validation
@@ -49,7 +48,7 @@ namespace facingfate
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Starting evaluation at {tStart:0.000}s");
 
             // Step 1: valid targets (cheap)
-            var validTargets = TargetingUtility.GetValidTargets(card.cardData, allEntities);
+            var validTargets = TargetingUtility.GetValidTargets(card.cardData);
             //yield return null;
             float tAfterStep1 = Time.realtimeSinceStartup;
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 1 (validTargets) took {tAfterStep1 - tPrev:0.000}s");
@@ -75,8 +74,9 @@ namespace facingfate
             }
 
             // Step 3: generate templates (may be heavier); yield after call
-            var templates = targetingMode.GetTargetingData(card, validTargets, npcScript);
+            var templates = targetingMode.GetTargetingData(card, npcScript);
             //yield return null;
+
             float tAfterStep3 = Time.realtimeSinceStartup;
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 3 (generate templates) took {tAfterStep3 - tPrev:0.000}s");
             tPrev = tAfterStep3;
@@ -123,11 +123,6 @@ namespace facingfate
 
             List<PlannedAction> plan = new();
 
-            // Cache entities once
-            var allEntities = UnityEngine.Object
-                .FindObjectsByType<EntityScript>(FindObjectsSortMode.None)
-                .ToList();
-
             Draw();
 
             Vector3Int virtualPosition = mover.currentCell;
@@ -147,7 +142,7 @@ namespace facingfate
                     for (int i = 0; i < handCount; i++)
                     {
                         int idx = i;
-                        CoroutineRunner.Instance.StartCoroutineManaged(EvaluateCardCoroutine(hand[idx], virtualStamina, virtualPosition, allEntities, (res) =>
+                        CoroutineRunner.Instance.StartCoroutineManaged(EvaluateCardCoroutine(hand[idx], virtualStamina, virtualPosition, (res) =>
                         {
                             results[idx] = res;
                             remaining--;
@@ -172,14 +167,14 @@ namespace facingfate
                         actionCandidates.AddRange(handCandidates);
                 }
 
-                var repositionCandidate = TryGetRepositionCandidate(virtualPosition, allEntities);
+                var repositionCandidate = TryGetRepositionCandidate(virtualPosition);
 
                 if (repositionCandidate != null && repositionCandidate.score > 0)
                     actionCandidates.Add(repositionCandidate);
 
                 if (actionCandidates.Count == 0)
                 {
-                    var chaseCandidate = TryGetChaseCandidate(virtualPosition, allEntities);
+                    var chaseCandidate = TryGetChaseCandidate(virtualPosition);
 
                     if (chaseCandidate != null)
                         actionCandidates.Add(chaseCandidate);
@@ -218,8 +213,22 @@ namespace facingfate
             {
                 if (deck.childCount == 0)
                 {
-                    foreach (Transform card in discard)
+                    // Get all cards from discard, shuffle, and move back to deck
+                    List<Transform> discardCards = new();
+                    int discardCount = discard.childCount;
+
+                    for (int j = 0; j < discardCount; j++)
+                    {
+                        discardCards.Add(discard.GetChild(j));
+                    }
+                    // Shuffle discard cards
+                    System.Random rng = new();
+                    discardCards = discardCards.OrderBy(a => rng.Next()).ToList();
+
+                    foreach (var card in discardCards)
+                    {
                         card.SetParent(deck);
+                    }
                 }
 
                 if (deck.childCount > 0)
@@ -363,8 +372,8 @@ namespace facingfate
         #region Flee / Chase
 
         private ScoredCard TryGetRepositionCandidate(
-            Vector3Int virtualPosition,
-            List<EntityScript> allEntities)
+            Vector3Int virtualPosition
+            )
         {
             if (npcScript.entityStats.IsRooted)
                 return null;
@@ -380,7 +389,6 @@ namespace facingfate
                     {
                         moveOption = DetermineRepositionTarget(
                             virtualPosition,
-                            allEntities,
                             npcScript);
 
                         if (moveOption != null)
@@ -396,12 +404,12 @@ namespace facingfate
             return moveOption;
         }
 
-        private ScoredCard TryGetChaseCandidate(
-            Vector3Int virtualPosition,
-            List<EntityScript> allEntities)
+        private ScoredCard TryGetChaseCandidate(Vector3Int virtualPosition)
         {
             if (npcScript.entityStats.IsRooted)
                 return null;
+
+            var allEntities = TargetingUtility.AllEntitiesCache();
 
             var enemies = allEntities
                 .Where(e => e.entityAffiliation != npcScript.entityAffiliation)
@@ -445,10 +453,10 @@ namespace facingfate
             return null;
         }
 
-        private ScoredCard DetermineRepositionTarget(Vector3Int virtualPosition, List<EntityScript> allEntities, EntityScript entity)
+        private ScoredCard DetermineRepositionTarget(Vector3Int virtualPosition, EntityScript entity)
         {
             // Count hostiles
-            int hostileCount = allEntities.Count(e => e.entityAffiliation != entity.entityAffiliation);
+            int hostileCount = TargetingUtility.AllEntitiesCache().Count(e => e.entityAffiliation != entity.entityAffiliation);
             if (hostileCount == 0)
             {
                 // No enemies — stay in place
@@ -470,7 +478,7 @@ namespace facingfate
 
             int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina, hostileCount);
             // Delegate the search and scoring
-            ScoredCard bestTarget = EvaluateRepositionCandidates(virtualPosition, allEntities, entity, maxFleeDistance);
+            ScoredCard bestTarget = EvaluateRepositionCandidates(virtualPosition, entity, maxFleeDistance);
             // Fallback if no valid move found
             return bestTarget ?? new ScoredCard
             {
@@ -480,8 +488,10 @@ namespace facingfate
                 score = 0
             };
         }
-        private ScoredCard EvaluateRepositionCandidates(Vector3Int virtualPosition, List<EntityScript> allEntities, EntityScript entity, int maxFleeDistance)
+        private ScoredCard EvaluateRepositionCandidates(Vector3Int virtualPosition, EntityScript entity, int maxFleeDistance)
         {
+            var allEntities = TargetingUtility.AllEntitiesCache();
+
             ScoredCard bestTarget = null; float bestScore = float.MinValue; for (int dx = -maxFleeDistance; dx <= maxFleeDistance; dx++)
             {
                 for (int dy = -maxFleeDistance; dy <= maxFleeDistance; dy++)

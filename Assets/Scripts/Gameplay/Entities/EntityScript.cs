@@ -37,52 +37,9 @@ namespace facingfate
 
             entityOnMap.Startup();
 
-            AddListeners();
         }
-        private void AddListeners()
-        {
-            GameEvents.OnGameplayReference += TriggerAnimation;
-        }
-
         #region Events
-        private void TriggerAnimation(ToSendTriggerReference triggerRef)
-        {
-            var checkTrigger = new RelevantTriggerCheck
-            {
-                OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed },
-                CheckType = CheckEntityType.User,
-                CheckEntity = this
-            };
-
-            if (GameEvents.CheckIfRelevantTrigger(triggerRef, checkTrigger))
-            {
-                PlayEffectAnimation(triggerRef);
-            }
-        }
-        public void PlayEffectAnimation(ToSendTriggerReference triggerRef)
-        {
-            foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
-            {
-                switch (gRef)
-                {
-                    default: break;
-                    case GameplayRef.onBurn:
-                        CreateFX("BurnEffect");
-                        break;
-                    case GameplayRef.onDamage:
-                        CreateFX("DamageEffect");
-                        break;
-                    case GameplayRef.onBleed:
-                        CreateFX("BleedEffect");
-                        break;
-                }
-            }
-        }
-
-        private void CreateFX(string name)
-        {
-            AssetManager.Instance.CreateVFXAttachedToEntityMesh(name, this);
-        }
+    
         #endregion
 
         #region Modifier System

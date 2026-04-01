@@ -1,5 +1,6 @@
 using facingfate;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.Serialization;
 using Unity.VisualScripting;
 using UnityEditor.ShaderGraph.Internal;
@@ -62,59 +63,84 @@ public class AssetManager : MonoBehaviour
         return null;
     }
 
-    public void CreateFxAtPosition(string name, Vector3Int positon, int size = 1)
+    private void ApplyVFXOverrides(VisualEffect effect, VFXOverrides overrides)
+    {
+        if (effect.HasInt("Size"))
+        {
+            effect.SetInt("Size", overrides.size);
+        }
+        if (overrides.count != 0 && effect.HasInt("Count"))
+        {
+            effect.SetInt("Count", overrides.count);
+        }
+        if (overrides.mesh != null && effect.HasMesh("Mesh"))
+        {
+            effect.SetMesh("Mesh", overrides.mesh);
+        }
+        if (overrides.origin != Vector3.zero && effect.HasVector3("Origin"))
+        {
+            effect.SetVector3("Origin", overrides.origin);
+        }
+        if (overrides.direction != Vector3.zero && effect.HasVector3("Direction"))
+        {
+            effect.SetVector3("Direction", overrides.direction);
+        }
+    }
+
+    public void CreateFxAtPosition(string name, Vector3Int positon, VFXOverrides overrides)
     {
         (GameObject obj, VisualEffect effect) vfx = CreateVFX(name);
 
         List<Vector3Int> positions = new List<Vector3Int> { positon };
         Mesh mesh = MeshUtility.GenerateHexMesh(positions);
 
-        vfx.effect.SetInt("_Size", size);
-        vfx.effect.SetMesh("_Mesh", mesh);
+        ApplyVFXOverrides(vfx.effect, overrides);
+
     }
 
-    public void CreateVFXAtUnifiedPositions(string name, List<Vector3Int> positions)
+    public void CreateVFXAtUnifiedPositions(string name, List<Vector3Int> positions, VFXOverrides overrides)
     {
         (GameObject obj, VisualEffect effect) vfx = CreateVFX(name);
         Mesh mesh = MeshUtility.GenerateHexMesh(positions);
 
-        vfx.effect.SetInt("_Size", positions.Count);
-        vfx.effect.SetMesh("_Mesh", mesh);
+        ApplyVFXOverrides(vfx.effect, new VFXOverrides { size = positions.Count, mesh = mesh });
     }
-    public void CreateVFXAtIndividualPositions(string name, List<Vector3Int> positions)
+    public void CreateVFXAtIndividualPositions(string name, List<Vector3Int> positions, VFXOverrides overrides)
     {
         foreach (Vector3Int pos in positions)
         {
             (GameObject obj, VisualEffect effect) vfx = CreateVFX(name);
 
-            List<Vector3Int> singlePosList = new List<Vector3Int> { pos };
-            Mesh mesh = MeshUtility.GenerateHexMesh(singlePosList);
+            vfx.obj.transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(pos); 
 
-            vfx.effect.SetInt("_Size", 1);
-            vfx.effect.SetMesh("_Mesh", mesh);
+            ApplyVFXOverrides(vfx.effect, overrides);
         }
     }
 
-    public void CreateVFXAttachedToGameObjects(string name, List<GameObject> hosts)
+    public void CreateVFXAttachedToGameObjects(string name, List<GameObject> hosts, VFXOverrides overrides)
     {
         foreach (GameObject host in hosts)
         {
             (GameObject obj, VisualEffect effect) vfx = CreateVFX(name);
             vfx.obj.transform.SetParent(host.transform);
             vfx.obj.transform.localPosition = Vector3.zero;
+
+            ApplyVFXOverrides(vfx.effect, overrides);
         }
     }
-    public void CreateVFXAttachedToGameObjects(string name, List<EntityScript> hosts)
+    public void CreateVFXAttachedToGameObjects(string name, List<EntityScript> hosts, VFXOverrides overrides)
     {
         foreach (EntityScript host in hosts)
         {
             (GameObject obj, VisualEffect effect) vfx = CreateVFX(name);
             vfx.obj.transform.SetParent(host.transform);
             vfx.obj.transform.localPosition = Vector3.zero;
+
+            ApplyVFXOverrides (vfx.effect, overrides);
         }
     }
 
-    public void CreateVFXAttachedToEntityMesh(string name, GameObject host)
+    public void CreateVFXAttachedToEntityMesh(string name, GameObject host, VFXOverrides overrides)
     {
         (GameObject obj, VisualEffect effect) vfx = CreateVFX(name);
         EntityScript entityScript = host.GetComponent<EntityScript>();
@@ -127,10 +153,11 @@ public class AssetManager : MonoBehaviour
                 return;
             }
             Mesh entityMesh = entityScript.EntityModel.mesh;
-            vfx.effect.SetMesh("_Mesh", entityMesh);
+
+            ApplyVFXOverrides(vfx.effect, new VFXOverrides { mesh = entityMesh });
         }
     }
-    public void CreateVFXAttachedToEntityMesh(string name, EntityScript host)
+    public void CreateVFXAttachedToEntityMesh(string name, EntityScript host, VFXOverrides overrides)
     {
         (GameObject obj, VisualEffect effect) vfx = CreateVFX(name);
         vfx.obj.transform.SetParent(host.transform);
@@ -144,7 +171,8 @@ public class AssetManager : MonoBehaviour
                 return;
             }
             Mesh entityMesh = host.EntityModel.mesh;
-            vfx.effect.SetMesh("_Mesh", entityMesh);
+
+            ApplyVFXOverrides(vfx.effect, new VFXOverrides { mesh = entityMesh });
         }
     }
     public (GameObject, VisualEffect) CreateVFX(string name)
@@ -169,5 +197,16 @@ public class AssetManager : MonoBehaviour
             Debug.LogWarning("VFX Asset is not assigned.");
             return (null,null);
         }
+    }
+    public class VFXOverrides
+    {
+        public int size = 1;
+        public int count = 0;
+
+        // For directional effects, these can be used to set the origin and direction of the effect.
+        public Vector3 origin = Vector3.zero;
+        public Vector3 direction = Vector3.zero;
+
+        public Mesh mesh;
     }
 }

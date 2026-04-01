@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using facingfate;
 
 namespace Utility
 {
@@ -13,6 +12,15 @@ namespace Utility
         public static Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
         public static Tilemap BaseTilemap => UnityEngine.Object.FindObjectsByType<Tilemap>(0).FirstOrDefault(tilemap => tilemap.CompareTag("Basemap"));
         public static TileInfoScript CostInfoScript => BaseTilemap?.GetComponent<TileInfoScript>();
+
+        private static Color baseTileColor = new Color(0, 0, 0, 0.25f);
+        private static Color pathTileColor = new Color(0, 0, 1, 0.25f);
+        private static Color targetTileColor = new Color(1, 0, 0, 0.25f);
+        private static Color selecetedTileColor = new Color(1, 1, 0, 0.25f);
+        private static Color rangeTileColor = new Color(0, 1, 0, 0.25f);
+        private static Color lineTileColor = new Color(0.5f, 0.5f, 0, 0.25f);
+        private static Color blockedTileColor = new Color(1, 1, 1, 0.25f);
+       
 
         // Map indexing configuration - must match CombatMapMaster CollectMap
         public const int MapWidth = 50;
@@ -459,7 +467,7 @@ namespace Utility
                 if (sr != null)
                 {
                     sr.sprite = HexThin;
-                    sr.color = Color.black;
+                    sr.color = baseTileColor;
                     continue;
                 }
             }
@@ -478,45 +486,45 @@ namespace Utility
                 if (sr != null)
                 {
                     sr.sprite = HexThin;
-                    sr.color = Color.black;
+                    sr.color = baseTileColor;
                     continue;
                 }
             }
         }
         public static void SetTilesHighlight(List<Vector3Int> tiles, HighlightType ht)
         {
-            Color color = Color.black;
+            Color color = baseTileColor;
             Sprite texture = null;
 
             switch (ht)
             {
                 case HighlightType.Path:
-                    color = Color.cyan;
+                    color = pathTileColor;
                     texture = HexThin;
                     break;
 
                 case HighlightType.Target:
-                    color = Color.red;
+                    color = targetTileColor;
                     texture = HexThick;
                     break;
 
                 case HighlightType.Selected:
-                    color = Color.yellow;
+                    color = selecetedTileColor;
                     texture = HexThick;
                     break;
 
                 case HighlightType.Range:
-                    color = Color.green;
+                    color = rangeTileColor;
                     texture = HexThin;
                     break;
 
                 case HighlightType.Line:
-                    color = Color.blueViolet;
+                    color = lineTileColor;
                     texture = HexThin;
                     break;
 
                 case HighlightType.Blocked:
-                    color = Color.gray;  
+                    color = blockedTileColor;  
                     texture = HexThick;
                     break;
             }

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
+using UnityEditor.Localization.Plugins.XLIFF.V20;
 using UnityEngine;
 using Utility;
 namespace facingfate
@@ -45,9 +47,9 @@ namespace facingfate
                 {
                     CombatUtility.ApplyDamage(d, Target, d.Damage);
                 },
-                CardVfx = (Target) =>
+                CardVfx = (Data,Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtUnifiedPositions("SpearsFromGround", Target.targetedTiles);
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
 
             });
@@ -61,8 +63,8 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-                cost_u = 20,
-                damage_u = 200,
+                cost_u = 40,
+                damage_u = 75,
 
                 targetingData = new()
                 {
@@ -71,7 +73,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage}, reduces Movement",
+                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} Damage, Increase Movement Cost by 1 for {Duration turns",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, d.Damage);
@@ -84,6 +86,11 @@ namespace facingfate
                         duration: 2,
                         name: $"HeavyBlowMovementDecrease"
                     ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                },
+                CardVfx = (Data,Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities,new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Debuff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
 
@@ -106,10 +113,14 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
+                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage.",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, d.Damage);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
 
@@ -137,6 +148,10 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, d.Damage);
+                },
+                CardVfx = (data,Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("SlashImpact", Target.targetedEntities, new AssetManager.VFXOverrides { count = data.Repeats});
                 }
             });
 
@@ -165,7 +180,6 @@ namespace facingfate
                 {
                     CombatUtility.ApplyDamage(d, Target, d.Damage);
                     MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, 1);
-                    // TODO: 1 Feld wegschieben
                 }
             });
 

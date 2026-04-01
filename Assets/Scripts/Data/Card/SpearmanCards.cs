@@ -1,5 +1,7 @@
 using UnityEngine;
 using Utility;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace facingfate
 {
@@ -82,9 +84,9 @@ namespace facingfate
                 {
                     CombatUtility.ApplyDamage(d, Target);
                 },
-                CardVfx = (Target) =>
+                CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtUnifiedPositions("SpearsFromGround", Target.targetedTiles);
+                    AssetManager.Instance.CreateVFXAtUnifiedPositions("SpearsFromGround", Target.targetedTiles, new AssetManager.VFXOverrides());
                 }
             });
 
@@ -98,7 +100,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 85,
+                damage_u = 45,
 
                 range_u = 4,
                 power_u = 3,
@@ -149,7 +151,7 @@ namespace facingfate
 
                 CardAiBias = new()
                 {
-                    DamageOverride = 40,
+                    DamageOverrideValue = 40,
                 },
 
                 CardDescription = (User, d) =>
@@ -159,7 +161,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge);
+                    EntityModifier entityModifier = EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, d, ThroughputSource.Damage, User);
+
+                    Debug.Log($"Applying Bleed modifier from Heaven Piercing Spear to {Target.name} with base damage {entityModifier.BaseValue} for {entityModifier.Duration} turns.");
+
+                    CombatUtility.ApplyEntityModifier(d, Target, entityModifier, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
 
@@ -194,9 +200,9 @@ namespace facingfate
                 {
                     CombatUtility.ApplyDamage(d, Target);
                 },
-                CardEffectGround = (User, Target, d) =>
+                CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateFxAtPosition("Firestorm", Target);
+                    AssetManager.Instance.CreateVFXAtIndividualPositions("Firestorm", Target.targetedTiles,new AssetManager.VFXOverrides());
                 }
             });
 
@@ -315,10 +321,11 @@ namespace facingfate
                 {
                     CombatUtility.ApplyDamage(d, Target, d.Damage);
                 },
-                CardEffectGround = (User, Target, d) =>
+                CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateFxAtPosition("Firestorm", Target);
+                    AssetManager.Instance.CreateVFXAtIndividualPositions("Firestorm", Target.targetedTiles, new AssetManager.VFXOverrides());
                 }
+
             });
 
             // 110109 – Azure Dragon's Roar (Self; until end of turn)
@@ -344,7 +351,7 @@ namespace facingfate
 
                 CardAiBias = new()
                 {
-                    PowerOverride = 80,
+                    PowerOverrideValue = 80,
                 },
 
                 CardDescription = (User, d) =>
@@ -362,10 +369,11 @@ namespace facingfate
                         duration: d.Duration,
                         name: $"DamageIncrease"
                         );
-
-                    Debug.Log("Applying Azure Dragon's Roar buff: +{Power} Damage for {Duration} turns.");
-
-                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndOverride);
+                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.AddUnique);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
 
@@ -396,7 +404,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = "Deal {Damage} damage";
+                    d.cardDescription = "Deal {Damage} damage. Roots for {Duration} turns";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -420,10 +428,12 @@ namespace facingfate
 
                     CombatUtility.ApplyDamage(d, Target);
                 },
-                CardEffectGround = (User, Target, d) =>
+                CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateFxAtPosition("SpearsFromGround", Target);
+                    AssetManager.Instance.CreateVFXAtIndividualPositions("SpearsFromGround", Target.targetedTiles, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Debuff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
+
             });
         }
 
@@ -468,6 +478,10 @@ namespace facingfate
                             ),
                         ModifierMergeStrategy.RefreshDurationAndMerge
                         );
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
 
@@ -480,8 +494,9 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 22,
+                cost_u = 20,
                 damage_u = 50,
+
                 duration_u = 1,
                 charges_u = 1,
 
@@ -519,6 +534,10 @@ namespace facingfate
                         }
                     );
                     CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
 
@@ -543,17 +562,35 @@ namespace facingfate
 
                 CardAiBias = new()
                 {
-                    PowerOverride = 80,
+                    PowerOverrideValue = 80,
                 },
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"On next ranged hit this round reduce damage 100%";
+                    d.cardDescription = $"On next ranged technique recieved this round reduce the damage to 0";
                 },
 
                 CardEffect = (User, Target, d) =>
                 {
-                    //To-Do Deflect Ranged
+                 CombatUtility.ApplyStatBuff(d, Target,
+                        new StatModifier
+                        (
+                            stat: Target.entityStats.DamageTakenModifier,
+                            value: 0,
+                            scaling: ModifierScaling.Multiplier,
+                            condition: (e, c) => c.cardType == CardType.Technique && c.cardIdentities.Contains(CardIdentity.Ranged),
+                            to_TriggerRefs: new() { },
+                            duration: d.Duration,
+                            charges: 1,
+                            name: $"RangedDamageReduction"
+                        ),
+                    ModifierMergeStrategy.RefreshDurationAndMerge
+                    );
+
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
 
@@ -600,9 +637,16 @@ namespace facingfate
 
                     // Apply Taunt
                     CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Taunted", CloneMode.Defaults, d, ThroughputSource.Power, User), ModifierMergeStrategy.Override);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Debuff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    List < EntityScript > caster  = new List<EntityScript>() { TargetingUtility.GetEntitiesFromTile(Target.castingPosition) };
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff",  caster, new AssetManager.VFXOverrides());
                 }
             });
 
+            /*
             // 110205 – Sky-Rending Reversal (Self; stronger fixed counter)
             CardDatabase.RegisterCard(new CardData()
             {
@@ -649,7 +693,7 @@ namespace facingfate
                     CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
-
+            */
 
             // 110206 – Phalanx Guard (Self; defensive placeholder)
             CardDatabase.RegisterCard(new CardData()
@@ -660,7 +704,7 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 100,
+                cost_u = 40,
                 power_u = 10,
                 damage_u = 10,
                 duration_u = 3,
@@ -707,6 +751,10 @@ namespace facingfate
                             CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onThorns);
                         }),
                         ModifierMergeStrategy.RefreshDurationAndMerge);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
         }
@@ -723,7 +771,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 0,
-                power_u = -50,
+                power_u = 50,
 
                 range_u = 5,
 
@@ -736,7 +784,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = $"Reduce Armour by {d.Power}%.";
+                    d.cardDescription = "Reduce Armour by {Power}%.";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -744,12 +792,16 @@ namespace facingfate
                     var stat = Target.entityStats.IgnoreArmour;
                     var mod = new StatModifier(
                         stat: stat,
-                        value: d.Power,
+                        value: -d.Power,
                         scaling: ModifierScaling.Percent,
                         duration: d.Duration,
                         name: $"ArmourReducution");
 
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Debuff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
         }
@@ -777,7 +829,7 @@ namespace facingfate
 
                 CardDescription = (User, d) =>
                 {
-                    d.cardDescription = "Increase Aggro and attack power by {Power}% while active.";
+                    d.cardDescription = "Increase Attack power by {Power}% while active.";
                 },
 
                 CardEffect = (User, Target, d) =>
@@ -793,6 +845,10 @@ namespace facingfate
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                     // To-Do Increase Aggro
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
         }

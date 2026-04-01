@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 using static facingfate.TimelineManager;
@@ -88,10 +89,23 @@ namespace facingfate
         private static void ApplyCardFX(
             EntityScript source,
             CardData cardData,
-            TargetingModeData targetingData)
+            TargetingModeData targetingData,
+            bool atEach = false)
         {            
-            Debug.Log($"Applying VFX for card {cardData.cardName} on {targetingData.targetedEntities.Count} entities and {targetingData.targetedTiles.Count} tiles.");
-            cardData.CardVfx?.Invoke(targetingData);
+            if (atEach)
+            {
+                foreach (EntityScript target in targetingData.targetedEntities)
+                {
+                    cardData.CardVfx?.Invoke(cardData, new TargetingModeData
+                    {
+                        targetedEntities = new List<EntityScript> { target },
+                        targetedTiles = new List<Vector3Int>(),
+                        castingPosition = source.GetComponent<EntityOnMap>().currentCell,
+                    });
+                }
+            }
+            else
+                cardData.CardVfx?.Invoke(cardData, targetingData);
         }
 
         private static IEnumerator MoveCoroutine(

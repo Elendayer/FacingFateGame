@@ -88,7 +88,7 @@ namespace facingfate
                 // Check If the Card requires a Target
                 if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
                 {
-                    List<EntityScript> t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell }, FindObjectsByType<EntityScript>(0).ToList());
+                    List<EntityScript> t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell });
 
                     if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
                     {

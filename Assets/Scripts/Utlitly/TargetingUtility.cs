@@ -10,9 +10,12 @@ namespace Utility
 {
     public static class TargetingUtility
     {
+
         #region Entity Validation
-        public static List<EntityScript> GetValidTargets(CardData card, List<EntityScript> candidates)
+        public static List<EntityScript> GetValidTargets(CardData card)
         {
+            var candidates = AllEntitiesCache();
+
             if (card == null || card.Owner == null || candidates == null) return new List<EntityScript>();
     
             var owner = card.Owner;
@@ -66,8 +69,16 @@ namespace Utility
         #endregion
 
         #region Entity / Tile Conversion
-        public static List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles, List<EntityScript> allEntities)
+        public static List<EntityScript> AllEntitiesCache()
         {
+            List<EntityScript> allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0).ToList();
+
+            return allEntities;
+        }
+        public static List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles)
+        {
+            List<EntityScript> allEntities = AllEntitiesCache();
+
             if (tiles == null || allEntities == null) return new List<EntityScript>();
 
             var tileSet = new HashSet<Vector3Int>(tiles);
@@ -88,6 +99,24 @@ namespace Utility
             }
 
             return results;
+        }
+        public static EntityScript GetEntitiesFromTile (Vector3Int tile)
+        {
+            List<EntityScript> allEntities = AllEntitiesCache();
+
+            if (allEntities == null) return null;
+            for (int i = 0; i < allEntities.Count; i++)
+            {
+                var e = allEntities[i];
+                if (e == null) continue;
+                var onMap = e.GetComponent<EntityOnMap>();
+                if (onMap == null) continue;
+                if (onMap.currentCell == tile)
+                {
+                    return e;
+                }
+            }
+            return null;
         }
         public static Vector3Int? GetHoveredTile(PointerEventData eventData)
         {
@@ -115,7 +144,6 @@ namespace Utility
 
         public static TargetingModeData GetAffected(CardScript card, Vector3Int aimTile, EntityScript owner, bool usesVision, List<Vector3Int> selectedTiles = null, bool isVetted = false)
         {
-            List<EntityScript> allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0).ToList();
             List<EntityScript> entities = new();
             List<Vector3Int> tiles = new();
 
@@ -168,7 +196,7 @@ namespace Utility
                 tiles = VisionUtility.GetVisibleTiles(aimTile, tiles);
             }
 
-            entities = GetEntitiesFromTiles(tiles, allEntities);
+            entities = GetEntitiesFromTiles(tiles);
 
 
             targetingModeData.castingPosition = aimTile;
@@ -176,7 +204,7 @@ namespace Utility
             targetingModeData.targetedTiles = tiles;
             if (isVetted)
             {
-                targetingModeData.targetedEntities = GetValidTargets(card.cardData, entities);
+                targetingModeData.targetedEntities = GetValidTargets(card.cardData);
             }
             else
             {
@@ -344,7 +372,7 @@ namespace Utility
 
     public interface ITargetingMode
     {
-        List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner);
+        List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner);
     }
 
     public class TargetingModeData
@@ -375,16 +403,11 @@ namespace Utility
 
     public abstract class BaseTargetingMode : ITargetingMode
     {
-        public abstract List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner);
+        public abstract List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner);
 
-        protected List<EntityScript> GetValidEntities(CardScript card, List<EntityScript> entities, EntityScript owner)
+        protected List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles, int maxTargets = 9999)
         {
-            return TargetingUtility.GetValidTargets(card.cardData, entities);
-        }
-
-        protected List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles, List<EntityScript> allEntities, int maxTargets = 9999)
-        {
-            return TargetingUtility.GetEntitiesFromTiles(tiles, allEntities).Take(maxTargets).ToList();
+            return TargetingUtility.GetEntitiesFromTiles(tiles).Take(maxTargets).ToList();
         }
         protected Vector3Int FindCastingPosition(Vector3Int start, Vector3Int key, int range)
         {
@@ -404,10 +427,10 @@ namespace Utility
      * -----------------------------------------------------------*/
     public class SingleTargetingMode : BaseTargetingMode
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
         {
+            var targets = TargetingUtility.GetValidTargets(card.cardData);
             var results = new List<TargetingModeData>();
-            targets = GetValidEntities(card, targets, owner);
 
             foreach (var t in targets)
             {
@@ -433,11 +456,11 @@ namespace Utility
      * -----------------------------------------------------------*/
     public class RadiusTargetingMode : BaseTargetingMode
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
         {
+            var targets = TargetingUtility.GetValidTargets(card.cardData);
             var results = new List<TargetingModeData>();
             Dictionary<Vector3Int, int> options = new();
-            targets = GetValidEntities(card, targets, owner);
 
             foreach (var t in targets)
             {
@@ -465,7 +488,7 @@ namespace Utility
                 {
                     castingPosition = FindCastingPosition(owner.GetComponent<EntityOnMap>().currentCell, option.Key,card.cardData.Range),
                     targetedTiles = tiles,
-                    targetedEntities = GetEntitiesFromTiles(tiles, targets)
+                    targetedEntities = GetEntitiesFromTiles(tiles)
                 });
             }
 
@@ -478,11 +501,11 @@ namespace Utility
      * -----------------------------------------------------------*/
     public class RingTargetingMode : BaseTargetingMode
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        public override List<TargetingModeData> GetTargetingData(CardScript card,EntityScript owner)
         {
+            var targets = TargetingUtility.GetValidTargets(card.cardData);
             var results = new List<TargetingModeData>();
             Dictionary<Vector3Int, int> options = new();
-            targets = GetValidEntities(card, targets, owner);
 
             foreach (var t in targets)
             {
@@ -510,7 +533,7 @@ namespace Utility
                 {
                     castingPosition = FindCastingPosition(owner.GetComponent<EntityOnMap>().currentCell, option.Key, card.cardData.Range),
                     targetedTiles = tiles,
-                    targetedEntities = GetEntitiesFromTiles(tiles, targets)
+                    targetedEntities = GetEntitiesFromTiles(tiles)
                 });
             }
 
@@ -523,10 +546,10 @@ namespace Utility
      * -----------------------------------------------------------*/
     public class LineSelfTargetingMode : BaseTargetingMode
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
         {
+            var targets = TargetingUtility.GetValidTargets(card.cardData);
             var results = new List<TargetingModeData>();
-            targets = GetValidEntities(card, targets, owner);
 
             var candidatePositions = new Dictionary<Vector3Int, int>();
 
@@ -560,7 +583,7 @@ namespace Utility
                     var directionVector = TilemapUtilityScript.CubeDirs[dir];
                     var lineTiles = TilemapUtilityScript.GetTilesInLineFromSelf(pos, pos + directionVector, card.cardData.Range);
 
-                    var hitEntities = GetEntitiesFromTiles(lineTiles, targets);
+                    var hitEntities = GetEntitiesFromTiles(lineTiles);
                     int hitCount = hitEntities.Count;
 
                     if (hitCount > 0)
@@ -592,11 +615,10 @@ namespace Utility
      * -----------------------------------------------------------*/
     public class LineFreeTargetingMode : BaseTargetingMode
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
         {
+            var targets = TargetingUtility.GetValidTargets(card.cardData);
             var results = new List<TargetingModeData>();
-
-            targets = GetValidEntities(card, targets, owner);
 
             foreach (var start in targets)
             {
@@ -607,7 +629,7 @@ namespace Utility
                     var endCell = end.GetComponent<EntityOnMap>().currentCell;
 
                     var lineData = MovementUtility.FindLineFromToWithLength(startCell, endCell, card.cardData.Area);
-                    var hitEntities = GetEntitiesFromTiles(lineData.Path, targets);
+                    var hitEntities = GetEntitiesFromTiles(lineData.Path);
 
                     var castPositions = TilemapUtilityScript.GetTilesInRadius(startCell, card.cardData.Range)
                         .Intersect(TilemapUtilityScript.GetTilesInRadius(endCell, card.cardData.Range));
@@ -632,10 +654,10 @@ namespace Utility
      * -----------------------------------------------------------*/
     public class ConeTargetingMode : BaseTargetingMode
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
         {
+            var targets = TargetingUtility.GetValidTargets(card.cardData);
             var results = new List<TargetingModeData>();
-            targets = GetValidEntities(card, targets, owner);
 
             foreach (var t in targets)
             {
@@ -645,7 +667,7 @@ namespace Utility
                 foreach (var cast in castCandidates)
                 {
                     var coneTiles = TilemapUtilityScript.GetTilesInCone(cast, targetCell, card.cardData.Range, card.cardData.Area);
-                    var hitEntities = GetEntitiesFromTiles(coneTiles, targets);
+                    var hitEntities = GetEntitiesFromTiles(coneTiles);
 
                     if (hitEntities.Count > 0)
                     {
@@ -667,11 +689,11 @@ namespace Utility
      * -----------------------------------------------------------*/
     public class SelectionTargetingMode : BaseTargetingMode
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
         {
+            var targets = TargetingUtility.GetValidTargets(card.cardData);
             var results = new List<TargetingModeData>();
             Dictionary<Vector3Int, int> options = new();
-            targets = GetValidEntities(card, targets, owner);
 
             foreach (var t in targets)
             {
@@ -694,7 +716,7 @@ namespace Utility
             foreach (var option in options)
             {
                 var tiles = TilemapUtilityScript.GetTilesInRadius(option.Key, card.cardData.Range);
-                var entities = GetEntitiesFromTiles(tiles, targets);
+                var entities = GetEntitiesFromTiles(tiles);
                 var tilesWithEntities = entities.Select(e => e.GetComponent<EntityOnMap>().currentCell).ToList();
 
 
@@ -715,16 +737,15 @@ namespace Utility
      * -----------------------------------------------------------*/
     public class AllTilesTargetingMode : BaseTargetingMode
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, List<EntityScript> targets, EntityScript owner)
+        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
         {
-            targets = GetValidEntities(card, targets, owner);
-            var tiles = TilemapUtilityScript.GetTilesInRadius(new(), 999);
+            var tiles = TilemapUtilityScript.GetAllValidTiles();
 
             TargetingModeData result = new TargetingModeData
             {
                 castingPosition = card.cardData.Owner.GetComponent<EntityOnMap>().currentCell,
                 targetedTiles = tiles,
-                targetedEntities = GetEntitiesFromTiles(tiles,targets,card.cardData.MaxTarget),
+                targetedEntities = GetEntitiesFromTiles(tiles,card.cardData.MaxTarget),
             };
             
             return new List<TargetingModeData>() { result };

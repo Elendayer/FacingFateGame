@@ -64,10 +64,10 @@ namespace facingfate
                      "Spear_Abil_Iron_Wall_Reversal",
                      "Spear_Abil_Whirling_Heaven_Ward",
                      "Spear_Abil_Unyielding_Spear_Stance",
-                     "Spear_Abil_Sky_Rending_Reversal",
+                     //"Spear_Abil_Sky_Rending_Reversal",
                      "Spear_Abil_Phalanx_Guard",
-                    //"Spear_Curse_Brittle_Courage",*/
-                    //"Spear_Bless_Brilliant_Spear",
+                    "Spear_Curse_Brittle_Courage",
+                    "Spear_Bless_Brilliant_Spear",
 
                 }
             });

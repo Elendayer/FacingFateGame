@@ -130,7 +130,7 @@ namespace Utility
             Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);        }
 
-        public static void ApplyEntityModifier(CardData cardData, EntityScript EffectOwner, EntityModifier mod, ModifierMergeStrategy mergeStrategy, int valueOverride=0)
+        public static void ApplyEntityModifier(CardData cardData, EntityScript EffectOwner, EntityModifier mod, ModifierMergeStrategy mergeStrategy, int valueOverride = 0)
         {
             List<GameplayRef> refs = new() { GameplayRef.onModifierApplied };
 
@@ -154,7 +154,7 @@ namespace Utility
             }
 
             // Value override is used for cases where the modifier value is determined at application rather than beforehand, such as with scaling modifiers. If the valueOverride is 0, it will use the default value from the modifier data.
-            if (valueOverride == 0)
+            if (valueOverride != 0)
             {
                 mod.BaseValue = valueOverride;
             }

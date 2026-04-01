@@ -161,23 +161,14 @@ namespace facingfate
                     Charges--;
                 }
 
-
-                // Tick Duration if Effect Triggers on Turnstart
-                if (trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
+                if (Duration < 9999)
                 {
-                    if (Duration < 9999)
-                    {
-                        Duration--;
-                    }
+                    Duration--;
                 }
 
                 if (IsExpired || IsSpend)
                 {
-                    ActionQueueUtility.EnqueueAction(() =>
-                    {
-                        OnRemove();
-                    });
-
+                    OnRemove();
                     return;
                 }
             }
@@ -187,7 +178,7 @@ namespace facingfate
             {
                 return;
             }
-
+            
             // Tick Duration if its not triggered at TurnStart and has Duration
             if (!OnRef_Trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
             {
@@ -200,7 +191,7 @@ namespace facingfate
 
                 if (GameEvents.CheckIfRelevantTrigger(trigger, FallBackEndTurnTrigger))
                 {
-                    if (Duration < 99999)
+                    if (Duration < 9999)
                     {
                         Duration--;
                     }
@@ -208,10 +199,7 @@ namespace facingfate
 
                 if (IsExpired || IsSpend)
                 {
-                    ActionQueueUtility.EnqueueAction(() =>
-                    {
-                        OnRemove();
-                    });
+                    OnRemove();
                 }
             }
         }
@@ -251,10 +239,8 @@ namespace facingfate
             }
             if (IsExpired || IsSpend)
             {
-                ActionQueueUtility.EnqueueAction(() =>
-                {
+
                     OnRemove();
-                });
             }
         }
         public void OnRemove()
@@ -267,6 +253,7 @@ namespace facingfate
             {
                 GameEvents.OnGameplayReference -= OnRef_ActionCall;
             }
+            Debug.Log($"Modifier {ModifierName} removed from {Owner}. Duration: {Duration}, Charges: {Charges}");
             Owner.RemoveModifier(this);
         }
 

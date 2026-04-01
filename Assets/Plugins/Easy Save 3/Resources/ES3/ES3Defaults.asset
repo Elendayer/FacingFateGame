@@ -44,6 +44,7 @@ MonoBehaviour:
     - AK.Wwise.Unity.Utilities
     - Assembly-CSharp
     - Assembly-CSharp-firstpass
+    - Unity.RenderPipelines.Core.Samples.Runtime
     showAdvancedSettings: 0
   addMgrToSceneAutomatically: 0
   autoUpdateReferences: 1

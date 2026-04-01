@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Utility;
+using static UnityEngine.GraphicsBuffer;
 using Object = UnityEngine.Object;
 
 namespace facingfate
@@ -63,7 +65,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 20,
-                damage_u = 30,
+                damage_u = 5,
                 repeats_u = 4,
 
                 targetingData = new()
@@ -73,13 +75,17 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = "Deal {Damage} damage,{Repeats} times.",
+                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage, Repeats {Repeats} times.",
 
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("SlashImpact", Target.targetedEntities, new AssetManager.VFXOverrides { count = Data.Repeats });
                 }
+
             });
 
             // 120103 – Lotus Death Kiss (Execute <10% HP)
@@ -91,18 +97,24 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 2,
+                cost_u = 1,
                 radius_u = 2,
 
-                targetingData = new()
+                targetingData =
                 {
                     CardTargetType = CardTargetType.Entity,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = "If target has less than 10% of their maximum Health, Execute them. Otherwise deal 1 damage.",
+                CardAiBias =
+                {
+                    DamageOverrideValue = 1,
+                    TargetDynamicConditionFunc = (target, data) => target.entityStats.CurrentHealth <= target.entityStats.MaxHealth.Value() / 10,
+                    ConditionalOverrideValue = 99999,
+                },
+
+                CardDescription = (User, d) => d.cardDescription = "If target has less than 10% of their maximum Health, Execute them. Otherwise deal 1 damage.",
 
                 CardEffect = (User, Target, d) =>
                 {
@@ -149,6 +161,11 @@ namespace facingfate
                     CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
                     CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
                     CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities, new AssetManager.VFXOverrides());
+
                 }
             });
 
@@ -177,6 +194,10 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target);
+                },
+                CardVfx = (Data,Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities, new AssetManager.VFXOverrides());
                 }
             });
 
@@ -207,6 +228,13 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    foreach (var entity in Target.targetedEntities)
+                    {
+                        AssetManager.Instance.CreateVFXAttachedToGameObjects("ArrowShot", Target.targetedEntities, new AssetManager.VFXOverrides { origin = Data.Owner.transform.position });
+                    }
                 }
             });
 
@@ -438,7 +466,7 @@ namespace facingfate
                         duration: d.Duration,
                         onRef: (target) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, d.Damage); AssetManager.Instance.CreateFxAtPosition("BleedEffect", Target);
+                            CombatUtility.ApplyDamage(null, target, d.Damage); AssetManager.Instance.CreateFxAtPosition("BleedEffect", Target, new AssetManager.VFXOverrides());
                         }
                        ));
                 }

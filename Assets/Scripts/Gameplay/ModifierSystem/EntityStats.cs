@@ -1,7 +1,5 @@
-using System;
 using System.Linq;
 using UnityEngine;
-using static UnityEngine.UIElements.UxmlAttributeDescription;
 
 namespace facingfate
 {
