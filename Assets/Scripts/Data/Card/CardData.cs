@@ -166,7 +166,7 @@ namespace facingfate
         public Action<CardData,TargetingModeData> CardVfx =
             (cardData, targetData) =>
             {
-                AssetManager.Instance.CreateVFXAttachedToGameObjects("LightningStrike", targetData.targetedEntities, new AssetManager.VFXOverrides());           
+                AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("LightningStrike"), targetData.targetedEntities );           
             };
 
         [Header("AI")]

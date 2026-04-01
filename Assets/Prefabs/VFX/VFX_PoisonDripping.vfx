@@ -36,8 +36,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: 32
     y: 571
-    width: 706
-    height: 2475
+    width: 707
+    height: 2489
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d4c867f6b72b714dbb5fd1780afe208, type: 3}
-  m_Name: PoisonFx
+  m_Name: VFX_PoisonDripping
   m_EditorClassIdentifier: 
   m_UIIgnoredErrors: []
   m_Parent: {fileID: 0}
@@ -64,8 +64,8 @@ MonoBehaviour:
   m_UIInfos: {fileID: 114340500867371532}
   m_CustomAttributes: []
   m_ParameterInfo:
-  - name: _Mesh
-    path: _Mesh
+  - name: Mesh
+    path: Mesh
     tooltip: 
     space: -1
     spaceable: 0
@@ -91,7 +91,7 @@ VisualEffectResource:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PoisonFx
+  m_Name: VFX_PoisonDripping
   m_Graph: {fileID: 114350483966674976}
   m_Infos:
     m_RendererSettings:
@@ -669,7 +669,7 @@ MonoBehaviour:
   m_InputSlots: []
   m_OutputSlots:
   - {fileID: 8926484042661615002}
-  m_ExposedName: _Mesh
+  m_ExposedName: Mesh
   m_Exposed: 1
   m_Order: 0
   m_Category: 

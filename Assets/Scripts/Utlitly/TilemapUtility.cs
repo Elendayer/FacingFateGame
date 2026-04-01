@@ -38,8 +38,8 @@ namespace Utility
             return new Vector3Int(x, y, 0);
         }
 
-        public static Sprite HexThick => AssetManager.Instance.HexThick;
-        public static Sprite HexThin => AssetManager.Instance.HexThin; 
+        public static Sprite HexThick;
+        public static Sprite HexThin;
 
 
         // >>> CONFIG: Point-top offset type (Odd-R by default). Flip if your rows are shifted the other way.

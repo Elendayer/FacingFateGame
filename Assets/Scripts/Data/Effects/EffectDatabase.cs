@@ -67,7 +67,7 @@ namespace facingfate
 				},
 				onRef_Action: (target, cd, value) =>
 				{
-					CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBleed);
+					CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBleed, new VFXData ("BleedEffect",true));
 				}));
 
 			RegisterEffect(new EntityModifier
@@ -84,8 +84,8 @@ namespace facingfate
 				},
 				onRef_Action: (target, cd, value) =>
 				{
-					CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onPoison);
-				}));
+					CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onPoison, new VFXData("PoisonEffect", true));
+                }));
 
 			RegisterEffect(new EntityModifier
 				(
@@ -101,7 +101,7 @@ namespace facingfate
 				},
 				onRef_Action: (target, cd, value) =>
 				{
-					CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBurn);
+					CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBurn, new VFXData("BurnEffect", true));
 				}));
 
 			RegisterEffect(new EntityModifier(

@@ -8,27 +8,26 @@ namespace Utility
 {
     public static class CombatUtility
     {
-        public static void ApplyCost(CardData cardData, Stat resourceStat, int cost)
-        {
-            resourceStat.AddModifier(new StatModifier("BaseValue", resourceStat, -cost, ModifierScaling.Flat), ModifierMergeStrategy.Merge);
-        }
-
-        // Direct Damage that bypasses armour and block
-        public static void ApplyEffectDamage(int rawDamage, EntityScript target, GameplayRef dotType)
+        // Damage that bypasses mitigation, armour, and block. Used for DOT effects and other similar cases.
+        // Does not trigger onHitLanded or any related triggers, but does trigger onDamageRecieved and related triggers.
+        public static void ApplyEffectDamage(int rawDamage, EntityScript target, GameplayRef dotType, VFXData vfxData)
         {
             List<GameplayRef> refs = new() { dotType, GameplayRef.onDamageRecieved };
 
             target.entityStats.CurrentHealth -= rawDamage;
 
+            HandleOnDamageVFX(vfxData, target);
+
             HandlePostCombatTrigger(refs, target, target, null, rawDamage);
         }
 
         // Standard Damage Application
-        public static void ApplyDamage(CardData cardData, EntityScript target, int rawDamage = 0)
+        public static void ApplyDamage(CardData cardData, EntityScript target, VFXData vfxData, int rawDamage = 0)
         {
             List<GameplayRef> refs = new() { GameplayRef.onHitLanded };
 
             int damage;
+
             if (cardData != null)
             {
                 damage = cardData.Damage;
@@ -80,6 +79,9 @@ namespace Utility
                 }
                 HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, damage); return;
             }
+
+            HandleOnDamageVFX(vfxData, target);
+
             HandlePostCombatTrigger(refs, null, target, null, damage); return;
         }
 
@@ -202,10 +204,31 @@ namespace Utility
         }
         #endregion
 
+
+
+        // Handles VFX instantiation for damage application.
+        private static void HandleOnDamageVFX(VFXData vfxData, EntityScript target)
+        {
+            if (vfxData == null) return;
+            if (vfxData.attachToMesh)
+            {
+                vfxData.mesh = target.EntityModel.mesh;
+                AssetManager.Instance.CreateVFXAttachedToEntityMesh(vfxData, target); return;
+            }
+            else
+            {
+                AssetManager.Instance.CreateVFXAttachedToGameObjects(vfxData, new List<EntityScript>() { target });
+            }
+        }
+
+
         #region Post Combat Trigger Handlers
+
+        // Handles triggering any relevant pre-combat triggers when a card is played. This includes onCardPlayed, as well as any triggers related to the card's class, type, or identities.
         public static void HandlePreCombatTrigger(List<EntityScript> targets, CardData cardData)
         {
             if (cardData == null) return;
+
             List<GameplayRef> refs = new() { GameplayRef.onCardPlayed };
             refs.AddRange(cardData.cardIdentities.Select(c => (GameplayRef)Enum.Parse(typeof(GameplayRef), c.ToString())).ToList());
 
@@ -217,6 +240,8 @@ namespace Utility
 
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, cardData.Owner, targets, cardData, cardData.CardAiBias.ThroughputOverride(null, cardData, targets)));
         }
+       
+        // Handles triggering any relevant post-combat triggers after damage, healing, buffs, debuffs, or entity modifiers have been applied.
         public static void HandlePostCombatTrigger(List<GameplayRef> gameplayRefs, EntityScript user, EntityScript target, CardData cardData = null, int throughput = 0)
         {
             List<GameplayRef> refs = new() {};

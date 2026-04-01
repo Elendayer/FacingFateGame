@@ -43,7 +43,7 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage.",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Power);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"), d.Power);
                 }
             });
 
@@ -68,7 +68,7 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} melee damage.",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 }
             });
 
@@ -94,7 +94,7 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = $"Deal {d.Power} damage.",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Power);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Power);
                     // TODO: absorb resource from target
                 }
             });
@@ -453,7 +453,7 @@ namespace facingfate
                         },
                         onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, value);
+                            CombatUtility.ApplyDamage(null, target, new VFXData("Impact"), value);
                         });
                     CombatUtility.ApplyEntityModifier(d, Target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }

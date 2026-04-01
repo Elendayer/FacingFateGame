@@ -1,6 +1,8 @@
+using Language.Lua;
 using System.Collections.Generic;
 using UnityEngine;
 using Utility;
+using static UnityEngine.GraphicsBuffer;
 
 namespace facingfate
 {
@@ -849,8 +851,10 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Poison },
 
                 cost_u = 30,
+
                 damage_u = 2,
                 duration_u = 3,
+
                 range_u = 4,
                 radius_u = 3,
 
@@ -861,11 +865,34 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Deal {d.Damage} poison damage in a small area. A poisonous cloud stays on the field.",
+                CardAiBias = new CardAiBias
+                {
+                    DamageOverrideValue = 40
+
+                },
+
+                CardDescription = (User, d) => d.cardDescription = "Create a cloud of poison, inflicing Poison dealing {Damage} for {Duration} turns.",
 
                 CardEffectGround = (User, TargetTile, d) =>
                 {
+                    var mod = new EntityModifier(
+                        modifierName: "Poison",
+                        owner: User,
+                        baseValue: d.Damage,
+                        toTriggerRefs: new(),
+                        duration: d.Duration,
+                        charges: d.Charges,
+                        onRef_Trigger: new RelevantTriggerCheck
+                        {
+                            OnTriggerReference = new() { GameplayRef.onHitLanded },
+                            CheckType = CheckEntityType.Target,
+                            CheckEntity = User,
+                        },
+                        onRef_Action: (target, cd, value) =>
+                        {
+                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onBleed, new VFXData("BleedEffect", true));
+                        });
+
                     CombatUtility.SpawnGroundEffect(d, TargetTile, new GroundEffect_Enter_EntityData
                     (
                         cardData: d,
@@ -878,30 +905,9 @@ namespace facingfate
                         duration: d.Duration,
                         removeOnExit: false,
                         removeOnEnd: false,
-                        modifier: new EntityModifier(
-                            modifierName: "Poison",
-                            owner: null,
-                            baseValue: d.Damage,
-                            toTriggerRefs: new() { GameplayRef.onPoison },
-                            duration: d.Duration,
-                            onRef_Trigger: new RelevantTriggerCheck
-                            {
-                                OnTriggerReference = new() { GameplayRef.onTurnStart },
-                                CheckType = CheckEntityType.Target,
-                            },
-                            onRef_Action: (target, cd, value) =>
-                            {
-                                CombatUtility.ApplyDamage(null, target, value);
-                            }),
-                        onEnter: (modifier, target) =>
-                        {
-                            CombatUtility.ApplyEntityModifier(d, target, modifier, ModifierMergeStrategy.RefreshDurationAndMerge);
-                        },
-                        onExit: (modifier, target) =>
-                        {
-
-                        }));
-                    // ToDO: Posion Cloud sollte länger auf dem Spielfeld und ALLE vergiften die durchgehen wollen
+                        modifier: mod,
+                        onEnter: (modifier, target) => { },
+                        onExit: (modifier, target) => { }));
                 }
             });
         }

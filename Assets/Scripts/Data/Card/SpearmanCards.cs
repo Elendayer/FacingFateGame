@@ -50,7 +50,7 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact") { activationCount = d.Repeats});
                 },
             });
 
@@ -82,11 +82,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtUnifiedPositions("SpearsFromGround", Target.targetedTiles, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround"), Target.targetedTiles);
                 }
             });
 
@@ -119,7 +119,7 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target,  new VFXData ("Impact"));
                 },
                 CardEffectGround = (User, Target, d) =>
                 {
@@ -198,11 +198,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = 1});
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions("Firestorm", Target.targetedTiles,new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm"), Target.targetedTiles);
                 }
             });
 
@@ -239,7 +239,7 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = 1 });
 
                     CombatUtility.ApplyStatDebuff(d, Target,
                         new StatModifier
@@ -285,7 +285,7 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = 1 });
                     // To-Do Slow
                 }
             });
@@ -319,11 +319,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("BurnEffect") , d.Damage);
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions("Firestorm", Target.targetedTiles, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm"), Target.targetedTiles);
                 }
 
             });
@@ -373,7 +373,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
                 }
             });
 
@@ -426,14 +426,13 @@ namespace facingfate
                         ),
                      ModifierMergeStrategy.RefreshDurationAndMerge);
 
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions("SpearsFromGround", Target.targetedTiles, new AssetManager.VFXOverrides());
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Debuff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("SpearsFromGround"), Target.targetedTiles);
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
                 }
-
             });
         }
 
@@ -481,7 +480,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
                 }
             });
 
@@ -530,14 +529,14 @@ namespace facingfate
                         onRef_Action: (target, cd, value) =>
                         {
                             Debug.Log($"Spearman Iron Wall Reversal counter triggered for {value} damage.");
-                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved);
+                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved, new VFXData ("Impact"));
                         }
                     );
                     CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
                 }
             });
 
@@ -590,7 +589,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
                 }
             });
 
@@ -640,9 +639,9 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Debuff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
                     List < EntityScript > caster  = new List<EntityScript>() { TargetingUtility.GetEntitiesFromTile(Target.castingPosition) };
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff",  caster, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData ("Buff"),  caster);
                 }
             });
 
@@ -748,13 +747,13 @@ namespace facingfate
                         },
                         onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onThorns);
+                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onThorns, new VFXData ("Impact"));
                         }),
                         ModifierMergeStrategy.RefreshDurationAndMerge);
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
                 }
             });
         }
@@ -801,7 +800,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Debuff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
                 }
             });
         }
@@ -848,7 +847,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Buff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
                 }
             });
         }

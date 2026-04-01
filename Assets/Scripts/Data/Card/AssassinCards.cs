@@ -51,7 +51,7 @@ namespace facingfate
                 },
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 }
             });
 
@@ -79,13 +79,8 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact"));
                 },
-                CardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("SlashImpact", Target.targetedEntities, new AssetManager.VFXOverrides { count = Data.Repeats });
-                }
-
             });
 
             // 120103 – Lotus Death Kiss (Execute <10% HP)
@@ -120,11 +115,11 @@ namespace facingfate
                 {
                     if (Target.entityStats.CurrentHealth <= Target.entityStats.MaxHealth.Value() / 10)
                     {
-                        CombatUtility.ApplyEffectDamage(99999, Target, GameplayRef.Physical);
+                        CombatUtility.ApplyEffectDamage(99999, Target, GameplayRef.Physical, new VFXData("Impact"));
                     }
                     else
                     {
-                        CombatUtility.ApplyEffectDamage(1, Target, GameplayRef.Physical);
+                        CombatUtility.ApplyEffectDamage(1, Target, GameplayRef.Physical, new VFXData("Impact"));
                     }
                 }
             });
@@ -164,7 +159,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Impact"), Target.targetedEntities);
 
                 }
             });
@@ -193,12 +188,8 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"));
                 },
-                CardVfx = (Data,Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities, new AssetManager.VFXOverrides());
-                }
             });
 
             // 120106 – Moon Piercing Arrow (LineSelf; multi-hit along the line)
@@ -227,13 +218,13 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"));
                 },
                 CardVfx = (Data, Target) =>
                 {
                     foreach (var entity in Target.targetedEntities)
                     {
-                        AssetManager.Instance.CreateVFXAttachedToGameObjects("ArrowShot", Target.targetedEntities, new AssetManager.VFXOverrides { origin = Data.Owner.transform.position });
+                        AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("ArrowShot") { origin = Data.Owner.transform.position }, Target.targetedEntities );
                     }
                 }
             });
@@ -265,7 +256,7 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 }
             });
 
@@ -335,7 +326,7 @@ namespace facingfate
                     }
 
                     // 1) Starttreffer
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
 
                     // 2) Bounces
                     var hitSet = new HashSet<int> { Target.GetInstanceID() };
@@ -349,7 +340,7 @@ namespace facingfate
                         var next = FindNextBounceTarget(last, hitSet, hopLimit);
                         if (next == null) break;
 
-                        CombatUtility.ApplyDamage(d, next);
+                        CombatUtility.ApplyDamage(d, next, new VFXData("Impact"));
                         hitSet.Add(next.GetInstanceID());
                         last = next;
                     }
@@ -384,7 +375,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     // Direktschaden
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
 
                     CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.OverrideFromData, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge,10);
                 }
@@ -417,7 +408,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     // Direkter Schaden
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
 
 
                     CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Stun", CloneMode.OverrideFromData, d, ThroughputSource.Power, Target), ModifierMergeStrategy.Merge);
@@ -466,7 +457,7 @@ namespace facingfate
                         duration: d.Duration,
                         onRef: (target) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, d.Damage); AssetManager.Instance.CreateFxAtPosition("BleedEffect", Target, new AssetManager.VFXOverrides());
+                            CombatUtility.ApplyDamage(null, target, new VFXData ("Impact"), d.Damage);
                         }
                        ));
                 }

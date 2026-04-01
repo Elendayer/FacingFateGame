@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEditor.Localization.Plugins.XLIFF.V20;
 using UnityEngine;
+using UnityEngine.AdaptivePerformance;
 using Utility;
 namespace facingfate
 {
@@ -45,13 +46,8 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = "Deal Damage equal to half your Strength: ({Damage})",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                 },
-                CardVfx = (Data,Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities, new AssetManager.VFXOverrides());
-                }
-
             });
 
             // 100102 – Heavy Blow – slow heavy hit (TODO: -1 Movement)
@@ -76,7 +72,7 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = "Deal {Damage} Damage, Increase Movement Cost by 1 for {Duration turns",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                     CombatUtility.ApplyStatDebuff(d, Target,
                         new StatModifier(
                         stat: Target.entityStats.MovementCostModifier,
@@ -89,8 +85,7 @@ namespace facingfate
                 },
                 CardVfx = (Data,Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities,new AssetManager.VFXOverrides());
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Debuff", Target.targetedEntities, new AssetManager.VFXOverrides());
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData ("Debuff"), Target.targetedEntities);
                 }
             });
 
@@ -116,12 +111,8 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage.",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") ,d.Damage);
                 },
-                CardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("Impact", Target.targetedEntities, new AssetManager.VFXOverrides());
-                }
             });
 
             // 100104 – Double Cut – strike twice
@@ -147,12 +138,8 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = "Hit the target {Repeats} for {Damage}.",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = d.Repeats }, d.Damage);
                 },
-                CardVfx = (data,Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects("SlashImpact", Target.targetedEntities, new AssetManager.VFXOverrides { count = data.Repeats});
-                }
             });
 
             // 100105 – Shove – push 1 space (minor damage)
@@ -178,7 +165,7 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = $"Push enemy 1 space and deals {d.Damage}.",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") , d.Damage);
                     MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, 1);
                 }
             });
@@ -209,7 +196,7 @@ namespace facingfate
                 {
                     MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.GetComponent<EntityOnMap>().currentCell, d.Power);
                     MovementUtility.ForcedMove(ForcedMovementType.Pull, User, Target.GetComponent<EntityOnMap>().currentCell, d.Power);
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                     // TODO: User/Target bewegen und Stun anwenden
                 }
             });
@@ -263,7 +250,7 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                 }
             });
 
@@ -292,7 +279,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     // direct hit (per repeat)
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("SlashImpact"), d.Damage);
 
                     // Bleed DoT + immediate tick
                     int dur = d.Duration > 0 ? d.Duration : 6;
@@ -311,7 +298,7 @@ namespace facingfate
                         },
                         onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, value);
+                            CombatUtility.ApplyDamage(null, target, new VFXData ("BleedEffect"), value);
                         });
 
                     CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -328,7 +315,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical, CardIdentity.Poison },
 
                 cost_u = 50,
-                damage_u = 150,
+                damage_u = 5,
                 duration_u = 6,
 
                 targetingData = new()
@@ -338,12 +325,12 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal 5 damage and apply Poison for 6 turns (immediate tick).",
+                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage and apply Poison for {Duration} turns.",
                 CardEffect = (User, Target, d) =>
                 {
 
                     // Poison DoT + immediate tick
-                    string name = $"Poison#{d.cardID}";
+                    string name = $"Poison";
                     var poison = new EntityModifier(
                         modifierName: name,
                         owner: Target,
@@ -358,7 +345,7 @@ namespace facingfate
                         },
                         onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, value);
+                            CombatUtility.ApplyDamage(null, target, new VFXData("Poison", true), value);
 
                         });
 
@@ -389,7 +376,7 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = $"Shoot an arrow dealing {d.Damage} damage.",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"), d.Damage);
                 }
             });
 
@@ -417,7 +404,7 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = "Shoot multiple arrows at selected enemies (2 shots).",
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, d.Damage);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"),d.Damage);
                 }
             });
         }
@@ -610,7 +597,7 @@ namespace facingfate
                         },
                         onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, value);
+                            CombatUtility.ApplyDamage(null, target, new VFXData ("Poison",true), value);
                         });
 
                     CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
@@ -657,7 +644,7 @@ namespace facingfate
                         },
                         onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, value);
+                            CombatUtility.ApplyDamage(null, target, new VFXData ("Burn",true) , value);
                         });
 
                     CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
