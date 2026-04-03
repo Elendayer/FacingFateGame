@@ -6,7 +6,7 @@ using Utility;
 
 namespace facingfate
 {
-    public class DraggableCard : DraggableUI, IPointerEnterHandler, IPointerExitHandler
+    public class DraggableCard : DraggableUI
     {
         public CardScript cardScript; // Reference to the card logic
         private static readonly Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
@@ -163,19 +163,6 @@ namespace facingfate
             TilemapUtilityScript.SetTilesHighlight(targetingData.targetedTiles, TilemapUtilityScript.HighlightType.Target);
 
             lastHighlightedTile = hoveredTile;
-        }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            if (CardPreviewPanel.Instance == null) return;
-            CardScript cs = GetComponent<CardScript>();
-            CardPreviewPanel.Instance.Show(cs);
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            if (CardPreviewPanel.Instance == null) return;
-            CardPreviewPanel.Instance.Hide();
         }
     }
 }
