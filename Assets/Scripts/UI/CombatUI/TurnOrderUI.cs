@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 namespace facingfate
 {
@@ -23,6 +24,10 @@ namespace facingfate
         private readonly List<TurnOrderEntryUI> spawnedEntries = new();
         private bool isOpen = true;
 
+        [Header("Entry Animation")]
+        [SerializeField] private float entryAnimDuration = 0.3f;
+        [SerializeField] private float shiftDelay = 0.15f;
+
         private void Awake()
         {
             if (toggleButton != null)
@@ -32,14 +37,14 @@ namespace facingfate
         private void OnEnable()
         {
             GameEvents.OnTurnStart += Refresh;
-            GameEvents.OnTurnEnd += Refresh;
+            GameEvents.OnTurnEnd += AnimateTurnEnd;
             GameEvents.OnCombatStart += Refresh;
         }
 
         private void OnDisable()
         {
             GameEvents.OnTurnStart -= Refresh;
-            GameEvents.OnTurnEnd -= Refresh;
+            GameEvents.OnTurnEnd -= AnimateTurnEnd;
             GameEvents.OnCombatStart -= Refresh;
         }
 
@@ -80,6 +85,66 @@ namespace facingfate
                 entry.Setup(name, color, isCurrent, entity);
                 spawnedEntries.Add(entry);
             }
+        }
+
+        private void AnimateTurnEnd()
+        {
+            if (spawnedEntries.Count == 0)
+            {
+                Refresh();
+                return;
+            }
+
+            TurnOrderEntryUI first = spawnedEntries[0];
+            spawnedEntries.RemoveAt(0);
+
+            // Erst komplett ausfaden...
+            first.AnimateOut(entryAnimDuration, onComplete: () =>
+            {
+                // ...dann kurz warten damit Layout sich setzt...
+                StartCoroutine(SpawnAfterDelay(shiftDelay));
+            });
+        }
+
+        private IEnumerator SpawnAfterDelay(float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            SpawnNewLastEntry();
+        }
+        private void SpawnNewLastEntry()
+        {
+            TurnManager tm = TurnManager.Instance;
+            if (tm == null || tm.TurnOrder == null) return;
+
+            int count = tm.TurnOrder.Count;
+
+            // Aktuell angezeigte Entries zählen
+            int shownCount = spawnedEntries.Count;
+
+            // Nächster Index nach den bereits gezeigten
+            int newIdx = (tm.CurrentTurnIndex + shownCount) % count;
+            EntityScript entity = tm.TurnOrder[newIdx];
+
+            if (entity == null) return;
+
+            // Prüfen ob diese Entity bereits als letzter Entry vorhanden ist
+            if (spawnedEntries.Count > 0)
+            {
+                TurnOrderEntryUI last = spawnedEntries[spawnedEntries.Count - 1];
+                // Verhindert Duplikat
+                if (last != null && last.gameObject.name == entity.gameObject.name)
+                    return;
+            }
+
+            TurnOrderEntryUI entry = Instantiate(entryPrefab, entryContainer);
+            entry.gameObject.name = entity.gameObject.name;
+            string name = GetEntityName(entity);
+            Color color = entity.GetComponent<PlayerScript>() != null
+                ? playerTurnColor : enemyTurnColor;
+
+            entry.Setup(name, color, false, entity);
+            entry.AnimateIn(entryAnimDuration);
+            spawnedEntries.Add(entry);
         }
 
         private void Toggle()

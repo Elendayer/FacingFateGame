@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 namespace facingfate
 {
@@ -15,6 +16,10 @@ namespace facingfate
         [SerializeField] private StatusEffectBarUI statusBar;
 
         private Component boundEntity;
+
+        [Header("Animation")]
+        [SerializeField] private float sliderAnimDuration = 0.4f;
+        [SerializeField] private Ease sliderEase = Ease.OutQuart;
 
         public void Bind(Component entity)
         {
@@ -64,7 +69,11 @@ namespace facingfate
             if (s == null) return;
             s.minValue = 0f;
             s.maxValue = max > 0f ? max : 1f;
-            s.value = current >= 0f ? current : 0f;
+
+            s.DOKill();
+            s.DOValue(current >= 0f ? current : 0f, 0.4f)
+                .SetEase(Ease.OutQuart)
+                .SetUpdate(true);
         }
         private static string GetEntityName(Component entity)
         {

@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 namespace facingfate
 {
@@ -24,11 +25,20 @@ namespace facingfate
         private readonly List<CardListEntryUI> entries = new();
         private static CardPilePeekPanel currentlyOpen;
 
+        [Header("Animation")]
+        [SerializeField] private float slideDuration = 0.3f;
+        [SerializeField] private Ease slideEase = Ease.OutQuart;
+        private RectTransform popupRectTransform;
+
         public Transform PileRoot => pileRoot;
 
         private void Awake()
         {
-            if (popupRoot != null) popupRoot.SetActive(false);
+            if (popupRoot != null)
+            {
+                popupRoot.SetActive(false);
+                popupRectTransform = popupRoot.GetComponent<RectTransform>();
+            }
         }
 
         public void SetPileRoot(Transform root)
@@ -70,27 +80,41 @@ namespace facingfate
 
             bool willOpen = !popupRoot.activeSelf;
 
-            // Anderes Panel schließen
             if (willOpen && currentlyOpen != null && currentlyOpen != this)
                 currentlyOpen.Close();
-
-            popupRoot.SetActive(willOpen);
 
             if (willOpen)
             {
                 currentlyOpen = this;
+                popupRoot.SetActive(true);
+                popupRectTransform.anchoredPosition = new Vector2(0f, -50f);
+                popupRectTransform.DOAnchorPosY(0f, slideDuration)
+                    .SetEase(slideEase).SetUpdate(true);
                 RebuildList();
             }
             else
             {
-                currentlyOpen = null;
+                popupRectTransform.DOAnchorPosY(-50f, slideDuration)
+                    .SetEase(slideEase).SetUpdate(true)
+                    .OnComplete(() =>
+                    {
+                        popupRoot.SetActive(false);
+                        currentlyOpen = null;
+                    });
             }
         }
 
         public void Close()
         {
-            if (popupRoot != null) popupRoot.SetActive(false);
-            if (currentlyOpen == this) currentlyOpen = null;
+            if (popupRoot == null || !popupRoot.activeSelf) return;
+
+            popupRectTransform.DOAnchorPosY(-50f, slideDuration)
+                .SetEase(slideEase).SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    popupRoot.SetActive(false);
+                    if (currentlyOpen == this) currentlyOpen = null;
+                });
         }
 
         private void RebuildList()

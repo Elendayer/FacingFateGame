@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 namespace facingfate
 {
@@ -12,8 +13,17 @@ namespace facingfate
         [SerializeField] private TMP_Text hpText;
         [SerializeField] private Slider hpSlider;
         [SerializeField] private StatusEffectBarUI statusBar;
-
         private Component boundEntity;
+
+        [SerializeField] private float fadeDuration = 0.2f;
+        private CanvasGroup canvasGroup;
+
+        private void Awake()
+        {
+            canvasGroup = GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
 
         public void Bind(Component entity)
         {
@@ -29,6 +39,12 @@ namespace facingfate
                 if (hpText != null) hpText.text = "-";
                 if (hpSlider != null) SetSlider(hpSlider, 0f, 1f);
                 statusBar?.Refresh();
+
+                if (canvasGroup != null)
+                {
+                    canvasGroup.DOKill();
+                    canvasGroup.DOFade(0f, fadeDuration).SetUpdate(true);
+                }
                 return;
             }
 
@@ -53,6 +69,11 @@ namespace facingfate
             }
 
             statusBar?.Refresh();
+            if (canvasGroup != null)
+            {
+                canvasGroup.DOKill();
+                canvasGroup.DOFade(1f, fadeDuration).SetUpdate(true);
+            }
         }
         private static string GetEntityName(Component entity)
         {

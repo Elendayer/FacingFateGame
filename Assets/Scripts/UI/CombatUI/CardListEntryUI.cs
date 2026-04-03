@@ -5,8 +5,7 @@ namespace facingfate
 {
     public class CardListEntryUI : MonoBehaviour
     {
-        [Header("Preview Settings")]
-        [SerializeField] private float previewScale = 0.7f; // 70% der Originalgröße
+        //[SerializeField] private float previewScale = 0.7f; // 70% der Originalgröße
 
         public void SetCard(CardScript sourceCard)
         {
