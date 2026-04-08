@@ -111,9 +111,6 @@ namespace facingfate
         /// </summary>
         private void EnqueueMoveAction(PlannedAction action)
         {
-            var entityOnMap = GetComponent<EntityOnMap>();
-            bool moveComplete = false;
-
             // Enqueue movement with callback
             ActionQueueUtility.EnqueueMovement(entityOnMap, action.PathData);
         }

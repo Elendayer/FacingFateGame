@@ -63,6 +63,7 @@ namespace facingfate
             // Step 2: create targeting mode
             var targetingMode = TargetingModeFactory.Create(card);
             //yield return null;
+
             float tAfterStep2 = Time.realtimeSinceStartup;
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 2 (create targeting mode) took {tAfterStep2 - tPrev:0.000}s");
             tPrev = tAfterStep2;
@@ -90,6 +91,7 @@ namespace facingfate
             // Step 4: compute reachable candidates via coroutine (batched pathfinding)
             List<(PathData, TargetingModeData)> reachableMoves = null;
             yield return CoroutineRunner.Instance.StartCoroutineManaged(TargetingUtility.GetReachableCandidatesCoroutine(card, templates, stamina, virtualPosition, 4, (res) => reachableMoves = res));
+            
             float tAfterStep4 = Time.realtimeSinceStartup;
             Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Step 4 (reachable candidates/pathfinding) of {templates.Count} _Templates took {tAfterStep4 - tPrev:0.000}s");
             tPrev = tAfterStep4;
@@ -121,6 +123,7 @@ namespace facingfate
         {
             float start = Time.realtimeSinceStartup;
 
+            // Build plan without executing actions
             List<PlannedAction> plan = new();
 
             Draw();
@@ -128,11 +131,12 @@ namespace facingfate
             Vector3Int virtualPosition = mover.currentCell;
             int virtualStamina = npcScript.entityStats.CurrentStamina;
 
+            // Continue selecting best actions until no valid action remains
             while (virtualStamina > 0)
             {
                 var actionCandidates = new List<ScoredCard>();
 
-                // Evaluate all cards concurrently via coroutines, wait for all to finish.
+                // Evaluate hand cards concurrently via coroutines, wait for all to finish.
                 var handCount = hand.Count;
                 var remaining = handCount;
                 var results = new ScoredCard[handCount];
@@ -185,7 +189,12 @@ namespace facingfate
                 var bestAction = SelectBestActionCandidate(actionCandidates, virtualStamina);
 
                 if (bestAction == null || bestAction.score <= 0)
+                {
+                    Debug.Log($"[NpcAI] No valid action found. Breaking turn planning.");
                     break;
+                }
+
+                Debug.Log($"[NpcAI] Action chosen: {bestAction.pseudoName} (score: {bestAction.score})");
 
                 int moveCost = bestAction.pathData?.PathCost ?? 0;
                 int cardCost = bestAction.card?.cardData?.Cost ?? 0;
@@ -194,13 +203,50 @@ namespace facingfate
                 if (totalCost > virtualStamina || totalCost <= 0)
                     break;
 
-                ApplyActionToPlan(plan, bestAction, ref virtualPosition, ref virtualStamina);
+                // Record movement action if any
+                if (bestAction.pathData != null && bestAction.pathData.Path != null && bestAction.pathData.Path.Count > 0 && bestAction.pathData.PathCost > 0)
+                {
+                    plan.Add(new PlannedAction
+                    {
+                        Type = PlannedAction.ActionType.Move,
+                        Name = $"Move_for_{bestAction.pseudoName}",
+                        TargetingModeData = bestAction.targetingModeData,
+                        PathData = bestAction.pathData
+                    });
 
-                //yield return null;
+                    // Update virtual position immediately (predictive)
+                    virtualPosition = bestAction.pathData.End;
+                }
+
+                // Record card action if chosen
+                if (bestAction.executionOption == CardExecutionOption.PlayCard && bestAction.card != null)
+                {
+                    // Remove card from hand immediately to avoid re-selection
+                    hand.Remove(bestAction.card);
+
+                    plan.Add(new PlannedAction
+                    {
+                        Type = PlannedAction.ActionType.PlayCard,
+                        Name = bestAction.card.name,
+                        Card = bestAction.card,
+                        TargetingModeData = bestAction.targetingModeData,
+                        PathData = bestAction.pathData
+                    });
+                }
+
+                // Deduct stamina immediately (predictive)
+                virtualStamina -= totalCost;
             }
 
             float duration = Time.realtimeSinceStartup - start;
             Debug.Log($"[NpcAI] BuildTurnPlan for {npcScript.name} took {duration:0.000}s");
+
+            Debug.Log($"[NpcAI] Turn plan complete. Total actions planned: {plan.Count}");
+            for (int i = 0; i < plan.Count; i++)
+            {
+                var action = plan[i];
+                Debug.Log($"[NpcAI]   Action {i + 1}: {action.Type} - {action.Name}");
+            }
 
             onComplete?.Invoke(plan);
         }
@@ -263,14 +309,20 @@ namespace facingfate
                 if (move.Item2?.targetedEntities == null || move.Item2.targetedEntities.Count == 0)
                     continue;
 
-                int score = EvaluateCardScore(card, move.Item2.targetedEntities, move.Item1.PathCost);
+                // Filter targets based on card's targeting data (affiliation, vision, etc.)
+                var validTargets = FilterValidTargets(card, move.Item2.targetedEntities, move.Item1);
+
+                if (validTargets.Count == 0)
+                    continue;
+
+                int score = EvaluateCardScore(card, validTargets, move.Item1.PathCost);
 
                 if (score > best.score)
                 {
                     best.score = score;
                     best.pseudoName = $"Play {card.cardData.cardName}";
-                    best.targets = move.Item2.targetedEntities
-                        .Take(card.cardData.MaxTarget > 0 ? card.cardData.MaxTarget : move.Item2.targetedEntities.Count)
+                    best.targets = validTargets
+                        .Take(card.cardData.MaxTarget > 0 ? card.cardData.MaxTarget : validTargets.Count)
                         .ToList();
 
                     best.targetingModeData = move.Item2;
@@ -282,47 +334,72 @@ namespace facingfate
             return best;
         }
 
-        #endregion
-
-        #region Apply Actions
-
-        private void ApplyActionToPlan(
-            List<PlannedAction> plan,
-            ScoredCard bestAction,
-            ref Vector3Int virtualPosition,
-            ref int virtualStamina)
+        private List<EntityScript> FilterValidTargets(CardScript card, List<EntityScript> targets, PathData movePath)
         {
-            if (bestAction == null)
-                return;
+            if (targets == null || targets.Count == 0)
+                return new List<EntityScript>();
 
-            if (bestAction.pathData != null && bestAction.pathData.Path.Count > 0)
+            var validTargets = new List<EntityScript>();
+            var cardData = card.cardData;
+            var castingPosition = movePath?.End ?? mover.currentCell;
+
+            // Pre-compute visible tiles as HashSet for O(1) lookup
+            HashSet<Vector3Int> visibleTiles = null;
+            if (cardData.targetingData.TargetingUsesVision)
             {
-                plan.Add(new PlannedAction
+                var tilesToCheck = new List<Vector3Int>();
+                foreach (var target in targets)
                 {
-                    Type = PlannedAction.ActionType.Move,
-                    Name = $"Move_for_{bestAction.pseudoName}",
-                    TargetingModeData = bestAction.targetingModeData,
-                    PathData = bestAction.pathData
-                });
-
-                virtualPosition = bestAction.pathData.End;
-                virtualStamina -= bestAction.pathData.PathCost;
+                    var targetEntityOnMap = target.GetComponent<EntityOnMap>();
+                    if (targetEntityOnMap != null)
+                        tilesToCheck.Add(targetEntityOnMap.currentCell);
+                }
+                if (tilesToCheck.Count > 0)
+                    visibleTiles = new HashSet<Vector3Int>(VisionUtility.GetVisibleTiles(castingPosition, tilesToCheck));
             }
 
-            if (bestAction.executionOption == CardExecutionOption.PlayCard && bestAction.card != null)
+            foreach (var target in targets)
             {
-                plan.Add(new PlannedAction
-                {
-                    Type = PlannedAction.ActionType.PlayCard,
-                    Name = bestAction.card.name,
-                    Card = bestAction.card,
-                    TargetingModeData = bestAction.targetingModeData,
-                    PathData = bestAction.pathData
-                });
+                if (target == null)
+                    continue;
 
-                virtualStamina -= bestAction.card.cardData.Cost;
-                hand.Remove(bestAction.card);
+                // Check affiliation match
+                if (!IsValidTargetAffiliation(target, cardData))
+                    continue;
+
+                // Check vision requirements if applicable
+                if (visibleTiles != null)
+                {
+                    var targetEntityOnMap = target.GetComponent<EntityOnMap>();
+                    if (targetEntityOnMap == null || !visibleTiles.Contains(targetEntityOnMap.currentCell))
+                        continue;
+                }
+
+                validTargets.Add(target);
             }
+
+            return validTargets;
+        }
+
+        private bool IsValidTargetAffiliation(EntityScript target, CardData cardData)
+        {
+            if (target == null || cardData == null)
+                return false;
+
+            var targetingAffiliation = cardData.targetingData.CardTargetAffiliation;
+
+            return targetingAffiliation switch
+            {
+                CardTargetAffiliation.Self => target == npcScript,
+                CardTargetAffiliation.Ally => target.entityAffiliation == npcScript.entityAffiliation && target != npcScript,
+                CardTargetAffiliation.AllyNeutral => (target.entityAffiliation == npcScript.entityAffiliation || target.entityAffiliation == EntityAffiliation.Neutral) && target != npcScript,
+                CardTargetAffiliation.Enemy => target.entityAffiliation != npcScript.entityAffiliation && target.entityAffiliation != EntityAffiliation.Neutral,
+                CardTargetAffiliation.EnemyNeutral => target.entityAffiliation != npcScript.entityAffiliation,
+                CardTargetAffiliation.AllyEnemy => target != npcScript,
+                CardTargetAffiliation.All => true,
+                CardTargetAffiliation.None => true,
+                _ => true
+            };
         }
 
         #endregion
@@ -334,18 +411,23 @@ namespace facingfate
             if (candidates == null || candidates.Count == 0)
                 return null;
 
-            var ordered = candidates.OrderByDescending(a => a.score);
+            // Find the highest-scoring affordable candidate in single pass
+            ScoredCard best = null;
+            int bestScore = 0;
 
-            foreach (var candidate in ordered)
+            foreach (var candidate in candidates)
             {
                 int totalCost = (candidate.pathData?.PathCost ?? 0) +
                                 (candidate.card?.cardData?.Cost ?? 0);
 
-                if (totalCost <= stamina)
-                    return candidate;
+                if (totalCost <= stamina && candidate.score > bestScore)
+                {
+                    bestScore = candidate.score;
+                    best = candidate;
+                }
             }
 
-            return null;
+            return best;
         }
 
         private int EvaluateCardScore(CardScript card, List<EntityScript> targets, int moveCost)
@@ -364,7 +446,7 @@ namespace facingfate
 
             int cost = Mathf.Max(1, card.cardData.Cost + moveCost);
 
-            return throughput / cost;
+            return (throughput * 100) / cost;
         }
 
         #endregion
@@ -375,7 +457,7 @@ namespace facingfate
             Vector3Int virtualPosition
             )
         {
-            if (npcScript.entityStats.IsRooted)
+            if (npcScript.entityStats.IsRooted) 
                 return null;
 
             ScoredCard moveOption = null;
@@ -455,73 +537,96 @@ namespace facingfate
 
         private ScoredCard DetermineRepositionTarget(Vector3Int virtualPosition, EntityScript entity)
         {
-            // Count hostiles
-            int hostileCount = TargetingUtility.AllEntitiesCache().Count(e => e.entityAffiliation != entity.entityAffiliation);
-            if (hostileCount == 0)
-            {
-                // No enemies — stay in place
-                return new ScoredCard
-                {
-                    pseudoName = "No Enemies Move",
-                    targetingModeData = new() { castingPosition = virtualPosition },
-                    pathData = new PathData
-                    {
-                        Start = virtualPosition,
-                        End = virtualPosition,
-                        PathCost = 0,
-                        Path = new List<Vector3Int> { virtualPosition }
-                    },
-                    score = 0
-                };
-            }
-            // Cap flee distance by number of hostiles (but not above stamina)
+            var allEntities = TargetingUtility.AllEntitiesCache();
+            var enemies = allEntities.Where(e => e.entityAffiliation != entity.entityAffiliation).ToList();
 
-            int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina, hostileCount);
+            if (enemies.Count == 0)
+                return CreateStayInPlaceMove(virtualPosition, "No Enemies Move");
+
+            // Cap flee distance by number of hostiles (but not above stamina)
+            int maxFleeDistance = Mathf.Min(entity.entityStats.CurrentStamina, enemies.Count);
+
             // Delegate the search and scoring
-            ScoredCard bestTarget = EvaluateRepositionCandidates(virtualPosition, entity, maxFleeDistance);
-            // Fallback if no valid move found
-            return bestTarget ?? new ScoredCard
+            ScoredCard bestTarget = EvaluateRepositionCandidates(virtualPosition, entity, maxFleeDistance, enemies);
+
+            return bestTarget ?? CreateStayInPlaceMove(virtualPosition, "No Move");
+        }
+
+        private ScoredCard CreateStayInPlaceMove(Vector3Int position, string name)
+        {
+            return new ScoredCard
             {
-                pseudoName = "No Move",
-                targetingModeData = new() { castingPosition = virtualPosition },
-                pathData = new PathData { Start = virtualPosition, End = virtualPosition, PathCost = 0, Path = new List<Vector3Int> { virtualPosition } },
+                pseudoName = name,
+                targetingModeData = new() { castingPosition = position },
+                pathData = new PathData
+                {
+                    Start = position,
+                    End = position,
+                    PathCost = 0,
+                    Path = new List<Vector3Int> { position }
+                },
                 score = 0
             };
         }
-        private ScoredCard EvaluateRepositionCandidates(Vector3Int virtualPosition, EntityScript entity, int maxFleeDistance)
+        private ScoredCard EvaluateRepositionCandidates(Vector3Int virtualPosition, EntityScript entity, int maxFleeDistance, List<EntityScript> enemies)
         {
-            var allEntities = TargetingUtility.AllEntitiesCache();
+            ScoredCard bestTarget = null;
+            float bestScore = float.MinValue;
 
-            ScoredCard bestTarget = null; float bestScore = float.MinValue; for (int dx = -maxFleeDistance; dx <= maxFleeDistance; dx++)
+            for (int dx = -maxFleeDistance; dx <= maxFleeDistance; dx++)
             {
                 for (int dy = -maxFleeDistance; dy <= maxFleeDistance; dy++)
                 {
                     Vector3Int candidate = new Vector3Int(virtualPosition.x + dx, virtualPosition.y + dy, virtualPosition.z);
 
                     // Skip current position or invalid tiles
-                    if (candidate == virtualPosition || !TilemapUtilityScript.BaseTilemap.HasTile(candidate)) continue;
+                    if (candidate == virtualPosition || !TilemapUtilityScript.BaseTilemap.HasTile(candidate))
+                        continue;
 
                     // Pathfinding
                     var pathData = MovementUtility.FindPath(virtualPosition, candidate, movementCostModifier: npcScript.entityStats.MovementCostModifier);
-                    if (pathData == null || pathData.Path == null || pathData.Path.Count == 0) continue; int moveCost = pathData.PathCost; if (moveCost == 0 || moveCost > entity.entityStats.CurrentStamina) continue;
+                    if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
+                        continue;
+
+                    int moveCost = pathData.PathCost;
+                    if (moveCost == 0 || moveCost > entity.entityStats.CurrentStamina)
+                        continue;
 
                     // Determine minimum distance to any hostile
-                    float minEnemyDist = float.MaxValue; foreach (var e in allEntities)
+                    float minEnemyDist = float.MaxValue;
+                    foreach (var e in enemies)
                     {
-                        if (e.entityAffiliation == entity.entityAffiliation) continue;
-                        float distToEnemy = Vector3Int.Distance(e.GetComponent<EntityOnMap>().currentCell, candidate); if (distToEnemy < minEnemyDist) minEnemyDist = distToEnemy;
+                        var enemyPos = e.GetComponent<EntityOnMap>();
+                        if (enemyPos != null)
+                        {
+                            float distToEnemy = Vector3Int.Distance(enemyPos.currentCell, candidate);
+                            if (distToEnemy < minEnemyDist)
+                                minEnemyDist = distToEnemy;
+                        }
                     }
 
                     // Scoring formula
                     float score = (minEnemyDist * 2f) - moveCost;
 
                     // Penalize being too close
-                    if (minEnemyDist < 2f) score -= 100f;
+                    if (minEnemyDist < 2f)
+                        score -= 100f;
 
                     // Track best-scoring candidate
-                    if (score > bestScore) { bestScore = score; bestTarget = new ScoredCard { pseudoName = "Flee", targetingModeData = new() { castingPosition = candidate }, pathData = pathData, score = Mathf.RoundToInt(score) }; }
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestTarget = new ScoredCard
+                        {
+                            pseudoName = "Flee",
+                            targetingModeData = new() { castingPosition = candidate },
+                            pathData = pathData,
+                            score = Mathf.RoundToInt(score)
+                        };
+                    }
                 }
             }
+
             return bestTarget;
         }
         #endregion

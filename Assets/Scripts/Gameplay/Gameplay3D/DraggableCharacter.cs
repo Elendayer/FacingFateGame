@@ -54,11 +54,10 @@ public class DraggableCharacter : Draggable3D
         // Only move if enough stamina
         if (characterEntity.entityStats.CurrentStamina >= pathData.PathCost)
         {
-            bool moveComplete = false;
-
             // Enqueue movement via global action queue
-            ActionQueueUtility.EnqueueMovement(characterOnMap, pathData, () => moveComplete = true);
+            ActionQueueUtility.EnqueueMovement(characterOnMap, pathData);
         }
+
         // Clear movement previews and reset tile highlights
         ClearMovementPreview();
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);

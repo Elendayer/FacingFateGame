@@ -19,11 +19,9 @@ namespace facingfate
         public EntityStats entityStats;
 
         [Header("Entity Gameplay References")]
-        private EntityVisualScript EntityVisual;
+        public EntityVisualScript EntityVisual;
         public MeshFilter EntityModel;
-
-        [Header("Entity on Map Reference")]
-        private EntityOnMap entityOnMap;
+        public EntityOnMap entityOnMap;
 
 
 

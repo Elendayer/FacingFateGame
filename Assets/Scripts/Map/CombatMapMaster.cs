@@ -29,7 +29,6 @@ public class CombatMapMaster : MonoBehaviour
     private void CollectMap()
     {
         int mapWidth = 50;  // -25 to 24
-        int mapHeight = 50; // -25 to 24
 
         for (int i = -25; i < 25; i++)
         {

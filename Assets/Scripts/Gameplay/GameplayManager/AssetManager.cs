@@ -101,7 +101,7 @@ namespace facingfate
 
         }
 
-        public void CreateVFXAtUnifiedPositions(VFXData vfxData, List<Vector3Int> positions)
+        public void CreateVFXAtUnifiedPositions(VFXData vfxData)
         {
             (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
 
@@ -111,7 +111,7 @@ namespace facingfate
                 return;
             }
 
-            Mesh mesh = MeshUtility.GenerateHexMesh(positions);
+            vfxData.mesh = MeshUtility.GenerateHexMesh(vfxData.positions);
 
             ApplyVFXData(vfx.effect, vfxData);
         }

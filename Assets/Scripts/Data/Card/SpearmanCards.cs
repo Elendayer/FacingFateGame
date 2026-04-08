@@ -86,7 +86,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround"), Target.targetedTiles);
+                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround") { positions = Target.targetedTiles});
                 }
             });
 
@@ -430,7 +430,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("SpearsFromGround"), Target.targetedTiles);
+                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround") {positions = Target.targetedTiles });
                     AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
                 }
             });
