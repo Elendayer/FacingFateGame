@@ -16,11 +16,16 @@ namespace facingfate
         [SerializeField] private float hoverOffsetY = 30f;
         [SerializeField] private float fanRadius = 800f;
         [SerializeField] private float animDuration = 0.2f;
+        [SerializeField] private float handHoverRadius = 300f;
 
         public float maxHandsize = 8;
 
         public List<GameObject> cardsInHand = new List<GameObject>();
         private GameObject lastHoveredCard;
+
+        [SerializeField] private float selectedOffsetY = 60f;
+        private GameObject selectedCard;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -37,15 +42,28 @@ namespace facingfate
         {
             if (cardsInHand.Count == 0) return;
 
+            // Klick auf Tile wenn Karte ausgewählt
+            if (selectedCard != null && Input.GetMouseButtonDown(0))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Vector3Int cell = TargetingUtility.GetHoveredTile(ray);
+
+                if (cell != TilemapUtilityScript.InvalidPosition)
+                {
+                    DraggableCard dc = selectedCard.GetComponent<DraggableCard>();
+                    if (dc != null)
+                    {
+                        dc.PlayCardOnCell(cell);
+                        return;
+                    }
+                }
+            }
+
             GameObject hovered = GetHoveredCard();
 
-            // Nur wechseln wenn:
-            // - neue Karte gehovert wird
-            // - oder Maus ist komplett weg von der Hand
             if (hovered == lastHoveredCard) return;
             if (hovered == null && lastHoveredCard != null)
             {
-                // Prüfe ob Maus noch in der Nähe der Hand ist
                 if (IsMouseNearHand()) return;
             }
 
@@ -53,22 +71,32 @@ namespace facingfate
             UpdateHandLayout(hovered);
 
             if (hovered != null)
+            {
                 CardPreviewPanel.Instance?.Show(hovered.GetComponent<CardScript>());
+            }
             else
-                CardPreviewPanel.Instance?.Hide();
+            {
+                // Preview nur verstecken wenn KEINE Karte ausgewählt ist
+                if (selectedCard == null)
+                    CardPreviewPanel.Instance?.Hide();
+                else
+                    CardPreviewPanel.Instance?.Show(selectedCard.GetComponent<CardScript>());
+            }
         }
+
 
         private bool IsMouseNearHand()
         {
             if (handAnchor == null) return false;
-            Vector2 mousePos = Input.mousePosition;
             Vector3 handScreenPos = RectTransformUtility.WorldToScreenPoint(null, handAnchor.position);
-            return Vector2.Distance(mousePos, handScreenPos) < 300f;
+            return Vector2.Distance(Input.mousePosition, handScreenPos) < handHoverRadius;
         }
 
         private GameObject GetHoveredCard()
         {
-            // Von vorne nach hinten prüfen (oberste Karte zuerst)
+            Vector2 mousePos = Input.mousePosition;
+
+            // Von oben nach unten (zuletzt hinzugefügte Karte zuerst)
             for (int i = cardsInHand.Count - 1; i >= 0; i--)
             {
                 GameObject card = cardsInHand[i];
@@ -77,10 +105,39 @@ namespace facingfate
                 RectTransform rt = card.GetComponent<RectTransform>();
                 if (rt == null) continue;
 
-                if (RectTransformUtility.RectangleContainsScreenPoint(rt, Input.mousePosition))
+                // Weltkoordinaten der 4 Ecken holen
+                Vector3[] corners = new Vector3[4];
+                rt.GetWorldCorners(corners);
+
+                // Polygon-Test statt AABB – funktioniert bei rotierten Rects
+                if (IsPointInQuad(mousePos, corners))
                     return card;
             }
             return null;
+        }
+
+        private bool IsPointInQuad(Vector2 point, Vector3[] corners)
+        {
+            // corners: [0]=BL, [1]=TL, [2]=TR, [3]=BR
+            return IsPointInTriangle(point, corners[0], corners[1], corners[2]) ||
+                   IsPointInTriangle(point, corners[0], corners[2], corners[3]);
+        }
+
+        private bool IsPointInTriangle(Vector2 p, Vector3 a, Vector3 b, Vector3 c)
+        {
+            float d1 = Sign(p, a, b);
+            float d2 = Sign(p, b, c);
+            float d3 = Sign(p, c, a);
+
+            bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+            bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+            return !(hasNeg && hasPos);
+        }
+
+        private float Sign(Vector2 p1, Vector3 p2, Vector3 p3)
+        {
+            return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
         }
 
         public void AddCard(GameObject newCard)
@@ -114,8 +171,14 @@ namespace facingfate
             int count = cardsInHand.Count;
             if (count == 0) return;
 
-            float totalAngle = cardFanAngle * (count - 1);
-            float startAngle = totalAngle / 2f; // Links beginnen
+            // Maximaler Gesamtwinkel begrenzen
+            float maxTotalAngle = 60f;
+            float anglePerCard = count > 1
+                ? Mathf.Min(cardFanAngle, maxTotalAngle / (count - 1))
+                : 0f;
+
+            float totalAngle = anglePerCard * (count - 1);
+            float startAngle = totalAngle / 2f;
 
             for (int i = 0; i < count; i++)
             {
@@ -125,23 +188,21 @@ namespace facingfate
                 RectTransform rt = card.GetComponent<RectTransform>();
                 if (rt == null) continue;
 
-                float angle = startAngle - cardFanAngle * i;
+                float angle = startAngle - anglePerCard * i;
                 float angleRad = angle * Mathf.Deg2Rad;
 
-                // Alle Karten laufen unten zusammen
                 float x = Mathf.Sin(angleRad) * fanRadius;
                 float y = (Mathf.Cos(angleRad) - 1f) * fanRadius * 0.3f;
 
                 if (card == hoveredCard)
                     y += hoverOffsetY;
+                if (card == selectedCard) y += selectedOffsetY;
 
                 rt.DOKill();
                 rt.DOAnchorPos(new Vector2(x, y), animDuration)
                     .SetEase(Ease.OutQuart).SetUpdate(true);
                 rt.DOLocalRotate(new Vector3(0f, 0f, angle), animDuration)
                     .SetEase(Ease.OutQuart).SetUpdate(true);
-
-                //rt.SetSiblingIndex(card == hoveredCard ? count - 1 : i);
             }
         }
 
@@ -152,5 +213,51 @@ namespace facingfate
                 DiscardCard(cardsInHand[0]);
             }
         }
+
+        public void SelectCard(GameObject card)
+        {
+            if (card == null)
+            {
+                if (selectedCard != null)
+                {
+                    selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
+                    TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
+                    selectedCard = null;
+                }
+                return;
+            }
+            // Toggle
+            if (selectedCard == card)
+            {
+                selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
+                TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
+                selectedCard = null;
+            }
+            else
+            {
+                // Vorherige Auswahl aufheben
+                if (selectedCard != null)
+                {
+                    selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
+                    TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
+                }
+
+                selectedCard = card;
+                selectedCard.GetComponent<CardOutline>()?.SetSelected(true);
+
+                // Range anzeigen
+                CardScript cs = card.GetComponent<CardScript>();
+                if (cs?.cardData?.Owner != null)
+                {
+                    var ownerCell = cs.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+                    var rangeTiles = TilemapUtilityScript.GetTilesInRadius(ownerCell, cs.cardData.Range);
+                    TilemapUtilityScript.SetTilesHighlight(rangeTiles, TilemapUtilityScript.HighlightType.Range);
+                }
+            }
+
+            UpdateHandLayout(lastHoveredCard);
+        }
+
+        public GameObject GetSelectedCard() => selectedCard;
     }
 }

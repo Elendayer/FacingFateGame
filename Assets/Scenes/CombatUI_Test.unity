@@ -13019,12 +13019,14 @@ MonoBehaviour:
   handAnchor: {fileID: 61257186}
   cardPrefab: {fileID: 6460608915492105488, guid: 2202288eaec2efc47953e567cc136fa3, type: 3}
   cardSpacing: -10
-  cardFanAngle: 10
-  hoverOffsetY: 50
-  fanRadius: 600
+  cardFanAngle: 50
+  hoverOffsetY: 80
+  fanRadius: 300
   animDuration: 0.2
-  maxHandsize: 8
+  handHoverRadius: 300
+  maxHandsize: 50
   cardsInHand: []
+  selectedOffsetY: 60
 --- !u!4 &1732655370
 Transform:
   m_ObjectHideFlags: 0
