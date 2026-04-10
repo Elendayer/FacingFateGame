@@ -49,7 +49,7 @@ namespace facingfate
                 .SetEase(Ease.OutBack).SetUpdate(true);
 
             // Raycasts aktivieren damit Drag funktioniert
-            canvasGroup.blocksRaycasts = true;
+            canvasGroup.blocksRaycasts = HandManager.Instance?.GetSelectedCard() != null;
         }
 
         public void Hide()

@@ -114,32 +114,6 @@ namespace facingfate
             if (hoverTimer < hoverPollInterval) return;
             hoverTimer = 0f;
 
-            // Klick auf Entity → lock/unlock togglen
-            if (Input.GetMouseButtonDown(0))
-            {
-                /*
-                EntityScript clicked = FindHoveredEntity();
-                if (clicked != null)
-                {
-                    if (lockedEntity == clicked)
-                    {
-                        // nochmal klicken = entsperren
-                        SetOutline(lockedEntity, OutlineState.Normal);
-                        lockedEntity = null;
-                    }
-                    else
-                    {
-                        // alten Lock entfernen
-                        if (lockedEntity != null)
-                            SetOutline(lockedEntity, OutlineState.Normal);
-
-                        lockedEntity = clicked;
-                        SetOutline(lockedEntity, OutlineState.Locked);
-                    }
-                }
-                */
-            }
-
             // Wenn eine Entity gelockt ist, bleibt der HoverTargetPanel darauf
             if (lockedEntity != null)
             {
@@ -334,7 +308,7 @@ namespace facingfate
                     hoverTargetPanel.Bind(hoveredEntity);
                     hoverTargetPanel.Refresh();
 
-                    hoverTargetPanel.gameObject.SetActive(hoveredEntity != null);
+                    //hoverTargetPanel.gameObject.SetActive(hoveredEntity != null);
                 }
             }
 

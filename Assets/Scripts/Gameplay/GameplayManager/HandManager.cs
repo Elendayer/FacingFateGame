@@ -25,6 +25,7 @@ namespace facingfate
 
         [SerializeField] private float selectedOffsetY = 60f;
         private GameObject selectedCard;
+        public GameObject GetSelectedCard() => selectedCard;
 
         private void Awake()
         {
@@ -64,7 +65,11 @@ namespace facingfate
             if (hovered == lastHoveredCard) return;
             if (hovered == null && lastHoveredCard != null)
             {
-                if (IsMouseNearHand()) return;
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Vector3Int cell = TargetingUtility.GetHoveredTile(ray);
+                bool overEntity = cell != TilemapUtilityScript.InvalidPosition;
+
+                if (!overEntity && IsMouseNearHand()) return;
             }
 
             lastHoveredCard = hovered;
@@ -258,6 +263,5 @@ namespace facingfate
             UpdateHandLayout(lastHoveredCard);
         }
 
-        public GameObject GetSelectedCard() => selectedCard;
     }
 }

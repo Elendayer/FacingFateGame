@@ -23,6 +23,8 @@ namespace facingfate
             canvasGroup = GetComponent<CanvasGroup>();
             if (canvasGroup == null)
                 canvasGroup = gameObject.AddComponent<CanvasGroup>();
+
+            canvasGroup.alpha = 0f;
         }
 
         public void Bind(Component entity)
