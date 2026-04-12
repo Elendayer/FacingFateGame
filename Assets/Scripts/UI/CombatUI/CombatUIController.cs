@@ -191,6 +191,9 @@ namespace facingfate
                 return null;
 
             Ray ray = hoverCamera.ScreenPointToRay(mousePos);
+
+
+
             Vector3Int cell = TargetingUtility.GetHoveredTile(ray);
 
             if (cell == TilemapUtilityScript.InvalidPosition)

@@ -134,7 +134,8 @@ namespace facingfate
                         {
                             ActionQueueUtility.EnqueueAction(() =>
                             {
-                                OnRef_Action?.Invoke(OnRef_Trigger.CheckEntity, trigger.CardData, trigger.Throughput);
+                                //OnRef_Action?.Invoke(OnRef_Trigger.CheckEntity, trigger.CardData, trigger.Throughput);
+                                OnRef_Action?.Invoke(OnRef_Trigger.CheckEntity, trigger.CardData, BaseValue);
 
                                 // Trigger further GameplayRefs
                                 if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
@@ -151,7 +152,8 @@ namespace facingfate
                             {
                                 ActionQueueUtility.EnqueueAction(() =>
                                 {
-                                    OnRef_Action?.Invoke(entity, trigger.CardData, trigger.Throughput);
+                                    //OnRef_Action?.Invoke(entity, trigger.CardData, trigger.Throughput);
+                                    OnRef_Action?.Invoke(entity, trigger.CardData, BaseValue);
 
                                     // Trigger further GameplayRefs
                                     if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)

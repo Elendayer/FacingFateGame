@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace facingfate
@@ -9,27 +11,36 @@ namespace facingfate
         [SerializeField] private DamageNumber damageNumberPrefab;
 
         [Header("Farben")]
-        [SerializeField] private Color damageColor = new Color(1f, 0.2f, 0.2f); // Rot
-        [SerializeField] private Color healColor = new Color(0.2f, 1f, 0.4f); // Grün
-        [SerializeField] private Color dotColor = new Color(1f, 0.5f, 0f);   // Orange (DoT)
-        [SerializeField] private Color modifierColor = new Color(1f, 1f, 0.2f);  // Gelb (Status)
+        [SerializeField] private Color damageColor = new Color(1f, 0.2f, 0.2f);
+        [SerializeField] private Color healColor = new Color(0.2f, 1f, 0.4f);
+        [SerializeField] private Color dotColor = new Color(1f, 0.5f, 0f);
+        [SerializeField] private Color modifierColor = new Color(1f, 1f, 0.2f);
 
         [Header("Spawn Offset")]
-        [SerializeField] private Vector3 spawnOffset = new Vector3(0f, 1.5f, 0f);
+        [SerializeField] private Vector3 spawnOffset = new Vector3(0f, 0.8f, 0f);
 
-        private void Awake()
+        [Header("Batching")]
+        [SerializeField] private float batchWindow = 0.1f; // Zeitfenster zum Zusammenfassen
+
+        // Pro Entity: akkumulierte Werte pro Typ
+        private class BatchEntry
         {
-            Instance = this;
+            public int damage;
+            public int healing;
+            public int dot;
+            public bool hasModifier;
+            public Coroutine coroutine;
         }
 
-        private void OnEnable()
-        {
-            GameEvents.OnGameplayReference += HandleGameplayReference;
-        }
+        private Dictionary<EntityScript, BatchEntry> batches = new();
 
+        private void Awake() => Instance = this;
+
+        private void OnEnable() => GameEvents.OnGameplayReference += HandleGameplayReference;
         private void OnDisable()
         {
             GameEvents.OnGameplayReference -= HandleGameplayReference;
+            batches.Clear();
         }
 
         private void HandleGameplayReference(ToSendTriggerReference trigger)
@@ -41,48 +52,74 @@ namespace facingfate
             {
                 if (target == null) continue;
 
-                // Schaden
+                if (!batches.TryGetValue(target, out BatchEntry entry))
+                {
+                    entry = new BatchEntry();
+                    batches[target] = entry;
+                }
+
+                // Werte akkumulieren
                 if (trigger.OnTriggerReference.Contains(GameplayRef.onDamageRecieved))
-                {
-                    SpawnNumber(target, $"-{trigger.Throughput}", damageColor);
-                    return;
-                }
+                    entry.damage += trigger.Throughput;
 
-                // Heilung
-                if (trigger.OnTriggerReference.Contains(GameplayRef.onHealRecieved))
-                {
-                    SpawnNumber(target, $"+{trigger.Throughput}", healColor);
-                    return;
-                }
+                else if (trigger.OnTriggerReference.Contains(GameplayRef.onHealRecieved))
+                    entry.healing += trigger.Throughput;
 
-                // DoT (Bleed, Burn, Poison)
-                if (trigger.OnTriggerReference.Contains(GameplayRef.onBleed) ||
-                    trigger.OnTriggerReference.Contains(GameplayRef.onBurn) ||
-                    trigger.OnTriggerReference.Contains(GameplayRef.onPoison))
-                {
-                    SpawnNumber(target, $"-{trigger.Throughput}", dotColor);
-                    return;
-                }
+                else if (trigger.OnTriggerReference.Contains(GameplayRef.onBleed) ||
+                         trigger.OnTriggerReference.Contains(GameplayRef.onBurn) ||
+                         trigger.OnTriggerReference.Contains(GameplayRef.onPoison))
+                    entry.dot += trigger.Throughput;
 
-                // Status Effekt angewendet
-                if (trigger.OnTriggerReference.Contains(GameplayRef.onModifierApplied))
-                {
-                    SpawnNumber(target, "!", modifierColor);
-                    return;
-                }
+                else if (trigger.OnTriggerReference.Contains(GameplayRef.onModifierApplied))
+                    entry.hasModifier = true;
+
+                // Coroutine neu starten (reset batch window)
+                if (entry.coroutine != null)
+                    StopCoroutine(entry.coroutine);
+
+                entry.coroutine = StartCoroutine(FlushBatch(target, entry));
             }
         }
 
-        private void SpawnNumber(EntityScript target, string value, Color color)
+        private IEnumerator FlushBatch(EntityScript target, BatchEntry entry)
         {
-            if (damageNumberPrefab == null || target == null) return;
+            yield return new WaitForSeconds(batchWindow);
 
-            EntityOnMap eom = target.GetComponent<EntityOnMap>();
-            Vector3 spawnPos = eom != null
-                ? eom.transform.position + spawnOffset
-                : target.transform.position + spawnOffset;
+            Vector3 spawnPos = target.transform.position + spawnOffset;
+            float offsetX = 0f;
 
-            DamageNumber number = Instantiate(damageNumberPrefab, spawnPos, Quaternion.identity);
+            // Schaden anzeigen
+            if (entry.damage > 0)
+            {
+                SpawnAt(spawnPos + new Vector3(offsetX, 0f, 0f), $"-{entry.damage}", damageColor);
+                offsetX += 0.4f;
+            }
+
+            // Heilung anzeigen
+            if (entry.healing > 0)
+            {
+                SpawnAt(spawnPos + new Vector3(offsetX, 0f, 0f), $"+{entry.healing}", healColor);
+                offsetX += 0.4f;
+            }
+
+            // DoT anzeigen
+            if (entry.dot > 0)
+            {
+                SpawnAt(spawnPos + new Vector3(offsetX, 0f, 0f), $"-{entry.dot}", dotColor);
+                offsetX += 0.4f;
+            }
+
+            // Status Effekt
+            if (entry.hasModifier)
+                SpawnAt(spawnPos + new Vector3(offsetX, 0f, 0f), "!", modifierColor);
+
+            batches.Remove(target);
+        }
+
+        private void SpawnAt(Vector3 pos, string value, Color color)
+        {
+            if (damageNumberPrefab == null) return;
+            DamageNumber number = Instantiate(damageNumberPrefab, pos, Quaternion.identity);
             number.Play(value, color);
         }
     }

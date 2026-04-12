@@ -226,5 +226,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::facingfate.DamageNumber
   text: {fileID: 5115429936189755627}
   floatDistance: 1.5
-  duration: 1.2
-  randomOffsetX: 0.3
+  duration: 2
+  randomOffsetX: 0.15
