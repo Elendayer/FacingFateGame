@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	1652174372	Start_TitleScreen			\Default Work Unit\02_TitleScreen\Start_TitleScreen	
+

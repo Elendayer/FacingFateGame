@@ -18,8 +18,12 @@ namespace facingfate
         public GameObject optionSelectedButton;
         public GameObject previousSelected;
 
-        public AudioMixer audioMixer;
-        public Slider audioSlider;
+        [Header("Audio UI")]
+        public Slider masterSlider;
+        public Slider musicSlider;
+        public Slider sfxSlider;
+        public Slider atmoSlider;
+        public Slider dialogSlider;
         public Toggle muteToggle;
 
         public Toggle fullscreenToggle;
@@ -34,12 +38,6 @@ namespace facingfate
 
         [SerializeField] private ScrollRollAnimator scrollAnimator;
 
-        /*
-        private VCA _masterVCA;
-        private VCA _musicVCA;
-        private VCA _sfxVCA;
-        */
-
         private void Start()
         {
             _canvasGroup = optionsPanel.GetComponent<CanvasGroup>();
@@ -48,16 +46,11 @@ namespace facingfate
             //_canvasGroup.alpha = 1f;
             optionsPanel.SetActive(false);
 
-            /*
-            _masterVCA = RuntimeManager.GetVCA("VCA:/Master");            
-            _musicVCA = RuntimeManager.GetVCA("VCA:/Music");
-            _sfxVCA = RuntimeManager.GetVCA("VCA:/SFX");
-            */
-
             _dataManager = FindFirstObjectByType<OptionDataManager>();
+
             SetupResolutionDropdown();
             SetupLanguageDropdown();
-            LoadSettings();
+            LoadSettingsIntoUI();
         }
 
         public void OpenOptionsRoll()
@@ -75,50 +68,37 @@ namespace facingfate
 
         public void SetMasterVolume(float sliderValue)
         {
-            float dB = Mathf.Lerp(-80f, 0f, sliderValue); // logarithmisch skalieren
-            float volume = Mathf.Pow(10f, dB / 10f); // oder 2.5f je nach Feingef�hl
 
-            /*
-            _masterVCA.setVolume(volume);
             if (_dataManager != null)
-                _dataManager.SetVolume(sliderValue);
-            */
+                _dataManager.SetMasterVolume01(sliderValue);
         }
 
         public void SetMusicVolume(float sliderValue)
         {
-            float dB = Mathf.Lerp(-80f, 0f, sliderValue); // logarithmisch skalieren
-            float volume = Mathf.Pow(10f, dB / 10f); // oder 2.5f je nach Feingef�hl
-
-            /*
-            _musicVCA.setVolume(volume);
             if (_dataManager != null)
-                _dataManager.SetMusicVolume(sliderValue);
-            */
+                _dataManager.SetMusicVolume01(sliderValue);
         }
 
         public void SetSfxVolume(float sliderValue)
         {
-            float dB = Mathf.Lerp(-80f, 0f, sliderValue); // logarithmisch skalieren
-            float volume = Mathf.Pow(10f, dB / 10f); // oder 2.5f je nach Feingef�hl
-
-            /*
-            _sfxVCA.setVolume(volume);
             if (_dataManager != null)
-                _dataManager.SetSfxVolume(sliderValue);
-            */
+                _dataManager.SetSfxVolume01(sliderValue);
+        }
+        public void SetAtmoVolume(float sliderValue)
+        {
+            if (_dataManager != null)
+                _dataManager.SetAtmoVolume01(sliderValue);
+        }
+        public void SetDialogueVolume(float sliderValue)
+        {
+            if (_dataManager != null)
+                _dataManager.SetDialogueVolume01(sliderValue);
         }
 
         public void MuteToggle(bool muted)
         {
-            float sliderValue = muted ? 0.0001f : audioSlider.value;
-            float dB = Mathf.Lerp(-80f, 0f, sliderValue);
-            float volume = Mathf.Pow(10f, dB / 20f);
-
-            /*
-            _masterVCA.setVolume(volume);
-            if (_dataManager != null) _dataManager.MuteToggle(muted);
-        */
+            if (_dataManager != null) 
+                _dataManager.MuteToggle(muted);
         }
 
 
@@ -147,25 +127,30 @@ namespace facingfate
 
         public void SetFullscreen(bool isFullscreen)
         {
-            //if (_dataManager != null) _dataManager.SetFullscreen(isFullscreen);
+            if (_dataManager != null) _dataManager.SetFullscreen(isFullscreen);
         }
 
         public void SetResolution(int resolutionIndex)
         {
-            //if (_dataManager != null) _dataManager.SetResolution(resolutionIndex);
+            if(_dataManager != null) _dataManager.SetResolution(resolutionIndex);
         }
 
-        private void LoadSettings()
+        private void LoadSettingsIntoUI()
         {
-            if (_dataManager != null)
-            {
-                /*
-                audioSlider.value = _dataManager.volume;
-                fullscreenToggle.isOn = _dataManager.isFullscreen;
-                resolutionDropdown.value = _dataManager.resolutionIndex;
-                muteToggle.isOn = _dataManager.isMuted;
-                */
-            }
+            if (_dataManager == null) return;
+
+            if (masterSlider != null) masterSlider.SetValueWithoutNotify(_dataManager.Master01);
+            if (musicSlider != null) musicSlider.SetValueWithoutNotify(_dataManager.Music01);
+            if (sfxSlider != null) sfxSlider.SetValueWithoutNotify(_dataManager.Sfx01);
+            if (dialogSlider != null) dialogSlider.SetValueWithoutNotify(_dataManager.Dialogue01);
+            if (atmoSlider != null) atmoSlider.SetValueWithoutNotify(_dataManager.Atmo01);
+            if (muteToggle != null) muteToggle.SetIsOnWithoutNotify(_dataManager.IsMuted);
+
+            if (fullscreenToggle != null)
+                fullscreenToggle.SetIsOnWithoutNotify(_dataManager.IsFullscreen);
+
+            if (resolutionDropdown != null)
+                resolutionDropdown.SetValueWithoutNotify(_dataManager.ResolutionIndex);
         }
 
         private void SetupLanguageDropdown()
@@ -200,8 +185,14 @@ namespace facingfate
             var locale = LocalizationSettings.AvailableLocales.Locales[index];
             if (_dataManager != null)
             {
-                //_dataManager.SetLanguage(locale.Identifier.Code);
+                _dataManager.SetLanguage(locale.Identifier.Code);
             }
+        }
+
+        private void OnEnable()
+        {
+            _dataManager = OptionDataManager.Instance;
+            LoadSettingsIntoUI();
         }
     }
 }

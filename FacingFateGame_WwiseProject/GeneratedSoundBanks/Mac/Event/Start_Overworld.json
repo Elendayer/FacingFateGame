@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "3224649440",
+    "Type": "Event",
+    "GUID": "{E0D0359A-3DBD-4004-9BBE-AC7A6C5C4C94}",
+    "Language": "SFX",
+    "Hash": "{A19E1FBF-B2EC-A8A4-8CAD-E4511CC9CA3F}",
+    "ObjectPath": "Start_Overworld",
+    "ShortName": "Start_Overworld",
+    "Path": "Event/Start_Overworld.bnk",
+    "Events": [
+     {
+      "Id": "3224649440",
+      "Name": "Start_Overworld",
+      "ObjectPath": "\\Events\\Default Work Unit\\04_Overworld\\Start_Overworld",
+      "GUID": "{E0D0359A-3DBD-4004-9BBE-AC7A6C5C4C94}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{B1633A6E-09BA-C22A-4236-092A28B2E697}"
+ }
+}

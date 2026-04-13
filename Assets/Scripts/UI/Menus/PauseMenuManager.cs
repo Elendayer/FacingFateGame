@@ -32,6 +32,12 @@ namespace facingfate
 
         private bool _allClosing = false;
 
+        [Header("Wwise UI SFX")]
+        public AK.Wwise.Event pauseOpenSfx;
+        public AK.Wwise.Event pauseCloseSfx;
+        [SerializeField] private GameObject uiSfxEmitterOverride;
+
+        private GameObject UiEmitter => uiSfxEmitterOverride != null ? uiSfxEmitterOverride : gameObject;
         //private VCA _vcaSfxNoUi;
         //private VCA _vcaSfx;
 
@@ -72,10 +78,18 @@ namespace facingfate
                 TogglePause();
         }
 
-        private void TogglePause()//InputAction.CallbackContext context
+        private void TogglePause() // InputAction.CallbackContext context
         {
-            if (!TimelineManager.isPaused) OpenPauseMenu();// context)
-            else ResumeGame();
+            if (!TimelineManager.isPaused)
+            {
+                pauseOpenSfx?.Post(UiEmitter);
+                OpenPauseMenu();
+            }
+            else
+            {
+                pauseCloseSfx?.Post(UiEmitter);
+                ResumeGame();
+            }
         }
 
         public void OpenPauseMenu()//InputAction.CallbackContext context)

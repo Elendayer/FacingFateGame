@@ -1,0 +1,3 @@
+Auxiliary Bus	ID	Name			Wwise Object Path	Notes
+	1039155902	AUX_hall_Big			\Default Work Unit\Main Audio Bus\AUX_hall_Big	
+
