@@ -168,7 +168,7 @@ namespace facingfate
             if (!cardsInHand.Contains(cardObject)) return;
 
             cardsInHand.Remove(cardObject);
-            DeckManager.Instance.DiscardCardFromHand(cardObject);
+            DeckManager.Instance.Player_DiscardCardFromHand(cardObject);
         }
 
         public void UpdateHandLayout(GameObject hoveredCard = null)

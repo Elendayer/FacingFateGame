@@ -205,8 +205,7 @@ namespace facingfate
             // Entity-Target validieren
             if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
             {
-                var t = TargetingUtility.GetEntitiesFromTiles(
-                    new() { dropCell }, FindObjectsByType<EntityScript>(0).ToList());
+                var t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell });
                 if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
                     return;
             }
