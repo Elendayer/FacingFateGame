@@ -40,36 +40,73 @@ namespace facingfate
         public void StartUp()
         {
             if (deckDrawButton != null)
-                deckDrawButton.onClick.AddListener(DrawTopCard);
+                deckDrawButton.onClick.AddListener(Player_DrawTopCard);
         }
 
         public void BuildDeckFromIDs(EntityScript entity)
         {
-            GameObject cardDock = Instantiate(deckDockPrefab, transform);
-            List<GameObject> cardObjs = new();
-            cardDock.name = entity.name + "_Dock";
-            DeckManagement.Add(entity, cardDock.transform);
-
-            foreach (int cardID in entity.deckCardIDs)
+            if (entity is PlayerScript)
             {
-                GameObject cardObj = CreateCard(cardID, cardDock.transform, entity);
-                if (cardObj != null)
+                GameObject cardDock = Instantiate(deckDockPrefab, transform);
+                List<GameObject> cardObjs = new();
+                cardDock.name = entity.name + "_Dock";
+                DeckManagement.Add(entity, cardDock.transform);
+
+                foreach (string cardID in entity.deckCardIDs)
                 {
-                    cardObjs.Add(cardObj);
+                    GameObject cardObj = CreateCard(cardID, cardDock.transform, entity);
+                    if (cardObj != null)
+                    {
+                        cardObjs.Add(cardObj);
+                    }
+                }
+
+                foreach (GameObject child in cardObjs)
+                {
+                    child.transform.SetParent(cardDock.transform);
+                    TransformUtility.ZeroLocalRectTransform(child.transform as RectTransform);
+                    cardStack.Push(child.gameObject);
+                }
+
+                Player_ShuffleDeck();
+            }
+            // For non-player entities
+            if (entity is NonPlayerScript nonPlayer)
+            {
+                List<GameObject> cardObjs = new();
+
+                GameObject cardDock = Instantiate(deckDockPrefab, transform);
+                cardDock.name = entity.name + "_Dock";
+
+                GameObject dockDeck = Instantiate(deckDockPrefab, cardDock.transform);
+                dockDeck.name = entity.name + "_Deck";
+                nonPlayer.npcAIController.deck = dockDeck.transform;
+
+                GameObject dockDiscard = Instantiate(deckDockPrefab, cardDock.transform);
+                dockDiscard.name = entity.name + "_Discard";
+                nonPlayer.npcAIController.discard = dockDiscard.transform;
+
+
+                DeckManagement.Add(entity, dockDeck.transform);
+
+                foreach (string cardID in entity.deckCardIDs)
+                {
+                    GameObject cardObj = CreateCard(cardID, dockDeck.transform, entity);
+                    if (cardObj != null)
+                    {
+                        cardObjs.Add(cardObj);
+                    }
+                }
+
+                foreach (GameObject child in cardObjs)
+                {
+                    child.transform.SetParent(dockDeck.transform);
+                    TransformUtility.ZeroLocalRectTransform(child.transform as RectTransform);
                 }
             }
-
-            foreach (GameObject child in cardObjs)
-            {
-                child.transform.SetParent(cardDock.transform);
-                TransformUtility.ZeroLocalRectTransform(child.transform as RectTransform);
-                cardStack.Push(child.gameObject);
-            }
-
-            ShuffleDeck();
         }
 
-        private GameObject CreateCard(int id, Transform t, EntityScript entityScript)
+        private GameObject CreateCard(string id, Transform t, EntityScript entityScript)
         {
             CardData cardData = CreateCardData(id, entityScript);
 
@@ -98,7 +135,7 @@ namespace facingfate
             return cardGO;
         }
 
-        private CardData CreateCardData(int id, EntityScript entity)
+        private CardData CreateCardData(string id, EntityScript entity)
         {
             CardData cardData = CardDatabase.GetCardById(id, entity);
 
@@ -110,12 +147,13 @@ namespace facingfate
             return cardData;
         }
 
-        public void DrawTopCard()
+        #region player Deck interactions
+        public void Player_DrawTopCard()
         {
             if (cardStack.Count == 0)
             {
                 Debug.Log("[DeckManager] Deck is empty.");
-                ShuffleDiscard();
+                Player_ShuffleDiscard();
                 return;
             }
             if (HandManager.Instance.cardsInHand.Count >= HandManager.Instance.maxHandsize)
@@ -133,7 +171,7 @@ namespace facingfate
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardDrawn }, null, null));
             //Debug.Log($"Drew card: {topCard.name}");
         }
-        public void DiscardCardFromHand(GameObject cardobject)
+        public void Player_DiscardCardFromHand(GameObject cardobject)
         {
             if (cardobject == null) return;
             HandManager.Instance.RemoveCard(cardobject);
@@ -144,7 +182,7 @@ namespace facingfate
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardPlayed }, null, null));
         }
 
-        public void ShuffleDeck()
+        public void Player_ShuffleDeck()
         {
             // Convert stack to list for shuffling
             List<GameObject> cards = new List<GameObject>(cardStack);
@@ -168,7 +206,7 @@ namespace facingfate
             Debug.Log("[DeckManager] Deck shuffled.");
         }
 
-        public void ShuffleDiscard()
+        public void Player_ShuffleDiscard()
         {
             if (discardStack.Count == 0)
             {
@@ -196,7 +234,7 @@ namespace facingfate
             Debug.Log($"[DeckManager] Shuffled {cards.Count} discarded cards back into the deck.");
         }
 
-        public void MoveOutDeck(EntityScript entity)
+        public void Player_MoveOutDeck(EntityScript entity)
         {
             List<GameObject> cards = new();
 
@@ -222,7 +260,7 @@ namespace facingfate
             }
         }
 
-        public void MoveInDeck(EntityScript entity)
+        public void Player_MoveInDeck(EntityScript entity)
         {
             cardStack.Clear();
             discardStack.Clear();
@@ -251,16 +289,16 @@ namespace facingfate
             {
                 if (entity.GetType() == typeof(PlayerScript))
                 {
-                    MoveInDeck(entity);
+                    Player_MoveInDeck(entity);
 
                     for (int i = 0; i < 5; i++)
                     {
-                        DrawTopCard();
+                        Player_DrawTopCard();
                     }
                 }
                 else
                 {
-                    DrawTopCard();
+                    Player_DrawTopCard();
                 }
             }
         }
@@ -268,8 +306,11 @@ namespace facingfate
         {
             if (entity.GetType() == typeof(PlayerScript))
             {
-                MoveOutDeck(entity);
+                Player_MoveOutDeck(entity);
             }
         }
+        #endregion
+
+
     }
 }

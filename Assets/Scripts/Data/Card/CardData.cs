@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 using Utility;
 using static facingfate.GameEvents;
@@ -10,7 +11,7 @@ namespace facingfate
     public class CardData
     {
         [Header("Meta")]
-        public int cardID = 0;
+        public string cardID = "MissingID";
         public string cardName = string.Empty;
         public EntityScript Owner = null;
 
@@ -146,13 +147,27 @@ namespace facingfate
 
 
         public Action<EntityScript, CardData> CardDescription =
-            (user, data) => Debug.Log($"Not defined Description of {data.cardName}");
+            (user, data) => 
+            { 
+                Debug.Log($"Not defined Description of {data.cardName}");
+            };
 
         public Action<EntityScript, EntityScript, CardData> CardEffect =
-            (user, target, data) => Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
+            (user, target, data) =>
+            {
+                Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
+            };
 
         public Action<EntityScript, Vector3Int, CardData> CardEffectGround =
-            (user, target, data) => Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
+            (user, target, data) => 
+            {
+                // Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
+            };
+        public Action<CardData,TargetingModeData> CardVfx =
+            (cardData, targetData) =>
+            {
+                AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("LightningStrike"), targetData.targetedEntities );           
+            };
 
         [Header("AI")]
         public CardAiBias CardAiBias = new();
@@ -224,6 +239,7 @@ namespace facingfate
                 CardDescription = CardDescription,
                 CardEffect = CardEffect,
                 CardEffectGround = CardEffectGround,
+                CardVfx = CardVfx,
 
                 // AI
                 CardAiBias = CardAiBias,
@@ -247,35 +263,50 @@ namespace facingfate
         public CardTargetAffiliation AffiliationBiasOverride = CardTargetAffiliation.None;
 
         // Additional Throughput
-        public int DamageOverride = 0;
-        public int HealingOverride = 0;
-        public int PowerOverride = 0;
+        public int DamageOverrideValue = 0;
+        public int HealingOverrideValue = 0;
+        public int PowerOverrideValue = 0;
+        public int ConditionalOverrideValue = 0;
 
         // Divider for Throughput to scale down high values
-        public float DamageBiasMultipier = 1;
-        public float HealingBiasMultipier = 1;
-        public float PowerBiasMultipier = 1;
+        public float DamageOverrideMultipier = 1;
+        public float HealingOverrideMultipier = 1;
+        public float PowerOverrideMultipier = 1;
+        public float ConditionalOverrideMultipier = 1;
 
+
+        // Condition
+        public bool? TargetStaticBool;
+        public Func<EntityScript, CardData, bool> TargetDynamicConditionFunc;
+
+        private bool TargetCondition(EntityScript entityScript = null, CardData cardData = null) => TargetDynamicConditionFunc != null
+            ? TargetDynamicConditionFunc.Invoke(entityScript, cardData)
+            : TargetStaticBool ?? false;
+
+        // Cooldown in turns before this bias can be applied again (for dynamic biases that change after use)
         public int cooldown = 1;
 
         public int ThroughputOverride(NpcAiBias aiBias, CardData cardData, List<EntityScript> targets)
         {
+            // Basic guard checks
+            if (cardData == null || cardData.Owner == null || targets == null || targets.Count == 0)
+                return 0;
+
+            // Check if the user condition is met
             if (!triggerConditionUser(cardData.Owner))
             {
-                Debug.Log("user condition was false");
                 return 0;
             }
 
-            if (cardData.Owner.entityStats.tauntTarget != null)
+            // If owner has a taunt target, ensure it's included in the targets list
+            var taunt = cardData.Owner.entityStats?.tauntTarget;
+            if (taunt != null && !targets.Contains(taunt))
             {
-                if (!targets.Contains(cardData.Owner.entityStats.tauntTarget))
-                {
-                    Debug.Log("Taunted Target wasn't targeted");
-                    return 0;
-                }
+                return 0;
             }
 
-            float baseTotal = ComputeBaseTotal(cardData);
+            // Compute a base throughput for the card and apply card-level biases
+            float baseTotal = ComputeCardThroughput(cardData);
             baseTotal = ApplyCardBiases(baseTotal, aiBias, cardData);
 
             float validScore = 0f;
@@ -283,8 +314,10 @@ namespace facingfate
 
             foreach (var t in targets)
             {
-                if (!triggerConditionTargets(t)) { continue; }
-                ;
+                if (t == null) continue;
+                if (!triggerConditionTargets(t)) continue;
+
+                // Check affiliation validity and apply biases or penalties accordingly
                 bool isValid = IsValidAffiliationTarget(t, cardData.Owner, AffiliationBiasOverride);
 
                 if (isValid)
@@ -293,37 +326,53 @@ namespace facingfate
                 }
                 else
                 {
-                    invalidScore += baseTotal * 0.5f;  // penalty
+                    // apply a smaller penalty per invalid target
+                    invalidScore += baseTotal * 0.5f;
+                }
+
+                // Apply conditional overrides per target (additive, scaled by multiplier)
+                if (TargetCondition(t, cardData))
+                {
+                    validScore += ConditionalOverrideValue * ConditionalOverrideMultipier;
                 }
             }
 
             float finalScore = validScore - invalidScore;
-            return (int)finalScore;
+            return Mathf.RoundToInt(finalScore);
         }
-        private float ComputeBaseTotal(CardData card)
+        private float ComputeCardThroughput(CardData card)
         {
             float total = 0;
 
-            total += (card.Damage + DamageOverride) * Math.Max(1, DamageBiasMultipier);
-            total += (card.Healing + HealingOverride) * Math.Max(1, HealingBiasMultipier);
-            total += (card.Power + PowerOverride) * Math.Max(1, PowerBiasMultipier);
+            total += (card.Damage + DamageOverrideValue) *  DamageOverrideMultipier;
+            total += (card.Healing + HealingOverrideValue) *  HealingOverrideMultipier;
+            total += (card.Power + PowerOverrideValue) *  PowerOverrideMultipier;
 
-            return total * 100f;
+            return total;
         }
         private float ApplyCardBiases(float total, NpcAiBias bias, CardData card)
         {
             if (bias == null) return total;
 
+            // Treat bias values as percentage modifiers (e.g. 50 -> +50% -> multiplier 1.5)
             foreach (var reference in bias.cardReferenceBias)
             {
-                if (card.GameplayReferences.Contains(reference.Key))
-                    total *= Math.Max(1, reference.Value);
+                if (reference.Value == 0) continue;
+                if (card.GameplayReferences != null && card.GameplayReferences.Contains(reference.Key))
+                {
+                    float mul = 1f + (reference.Value / 100f);
+                    total *= mul;
+                }
             }
 
             foreach (var identity in bias.identityBias)
             {
-                if (card.cardIdentities.Contains(identity.Key))
-                    total *= Math.Max(1, identity.Value);
+                if (identity.Value == 0) continue;
+                if (card.cardIdentities != null && card.cardIdentities.Contains(identity.Key))
+                {
+                    float mul = 1f + (identity.Value / 100f);
+                    total *= mul;
+                }
             }
 
             return total;
@@ -341,22 +390,21 @@ namespace facingfate
         private float ApplyTargetBiases(float total, NpcAiBias bias, EntityScript target)
         {
             if (bias == null) return total;
-            if (bias.targetReferenceBias.Count == 0) return total;
+            if (bias.targetReferenceBias == null || bias.targetReferenceBias.Count == 0) return total;
 
-            float score = 0;
-
+            // Combine target-level biases into a multiplier (percent based)
+            float multiplier = 1f;
             foreach (var tb in bias.targetReferenceBias)
             {
-                if (target.HasReference(tb.Key).found)
+                if (tb.Value == 0) continue;
+                var has = target.HasReference(tb.Key);
+                if (has.found)
                 {
-                    score += total * Math.Max(1, tb.Value);
-                }
-                else
-                {
-                    score += total;
+                    multiplier *= (1f + (tb.Value / 100f));
                 }
             }
-            return score;
+
+            return total * multiplier;
         }
     }
     [System.Serializable]

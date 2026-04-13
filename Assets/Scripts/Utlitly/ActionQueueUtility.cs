@@ -1,6 +1,6 @@
-﻿using facingfate;
-using System;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 using static facingfate.TimelineManager;
@@ -19,10 +19,7 @@ namespace facingfate
             )
         {
             // Wrap all steps in a coroutine to allow async completion
-            GlobalActionQueue.Enqueue(() =>
-            {
-                source.StartCoroutine(CardExecutionCoroutine(source, cardData, targetingData, cardObj, repeatDelay, onComplete));
-            });
+            GlobalActionQueue.Enqueue(() => CardExecutionCoroutine(source, cardData, targetingData, cardObj, repeatDelay, onComplete));
         }
 
         private static IEnumerator CardExecutionCoroutine(
@@ -43,9 +40,14 @@ namespace facingfate
             for (int i = 0; i < repeats; i++)
             {
                 if (i > 0)
+                {
                     yield return new WaitForSeconds(repeatDelay);
+                }
 
-                ApplyCardEffects(source, cardData, targetingData);
+                ApplyCardEffect(source, cardData, targetingData);
+                // Trying to ensure all effects are applied before moving on to VFX
+                ApplyCardFX(source, cardData, targetingData);
+
                 yield return null; // wait a frame after applying effects
             }
 
@@ -70,30 +72,49 @@ namespace facingfate
             onComplete?.Invoke();
         }
 
-        private static void ApplyCardEffects(
+        private static void ApplyCardEffect(
             EntityScript source,
             CardData cardData,
             TargetingModeData targetingData)
         {
-            Debug.Log($"Applying Card Effects for Card: {cardData.cardName} from Source: {source.name}");
             foreach (EntityScript target in targetingData.targetedEntities)
             {
                 cardData.CardEffect?.Invoke(source, target, cardData);
             }
-
             foreach (Vector3Int tile in targetingData.targetedTiles)
             {
                 cardData.CardEffectGround?.Invoke(source, tile, cardData);
             }
         }
-
+        private static void ApplyCardFX(
+            EntityScript source,
+            CardData cardData,
+            TargetingModeData targetingData,
+            bool atEach = false)
+        {            
+            if (atEach)
+            {
+                foreach (EntityScript target in targetingData.targetedEntities)
+                {
+                    cardData.CardVfx?.Invoke(cardData, new TargetingModeData
+                    {
+                        targetedEntities = new List<EntityScript> { target },
+                        targetedTiles = new List<Vector3Int>(),
+                        castingPosition = source.GetComponent<EntityOnMap>().currentCell,
+                    });
+                }
+            }
+            else
+                cardData.CardVfx?.Invoke(cardData, targetingData);
+        }
 
         private static IEnumerator MoveCoroutine(
-        EntityOnMap entityOnMap,
-        PathData pathData,
-        Action onComplete)
+            EntityOnMap entityOnMap,
+            PathData pathData,
+            Action onComplete)
         {
             yield return entityOnMap.StartMoveRoutine(pathData);
+
             onComplete?.Invoke();
         }
 
@@ -103,10 +124,7 @@ namespace facingfate
             PathData pathData,
             Action onComplete = null)
         {
-            GlobalActionQueue.Enqueue(() =>
-            {
-                entityOnMap.StartCoroutine(MoveCoroutine(entityOnMap, pathData, onComplete));
-            });
+            GlobalActionQueue.Enqueue(() => MoveCoroutine(entityOnMap, pathData, onComplete));
         }
 
         private static IEnumerator ActionCoroutine(
@@ -121,13 +139,8 @@ namespace facingfate
         Func<IEnumerator> action,
         Action onComplete = null)
         {
-            TimelineManager.GlobalActionQueue.Enqueue(() =>
-            {
-                source.StartCoroutine(ActionCoroutine(action, onComplete));
-            });
+            TimelineManager.GlobalActionQueue.Enqueue(() => ActionCoroutine(action, onComplete));
         }
-
-
 
         // Simple action enqueue
         public static void EnqueueAction(

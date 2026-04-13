@@ -8,35 +8,32 @@ namespace Utility
 {
     public static class CombatUtility
     {
-        public static void ApplyCost(CardData cardData, Stat resourceStat, int cost)
-        {
-            resourceStat.AddModifier(new StatModifier("BaseValue", resourceStat, -cost, ModifierScaling.Flat), ModifierMergeStrategy.Merge);
-        }
-
-        // Direct Damage that bypasses armour and block
-        public static void ApplyEffectDamage(int rawDamage, EntityScript target, GameplayRef dotType)
+        // Damage that bypasses mitigation, armour, and block. Used for DOT effects and other similar cases.
+        // Does not trigger onHitLanded or any related triggers, but does trigger onDamageRecieved and related triggers.
+        public static void ApplyEffectDamage(int rawDamage, EntityScript target, GameplayRef dotType, VFXData vfxData)
         {
             List<GameplayRef> refs = new() { dotType, GameplayRef.onDamageRecieved };
 
             target.entityStats.CurrentHealth -= rawDamage;
 
+            HandleOnDamageVFX(vfxData, target);
+
             HandlePostCombatTrigger(refs, target, target, null, rawDamage);
         }
 
         // Standard Damage Application
-        public static void ApplyDamage(CardData cardData, EntityScript target, int rawDamage = 0)
+        public static void ApplyDamage(CardData cardData, EntityScript target, VFXData vfxData, int rawDamage = 0)
         {
             List<GameplayRef> refs = new() { GameplayRef.onHitLanded };
 
             int damage;
+
             if (cardData != null)
             {
-                Debug.Log($"Card Data Damage: {cardData.Damage}");
                 damage = cardData.Damage;
             }
             else
             {
-                Debug.Log($"Raw Damage: {rawDamage}");
                 damage = rawDamage;
             }
 
@@ -82,6 +79,9 @@ namespace Utility
                 }
                 HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, damage); return;
             }
+
+            HandleOnDamageVFX(vfxData, target);
+
             HandlePostCombatTrigger(refs, null, target, null, damage); return;
         }
 
@@ -132,7 +132,7 @@ namespace Utility
             Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);        }
 
-        public static void ApplyEntityModifier(CardData cardData, EntityScript EffectOwner, EntityModifier mod, ModifierMergeStrategy mergeStrategy)
+        public static void ApplyEntityModifier(CardData cardData, EntityScript EffectOwner, EntityModifier mod, ModifierMergeStrategy mergeStrategy, int valueOverride = 0)
         {
             List<GameplayRef> refs = new() { GameplayRef.onModifierApplied };
 
@@ -143,6 +143,7 @@ namespace Utility
                 mod.Owner = EffectOwner;
             }
 
+            // If the modifier has a reference trigger but no entity to check, set it to check the effect owner by default. This allows for more concise modifier definitions in cases where the modifier is meant to trigger off of the entity it's applied to.
             if (mod.OnRef_Trigger.CheckEntity == null)
             {
                 mod.OnRef_Trigger = new RelevantTriggerCheck()
@@ -154,13 +155,20 @@ namespace Utility
                 };
             }
 
+            // Value override is used for cases where the modifier value is determined at application rather than beforehand, such as with scaling modifiers. If the valueOverride is 0, it will use the default value from the modifier data.
+            if (valueOverride != 0)
+            {
+                mod.BaseValue = valueOverride;
+            }
+
             EffectOwner.AddModifier(mod, mergeStrategy);
 
             Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
             HandlePostCombatTrigger(refs, cardData.Owner, EffectOwner, cardData);
         }
 
-        public static void SpawnEntity(CardData cardData, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation)
+        #region Spawning
+        public static void SpawnEntity(CardData cardData, Vector3Int spawnPosition, string npcID, EntityAffiliation affiliation, bool hasTurn = true)
         {
             List<GameplayRef> refs = new();
             refs.Add(GameplayRef.onSummon);
@@ -177,8 +185,14 @@ namespace Utility
             spawnedEntity.name = npc.name;
             spawnedEntity.entityAffiliation = affiliation;
 
+            if (hasTurn == true)
+            {
+                TurnManager.Instance.AddTurn(spawnedEntity);
+            }
+
             HandlePostCombatTrigger(refs, cardData.Owner, spawnedEntity, cardData);
         }
+
         public static void SpawnGroundEffect(CardData cardData, Vector3Int spawnPosition, GroundEffectDataBase groundEffectData)
         {
             List<GameplayRef> refs = new();
@@ -188,9 +202,33 @@ namespace Utility
             groundEffectScript.EffectData = groundEffectData;
             HandlePostCombatTrigger(refs, cardData.Owner, null, cardData);
         }
+        #endregion
+
+
+
+        // Handles VFX instantiation for damage application.
+        private static void HandleOnDamageVFX(VFXData vfxData, EntityScript target)
+        {
+            if (vfxData == null) return;
+            if (vfxData.attachToMesh)
+            {
+                vfxData.mesh = target.EntityModel.mesh;
+                AssetManager.Instance.CreateVFXAttachedToEntityMesh(vfxData, target); return;
+            }
+            else
+            {
+                AssetManager.Instance.CreateVFXAttachedToGameObjects(vfxData, new List<EntityScript>() { target });
+            }
+        }
+
+
+        #region Post Combat Trigger Handlers
+
+        // Handles triggering any relevant pre-combat triggers when a card is played. This includes onCardPlayed, as well as any triggers related to the card's class, type, or identities.
         public static void HandlePreCombatTrigger(List<EntityScript> targets, CardData cardData)
         {
             if (cardData == null) return;
+
             List<GameplayRef> refs = new() { GameplayRef.onCardPlayed };
             refs.AddRange(cardData.cardIdentities.Select(c => (GameplayRef)Enum.Parse(typeof(GameplayRef), c.ToString())).ToList());
 
@@ -202,6 +240,8 @@ namespace Utility
 
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, cardData.Owner, targets, cardData, cardData.CardAiBias.ThroughputOverride(null, cardData, targets)));
         }
+       
+        // Handles triggering any relevant post-combat triggers after damage, healing, buffs, debuffs, or entity modifiers have been applied.
         public static void HandlePostCombatTrigger(List<GameplayRef> gameplayRefs, EntityScript user, EntityScript target, CardData cardData = null, int throughput = 0)
         {
             List<GameplayRef> refs = new() {};
@@ -216,5 +256,6 @@ namespace Utility
                 GameEvents.TriggerRefEvent(new ToSendTriggerReference(refs, user, new() { target }, null, throughput));
             }
         }
+        #endregion
     }
 }

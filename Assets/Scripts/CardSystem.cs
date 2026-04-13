@@ -37,7 +37,7 @@ namespace facingfate
             }
 
             // Discard
-            DeckManager.Instance.DiscardCardFromHand(cardUI.gameObject);
+            DeckManager.Instance.Player_DiscardCardFromHand(cardUI.gameObject);
 
             // Hand sperren/freigeben basierend auf aktueller Stamina
             HandUI.RefreshHandLocks(user);

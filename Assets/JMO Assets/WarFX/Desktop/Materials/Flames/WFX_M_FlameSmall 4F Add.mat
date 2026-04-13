@@ -24,17 +24,17 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: WFX_M_FlameSmall 4F Add
-  m_Shader: {fileID: 4800000, guid: c4edd00ff2db5b24391a4fcb1762e459, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: ddf0c0e603eae9b429928da8cc3b814f, type: 3}
   m_Parent: {fileID: 2100000, guid: ea4871a6030b99f40836b29d6c10b73e, type: 2}
-  m_ModifiedSerializedProperties: 22
+  m_ModifiedSerializedProperties: 6
   m_ValidKeywords:
-  - _EMISSIVE_COLOR_MAP
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - _ALPHAPREMULTIPLY_ON
   - _AXF_BRDF_TYPE_SVBRDF
   - _COLORMAP
   - _DISABLE_SSR_TRANSPARENT
+  - _EMISSIVE_COLOR_MAP
   - _MATERIAL_AFFECTS_ALBEDO
   - _MATERIAL_AFFECTS_MASKMAP
   - _MATERIAL_AFFECTS_NORMAL
@@ -45,12 +45,15 @@ Material:
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3000
   stringTagMap:
+    MotionVector: User
     RenderType: Transparent
   disabledShaderPasses:
   - DecalMeshForwardEmissive
   - DecalProjectorForwardEmissive
-  - DistortionVectors
   - MOTIONVECTORS
+  - TransparentDepthPrepass
+  - TransparentDepthPostpass
+  - TransparentBackface
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3

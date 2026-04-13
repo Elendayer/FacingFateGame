@@ -13,7 +13,7 @@ public static class VisionUtility
         List<Vector3Int> tilesToCheckOffset
     )
     {
-        CostInfoScript costInfoScript = Object.FindAnyObjectByType<CostInfoScript>();
+        TileInfoScript costInfoScript = Object.FindAnyObjectByType<TileInfoScript>();
         List<Vector3Int> result = new();
 
         foreach (var targetOffset in tilesToCheckOffset)
@@ -33,7 +33,7 @@ public static class VisionUtility
     private static bool HasLineOfSight(
        Vector3Int originOffset,
        Vector3Int targetOffset,
-       CostInfoScript costInfo
+       TileInfoScript costInfo
    )
     {
         if (originOffset == targetOffset)
@@ -59,7 +59,8 @@ public static class VisionUtility
                 TilemapUtilityScript.UseOddROffset
             );
 
-            if (!costInfo.costInfoDict.TryGetValue(off, out var tileInfo))
+            int offKey = TilemapUtilityScript.PositionToKey(off);
+            if (!costInfo.tileInfoDict.TryGetValue(offKey, out var tileInfo))
                 continue;
 
             // If this tile blocks vision

@@ -5,7 +5,7 @@ namespace facingfate
 {
     public static class CardDatabase
     {
-        private static Dictionary<int, CardData> cardLookup = new Dictionary<int, CardData>();
+        private static Dictionary<string, CardData> cardLookup = new Dictionary<string, CardData>();
 
         public static void RegisterCard(CardData card)
         {
@@ -19,7 +19,7 @@ namespace facingfate
                 Debug.LogWarning($"Duplicate card ID detected: {card.cardID}");
             }
         }
-        public static CardData GetCardById(int id, EntityScript owner)
+        public static CardData GetCardById(string id, EntityScript owner)
         {
             if (!cardLookup.TryGetValue(id, out var blueprint) || blueprint == null)
                 return null;
@@ -43,10 +43,10 @@ namespace facingfate
             PhysicianCards.RegisterAll();
             NeutralCards.RegisterAll();
 
-            //ReGister Effects
+            // Register Effects
             EffectDatabase.RegisterAll();
 
-            //Register completed
+            // Register completed
         }
     }
 }

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Utility;
+using static UnityEngine.GraphicsBuffer;
 using Object = UnityEngine.Object;
 
 namespace facingfate
@@ -25,7 +27,7 @@ namespace facingfate
             // 120101 – Shadowfang Strike (LineSelf)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120101,
+                cardID = "Ass_Tech_Shadowfang_Strike",
                 cardName = "Shadowfang Strike",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -44,25 +46,26 @@ namespace facingfate
                 },
 
                 CardDescription = (User, d) =>
-                    d.cardDescription = "Deal {Damage} damage",
-
+                {
+                    d.cardDescription = "Deal {Damage} damage";
+                },
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 }
             });
 
             // 120102 – Dance of a Hundred Cuts (Ring, repeats)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120102,
+                cardID = "Ass_Tech_Dance_of_a_Hundred_Cuts",
                 cardName = "Dance of a Hundred Cuts",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 20,
-                damage_u = 30,
+                damage_u = 5,
                 repeats_u = 4,
 
                 targetingData = new()
@@ -72,46 +75,51 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = "Deal {Damage} damage,{Repeats} times.",
+                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage, Repeats {Repeats} times.",
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
-                }
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact"));
+                },
             });
 
             // 120103 – Lotus Death Kiss (Execute <10% HP)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120103,
+                cardID = "Ass_Tech_Lotus_Death_Kiss",
                 cardName = "Lotus Death Kiss",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 2,
+                cost_u = 1,
                 radius_u = 2,
 
-                targetingData = new()
+                targetingData =
                 {
                     CardTargetType = CardTargetType.Entity,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = "If target has less than 10% of their maximum Health, Execute them. Otherwise deal 1 damage.",
+                CardAiBias =
+                {
+                    DamageOverrideValue = 1,
+                    TargetDynamicConditionFunc = (target, data) => target.entityStats.CurrentHealth <= target.entityStats.MaxHealth.Value() / 10,
+                    ConditionalOverrideValue = 99999,
+                },
+
+                CardDescription = (User, d) => d.cardDescription = "If target has less than 10% of their maximum Health, Execute them. Otherwise deal 1 damage.",
 
                 CardEffect = (User, Target, d) =>
                 {
                     if (Target.entityStats.CurrentHealth <= Target.entityStats.MaxHealth.Value() / 10)
                     {
-                        CombatUtility.ApplyEffectDamage(99999, Target, GameplayRef.Physical);
+                        CombatUtility.ApplyEffectDamage(99999, Target, GameplayRef.Physical, new VFXData("Impact"));
                     }
                     else
                     {
-                        CombatUtility.ApplyEffectDamage(1, Target, GameplayRef.Physical);
+                        CombatUtility.ApplyEffectDamage(1, Target, GameplayRef.Physical, new VFXData("Impact"));
                     }
                 }
             });
@@ -119,7 +127,7 @@ namespace facingfate
             // 120104 – Moonlit Needlestorm (3 DoTs)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120104,
+                cardID = "Ass_Tech_Moonlit_Needlestorm",
                 cardName = "Moonlit Needlestorm",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -148,13 +156,18 @@ namespace facingfate
                     CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
                     CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
                     CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Impact"), Target.targetedEntities);
+
                 }
             });
 
             // 120105 – Black Lotus Needle (Single heavy hit)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120105,
+                cardID = "Ass_Tech_Black_Lotus_Needle",
                 cardName = "Black Lotus Needle",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -175,14 +188,14 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
-                }
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"));
+                },
             });
 
             // 120106 – Moon Piercing Arrow (LineSelf; multi-hit along the line)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120106,
+                cardID = "Ass_Tech_Moon_Piercing_Arrow",
                 cardName = "Moon Piercing Arrow",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -205,7 +218,14 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"));
+                },
+                CardVfx = (Data, Target) =>
+                {
+                    foreach (var entity in Target.targetedEntities)
+                    {
+                        AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("ArrowShot") { origin = Data.Owner.transform.position }, Target.targetedEntities );
+                    }
                 }
             });
 
@@ -213,7 +233,7 @@ namespace facingfate
             // 120107 – Midnight Rain (Small AOE)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120107,
+                cardID = "Ass_Tech_Midnight_Rain",
                 cardName = "Midnight Rain",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -236,14 +256,14 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 }
             });
 
             // 120108 – Bouncing Shot (chain with ally/enemy + hop distance <= 2)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120108,
+                cardID = "Ass_Tech_Bouncing_Shot",
                 cardName = "Bouncing Shot",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -306,7 +326,7 @@ namespace facingfate
                     }
 
                     // 1) Starttreffer
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
 
                     // 2) Bounces
                     var hitSet = new HashSet<int> { Target.GetInstanceID() };
@@ -320,7 +340,7 @@ namespace facingfate
                         var next = FindNextBounceTarget(last, hitSet, hopLimit);
                         if (next == null) break;
 
-                        CombatUtility.ApplyDamage(d, next);
+                        CombatUtility.ApplyDamage(d, next, new VFXData("Impact"));
                         hitSet.Add(next.GetInstanceID());
                         last = next;
                     }
@@ -330,7 +350,7 @@ namespace facingfate
             // 120109 – Barbed Needle Volley (Damage + Bleed)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120109,
+                cardID = "Ass_Tech_Barbed_Needle_Volley",
                 cardName = "Barbed Needle Volley",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -355,18 +375,16 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     // Direktschaden
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
 
-                    d.damage_u = 10;
-
-                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.OverrideFromData, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge);
+                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.OverrideFromData, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge,10);
                 }
             });
 
             // 120111 – Merciful Headshot (Stun + Damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120111,
+                cardID = "Ass_Tech_Merciful_Headshot",
                 cardName = "Merciful Headshot",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -390,7 +408,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     // Direkter Schaden
-                    CombatUtility.ApplyDamage(d, Target);
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
 
 
                     CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Stun", CloneMode.OverrideFromData, d, ThroughputSource.Power, Target), ModifierMergeStrategy.Merge);
@@ -400,7 +418,7 @@ namespace facingfate
             // 120112 – Crimson Thorn Array (Bleed DoT AOE)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120112,
+                cardID = "Ass_Tech_Crimson_Thorn_Array",
                 cardName = "Crimson Thorn Array",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -439,7 +457,7 @@ namespace facingfate
                         duration: d.Duration,
                         onRef: (target) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, d.Damage); AssetManager.Instance.CreateFX("BloodEffect", Target);
+                            CombatUtility.ApplyDamage(null, target, new VFXData ("Impact"), d.Damage);
                         }
                        ));
                 }
@@ -451,7 +469,7 @@ namespace facingfate
             //120201 - Phantom Step - Moves Behind an Enemy
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120201,
+                cardID = "Ass_Abil_Phantom_Step",
                 cardName = "Phantom Step",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -481,7 +499,7 @@ namespace facingfate
             // 120202 – Apply Scorching Blood Venom – next X hits apply Burn DoT
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120202,
+                cardID = "Ass_Abil_Apply_Scorching_Blood_Venom",
                 cardName = "Apply Scorching Blood Venom",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -513,7 +531,7 @@ namespace facingfate
             // 120203 – Apply Black Lotus Venom – next X hits apply Poison DoT
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120203,
+                cardID = "Ass_Abil_Apply_Black_Lotus_Venom",
                 cardName = "Apply Black Lotus Venom",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -563,7 +581,7 @@ namespace facingfate
             // 120204 – Apply Dazzlying Numbing Venom (Stun for next X attacks)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120204,
+                cardID = "Ass_Abil_Apply_Dazzlying_Numbing_Venom",
                 cardName = "Apply Dazzlying Numbing Venom",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -611,7 +629,7 @@ namespace facingfate
             // 120205 – Reapply Venom (top-up to X charges of your last venom card)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120205,
+                cardID = "Ass_Abil_Reapply_Venom",
                 cardName = "Reapply Venom",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -658,7 +676,7 @@ namespace facingfate
             // 120206 – Eye of the Nighthawk – dmg/crit up (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120206,
+                cardID = "Ass_Abil_Eye_of_the_Nighthawk",
                 cardName = "Eye of the Nighthawk",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
@@ -707,7 +725,7 @@ namespace facingfate
             // 120401 – Fumble – self-random (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120401,
+                cardID = "Ass_Curse_Fumble",    
                 cardName = "Fumble",
                 cardType = CardType.Curse,
                 cardClass = CardClass.Assassin,
@@ -730,7 +748,7 @@ namespace facingfate
             // 120501 – Lucky Strike – next attack repeats (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = 120501,
+                cardID = "Ass_Bless_Lucky_Strike",
                 cardName = "Lucky Strike",
                 cardType = CardType.Blessing,
                 cardClass = CardClass.Assassin,

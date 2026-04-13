@@ -7,7 +7,7 @@ public class CombatMapMaster : MonoBehaviour
     public Tilemap BaseMap;
     public Tilemap OverlayMap;
 
-    public CostInfoScript costInfoScript;
+    public TileInfoScript costInfoScript;
 
     public HexagonalRuleTile defaultTile;
     public HexagonalRuleTile unwalkableTile;
@@ -20,7 +20,7 @@ public class CombatMapMaster : MonoBehaviour
     public void SetUp()
     {
 
-        costInfoScript.costInfoDict.Clear();
+        costInfoScript.tileInfoDict.Clear();
 
         CollectMap();
         OverlayGen();
@@ -28,6 +28,7 @@ public class CombatMapMaster : MonoBehaviour
 
     private void CollectMap()
     {
+        int mapWidth = 50;  // -25 to 24
 
         for (int i = -25; i < 25; i++)
         {
@@ -36,7 +37,7 @@ public class CombatMapMaster : MonoBehaviour
                 Vector3Int vector3Int = new Vector3Int(i, j, 0);
                 TileBase tile = BaseMap.GetTile(vector3Int);
 
-                CostInfo costInfo = new CostInfo();
+                TileInfo costInfo = new TileInfo();
 
                 switch (tile)
                 {
@@ -55,6 +56,7 @@ public class CombatMapMaster : MonoBehaviour
                         costInfo.cost = 7;
                         costInfo.isUnwalkable = false;
                         break;
+
                     default:
                         costInfo.cost = 999999;
                         costInfo.isUnwalkable = true;
@@ -62,7 +64,16 @@ public class CombatMapMaster : MonoBehaviour
                         break;
                 }
 
-                costInfoScript.costInfoDict.Add(vector3Int, costInfo);
+                // Generate unique int key
+                int key = (i + 25) * mapWidth + (j + 25);
+
+                // record metadata for reverse lookups
+                costInfo.position = vector3Int;
+                costInfo.index = key;
+                // cache cube coordinate for faster pathfinding
+                costInfo.cube = Utility.TilemapUtilityScript.OffsetToCube_PointTop(vector3Int, Utility.TilemapUtilityScript.UseOddROffset);
+
+                costInfoScript.tileInfoDict.Add(key, costInfo);
             }
         }
     }

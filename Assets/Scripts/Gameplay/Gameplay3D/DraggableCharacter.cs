@@ -43,7 +43,11 @@ public class DraggableCharacter : Draggable3D
         Vector3Int dropCell = pathData.End;
 
         // Validate target cell
-        if (dropCell == TilemapUtilityScript.InvalidPosition || TilemapUtilityScript.CostInfoScript.costInfoDict[dropCell].isOccupied || TilemapUtilityScript.CostInfoScript.costInfoDict[dropCell].isUnwalkable)
+        int dropKey = TilemapUtilityScript.PositionToKey(dropCell);
+        if (dropCell == TilemapUtilityScript.InvalidPosition ||
+            !TilemapUtilityScript.CostInfoScript.tileInfoDict.ContainsKey(dropKey) ||
+            TilemapUtilityScript.CostInfoScript.tileInfoDict[dropKey].isOccupied ||
+            TilemapUtilityScript.CostInfoScript.tileInfoDict[dropKey].isUnwalkable)
         {
             return;
         }
@@ -51,11 +55,10 @@ public class DraggableCharacter : Draggable3D
         // Only move if enough stamina
         if (characterEntity.entityStats.CurrentStamina >= pathData.PathCost)
         {
-            bool moveComplete = false;
-
             // Enqueue movement via global action queue
-            ActionQueueUtility.EnqueueMovement(characterOnMap, pathData, () => moveComplete = true);
+            ActionQueueUtility.EnqueueMovement(characterOnMap, pathData);
         }
+
         // Clear movement previews and reset tile highlights
         ClearMovementPreview();
         TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
@@ -64,9 +67,11 @@ public class DraggableCharacter : Draggable3D
     public override void HandleHover(Vector3Int hoverCell)
     {
         // Ungültig / blockiert? -> Anzeige löschen
+        int hoverKey = TilemapUtilityScript.PositionToKey(hoverCell);
         if (hoverCell == TilemapUtilityScript.InvalidPosition ||
-            TilemapUtilityScript.CostInfoScript.costInfoDict[hoverCell].isOccupied ||
-            TilemapUtilityScript.CostInfoScript.costInfoDict[hoverCell].isUnwalkable)
+            !TilemapUtilityScript.CostInfoScript.tileInfoDict.ContainsKey(hoverKey) ||
+            TilemapUtilityScript.CostInfoScript.tileInfoDict[hoverKey].isOccupied ||
+            TilemapUtilityScript.CostInfoScript.tileInfoDict[hoverKey].isUnwalkable)
         {
             ClearMovementPreview();
             return;

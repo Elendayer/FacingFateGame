@@ -10,13 +10,12 @@ public class EntityOnMap : MonoBehaviour
     public float defaultMovementSpeed = 3f;                     // Movement speed in units per second
 
     private Coroutine moveRoutine;
-    //private bool isDragging = false;
 
-    private CostInfoScript costInfoScript;
+    private TileInfoScript costInfoScript;
 
     public void Startup()
     {
-        costInfoScript = FindAnyObjectByType<CostInfoScript>();
+        costInfoScript = FindAnyObjectByType<TileInfoScript>();
 
         TeleportTo(currentCell);
         SetOccupied(currentCell, true);     
@@ -121,6 +120,13 @@ public class EntityOnMap : MonoBehaviour
     }
     public void SetOccupied(Vector3Int pos, bool b)
     {
-        costInfoScript.costInfoDict[pos].isOccupied = b;
+        if (costInfoScript == null)
+            costInfoScript = FindAnyObjectByType<TileInfoScript>();
+
+        int key = TilemapUtilityScript.PositionToKey(pos);
+        if (costInfoScript != null && costInfoScript.tileInfoDict.ContainsKey(key))
+        {
+            costInfoScript.tileInfoDict[key].isOccupied = b;
+        }
     }
 }

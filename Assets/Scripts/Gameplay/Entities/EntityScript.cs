@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,16 +13,17 @@ namespace facingfate
 
         [Header("Deck Settings")]
         [SerializeField]
-        public List<int> deckCardIDs = new List<int>();  // Populate with card IDs
+        public List<string> deckCardIDs = new List<string>();  // Populate with card IDs
 
         [Header("Entity Stats")]
         public EntityStats entityStats;
 
         [Header("Entity Gameplay References")]
-        private EntityVisualScript EntityVisual;
+        public EntityVisualScript EntityVisual;
+        public MeshFilter EntityModel;
+        public EntityOnMap entityOnMap;
 
-        [Header("Entity on Map Reference")]
-        private EntityOnMap entityOnMap;
+
 
         public List<IEntityModifier> GetActiveModifiers()
         {
@@ -32,8 +32,6 @@ namespace facingfate
 
         public virtual void StartUp()
         {
-
-
             EntityVisual = GetComponentInChildren<EntityVisualScript>();
             entityOnMap = GetComponentInChildren<EntityOnMap>();
 
@@ -42,54 +40,12 @@ namespace facingfate
 
             entityOnMap.Startup();
 
-            AddListeners();
         }
-        private void AddListeners()
-        {
-            GameEvents.OnGameplayReference += TriggerAnimation;
-        }
-        private void TriggerAnimation(ToSendTriggerReference triggerRef)
-        {
-            var checkTrigger = new RelevantTriggerCheck
-            {
-                OnTriggerReference = new List<GameplayRef> { GameplayRef.onBurn, GameplayRef.onDamage, GameplayRef.onBleed },
-                CheckType = CheckEntityType.User,
-                CheckEntity = this
-            };
+        #region Events
+    
+        #endregion
 
-            if (GameEvents.CheckIfRelevantTrigger(triggerRef, checkTrigger))
-            {
-                Debug.Log("Playing Effect Animation for " + this.name);
-                PlayEffectAnimation(triggerRef);
-            }
-        }
-        public void PlayEffectAnimation(ToSendTriggerReference triggerRef)
-        {
-            foreach (GameplayRef gRef in triggerRef.OnTriggerReference)
-            {
-                switch (gRef)
-                {
-                    default: break;
-                    case GameplayRef.onBurn:
-                        CreateFX("BurnEffect");
-                        break;
-                    case GameplayRef.onDamage:
-                        CreateFX("DamageEffect");
-                        break;
-                    case GameplayRef.onBleed:
-                        CreateFX("BloodEffect");
-                        break;
-                }
-            }
-        }
-
-        private void CreateFX(string name)
-        {
-            GameObject effectObj;
-
-            effectObj = AssetManager.Instance.GetEffectPrefab(name);
-            var CreatedObj = Instantiate(effectObj, EntityVisual.transform);
-        }
+        #region Modifier System
 
         [Header("Modifier System")]
         [SerializeField]
@@ -162,6 +118,11 @@ namespace facingfate
         }
 
         public void RemoveModifier(IEntityModifier modifier) => entityModifiers.Remove(modifier);
+
+        public void RemoveAllModifiers()
+        {
+            entityModifiers.Clear();
+        }
         public void AddOrReplaceModifier(IEntityModifier modifier)
         {
             var existing = entityModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
@@ -216,6 +177,7 @@ namespace facingfate
             modifierNames.Clear();
             modifierNames.AddRange(entityModifiers.Select(c => c.ModifierName));
         }
+#endregion
 
         public virtual void StartTurn()
         {

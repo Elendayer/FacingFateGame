@@ -5,18 +5,19 @@ using UnityEngine.Tilemaps;
 public class CoordinateText : MonoBehaviour
 {
     Vector3Int cellPos = new();
-    CostInfoScript costInfoScript;
+    TileInfoScript costInfoScript;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Tilemap[] tilemaps = FindObjectsByType<Tilemap>(FindObjectsSortMode.None);
-        costInfoScript = FindFirstObjectByType<CostInfoScript>(0);
+        costInfoScript = FindFirstObjectByType<TileInfoScript>(0);
 
         cellPos = GetComponentInParent<Tilemap>().WorldToCell(transform.position);
         int cost = 0;
 
-        costInfoScript.costInfoDict.TryGetValue(cellPos, out CostInfo costInfo);
+        int key = Utility.TilemapUtilityScript.PositionToKey(cellPos);
+        costInfoScript.tileInfoDict.TryGetValue(key, out TileInfo costInfo);
         if (costInfo != null)
         {
             cost = costInfo.costCheck;

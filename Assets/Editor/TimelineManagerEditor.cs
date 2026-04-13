@@ -36,7 +36,7 @@ namespace facingfate
             foreach (var kvp in TimelineManager.Timeline)
             {
 
-                string name = (kvp.Key.Split('_').Last());
+                string name = kvp.Key;
                 var triggerList = kvp.Value;
 
                 if (!foldouts.ContainsKey(name))
@@ -48,7 +48,7 @@ namespace facingfate
                 GUI.backgroundColor = Color.white;
 
                 foldouts[name] = EditorGUILayout.Foldout(foldouts[name],
-                    $"▶Round:{TurnManager.Instance.CurrentRoundIndex}_{name}", true, EditorStyles.foldoutHeader);
+                    $"▶Round:{name}", true, EditorStyles.foldoutHeader);
 
                 if (foldouts[name])
                 {
