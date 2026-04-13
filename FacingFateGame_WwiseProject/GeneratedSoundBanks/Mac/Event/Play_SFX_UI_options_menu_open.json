@@ -1,0 +1,48 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1741661546",
+    "Type": "Event",
+    "GUID": "{6FB0209D-D041-4691-8CC9-1DD085DA9F85}",
+    "Language": "SFX",
+    "Hash": "{092D0EEE-0860-B683-5828-A94D93D00396}",
+    "ObjectPath": "Play_SFX_UI_options_menu_open",
+    "ShortName": "Play_SFX_UI_options_menu_open",
+    "Path": "Event/Play_SFX_UI_options_menu_open.bnk",
+    "Media": [
+     {
+      "Id": "776663619",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "UI_Player1-disappears.wav",
+      "Path": "Media/776663619.wem",
+      "CachePath": "D9/{D9DB5A62-8196-D472-B613-9AC8A16206C9}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "1741661546",
+      "Name": "Play_SFX_UI_options_menu_open",
+      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Options_Basic-UI\\Play_SFX_UI_options_menu_open",
+      "GUID": "{6FB0209D-D041-4691-8CC9-1DD085DA9F85}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.5666875",
+      "DurationMax": "0.5666875",
+      "MediaRefs": [
+       {
+        "Id": "776663619"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{A486F701-7A40-9593-5236-1B39BF3506AB}"
+ }
+}

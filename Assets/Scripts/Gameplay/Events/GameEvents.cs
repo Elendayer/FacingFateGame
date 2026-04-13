@@ -13,6 +13,8 @@ namespace facingfate
         public static event Action OnRoundStart;
         public static event Action OnCombatStart;
         public static event Action OnCombatEnd;
+        public static event Action<EntityScript> OnActivePlayerChanged;
+        public static event Action<EntityScript> OnTurnEntityChanged;
 
         public static event Action<ToSendTriggerReference> OnGameplayReference;
 
@@ -24,6 +26,11 @@ namespace facingfate
 
         public static void TriggerCombatStart() => OnCombatStart?.Invoke();
         public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
+        public static void TriggerActivePlayerChanged(EntityScript entity)
+            => OnActivePlayerChanged?.Invoke(entity);
+        public static void TriggerTurnEntityChanged(EntityScript entity)
+            => OnTurnEntityChanged?.Invoke(entity);
+
 
         public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());
 

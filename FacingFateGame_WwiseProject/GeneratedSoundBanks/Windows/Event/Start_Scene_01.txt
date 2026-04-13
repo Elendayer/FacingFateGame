@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	851434184	Start_Scene_01			\Default Work Unit\03_Scene_01\Start_Scene_01	
+

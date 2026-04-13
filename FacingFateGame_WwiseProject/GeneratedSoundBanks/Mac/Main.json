@@ -10,38 +10,12 @@
     "Type": "User",
     "GUID": "{EAEF9EFB-DF7A-4B87-9297-2153FBB83F24}",
     "Language": "SFX",
-    "Hash": "{B513C8A5-F11A-A26C-3CFC-E5A53A5B51A1}",
+    "Hash": "{71F9CEB8-45DE-23D7-AC26-882EA609EB7A}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\Main",
     "ShortName": "Main",
-    "Path": "Main.bnk",
-    "Media": [
-     {
-      "Id": "988404399",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "WS_Back-to-title-screen.wav",
-      "CachePath": "D2/{D20A6E46-A0CB-CEDF-9CA5-15945700ACB4}.wem"
-     }
-    ],
-    "Events": [
-     {
-      "Id": "4012838884",
-      "Name": "Play_WS_Back_to_title_screen",
-      "ObjectPath": "\\Events\\Default Work Unit\\Play_WS_Back_to_title_screen",
-      "GUID": "{AD1CCFBC-7CD9-448E-BD24-A74D64856A5D}",
-      "DurationType": "OneShot",
-      "DurationMin": "4",
-      "DurationMax": "4",
-      "MediaRefs": [
-       {
-        "Id": "988404399"
-       }
-      ]
-     }
-    ]
+    "Path": "Main.bnk"
    }
   ],
-  "FileHash": "{5A61F9F8-3C35-1A4C-84DD-7CCB8A1ADED8}"
+  "FileHash": "{8F97F7F7-BEFD-12CC-B4D8-6C68FB3002A7}"
  }
 }

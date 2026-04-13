@@ -1,0 +1,48 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "4180039856",
+    "Type": "Event",
+    "GUID": "{4B56BC21-111C-4626-92C1-E4C4948790CE}",
+    "Language": "SFX",
+    "Hash": "{3AA1123E-FD99-A371-0171-4F5549C1D474}",
+    "ObjectPath": "Play_SFX_UI_button_hover",
+    "ShortName": "Play_SFX_UI_button_hover",
+    "Path": "Event/Play_SFX_UI_button_hover.bnk",
+    "Media": [
+     {
+      "Id": "888898279",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "TS_tutorial on off.wav",
+      "Path": "Media/888898279.wem",
+      "CachePath": "D5/{D50BCC42-B471-C156-9676-284A0DFBF8A1}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "4180039856",
+      "Name": "Play_SFX_UI_button_hover",
+      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Options_Basic-UI\\Play_SFX_UI_button_hover",
+      "GUID": "{4B56BC21-111C-4626-92C1-E4C4948790CE}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.16270833",
+      "DurationMax": "0.16270833",
+      "MediaRefs": [
+       {
+        "Id": "888898279"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{C4B8B9ED-BA65-1C1E-08BE-7112C425746B}"
+ }
+}

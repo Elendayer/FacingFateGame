@@ -184,7 +184,7 @@ namespace facingfate
             return new NpcData
             {
                 id = this.id,
-                name = $"{this.name}_{entity.GetInstanceID()}",
+                name = this.name,
                 aiBias = this.aiBias,
                 cardIds = this.cardIds
             };

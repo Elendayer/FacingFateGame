@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Scenes/CombatUI_Test.unity.meta
-guid: 9f12ba86c0186344ca998ff4a8caeb85
-========
-guid: 7ab754d4890331d4080f8be2959fa0f5
->>>>>>>> origin/feature/GroundEffects:Assets/Samples/High Definition Render Pipeline/17.2.0/Particle System Shader Samples/Scenes/ParticleShaderGraphsSampleScene.unity.meta
+guid: a17fcba688163ee45bc36d6e1e26a2aa
 DefaultImporter:
   externalObjects: {}
   userData: 

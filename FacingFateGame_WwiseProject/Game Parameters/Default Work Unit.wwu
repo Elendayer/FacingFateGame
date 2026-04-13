@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}" SchemaVersion="133">
 	<GameParameters>
-		<WorkUnit Name="Default Work Unit" ID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}" PersistMode="Standalone"/>
+		<WorkUnit Name="Default Work Unit" ID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="Volume Slider" ID="{E3292CA4-428D-46A6-9B88-0F1BC7481835}" ShortID="373409389">
+					<ChildrenList>
+						<GameParameter Name="RTPC_atmo_Vol" ID="{FAFAB309-AA38-431D-847E-37E1F294699A}">
+							<PropertyList>
+								<Property Name="InitialValue" Type="Real64" Value="80"/>
+							</PropertyList>
+						</GameParameter>
+						<GameParameter Name="RTPC_dialogue_Vol" ID="{4C117E67-5FB3-4F45-89C6-4A4AE4E227E9}">
+							<PropertyList>
+								<Property Name="InitialValue" Type="Real64" Value="80"/>
+							</PropertyList>
+						</GameParameter>
+						<GameParameter Name="RTPC_sfx_Vol" ID="{95123801-F166-489F-B832-BD7716F6E07B}">
+							<PropertyList>
+								<Property Name="InitialValue" Type="Real64" Value="80"/>
+							</PropertyList>
+						</GameParameter>
+						<GameParameter Name="RTPC_music_Vol" ID="{B971A8B5-4273-4DF0-9252-7CAD29F623F8}">
+							<PropertyList>
+								<Property Name="InitialValue" Type="Real64" Value="80"/>
+							</PropertyList>
+						</GameParameter>
+						<GameParameter Name="RTPC_master_Vol" ID="{DFCD2DB9-93CE-4BF8-B37F-394A6D87C41F}">
+							<PropertyList>
+								<Property Name="InitialValue" Type="Real64" Value="80"/>
+							</PropertyList>
+						</GameParameter>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
 	</GameParameters>
 </WwiseDocument>

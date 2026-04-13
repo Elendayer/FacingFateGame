@@ -79,6 +79,10 @@ namespace facingfate
         {
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
+            GameEvents.TriggerTurnEntityChanged(TurnOrder[CurrentTurnIndex]);
+
+            if (TurnOrder[CurrentTurnIndex].GetComponent<PlayerScript>() != null)
+                GameEvents.TriggerActivePlayerChanged(TurnOrder[CurrentTurnIndex]);
 
             // Start the Turn for the Current Entity
             DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
@@ -102,7 +106,8 @@ namespace facingfate
             }
 
             //Start the next Turn
-            ActionQueueUtility.EnqueueAction(new Action(OnTurnStart), 0.5f);
+            //ActionQueueUtility.EnqueueAction(new Action(OnTurnStart), 0.5f);
+            ActionQueueUtility.EnqueueAction(GameEvents.TriggerTurnStart, 0.5f);
         }
     }
 }

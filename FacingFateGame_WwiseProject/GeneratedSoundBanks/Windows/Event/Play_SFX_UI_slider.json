@@ -1,0 +1,48 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1901608880",
+    "Type": "Event",
+    "GUID": "{E1EDDD63-1A4A-47B9-9675-635896D2613F}",
+    "Language": "SFX",
+    "Hash": "{F8802518-FE39-0707-EB1F-6F990BB039DC}",
+    "ObjectPath": "Play_SFX_UI_slider",
+    "ShortName": "Play_SFX_UI_slider",
+    "Path": "Event/Play_SFX_UI_slider.bnk",
+    "Media": [
+     {
+      "Id": "3915808",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "UI_volume-slider.wav",
+      "Path": "Media/3915808.wem",
+      "CachePath": "E9/{E9DF95B7-76F2-C2A3-95CA-43AD0AC9D9D8}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "1901608880",
+      "Name": "Play_SFX_UI_slider",
+      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Options_Basic-UI\\Play_SFX_UI_slider",
+      "GUID": "{E1EDDD63-1A4A-47B9-9675-635896D2613F}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.18825762",
+      "DurationMax": "0.18825762",
+      "MediaRefs": [
+       {
+        "Id": "3915808"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{96CA6290-FC7A-5647-781D-6CA095F8C66B}"
+ }
+}

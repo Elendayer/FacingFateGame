@@ -6,7 +6,7 @@ using Utility;
 
 namespace facingfate
 {
-    public class DraggableCard : DraggableUI
+    public class DraggableCard : DraggableUI, IPointerClickHandler
     {
         public CardScript cardScript; // Reference to the card logic
         private static readonly Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
@@ -14,9 +14,11 @@ namespace facingfate
         private Vector3Int? lastHighlightedTile = InvalidPosition;
         private readonly List<Vector3Int> selectedTilesDuringDrag = new();
         private bool isDragging = false;
+        private bool wasDragged = false;
 
         public override void OnBeginDrag(PointerEventData eventData)
         {
+            wasDragged = true;
             base.OnBeginDrag(eventData);
             cardScript = GetComponent<CardScript>();
             isDragging = true;
@@ -56,8 +58,8 @@ namespace facingfate
 
         public override void OnEndDrag(PointerEventData eventData)
         {
-            base.OnEndDrag(eventData);
             isDragging = false;
+            base.OnEndDrag(eventData);
 
             TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
 
@@ -106,7 +108,17 @@ namespace facingfate
                 Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on {string.Join(", ", targetingModeData.targetedEntities.Select(t => t.name))}");
                 cardScript.cardData.Owner.entityStats.CurrentStamina -= cardScript.cardData.Cost;
                 cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
+                HandManager.Instance?.SelectCard(null);
             }
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            // Klick ignorieren wenn gerade gezogen wurde
+            if (wasDragged) { wasDragged = false; return; }
+            if (eventData.button != PointerEventData.InputButton.Left) return;
+
+            HandManager.Instance?.SelectCard(gameObject);
         }
 
         private void HighlightCardEffectArea(Vector3Int? hoveredTile)
@@ -163,6 +175,47 @@ namespace facingfate
             TilemapUtilityScript.SetTilesHighlight(targetingData.targetedTiles, TilemapUtilityScript.HighlightType.Target);
 
             lastHighlightedTile = hoveredTile;
+        }
+
+        public void PlayCardOnCell(Vector3Int dropCell)
+        {
+            cardScript = GetComponent<CardScript>();
+            if (cardScript == null) return;
+
+            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
+            List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
+
+            if (cardScript.cardData.targetingData.TargetingUsesVision)
+                validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
+
+            if (!validTiles.Contains(dropCell)) return;
+
+            // Kosten prüfen
+            if (cardScript.cardData.Cost > cardScript.cardData.Owner.entityStats.CurrentStamina)
+            {
+                Debug.Log($"[DraggableCard] Cannot pay cost for {cardScript.cardData.cardName}");
+                return;
+            }
+
+            var targetingModeData = TargetingUtility.GetAffected(
+                cardScript, dropCell, cardScript.cardData.Owner,
+                cardScript.cardData.targetingData.EffectUsesVision,
+                selectedTilesDuringDrag, true);
+
+            // Entity-Target validieren
+            if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
+            {
+                var t = TargetingUtility.GetEntitiesFromTiles(
+                    new() { dropCell }, FindObjectsByType<EntityScript>(0).ToList());
+                if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
+                    return;
+            }
+
+            TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
+            cardScript.cardData.Owner.entityStats.CurrentStamina -= cardScript.cardData.Cost;
+            cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
+
+            HandManager.Instance?.SelectCard(null);
         }
     }
 }
