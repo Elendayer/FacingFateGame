@@ -25,6 +25,11 @@ namespace facingfate
         [Header("Entity on Map Reference")]
         private EntityOnMap entityOnMap;
 
+        public List<IEntityModifier> GetActiveModifiers()
+        {
+            return entityModifiers.Where(m => m != null && !m.IsExpired).ToList();
+        }
+
         public virtual void StartUp()
         {
 

@@ -22,8 +22,8 @@ namespace facingfate
 
         public Dictionary<EntityScript, Transform> DeckManagement = new Dictionary<EntityScript, Transform>();
 
-        private Stack<GameObject> cardStack = new Stack<GameObject>();
-        private Stack<GameObject> discardStack = new Stack<GameObject>();
+        public Stack<GameObject> cardStack = new Stack<GameObject>();
+        public Stack<GameObject> discardStack = new Stack<GameObject>();
 
         void Start()
         {
@@ -118,7 +118,7 @@ namespace facingfate
                 ShuffleDiscard();
                 return;
             }
-            if (HandManager.Instance.handAnchor.childCount > HandManager.Instance.maxHandsize)
+            if (HandManager.Instance.cardsInHand.Count >= HandManager.Instance.maxHandsize)
             {
                 Debug.Log("DeckManager] Hand is full.");
                 return;
@@ -130,17 +130,18 @@ namespace facingfate
             CardScript cs = topCard.GetComponent<CardScript>();
             cs.SetRevealed(); // Hide discarded card
 
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardDrawn }, null, null));
             //Debug.Log($"Drew card: {topCard.name}");
         }
         public void DiscardCardFromHand(GameObject cardobject)
         {
             if (cardobject == null) return;
-
+            HandManager.Instance.RemoveCard(cardobject);
             CardScript cs = cardobject.GetComponent<CardScript>();
-
             HandUtility.Discard(cs);
+            //discardStack.Push(cardobject);
 
-            discardStack.Push(cardobject);
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardPlayed }, null, null));
         }
 
         public void ShuffleDeck()
@@ -225,21 +226,20 @@ namespace facingfate
         {
             cardStack.Clear();
             discardStack.Clear();
+
             Transform dock = DeckManagement[entity];
             Debug.Log($"[DeckManager] Moving cards into deck of {entity.name} from {dock.name}");
-            List<CardScript> cards = new();
 
-            cards = dock.GetComponentsInChildren<CardScript>().ToList();
+            List<CardScript> cards = dock.GetComponentsInChildren<CardScript>()
+                .Where(c => c.cardData != null && c.cardData.Owner == entity)
+                .ToList();
 
             foreach (CardScript c in cards)
             {
                 c.cardData.Owner = entity;
-
                 RectTransform ct = c.GetComponent<RectTransform>();
-
                 ct.SetParent(deckParent);
                 TransformUtility.ZeroLocalRectTransform(ct);
-
                 cardStack.Push(ct.gameObject);
             }
         }

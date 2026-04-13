@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Unity.UI;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace facingfate
@@ -7,7 +9,8 @@ namespace facingfate
     public interface IEntityModifier
     {
         string ModifierName { get; }
-
+        string Description { get; set; }
+        Sprite Icon { get; set; }
         EntityScript Owner { get; set; }
 
         int BaseValue { get; set; }
@@ -31,6 +34,8 @@ namespace facingfate
     {
         //Main
         public string ModifierName { get; set; }
+        public string Description { get; set; }
+        public Sprite Icon { get; set; }
 
         public EntityScript Owner { get; set; }
         public int BaseValue
@@ -77,6 +82,8 @@ namespace facingfate
         (
         string modifierName,
         EntityScript owner,
+        string description = null,
+        Sprite icon = null,
         int baseValue = 0,
         List<GameplayRef> toTriggerRefs = null,
         RelevantTriggerCheck onRef_Trigger = new RelevantTriggerCheck(),
@@ -91,6 +98,8 @@ namespace facingfate
         )
         {
             ModifierName = modifierName;
+            Description = description ?? "";
+            Icon = icon;
             Owner = owner;
             BaseValue = baseValue;
             ToTriggerGameplayRefs = toTriggerRefs;
@@ -125,7 +134,8 @@ namespace facingfate
                         {
                             ActionQueueUtility.EnqueueAction(() =>
                             {
-                                OnRef_Action?.Invoke(OnRef_Trigger.CheckEntity, trigger.CardData, trigger.Throughput);
+                                //OnRef_Action?.Invoke(OnRef_Trigger.CheckEntity, trigger.CardData, trigger.Throughput);
+                                OnRef_Action?.Invoke(OnRef_Trigger.CheckEntity, trigger.CardData, BaseValue);
 
                                 // Trigger further GameplayRefs
                                 if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
@@ -142,7 +152,8 @@ namespace facingfate
                             {
                                 ActionQueueUtility.EnqueueAction(() =>
                                 {
-                                    OnRef_Action?.Invoke(entity, trigger.CardData, trigger.Throughput);
+                                    //OnRef_Action?.Invoke(entity, trigger.CardData, trigger.Throughput);
+                                    OnRef_Action?.Invoke(entity, trigger.CardData, BaseValue);
 
                                     // Trigger further GameplayRefs
                                     if (ToTriggerGameplayRefs != null && ToTriggerGameplayRefs.Count > 0)
@@ -279,6 +290,8 @@ namespace facingfate
             return new EntityModifier
             (
                 modifierName: ModifierName,
+                description: Description,
+                icon: Icon,
                 owner: cd.Owner,
                 baseValue: baseValue,
                 toTriggerRefs: ToTriggerGameplayRefs,
@@ -308,6 +321,8 @@ namespace facingfate
             return new EntityModifier
             (
                 modifierName: ModifierName,
+                description: Description,
+                icon: Icon,
                 owner: user,
                 baseValue: baseValue,
                 toTriggerRefs: ToTriggerGameplayRefs,

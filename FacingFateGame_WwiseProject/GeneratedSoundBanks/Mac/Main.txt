@@ -1,6 +1,0 @@
-Event	ID	Name			Wwise Object Path	Notes
-	4012838884	Play_WS_Back_to_title_screen			\Default Work Unit\Play_WS_Back_to_title_screen	
-
-In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
-	988404399	WS_Back-to-title-screen	.cache\D2\{D20A6E46-A0CB-CEDF-9CA5-15945700ACB4}.wem		\Containers\Default Work Unit\WS_Back-to-title-screen		768096
-

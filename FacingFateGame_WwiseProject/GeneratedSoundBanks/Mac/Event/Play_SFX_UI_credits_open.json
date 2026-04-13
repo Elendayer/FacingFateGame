@@ -1,0 +1,48 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2400083638",
+    "Type": "Event",
+    "GUID": "{BB598F5E-CDF7-4BAE-A1CC-672B9E990635}",
+    "Language": "SFX",
+    "Hash": "{EC9D0B29-E87E-68AE-77B5-356E46721F15}",
+    "ObjectPath": "Play_SFX_UI_credits_open",
+    "ShortName": "Play_SFX_UI_credits_open",
+    "Path": "Event/Play_SFX_UI_credits_open.bnk",
+    "Media": [
+     {
+      "Id": "1009397471",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "TS_open-credits.wav",
+      "Path": "Media/1009397471.wem",
+      "CachePath": "77/{7771DADD-7459-130D-8396-43D92B47646B}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "2400083638",
+      "Name": "Play_SFX_UI_credits_open",
+      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Options_Basic-UI\\Play_SFX_UI_credits_open",
+      "GUID": "{BB598F5E-CDF7-4BAE-A1CC-672B9E990635}",
+      "DurationType": "OneShot",
+      "DurationMin": "4.0053544",
+      "DurationMax": "4.0053544",
+      "MediaRefs": [
+       {
+        "Id": "1009397471"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{360911EF-33E3-2F38-140A-9169DF2FD409}"
+ }
+}

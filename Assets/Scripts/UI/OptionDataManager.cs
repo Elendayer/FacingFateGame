@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.Serialization;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
@@ -9,24 +10,49 @@ namespace facingfate
 {
     public class OptionDataManager : MonoBehaviour
     {
-        /*
-        public static OptionDataManager Instance;
+        public static OptionDataManager Instance { get; private set; }
 
-        [FormerlySerializedAs("ShowTutorial")]
-        public bool showTutorial = true;
-
-        [FormerlySerializedAs("Volume")] public float volume = 0.8f;
-        [FormerlySerializedAs("IsFullscreen")] public bool isFullscreen = true;
-        public bool isMuted = false;
-
-        [FormerlySerializedAs("ResolutionIndex")]
-        public int resolutionIndex;
-
+        [SerializeField] private bool showTutorial = true;
+        [SerializeField, Range(0f, 1f)] private float masterSlider01 = 0.8f;
+        [SerializeField, Range(0f, 1f)] private float musicSlider01 = 0.8f;
+        [SerializeField, Range(0f, 1f)] private float sfxSlider01 = 0.8f;
+        [SerializeField, Range(0f, 1f)] private float dialogueSlider01 = 0.8f;
+        [SerializeField, Range(0f, 1f)] private float atmoSlider01 = 0.8f;
+        [SerializeField] private bool isMuted = false;
+        [SerializeField] private bool isFullscreen = true;
+        [SerializeField] private int resolutionIndex;
         public string selectedLanguageCode = "en"; // Standard auf Englisch
 
-        private VCA _masterVCA;
-        private VCA _musicVCA;
-        private VCA _sfxVCA;
+        [Header("Wwise RTPC Names")]
+        [SerializeField] private string masterVolumeRtpc = "RTPC_master_Vol";
+        [SerializeField] private string musicVolumeRtpc = "RTPC_music_Vol";
+        [SerializeField] private string sfxVolumeRtpc = "RTPC_sfx_Vol";
+        [SerializeField] private string atmoVolumeRtpc = "RTPC_atmo_Vol";
+        [SerializeField] private string dialogueVolumeRtpc = "RTPC_dialogue_Vol";
+
+        [Header("RTPC Range")]
+        [SerializeField] private float rtpcMin = 0f;
+        [SerializeField] private float rtpcMax = 10f;
+
+        private const string PREF_MASTER = "opt_master_01";
+        private const string PREF_MUSIC = "opt_music_01";
+        private const string PREF_SFX = "opt_sfx_01";
+        private const string PREF_ATMO = "opt_atmo_01";
+        private const string PREF_DIALOGUE = "opt_dialogue_01";
+        private const string PREF_MUTED = "opt_muted";
+        private const string PREF_FULLSCREEN = "opt_fullscreen";
+        private const string PREF_RESOLUTION = "opt_resolution_index";
+        private const string PREF_LANGUAGE = "opt_language_code";
+
+        public float Master01 => masterSlider01;
+        public float Music01 => musicSlider01;
+        public float Sfx01 => sfxSlider01;
+        public float Atmo01 => atmoSlider01;
+        public float Dialogue01 => dialogueSlider01;
+        public bool IsMuted => isMuted;
+        public bool IsFullscreen => isFullscreen;
+        public int ResolutionIndex => resolutionIndex;
+        public string SelectedLanguageCode => selectedLanguageCode;
 
         private void Awake()
         {
@@ -36,88 +62,153 @@ namespace facingfate
 
             DontDestroyOnLoad(gameObject);
 
-            // FMOD VCAs initialisieren
-            _masterVCA = RuntimeManager.GetVCA("vca:/Master");
-            _musicVCA = RuntimeManager.GetVCA("vca:/Music");
-            _sfxVCA = RuntimeManager.GetVCA("vca:/SFX");
-            
+            LoadFromPrefs();
         }
 
-        void Start()
+        private IEnumerator Start()
         {
-            ApplyLanguageSetting();
-            ApplyVolumeSettings();
+            yield return LocalizationSettings.InitializationOperation;
+            ApplyAllSettings();
         }
 
-        public void SetShowTutorial(bool show)
+        public void SetMasterVolume01(float slider01)
         {
-            showTutorial = show;
-            Debug.Log("Tutorial Show is " + show);
+            masterSlider01 = Mathf.Clamp01(slider01);
+            PlayerPrefs.SetFloat(PREF_MASTER, masterSlider01);
+            PlayerPrefs.Save();
+
+            if (!isMuted)
+                ApplyAudioRtpcs();
         }
 
-        public void SetVolume(float volume)
+        public void SetMusicVolume01(float slider01)
         {
-            this.volume = volume;
-            _masterVCA.setVolume(volume);
+            musicSlider01 = Mathf.Clamp01(slider01);
+            PlayerPrefs.SetFloat(PREF_MUSIC, musicSlider01);
+            PlayerPrefs.Save();
+
+            ApplyAudioRtpcs();
         }
 
-        public void SetMusicVolume(float volume)
+        public void SetSfxVolume01(float slider01)
         {
-            _musicVCA.setVolume(volume);
+            sfxSlider01 = Mathf.Clamp01(slider01);
+            PlayerPrefs.SetFloat(PREF_SFX, sfxSlider01);
+            PlayerPrefs.Save();
+
+            ApplyAudioRtpcs();
         }
 
-        public void SetSfxVolume(float volume)
+        public void SetDialogueVolume01(float slider01)
         {
-            _sfxVCA.setVolume(volume);
+            dialogueSlider01 = Mathf.Clamp01(slider01);
+            PlayerPrefs.SetFloat(PREF_DIALOGUE, dialogueSlider01);
+            PlayerPrefs.Save();
+
+            ApplyAudioRtpcs();
+        }
+
+        public void SetAtmoVolume01(float slider01)
+        {
+            atmoSlider01 = Mathf.Clamp01(slider01);
+            PlayerPrefs.SetFloat(PREF_ATMO, atmoSlider01);
+            PlayerPrefs.Save();
+
+            ApplyAudioRtpcs();
         }
 
         public void MuteToggle(bool muted)
         {
             isMuted = muted;
-            float muteVolume = muted ? 0f : volume;
-            _masterVCA.setVolume(muteVolume);
+            PlayerPrefs.SetInt(PREF_MUTED, muted ? 1 : 0);
+            PlayerPrefs.Save();
+
+            ApplyAudioRtpcs();
         }
 
-        public void SetFullscreen(bool isFullscreen)
+        public void SetFullscreen(bool fullscreen)
         {
-            this.isFullscreen = isFullscreen;
+            isFullscreen = fullscreen;
+            PlayerPrefs.SetInt(PREF_FULLSCREEN, fullscreen ? 1 : 0);
+            PlayerPrefs.Save();
+
             Screen.fullScreen = isFullscreen;
         }
 
-        public void SetResolution(int resolutionIndex)
+        public void SetResolution(int index)
         {
-            this.resolutionIndex = resolutionIndex;
-            var resolution = Screen.resolutions[resolutionIndex];
-            Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
+            var res = Screen.resolutions;
+            if (res == null || res.Length == 0) return;
+
+            resolutionIndex = Mathf.Clamp(index, 0, res.Length - 1);
+            PlayerPrefs.SetInt(PREF_RESOLUTION, resolutionIndex);
+            PlayerPrefs.Save();
+
+            var r = res[resolutionIndex];
+            Screen.SetResolution(r.width, r.height, Screen.fullScreen);
         }
 
         public void SetLanguage(string localeCode)
         {
             selectedLanguageCode = localeCode;
-            var locale = LocalizationSettings.AvailableLocales.GetLocale(localeCode);
-            if (locale != null)
-            {
-                LocalizationSettings.SelectedLocale = locale;
-            }
+            PlayerPrefs.SetString(PREF_LANGUAGE, selectedLanguageCode);
+            PlayerPrefs.Save();
+
+            ApplyLanguageSetting();
+        }
+
+        public void ApplyAllSettings()
+        {
+            Screen.fullScreen = isFullscreen;
+            SetResolution(resolutionIndex);
+            ApplyLanguageSetting();
+            ApplyAudioRtpcs();
         }
 
         private void ApplyLanguageSetting()
         {
-            if (!string.IsNullOrEmpty(selectedLanguageCode))
-            {
-                var locale = LocalizationSettings.AvailableLocales.GetLocale(selectedLanguageCode);
-                if (locale != null)
-                {
-                    LocalizationSettings.SelectedLocale = locale;
-                }
-            }
+            if (string.IsNullOrEmpty(selectedLanguageCode)) return;
+
+            var locale = LocalizationSettings.AvailableLocales.GetLocale(selectedLanguageCode);
+            if (locale != null)
+                LocalizationSettings.SelectedLocale = locale;
         }
 
-        private void ApplyVolumeSettings()
+        private void ApplyAudioRtpcs()
         {
-            _masterVCA.setVolume(isMuted ? 0f : volume);
-            // Optional: Set default volumes for other VCAs if needed
+            float masterRtpc = isMuted ? rtpcMin : Slider01ToRtpc(masterSlider01);
+            float musicRtpc = Slider01ToRtpc(musicSlider01);
+            float sfxRtpc = Slider01ToRtpc(sfxSlider01);
+            float atmoRtpc = Slider01ToRtpc(atmoSlider01);
+            float dialogueRtpc = Slider01ToRtpc(dialogueSlider01);
+
+            // global RTPCs
+            AkUnitySoundEngine.SetRTPCValue(masterVolumeRtpc, masterRtpc);
+            AkUnitySoundEngine.SetRTPCValue(musicVolumeRtpc, musicRtpc);
+            AkUnitySoundEngine.SetRTPCValue(sfxVolumeRtpc, sfxRtpc);
+            AkUnitySoundEngine.SetRTPCValue(atmoVolumeRtpc, atmoRtpc);
+            AkUnitySoundEngine.SetRTPCValue(dialogueVolumeRtpc, dialogueRtpc);
         }
-        */
+
+        private float Slider01ToRtpc(float slider01)
+        {
+            float t = Mathf.Clamp01(slider01);
+            return Mathf.Lerp(rtpcMin, rtpcMax, t);
+        }
+
+        private void LoadFromPrefs()
+        {
+            masterSlider01 = PlayerPrefs.GetFloat(PREF_MASTER, masterSlider01);
+            musicSlider01 = PlayerPrefs.GetFloat(PREF_MUSIC, musicSlider01);
+            sfxSlider01 = PlayerPrefs.GetFloat(PREF_SFX, sfxSlider01);
+            isMuted = PlayerPrefs.GetInt(PREF_MUTED, isMuted ? 1 : 0) == 1;
+            isFullscreen = PlayerPrefs.GetInt(PREF_FULLSCREEN, isFullscreen ? 1 : 0) == 1;
+            resolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION, resolutionIndex);
+            selectedLanguageCode = PlayerPrefs.GetString(PREF_LANGUAGE, selectedLanguageCode);
+
+            masterSlider01 = Mathf.Clamp01(masterSlider01);
+            musicSlider01 = Mathf.Clamp01(musicSlider01);
+            sfxSlider01 = Mathf.Clamp01(sfxSlider01);
+        }
     }
 }
