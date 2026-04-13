@@ -20,9 +20,10 @@ namespace facingfate
         [SerializeField] private Vector3 spawnOffset = new Vector3(0f, 0.8f, 0f);
 
         [Header("Batching")]
-        [SerializeField] private float batchWindow = 0.1f; // Zeitfenster zum Zusammenfassen
+        [SerializeField] private float batchWindow = 0.1f;
 
-        // Pro Entity: akkumulierte Werte pro Typ
+        public enum NumberType { Damage, Heal, Dot, Modifier }
+
         private class BatchEntry
         {
             public int damage;
@@ -36,49 +37,33 @@ namespace facingfate
 
         private void Awake() => Instance = this;
 
-        private void OnEnable() => GameEvents.OnGameplayReference += HandleGameplayReference;
-        private void OnDisable()
-        {
-            GameEvents.OnGameplayReference -= HandleGameplayReference;
-            batches.Clear();
-        }
+        private void OnDisable() => batches.Clear();
 
-        private void HandleGameplayReference(ToSendTriggerReference trigger)
+        /// <summary>
+        /// Wird direkt aus CombatUtility aufgerufen – kein Event-Umweg.
+        /// </summary>
+        public void SpawnDamage(EntityScript target, int value, NumberType type)
         {
-            if (trigger.OnTriggerReference == null) return;
-            if (trigger.AffectedEntities == null || trigger.AffectedEntities.Count == 0) return;
+            if (target == null) return;
 
-            foreach (EntityScript target in trigger.AffectedEntities)
+            if (!batches.TryGetValue(target, out BatchEntry entry))
             {
-                if (target == null) continue;
-
-                if (!batches.TryGetValue(target, out BatchEntry entry))
-                {
-                    entry = new BatchEntry();
-                    batches[target] = entry;
-                }
-
-                // Werte akkumulieren
-                if (trigger.OnTriggerReference.Contains(GameplayRef.onDamageRecieved))
-                    entry.damage += trigger.Throughput;
-
-                else if (trigger.OnTriggerReference.Contains(GameplayRef.onHealRecieved))
-                    entry.healing += trigger.Throughput;
-
-                else if (trigger.OnTriggerReference.Contains(GameplayRef.onBleed) ||
-                         trigger.OnTriggerReference.Contains(GameplayRef.onBurn) ||
-                         trigger.OnTriggerReference.Contains(GameplayRef.onPoison))
-                    entry.dot += trigger.Throughput;
-
-                else if (trigger.OnTriggerReference.Contains(GameplayRef.onModifierApplied))
-                    entry.hasModifier = true;
-
-                // Coroutine neu starten (reset batch window)
-                if (entry.coroutine != null)
-                    StopCoroutine(entry.coroutine);
-
-                entry.coroutine = StartCoroutine(FlushBatch(target, entry));
+                entry = new BatchEntry();
+                batches[target] = entry;
             }
+
+            switch (type)
+            {
+                case NumberType.Damage: entry.damage += value; break;
+                case NumberType.Heal: entry.healing += value; break;
+                case NumberType.Dot: entry.dot += value; break;
+                case NumberType.Modifier: entry.hasModifier = true; break;
+            }
+
+            if (entry.coroutine != null)
+                StopCoroutine(entry.coroutine);
+
+            entry.coroutine = StartCoroutine(FlushBatch(target, entry));
         }
 
         private IEnumerator FlushBatch(EntityScript target, BatchEntry entry)
@@ -86,32 +71,28 @@ namespace facingfate
             yield return new WaitForSeconds(batchWindow);
 
             Vector3 spawnPos = target.transform.position + spawnOffset;
-            float offsetX = 0f;
+            float offsetY = 0f;
 
-            // Schaden anzeigen
             if (entry.damage > 0)
             {
-                SpawnAt(spawnPos + new Vector3(offsetX, 0f, 0f), $"-{entry.damage}", damageColor);
-                offsetX += 0.4f;
+                SpawnAt(spawnPos + new Vector3(0f, offsetY, 0f), $"-{entry.damage}", damageColor);
+                offsetY += 0.3f;
             }
 
-            // Heilung anzeigen
             if (entry.healing > 0)
             {
-                SpawnAt(spawnPos + new Vector3(offsetX, 0f, 0f), $"+{entry.healing}", healColor);
-                offsetX += 0.4f;
+                SpawnAt(spawnPos + new Vector3(0f, offsetY, 0f), $"+{entry.healing}", healColor);
+                offsetY += 0.3f;
             }
 
-            // DoT anzeigen
             if (entry.dot > 0)
             {
-                SpawnAt(spawnPos + new Vector3(offsetX, 0f, 0f), $"-{entry.dot}", dotColor);
-                offsetX += 0.4f;
+                SpawnAt(spawnPos + new Vector3(0f, offsetY, 0f), $"-{entry.dot}", dotColor);
+                offsetY += 0.3f;
             }
 
-            // Status Effekt
             if (entry.hasModifier)
-                SpawnAt(spawnPos + new Vector3(offsetX, 0f, 0f), "!", modifierColor);
+                SpawnAt(spawnPos + new Vector3(0f, offsetY, 0f), "!", modifierColor);
 
             batches.Remove(target);
         }

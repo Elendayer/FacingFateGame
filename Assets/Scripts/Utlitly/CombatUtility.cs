@@ -15,6 +15,7 @@ namespace Utility
             List<GameplayRef> refs = new() { dotType, GameplayRef.onDamageRecieved };
 
             target.entityStats.CurrentHealth -= rawDamage;
+            DamageNumberSpawner.Instance?.SpawnDamage(target, rawDamage, DamageNumberSpawner.NumberType.Dot);
 
             HandleOnDamageVFX(vfxData, target);
 
@@ -65,6 +66,7 @@ namespace Utility
                 refs.Add(GameplayRef.onDamageRecieved);
 
                 target.entityStats.CurrentHealth -= damage;
+                DamageNumberSpawner.Instance?.SpawnDamage(target, damage, DamageNumberSpawner.NumberType.Damage);
             }
 
             if (cardData != null)
@@ -99,6 +101,7 @@ namespace Utility
                 refs.Add(GameplayRef.onHealRecieved);
 
                 target.entityStats.CurrentHealth += effHeal;
+                DamageNumberSpawner.Instance?.SpawnDamage(target, effHeal, DamageNumberSpawner.NumberType.Heal);
             }
             if (cardData != null)
             {
@@ -162,6 +165,7 @@ namespace Utility
             }
 
             EffectOwner.AddModifier(mod, mergeStrategy);
+            DamageNumberSpawner.Instance?.SpawnDamage(EffectOwner, 0, DamageNumberSpawner.NumberType.Modifier);
 
             Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
             HandlePostCombatTrigger(refs, cardData.Owner, EffectOwner, cardData);

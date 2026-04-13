@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Localization.Editor::UnityEditor.Localization.StringTableCollection
   m_SharedTableData: {fileID: 11400000, guid: 1b3b6d1527a7eeb4db5176f106431bc7, type: 2}
   m_Tables:
-  - {fileID: 11400000, guid: ffe4db4570916dd4cb099e4358cfe310, type: 2}
   - {fileID: 11400000, guid: 98ce2b71f3be6f640b7efa5461e30229, type: 2}
+  - {fileID: 11400000, guid: ffe4db4570916dd4cb099e4358cfe310, type: 2}
   m_Extensions: []
   m_Group: String Table
   references:
