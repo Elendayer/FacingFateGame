@@ -33,15 +33,15 @@ public class ES3ScriptingDefineSymbols
     internal static bool HasDefineSymbol(string symbol)
     {
 #if UNITY_2021_2_OR_NEWER
-            string[] defines;
-            try
-            {
-                NamedBuildTarget namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-                PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget, out defines);
-                if (defines.Contains(symbol))
-                    return true;
-            }
-            catch { }
+        string[] defines;
+        try
+        {
+            NamedBuildTarget namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget, out defines);
+            if (defines.Contains(symbol))
+                return true;
+        }
+        catch { }
 #else
         string definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
         var allDefines = new HashSet<string>(definesString.Split(';'));
