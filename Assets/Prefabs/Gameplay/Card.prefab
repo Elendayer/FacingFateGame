@@ -753,6 +753,7 @@ GameObject:
   - component: {fileID: 1010949514691347412}
   - component: {fileID: 3678393952837976159}
   - component: {fileID: 6705351292809335112}
+  - component: {fileID: 3533506340948434382}
   m_Layer: 0
   m_Name: CardFace
   m_TagString: Untagged
@@ -846,6 +847,21 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &3533506340948434382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3833017866987929648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3903701583212047187
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,6 +1209,7 @@ GameObject:
   - component: {fileID: 5054429770109785104}
   - component: {fileID: 2306069557926807751}
   - component: {fileID: 3443301566100292062}
+  - component: {fileID: 3852990890665397112}
   m_Layer: 0
   m_Name: Card
   m_TagString: Untagged
@@ -1459,6 +1476,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.AspectRatioFitter
   m_AspectMode: 2
   m_AspectRatio: 0.7
+--- !u!114 &3852990890665397112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6460608915492105488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb7d4a883de6cf04fb03078fac11614d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.CardOutline
+  outline: {fileID: 3533506340948434382}
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  normalColor: {r: 0, g: 0, b: 0, a: 1}
+  selectedDistance: {x: 8, y: -8}
+  normalDistance: {x: 1, y: -1}
 --- !u!1 &7387098342295467585
 GameObject:
   m_ObjectHideFlags: 0

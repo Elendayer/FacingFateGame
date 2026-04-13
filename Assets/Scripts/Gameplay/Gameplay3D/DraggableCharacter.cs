@@ -2,7 +2,6 @@ using facingfate;
 using TMPro;
 using UnityEngine;
 using Utility;
-using TMPro;
 using System.Collections;
 
 [RequireComponent(typeof(Collider))]

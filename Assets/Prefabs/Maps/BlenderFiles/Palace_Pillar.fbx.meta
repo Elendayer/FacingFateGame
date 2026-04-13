@@ -3,7 +3,17 @@ guid: 26ed100e32c5d894f9be280b192ea3ed
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Gold
+    second: {fileID: -876546973899608171, guid: dc2b3610c21cb5e459d9005edcc5a937, type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wall
+    second: {fileID: -876546973899608171, guid: 9fe13a21ff2269f4189c747bdf60415d, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -68,7 +78,7 @@ ModelImporter:
     secondaryUVMinLightmapResolution: 40
     secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
-    useFileScale: 0
+    useFileScale: 1
     strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
