@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-//using UnityEditor.VersionControl;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Utility;
 
 namespace facingfate
@@ -41,6 +41,7 @@ namespace facingfate
 
         private EntityScript lockedEntity;  // per Klick gesperrte Entity
         private EntityScript lastHoverOutlined; // für sauberes Outline-Reset
+
 
         [Flags]
         private enum DirtyFlags
@@ -97,10 +98,10 @@ namespace facingfate
 
         private void Update()
         {
-            HandleEntityClick();
-            UpdateHover();
+            //HandleEntityClick();
+           // UpdateHover();
 
-            ApplyRefreshIfDirty();
+            //ApplyRefreshIfDirty();
         }
 
         public void RefreshAll()
@@ -154,7 +155,7 @@ namespace facingfate
 
         private void HandleEntityClick()
         {
-            if (!Input.GetMouseButtonDown(0)) return;
+            if (!InputSystem.actions.FindAction("LeftClick").enabled) return;
 
             EntityScript clicked = FindHoveredEntity();
             if (clicked == null) return;
@@ -181,7 +182,7 @@ namespace facingfate
         {
             if (hoverCamera == null) return null;
 
-            Vector3 mousePos = Input.mousePosition;
+            Vector3 mousePos = Mouse.current.position.ReadValue();
 
             // Guard gegen (inf, inf) / NaN
             if (!IsFinite(mousePos)) return null;

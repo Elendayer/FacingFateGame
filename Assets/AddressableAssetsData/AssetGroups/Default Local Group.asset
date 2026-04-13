@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Default Local Group
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Default Local Group
-  m_GUID: e3e7400a84a830e4c8f87adcdc55ed72
+  m_GUID: 4a18f1f56071dee4e9f5887b433cfa81
   m_SerializeEntries: []
   m_ReadOnly: 0
-  m_Settings: {fileID: 11400000, guid: 13e46809c8f5d924ca7abcf60f3ae5f4, type: 2}
+  m_Settings: {fileID: 11400000, guid: 0a3b00dd2c090af4e928d5abbd4bf355, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 851f38aa9c393a745a4705030294282d, type: 2}
-    - {fileID: 11400000, guid: 8fdd77d4082061b4cb4bd31e36df19b1, type: 2}
+    - {fileID: 11400000, guid: c14d8638f1bddf94f909fa2166960b22, type: 2}
+    - {fileID: 11400000, guid: 5b08b68741ac4af42bd77446c461e55b, type: 2}

@@ -25,9 +25,9 @@ namespace facingfate
         }
         private void HandleMapStartup()
         {
-            CombatMapMaster mapGenMaster = FindAnyObjectByType<CombatMapMaster>();
+            //CombatMapMaster mapGenMaster = FindAnyObjectByType<CombatMapMaster>();
 
-            mapGenMaster.SetUp();
+            //mapGenMaster.SetUp();
         }
         private void HandleStartup()
         {

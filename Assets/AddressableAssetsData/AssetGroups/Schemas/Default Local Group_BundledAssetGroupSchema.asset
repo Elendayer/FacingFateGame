@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5d17a21594effb4e9591490b009e7aa, type: 3}
   m_Name: Default Local Group_BundledAssetGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema
-  m_Group: {fileID: 11400000, guid: 3e11aaa184c6fc149831ed7e236b6115, type: 2}
+  m_Group: {fileID: 11400000, guid: c1cbcd5273f913f4db416fb8bb755721, type: 2}
   m_InternalBundleIdMode: 1
   m_Compression: 1
   m_IncludeAddressInCatalog: 1
@@ -35,9 +35,9 @@ MonoBehaviour:
   m_RedirectLimit: -1
   m_RetryCount: 0
   m_BuildPath:
-    m_Id: 7b42f003a1fe6bf47ac677a1a8ce63ae
+    m_Id: b359db72161f4b445a0d09b4304a2611
   m_LoadPath:
-    m_Id: bd9930b8d414de14a9fc766b40196a7e
+    m_Id: eec43f9fda6f55a438518a8c74bfc95c
   m_BundleMode: 0
   m_AssetBundleProviderType:
     m_AssemblyName: Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

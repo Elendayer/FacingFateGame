@@ -3,8 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags:
-  - Basemap
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -12,7 +11,7 @@ TagManager:
   - 
   - Water
   - UI
-  - Character
+  - 
   - 
   - 
   - 
@@ -42,23 +41,20 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Map
-    uniqueID: 2738379097
-    locked: 0
-  - name: Gameplay
-    uniqueID: 3208277267
-    locked: 0
-  - name: Entities
-    uniqueID: 2182087131
-    locked: 0
-  - name: Arrow
-    uniqueID: 589123887
-    locked: 0
-  - name: Overlay
-    uniqueID: 3423576063
-    locked: 0
-  - name: Ui
-    uniqueID: 1504294727
-    locked: 0
   m_RenderingLayers:
   - Default
+  - Light Layer 1
+  - Light Layer 2
+  - Light Layer 3
+  - Light Layer 4
+  - Light Layer 5
+  - Light Layer 6
+  - Light Layer 7
+  - Decal Layer default
+  - Decal Layer 1
+  - Decal Layer 2
+  - Decal Layer 3
+  - Decal Layer 4
+  - Decal Layer 5
+  - Decal Layer 6
+  - Decal Layer 7

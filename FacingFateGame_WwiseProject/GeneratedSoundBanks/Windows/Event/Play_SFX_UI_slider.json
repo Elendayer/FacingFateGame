@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{E1EDDD63-1A4A-47B9-9675-635896D2613F}",
     "Language": "SFX",
-    "Hash": "{F8802518-FE39-0707-EB1F-6F990BB039DC}",
+    "Hash": "{8CDF92C0-562B-6C7D-4623-DE6C7DF6F1F3}",
     "ObjectPath": "Play_SFX_UI_slider",
     "ShortName": "Play_SFX_UI_slider",
     "Path": "Event/Play_SFX_UI_slider.bnk",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{96CA6290-FC7A-5647-781D-6CA095F8C66B}"
+  "FileHash": "{0BB83D92-FEF4-BB17-F37D-26DE3164335C}"
  }
 }

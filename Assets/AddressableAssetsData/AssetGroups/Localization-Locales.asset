@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Localization-Locales
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Localization-Locales
-  m_GUID: ad5197dd1b6d53e4981cdfb293989f8f
+  m_GUID: 0c1b6a276384f2e4e9bab0e6e85f4415
   m_SerializeEntries:
   - m_GUID: 6ab49330c1b44db41bcdedd4a4da4596
     m_Address: English (en)
@@ -28,8 +28,8 @@ MonoBehaviour:
     - Locale
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 13e46809c8f5d924ca7abcf60f3ae5f4, type: 2}
+  m_Settings: {fileID: 11400000, guid: 0a3b00dd2c090af4e928d5abbd4bf355, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 281fbda408cf5194eb9d135b24321d48, type: 2}
-    - {fileID: 11400000, guid: 7254a6d633299c04db1629b3cf92e357, type: 2}
+    - {fileID: 11400000, guid: 97e7328c1349c8a41a01ea3b4bd87bb3, type: 2}
+    - {fileID: 11400000, guid: e7646edd10c697444a31567e965d7c36, type: 2}
