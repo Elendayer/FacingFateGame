@@ -1,7 +1,7 @@
 using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
-using Utility;
+using UnityEngine.InputSystem;
 
 namespace facingfate
 {
@@ -43,49 +43,54 @@ namespace facingfate
         {
             if (cardsInHand.Count == 0) return;
 
-            // Klick auf Tile wenn Karte ausgewählt
-            if (selectedCard != null && Input.GetMouseButtonDown(0))
+            // Handle right click for preview
+            if (Mouse.current?.rightButton.wasPressedThisFrame == true)
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                Vector3Int cell = TargetingUtility.GetHoveredTile(ray);
-
-                if (cell != TilemapUtilityScript.InvalidPosition)
+                GameObject hovered = GetHoveredCard();
+                if (hovered != null)
                 {
-                    DraggableCard dc = selectedCard.GetComponent<DraggableCard>();
-                    if (dc != null)
+                    CardScript cardScript = hovered.GetComponent<CardScript>();
+                    if (cardScript != null)
                     {
-                        dc.PlayCardOnCell(cell);
-                        return;
+                        CardPreviewPanel.Instance?.Show(cardScript);
                     }
                 }
+                return;
             }
 
-            GameObject hovered = GetHoveredCard();
+            GameObject hoveredCard = GetHoveredCard();
 
-            if (hovered == lastHoveredCard) return;
-            if (hovered == null && lastHoveredCard != null)
+            // Update layout whenever a card is hovered
+            if (hoveredCard != null)
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                Vector3Int cell = TargetingUtility.GetHoveredTile(ray);
-                bool overEntity = cell != TilemapUtilityScript.InvalidPosition;
+                UpdateHandLayout(hoveredCard);
+            }
+            else if (hoveredCard != lastHoveredCard)
+            {
+                // Only update layout when transitioning away from a hovered card
+                Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                Vector3 position = TargetingUtility.GetHoveredPosition(ray);
+                bool overEntity = position != Vector3.zero;
 
                 if (!overEntity && IsMouseNearHand()) return;
+
+                UpdateHandLayout(null);
             }
 
-            lastHoveredCard = hovered;
-            UpdateHandLayout(hovered);
+            lastHoveredCard = hoveredCard;
 
-            if (hovered != null)
+            // Update preview - show hovered card if available
+            if (hoveredCard != null)
             {
-                CardPreviewPanel.Instance?.Show(hovered.GetComponent<CardScript>());
+                CardScript hoveredScript = hoveredCard.GetComponent<CardScript>();
+                if (hoveredScript != null)
+                {
+                    CardPreviewPanel.Instance?.Show(hoveredScript);
+                }
             }
             else
             {
-                // Preview nur verstecken wenn KEINE Karte ausgewählt ist
-                if (selectedCard == null)
-                    CardPreviewPanel.Instance?.Hide();
-                else
-                    CardPreviewPanel.Instance?.Show(selectedCard.GetComponent<CardScript>());
+                CardPreviewPanel.Instance?.Hide();
             }
         }
 
@@ -94,12 +99,12 @@ namespace facingfate
         {
             if (handAnchor == null) return false;
             Vector3 handScreenPos = RectTransformUtility.WorldToScreenPoint(null, handAnchor.position);
-            return Vector2.Distance(Input.mousePosition, handScreenPos) < handHoverRadius;
+            return Vector2.Distance(Mouse.current.position.ReadValue(), handScreenPos) < handHoverRadius;
         }
 
         private GameObject GetHoveredCard()
         {
-            Vector2 mousePos = Input.mousePosition;
+            Vector2 mousePos = Mouse.current.position.ReadValue();
 
             // Von oben nach unten (zuletzt hinzugefügte Karte zuerst)
             for (int i = cardsInHand.Count - 1; i >= 0; i--)
@@ -226,7 +231,6 @@ namespace facingfate
                 if (selectedCard != null)
                 {
                     selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
-                    TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
                     selectedCard = null;
                 }
                 return;
@@ -235,7 +239,6 @@ namespace facingfate
             if (selectedCard == card)
             {
                 selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
-                TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
                 selectedCard = null;
             }
             else
@@ -244,7 +247,6 @@ namespace facingfate
                 if (selectedCard != null)
                 {
                     selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
-                    TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
                 }
 
                 selectedCard = card;
@@ -254,9 +256,7 @@ namespace facingfate
                 CardScript cs = card.GetComponent<CardScript>();
                 if (cs?.cardData?.Owner != null)
                 {
-                    var ownerCell = cs.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
-                    var rangeTiles = TilemapUtilityScript.GetTilesInRadius(ownerCell, cs.cardData.Range);
-                    TilemapUtilityScript.SetTilesHighlight(rangeTiles, TilemapUtilityScript.HighlightType.Range);
+                    var ownerCell = cs.transform.position;
                 }
             }
 

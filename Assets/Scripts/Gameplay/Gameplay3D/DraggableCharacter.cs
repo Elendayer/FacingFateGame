@@ -1,91 +1,135 @@
-using facingfate;
 using TMPro;
 using UnityEngine;
-using Utility;
+using UnityEngine.InputSystem;
 using System.Collections;
 
-[RequireComponent(typeof(Collider))]
-public class DraggableCharacter : Draggable3D
+namespace facingfate
 {
-    public EntityOnMap characterOnMap;
-    public EntityScript characterEntity;
 
-    [Header("Movement Cost Preview")]
-    public int previewPathCost;                      
-    public TextMeshProUGUI staminaPreviewText;
-
-    private void Awake()
+    [RequireComponent(typeof(Collider))]
+    public class DraggableCharacter : Draggable3D
     {
-        characterEntity = GetComponent<EntityScript>();
-        characterOnMap = GetComponent<EntityOnMap>();
+        public EntityOnMap characterOnMap;
+        public EntityScript characterEntity;
 
-    }
+        [Header("Movement Cost Preview")]
+        public int previewPathCost;
+        public TextMeshProUGUI staminaPreviewText;
 
-    public override void OnMouseDown()
-    {
-        if (TimelineManager.isPaused == true) { return; }
-        if (characterEntity.entityStats.IsRooted) { return; }
+        private Vector3 dragEndPosition;
 
-        if (TurnManager.Instance.CurrentTurnEntity == characterEntity)
-        {        
+        private void Awake()
+        {
+            characterEntity = GetComponent<EntityScript>();
+            characterOnMap = GetComponent<EntityOnMap>();
+        }
+
+        public override void OnMouseDown()
+        {
+            // Character-specific validation before starting drag
+            if (TimelineManager.isPaused) return;
+            if (characterEntity.entityStats.IsRooted) return;
+            if (TurnManager.Instance.CurrentTurnEntity != characterEntity) return;
+
+            // Cache the movement cost modifier for this drag session
+            moveCostModifer = characterEntity.entityStats.MovementCostModifier;
+
+            // Validation passed, start drag
             base.OnMouseDown();
         }
-    }
 
-    public override void OnMouseUp()
-    {
-        moveCostModifer = characterEntity.entityStats.MovementCostModifier;
-        base.OnMouseUp();
-        
-    }
-    public override void HandleMove(PathData pathData)
-    {
-        Vector3Int dropCell = pathData.End;
-
-        // Validate target cell
-        int dropKey = TilemapUtilityScript.PositionToKey(dropCell);
-        if (dropCell == TilemapUtilityScript.InvalidPosition ||
-            !TilemapUtilityScript.CostInfoScript.tileInfoDict.ContainsKey(dropKey) ||
-            TilemapUtilityScript.CostInfoScript.tileInfoDict[dropKey].isOccupied ||
-            TilemapUtilityScript.CostInfoScript.tileInfoDict[dropKey].isUnwalkable)
+        public override void OnMouseUp()
         {
-            return;
+            if (!isDragging) return;
+
+            // Execute movement BEFORE calling base.OnMouseUp() which disables drag
+            if (dragEndPosition != Vector3.zero && dragEndPosition != currentPosition)
+            {
+                MoveToPosition(dragEndPosition);
+            }
+
+            dragEndPosition = Vector3.zero;
+
+            // Now end the drag
+            base.OnMouseUp();
         }
 
-        // Only move if enough stamina
-        if (characterEntity.entityStats.CurrentStamina >= pathData.PathCost)
+        protected override void OnDragUpdate()
         {
-            // Enqueue movement via global action queue
-            ActionQueueUtility.EnqueueMovement(characterOnMap, pathData);
+            // Raycast from camera to world
+            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Vector3 cursorPosition = hit.point;
+                dragEndPosition = cursorPosition;
+
+                // Calculate path and cost for preview
+                PathData pathData = MovementUtility.FindPath(currentPosition, cursorPosition, false, true, moveCostModifer);
+                previewPathCost = pathData.PathCost;
+
+                // Update arrow preview
+                if (lineRenderer != null)
+                    UpdateArrow(currentPosition, cursorPosition);
+
+                // Update stamina preview text
+                if (staminaPreviewText != null)
+                {
+                    float currentStamina = characterEntity.entityStats.CurrentStamina;
+                    if (currentStamina >= previewPathCost)
+                    {
+                        staminaPreviewText.text = $"{currentStamina:F0} → {currentStamina - previewPathCost:F0}";
+                        staminaPreviewText.color = Color.white;
+                    }
+                    else
+                    {
+                        staminaPreviewText.text = $"{currentStamina:F0} (Insufficient)";
+                        staminaPreviewText.color = Color.red;
+                    }
+                }
+            }
         }
 
-        // Clear movement previews and reset tile highlights
-        ClearMovementPreview();
-        TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
-    }
-
-    public override void HandleHover(Vector3Int hoverCell)
-    {
-        // Ungültig / blockiert? -> Anzeige löschen
-        int hoverKey = TilemapUtilityScript.PositionToKey(hoverCell);
-        if (hoverCell == TilemapUtilityScript.InvalidPosition ||
-            !TilemapUtilityScript.CostInfoScript.tileInfoDict.ContainsKey(hoverKey) ||
-            TilemapUtilityScript.CostInfoScript.tileInfoDict[hoverKey].isOccupied ||
-            TilemapUtilityScript.CostInfoScript.tileInfoDict[hoverKey].isUnwalkable)
+        private void MoveToPosition(Vector3 targetPosition)
         {
-            ClearMovementPreview();
-            return;
+            // Validate path exists and has sufficient stamina
+            PathData pathData = MovementUtility.FindPath(currentPosition, targetPosition, false, true, moveCostModifer);
+
+            Debug.Log($"[DraggableCharacter] MoveToPosition called. From: {currentPosition}, To: {targetPosition}");
+            Debug.Log($"[DraggableCharacter] Path valid: {pathData.Path != null && pathData.Path.Count > 0}, Cost: {pathData.PathCost}");
+
+            if (pathData.Path == null || pathData.Path.Count == 0)
+            {
+                Debug.Log($"[DraggableCharacter] No valid path found");
+                return;
+            }
+
+            float currentStamina = characterEntity.entityStats.CurrentStamina;
+            Debug.Log($"[DraggableCharacter] Current stamina: {currentStamina}, Path cost: {pathData.PathCost}");
+
+            if (currentStamina < pathData.PathCost)
+            {
+                Debug.Log($"[DraggableCharacter] Insufficient stamina");
+                return;
+            }
+
+            // Deduct stamina cost first
+            characterEntity.entityStats.CurrentStamina -= pathData.PathCost;
+            Debug.Log($"[DraggableCharacter] Stamina deducted. New stamina: {characterEntity.entityStats.CurrentStamina}");
+
+            // Execute movement via wrapper coroutine
+            Debug.Log($"[DraggableCharacter] Starting move routine to: {targetPosition}");
+            if (characterOnMap != null)
+            {
+                StartCoroutine(ExecuteMovement(targetPosition));
+            }
         }
 
-        // Highlight path from current position to hover cell
-        TilemapUtilityScript.SetTilesHighlight( MovementUtility.FindPath( characterOnMap.currentCell, hoverCell).Path, TilemapUtilityScript.HighlightType.Path);
+        private IEnumerator ExecuteMovement(Vector3 targetPosition)
+        {
+            Debug.Log($"[DraggableCharacter] ExecuteMovement coroutine started");
+            yield return characterOnMap.StartMoveRoutine(targetPosition);
+            Debug.Log($"[DraggableCharacter] Movement completed");
+        }
     }
-
-    private void ClearMovementPreview()
-    {
-        previewPathCost = 0;
-        if (staminaPreviewText != null) staminaPreviewText.text = string.Empty;
-    }
-
-
 }

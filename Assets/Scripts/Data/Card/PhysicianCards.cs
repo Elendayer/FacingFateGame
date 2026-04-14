@@ -1,9 +1,4 @@
-using Language.Lua;
-using System.Collections.Generic;
-using UnityEngine;
-using Utility;
-using static UnityEngine.GraphicsBuffer;
-
+﻿
 namespace facingfate
 {
     public static class PhysicianCards
@@ -21,7 +16,7 @@ namespace facingfate
 
         private static void RegisterMartialArts()
         {
-            // 140101 – Jade Needle Acupuncture – HoT on ally
+            // 140101 â€“ Jade Needle Acupuncture â€“ HoT on ally
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Tech_Jade_Needle_Acupuncture",
@@ -33,7 +28,7 @@ namespace facingfate
                 cost_u = 20,
                 healing_u = 20,
                 duration_u = 3,   // for 3 turns
-                range_u = 3,
+                range_u = 3f,
 
                 targetingData = new()
                 {
@@ -54,7 +49,7 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    // Heal-over-time as positive “on turn start” tick
+                    // Heal-over-time as positive â€œon turn startâ€ tick
                     var regen = new EntityModifier(
                         modifierName: "Regeneration",
                         owner: Target,
@@ -77,7 +72,7 @@ namespace facingfate
                 }
             });
 
-            // 140102 – Bloodletting – convert Poison → Bleed
+            // 140102 â€“ Bloodletting â€“ convert Poison â†’ Bleed
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Tech_Bloodletting",
@@ -88,7 +83,7 @@ namespace facingfate
 
                 cost_u = 10,
                 power_u = 1,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -101,7 +96,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) => { /* TODO: convert Poison stacks to Bleed stacks */ }
             });
 
-            // 140103 – Formation of the Hundred Remedies – Heal allies in ring
+            // 140103 â€“ Formation of the Hundred Remedies â€“ Heal allies in ring
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Tech_Formation_of_the_Hundred_Remedies",
@@ -112,7 +107,7 @@ namespace facingfate
 
                 cost_u = 100,
                 healing_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -130,7 +125,7 @@ namespace facingfate
                 }
             });
 
-            // 140104 – Venomous Grip (Single Enemy) – worsen Poison
+            // 140104 â€“ Venomous Grip (Single Enemy) â€“ worsen Poison
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Tech_Venomous_Grip",
@@ -153,7 +148,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) => { /* TODO: modify poison modifier on target */ }
             });
 
-            // 140105 – Needle of the Flowing River (Single Ally) – cleanse
+            // 140105 â€“ Needle of the Flowing River (Single Ally) â€“ cleanse
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Tech_Needle_of_the_Flowing_River",
@@ -163,7 +158,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 2,
-                range_u = 3,
+                range_u = 3f,
 
                 targetingData = new()
                 {
@@ -181,7 +176,7 @@ namespace facingfate
         // --------------------------- Abilities ---------------------------
         private static void RegisterAbilities()
         {
-            // 140201 – Gather – sammelt Materialien; bei Wert 3 = neue Karte (TODO)
+            // 140201 â€“ Gather â€“ sammelt Materialien; bei Wert 3 = neue Karte (TODO)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Abil_Gather",
@@ -200,15 +195,15 @@ namespace facingfate
                 },
 
                 CardDescription = (User, d) =>
-                    d.cardDescription = "Gather materials around you. Value=3 ⇒ create/draw a new card (TODO).",
+                    d.cardDescription = "Gather materials around you. Value=3 â‡’ create/draw a new card (TODO).",
 
                 CardEffect = (User, Target, d) =>
                 {
-                    // TODO: Sammel-Stack am User erhöhen; bei Stack >= 3 -> neue Karte erzeugen/ziehen und Stack resetten.
+                    // TODO: Sammel-Stack am User erhÃ¶hen; bei Stack >= 3 -> neue Karte erzeugen/ziehen und Stack resetten.
                 }
             });
 
-            // 140202 – Toxic Remedy Paradox – heilt einen Ally & vergiftet einen Enemy
+            // 140202 â€“ Toxic Remedy Paradox â€“ heilt einen Ally & vergiftet einen Enemy
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Abil_Toxic_Remedy_Paradox",
@@ -218,7 +213,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Poison },
 
                 cost_u = 4,
-                range_u = 2,
+                range_u = 2f,
 
 
                 targetingData = new()
@@ -237,7 +232,7 @@ namespace facingfate
                 }
             });
 
-            // 140203 – Poison Barbs – bei Treffer: Thorns + Poison (Self)
+            // 140203 â€“ Poison Barbs â€“ bei Treffer: Thorns + Poison (Self)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Abil_Poison_Barbs",
@@ -263,11 +258,11 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     // TODO: Reaktiven Modifier auf den User legen:
-                    // On 'onHitTaken' -> füge fixen Thorns-Schaden zu & apply Poison-DoT auf den Angreifer.
+                    // On 'onHitTaken' -> fÃ¼ge fixen Thorns-Schaden zu & apply Poison-DoT auf den Angreifer.
                 }
             });
 
-            // 140204 – Doctor's Footwork – halbiert Movement-Kosten (Self)
+            // 140204 â€“ Doctor's Footwork â€“ halbiert Movement-Kosten (Self)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Abil_Doctors_Footwork",
@@ -291,7 +286,7 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    // TODO: Temporären Modifier auf den User anwenden, der die Bewegungs-Kosten halbiert.
+                    // TODO: TemporÃ¤ren Modifier auf den User anwenden, der die Bewegungs-Kosten halbiert.
                     // (z. B. Multiplikator 0.5 auf Stamina/Movement-Cost; endet am Turn-End.)
                 }
             });
@@ -299,7 +294,7 @@ namespace facingfate
 
         private static void RegisterSpells()
         {
-            // 140301 – Jade Needle Resonance – Buff allies in area (Damage up)
+            // 140301 â€“ Jade Needle Resonance â€“ Buff allies in area (Damage up)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Spell_Jade_Needle_Resonance",
@@ -311,8 +306,8 @@ namespace facingfate
                 cost_u = 5,
                 power_u = 20,
                 duration_u = 2,
-                range_u = 3,
-                area_u = 2,
+                range_u = 3f,
+                area_u = 2f,
 
                 targetingData = new()
                 {
@@ -339,7 +334,7 @@ namespace facingfate
                 }
             });
 
-            // 140302 – Breath of the Jade Lotus – Heals everyone in a line
+            // 140302 â€“ Breath of the Jade Lotus â€“ Heals everyone in a line
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Spell_Breath_of_the_Jade_Lotus",
@@ -350,8 +345,8 @@ namespace facingfate
 
                 cost_u = 30,
                 healing_u = 80,
-                range_u = 3,
-                area_u = 2,
+                range_u = 3f,
+                area_u = 2f,
 
                 targetingData = new()
                 {
@@ -371,7 +366,7 @@ namespace facingfate
         }
         private static void RegisterItems()
         {
-            // 140601 – Brew of a Hundred Herbs – Heal an Ally
+            // 140601 â€“ Brew of a Hundred Herbs â€“ Heal an Ally
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Brew_of_a_Hundred_Herbs",
@@ -382,7 +377,7 @@ namespace facingfate
 
                 cost_u = 10,
                 healing_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -400,7 +395,7 @@ namespace facingfate
                 }
             });
 
-            // 140602 – Elixir of a Hundred Herbs – +Max Health for 3 turns
+            // 140602 â€“ Elixir of a Hundred Herbs â€“ +Max Health for 3 turns
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Elixir_of_a_Hundred_Herbs",
@@ -412,7 +407,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 3,
                 power_u = 100, // +MaxHealth
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -438,7 +433,7 @@ namespace facingfate
                 }
             });
 
-            // 140603 – Pill of a Hundred Herbs – +Max Health (indefinite)
+            // 140603 â€“ Pill of a Hundred Herbs â€“ +Max Health (indefinite)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Pill_of_a_Hundred_Herbs",
@@ -450,7 +445,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 0,
                 power_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -476,7 +471,7 @@ namespace facingfate
                 }
             });
 
-            // 140604 – Crimson Rejuvenation Brew – Regenerates Stamina
+            // 140604 â€“ Crimson Rejuvenation Brew â€“ Regenerates Stamina
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Crimson_Rejuvenation_Brew",
@@ -487,7 +482,7 @@ namespace facingfate
 
                 cost_u = 1,
                 power_u = 150,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -505,7 +500,7 @@ namespace facingfate
                 }
             });
 
-            // 140605 – Crimson Rejuvenation Elixir – +Max Stamina for 3 turns
+            // 140605 â€“ Crimson Rejuvenation Elixir â€“ +Max Stamina for 3 turns
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Crimson_Rejuvenation_Elixir",
@@ -517,7 +512,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 3,
                 power_u = 150,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -543,7 +538,7 @@ namespace facingfate
                 }
             });
 
-            // 140606 – Crimson Rejuvenation Pill – +Max Stamina (indefinite)
+            // 140606 â€“ Crimson Rejuvenation Pill â€“ +Max Stamina (indefinite)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Crimson_Rejuvenation_Pill",
@@ -555,7 +550,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 0,
                 power_u = 150,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -581,7 +576,7 @@ namespace facingfate
                 }
             });
 
-            // 140607 – Brew of Unbroken Will – +Armour for 1 Turn (DamageIncrease)
+            // 140607 â€“ Brew of Unbroken Will â€“ +Armour for 1 Turn (DamageIncrease)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Brew_of_Unbroken_Will",
@@ -593,7 +588,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 1,
                 power_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -619,7 +614,7 @@ namespace facingfate
                 }
             });
 
-            // 140608 – Elixir of Unbroken Will – +Armour for 3 turns
+            // 140608 â€“ Elixir of Unbroken Will â€“ +Armour for 3 turns
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Elixir_of_Unbroken_Will",
@@ -631,7 +626,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 3,
                 power_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -657,7 +652,7 @@ namespace facingfate
                 }
             });
 
-            // 140609 – Pill of Unbroken Will – +Armour (indefinite)
+            // 140609 â€“ Pill of Unbroken Will â€“ +Armour (indefinite)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Pill_of_Unbroken_Will",
@@ -669,7 +664,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 0,
                 power_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -695,7 +690,7 @@ namespace facingfate
                 }
             });
 
-            // 140610 – Soaring Dragon Brew – +Attack for 1 turn
+            // 140610 â€“ Soaring Dragon Brew â€“ +Attack for 1 turn
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Soaring_Dragon_Brew",
@@ -707,7 +702,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 1,
                 power_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -736,7 +731,7 @@ namespace facingfate
                 }
             });
 
-            // 140611 – Soaring Dragon Elixir – +Attack for X turns (here 3)
+            // 140611 â€“ Soaring Dragon Elixir â€“ +Attack for X turns (here 3)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Soaring_Dragon_Elixir",
@@ -748,7 +743,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 3,
                 power_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -774,7 +769,7 @@ namespace facingfate
                 }
             });
 
-            // 140612 – Soaring Dragon Pill – +Attack (indefinite)
+            // 140612 â€“ Soaring Dragon Pill â€“ +Attack (indefinite)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Soaring_Dragon_Pill",
@@ -786,7 +781,7 @@ namespace facingfate
                 cost_u = 10,
                 duration_u = 0,
                 power_u = 100,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -812,7 +807,7 @@ namespace facingfate
                 }
             });
 
-            // 140613 – Crystal Cleansing Balm – Cleanse target (status removal) -> TODO
+            // 140613 â€“ Crystal Cleansing Balm â€“ Cleanse target (status removal) -> TODO
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Crystal_Cleansing_Balm",
@@ -822,7 +817,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 10,
-                range_u = 3,
+                range_u = 3f,
 
                 targetingData = new()
                 {
@@ -841,7 +836,7 @@ namespace facingfate
                 }
             });
 
-            // 140614 – Mandrake Poison Cloud – Throws Poison Cloud
+            // 140614 â€“ Mandrake Poison Cloud â€“ Throws Poison Cloud
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Mandrake_Poison_Cloud",
@@ -855,8 +850,8 @@ namespace facingfate
                 damage_u = 2,
                 duration_u = 3,
 
-                range_u = 4,
-                radius_u = 3,
+                range_u = 4f,
+                radius_u = 3f,
 
                 targetingData = new()
                 {
@@ -914,17 +909,17 @@ namespace facingfate
 
         private static void RegisterCurse()
         {
-            // 140401 – Alchemist’s Misstep – failure chance 20% fail for Items
+            // 140401 â€“ Alchemistâ€™s Misstep â€“ failure chance 20% fail for Items
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Curse_Alchemists_Misstep",
-                cardName = "Alchemist’s Misstep",
+                cardName = "Alchemistâ€™s Misstep",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 10,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -945,7 +940,7 @@ namespace facingfate
 
         private static void RegisterBlessing()
         {
-            // 140501 – Mythical Herb – Increases potency of items 
+            // 140501 â€“ Mythical Herb â€“ Increases potency of items 
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Phy_Item_Mythical_Herb",

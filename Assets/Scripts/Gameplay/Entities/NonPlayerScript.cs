@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -70,58 +71,88 @@ namespace facingfate
                     plan = builtPlan;
 
                     // Step 2: Execute plan AFTER planning finishes
-                    ActionQueueUtility.EnqueueAction(() =>
+                    ExecutePlanSequentially(plan, () =>
                     {
-                        ExecutePlan(plan);
-
                         // Step 3: End turn after plan finishes
                         ActionQueueUtility.EnqueueAction(() =>
                         {
                             EventManager.Instance.Endturn();
                         }, 1f);
-
                     });
                 });
             });
         }
 
+        /// <summary>
+        /// Executes a list of planned actions sequentially, waiting for each to complete.
+        /// </summary>
+        private void ExecutePlanSequentially(List<PlannedAction> plan, Action onAllActionsComplete)
+        {
+            ExecuteNextAction(plan, 0, onAllActionsComplete);
+        }
 
         /// <summary>
-        /// Executes a list of planned actions sequentially via the global action queue.
+        /// Recursively executes the next action in the plan, waiting for completion.
         /// </summary>
-        private void ExecutePlan(List<PlannedAction> plan)
+        private void ExecuteNextAction(List<PlannedAction> plan, int actionIndex, Action onAllActionsComplete)
         {
-            foreach (PlannedAction action in plan)
+            // If all actions are complete, invoke callback
+            if (actionIndex >= plan.Count)
             {
-                switch (action.Type)
-                {
-                    case PlannedAction.ActionType.Move:
-                        EnqueueMoveAction(action);
-                        break;
+                onAllActionsComplete?.Invoke();
+                return;
+            }
 
-                    case PlannedAction.ActionType.PlayCard:
-                        EnqueueCardAction(action);
-                        break;
-                }
+            PlannedAction action = plan[actionIndex];
+
+            // Execute current action with completion callback to move to next action
+            switch (action.Type)
+            {
+                case PlannedAction.ActionType.Move:
+                    EnqueueMoveAction(action, () =>
+                    {
+                        ExecuteNextAction(plan, actionIndex + 1, onAllActionsComplete);
+                    });
+                    break;
+
+                case PlannedAction.ActionType.PlayCard:
+                    EnqueueCardAction(action, () =>
+                    {
+                        ExecuteNextAction(plan, actionIndex + 1, onAllActionsComplete);
+                    });
+                    break;
             }
         }
 
         /// <summary>
-        /// Enqueues a movement action through the ActionQueueUtility.
+        /// Enqueues a movement action through the ActionQueueUtility with completion callback.
+        /// Uses NavMesh to move directly to the target destination.
         /// </summary>
-        private void EnqueueMoveAction(PlannedAction action)
+        private void EnqueueMoveAction(PlannedAction action, Action onActionComplete)
         {
-            // Enqueue movement with callback
-            ActionQueueUtility.EnqueueMovement(entityOnMap, action.PathData);
+            Debug.Log($"[NpcAI] {name} moving to {action.PathData.End}");
+
+            ActionQueueUtility.EnqueueActionRoutine(this, () =>
+                entityOnMap.StartMoveRoutine(action.PathData.End), () =>
+            {
+                Debug.Log($"[NpcAI] {name} finished moving");
+                onActionComplete?.Invoke();
+            });
         }
 
         /// <summary>
-        /// Enqueues a card action through the ActionQueueUtility.
+        /// Enqueues a card action through the ActionQueueUtility with completion callback.
         /// </summary>
-        private void EnqueueCardAction(PlannedAction action)
+        private void EnqueueCardAction(PlannedAction action, Action onActionComplete)
         {
-            // Enqueue card effects (handles repeats internally)
-            ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData);
+            Debug.Log($"[NpcAI] {name} playing card {action.Name}");
+
+            // Enqueue card effects with callback to signal completion
+            ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData, null, 0.25f, () =>
+            {
+                Debug.Log($"[NpcAI] {name} finished playing card");
+                onActionComplete?.Invoke();
+            });
         }
     }
 }

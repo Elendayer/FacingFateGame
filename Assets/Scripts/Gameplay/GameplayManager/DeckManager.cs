@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using Utility;
 
 namespace facingfate
 {
@@ -177,7 +176,7 @@ namespace facingfate
             HandManager.Instance.RemoveCard(cardobject);
             CardScript cs = cardobject.GetComponent<CardScript>();
             HandUtility.Discard(cs);
-            //discardStack.Push(cardobject);
+            discardStack.Push(cardobject);
 
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardPlayed }, null, null));
         }
@@ -258,6 +257,10 @@ namespace facingfate
 
                 card.transform.SetParent(Dock);
             }
+
+            // Clear the stacks when moving out to Dock
+            cardStack.Clear();
+            discardStack.Clear();
         }
 
         public void Player_MoveInDeck(EntityScript entity)
@@ -306,6 +309,13 @@ namespace facingfate
         {
             if (entity.GetType() == typeof(PlayerScript))
             {
+                // Move any remaining cards in hand to discard
+                HandManager.Instance.DiscardAllInHand();
+
+                // Move all discarded cards back into the deck
+                Player_ShuffleDiscard();
+
+                // Move out the deck for storage
                 Player_MoveOutDeck(entity);
             }
         }

@@ -43,6 +43,33 @@ namespace facingfate
         {
             RegisterNpc(new NpcData()
             {
+                id = "Striker",
+                name = "Striker",
+                aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                }
+            });
+
+            RegisterNpc(new NpcData()
+            {
+                id = "Healer",
+                name = "Healer",
+                aiBias = AiBiasDatabase.GetBiasById("StupidFuck "),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Abil_Recover",
+                    "Neutral_Abil_Recover"
+                }
+            });
+
+            RegisterNpc(new NpcData()
+            {
                 id = "Spear_Test_Npc",
                 name = "Spearman",
                 aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
@@ -169,7 +196,6 @@ namespace facingfate
             });
         }
     }
-
 
     public class NpcData
     {

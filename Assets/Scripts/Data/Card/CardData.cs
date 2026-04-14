@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
-using Utility;
-using static facingfate.GameEvents;
 
 namespace facingfate
 {
@@ -27,105 +24,313 @@ namespace facingfate
         [Header("Cost")]
         public Func<CardData, int> costFunc;
         public int cost_u = 0;
-        public Stat cost_s = new();
-        public int Cost =>
-            Owner.entityStats.CardCostModifier.ApplyFinalValue(
-                cost_s.ApplyFinalValue(Resolve(costFunc, cost_u), Owner, this),
-                Owner,
-                this
-            );
+        public Stat cost_s_Flat = new();
+        public Stat cost_s_Increase = new();
+        public Stat cost_s_Multiplier = new();
+        public int Cost
+        {
+            get
+            {
+                float baseValue = Resolve(costFunc, cost_u);
+                float flatBonus = cost_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = cost_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = cost_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.CardCostModifier_Flat,
+                    Owner.entityStats.CardCostModifier_Increase,
+                    Owner.entityStats.CardCostModifier_Multiplier,
+                    Owner,
+                    this
+                ));
+            }
+        }
 
         [Header("Power")]
         public Func<CardData, int> powerFunc;
         public int power_u = 0;
-        public Stat power_s = new();
-        public int Power =>
-            Owner.entityStats.PowerModifier.ApplyFinalValue(
-                power_s.ApplyFinalValue(Resolve(powerFunc, power_u), Owner, this),
-                Owner,
-                this
-            );
+        public Stat power_s_Flat = new();
+        public Stat power_s_Increase = new();
+        public Stat power_s_Multiplier = new();
+        public int Power
+        {
+            get
+            {
+                float baseValue = Resolve(powerFunc, power_u);
+                float flatBonus = power_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = power_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = power_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.PowerModifier_Flat,
+                    Owner.entityStats.PowerModifier_Increase,
+                    Owner.entityStats.PowerModifier_Multiplier,
+                    Owner,
+                    this
+                ));
+            }
+        }
 
         [Header("Damage")]
         public Func<CardData, int> damageFunc;
         public int damage_u = 0;
-        public Stat damage_s = new();
-        public int Damage =>
-            Owner.entityStats.DamageOutModifier.ApplyFinalValue(
-                damage_s.ApplyFinalValue(Resolve(damageFunc, damage_u), Owner, this),
-                Owner,
-                this
-            );
+        public Stat damage_s_Flat = new();
+        public Stat damage_s_Increase = new();
+        public Stat damage_s_Multiplier = new();
+        public int Damage
+        {
+            get
+            {
+                float baseValue = Resolve(damageFunc, damage_u);
+                float flatBonus = damage_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = damage_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = damage_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.DamageOutModifier_Flat,
+                    Owner.entityStats.DamageOutModifier_Increase,
+                    Owner.entityStats.DamageOutModifier_Multiplier,
+                    Owner,
+                    this
+                ));
+            }
+        }
 
         [Header("Healing")]
         public Func<CardData, int> healingFunc;
         public int healing_u = 0;
-        public Stat healing_s = new();
-        public int Healing =>
-            Owner.entityStats.HealingOutModifier.ApplyFinalValue(
-                healing_s.ApplyFinalValue(Resolve(healingFunc, healing_u), Owner, this),
-                Owner,
-                this
-            );
+        public Stat healing_s_Flat = new();
+        public Stat healing_s_Increase = new();
+        public Stat healing_s_Multiplier = new();
+        public int Healing
+        {
+            get
+            {
+                float baseValue = Resolve(healingFunc, healing_u);
+                float flatBonus = healing_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = healing_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = healing_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.HealingOutModifier_Flat,
+                    Owner.entityStats.HealingOutModifier_Increase,
+                    Owner.entityStats.HealingOutModifier_Multiplier,
+                    Owner,
+                    this
+                ));
+            }
+        }
 
         [Header("Duration")]
         public Func<CardData, int> durationFunc;
         public int duration_u = 99999;
-        public Stat duration_s = new();
-        public int Duration =>
-            Owner.entityStats.DurationModifier.ApplyFinalValue(
-                duration_s.ApplyFinalValue(Resolve(durationFunc, duration_u), Owner, this),
-                Owner,
-                this
-            );
+        public Stat duration_s_Flat = new();
+        public Stat duration_s_Increase = new();
+        public Stat duration_s_Multiplier = new();
+        public int Duration
+        {
+            get
+            {
+                float baseValue = Resolve(durationFunc, duration_u);
+                float flatBonus = duration_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = duration_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = duration_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.DurationModifier_Flat,
+                    Owner.entityStats.DurationModifier_Increase,
+                    Owner.entityStats.DurationModifier_Multiplier,
+                    Owner,
+                    this
+                ));
+            }
+        }
 
         [Header("Repeats")]
         public Func<CardData, int> repeatsFunc;
         public int repeats_u = 1;
-        public Stat repeats_s = new();
-        public int Repeats =>
-            Resolve(repeatsFunc, repeats_u) + repeats_s.Value(Owner, this);
+        public Stat repeats_s_Flat = new();
+        public Stat repeats_s_Increase = new();
+        public Stat repeats_s_Multiplier = new();
+        public int Repeats
+        {
+            get
+            {
+                float baseValue = Resolve(repeatsFunc, repeats_u);
+                float flatBonus = repeats_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = repeats_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = repeats_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Mathf.RoundToInt(result);
+            }
+        }
 
         [Header("Area of Effect")]
-        public Func<CardData, int> rangeFunc;
-        public int range_u = 1;
-        public Stat range_s = new();
-        public int Range =>
-            Owner.entityStats.RangeModifier.ApplyFinalValue(
-                range_s.ApplyFinalValue(Resolve(rangeFunc, range_u), Owner, this),
-                Owner,
-                this
-            );
+        public Func<CardData, float> rangeFunc;
+        public float range_u = 1f;
+        public Stat range_s_Flat = new();
+        public Stat range_s_Increase = new();
+        public Stat range_s_Multiplier = new();
+        public float Range
+        {
+            get
+            {
+                float baseValue = Resolve(rangeFunc, range_u);
+                float flatBonus = range_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = range_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-        public Func<CardData, int> areaFunc;
-        public int area_u = 1;
-        public Stat area_s = new();
-        public int Area =>
-            Owner.entityStats.AreaModifier.ApplyFinalValue(
-                area_s.ApplyFinalValue(Resolve(areaFunc, area_u), Owner, this),
-                Owner,
-                this
-            );
+                var multipliers = range_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
 
-        public Func<CardData, int> radiusFunc;
-        public int radius_u = 1;
-        public Stat radius_s = new();
-        public int Radius =>
-            Owner.entityStats.RadiusModifier.ApplyFinalValue(
-                radius_s.ApplyFinalValue(Resolve(radiusFunc, radius_u), Owner, this),
-                Owner,
-                this
-            );
+                return Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.RangeModifier_Flat,
+                    Owner.entityStats.RangeModifier_Increase,
+                    Owner.entityStats.RangeModifier_Multiplier,
+                    Owner,
+                    this
+                );
+            }
+        }
+
+        public Func<CardData, float> areaFunc;
+        public float area_u = 1f;
+        public Stat area_s_Flat = new();
+        public Stat area_s_Increase = new();
+        public Stat area_s_Multiplier = new();
+        public float Area
+        {
+            get
+            {
+                float baseValue = Resolve(areaFunc, area_u);
+                float flatBonus = area_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = area_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = area_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.AreaModifier_Flat,
+                    Owner.entityStats.AreaModifier_Increase,
+                    Owner.entityStats.AreaModifier_Multiplier,
+                    Owner,
+                    this
+                );
+            }
+        }
+
+        public Func<CardData, float> radiusFunc;
+        public float radius_u = 1f;
+        public Stat radius_s_Flat = new();
+        public Stat radius_s_Increase = new();
+        public Stat radius_s_Multiplier = new();
+        public float Radius
+        {
+            get
+            {
+                float baseValue = Resolve(radiusFunc, radius_u);
+                float flatBonus = radius_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = radius_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = radius_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.RadiusModifier_Flat,
+                    Owner.entityStats.RadiusModifier_Increase,
+                    Owner.entityStats.RadiusModifier_Multiplier,
+                    Owner,
+                    this
+                );
+            }
+        }
 
         public Func<CardData, int> maxTargetFunc;
         public int maxtarget_u = 0;
-        public Stat maxTarget_s = new();
-        public int MaxTarget =>
-            Owner.entityStats.MaxTargetModifier.ApplyFinalValue(
-                maxTarget_s.ApplyFinalValue(Resolve(maxTargetFunc, maxtarget_u), Owner, this),
-                Owner,
-                this
-            );
+        public Stat maxTarget_s_Flat = new();
+        public Stat maxTarget_s_Increase = new();
+        public Stat maxTarget_s_Multiplier = new();
+        public int MaxTarget
+        {
+            get
+            {
+                float baseValue = Resolve(maxTargetFunc, maxtarget_u);
+                float flatBonus = maxTarget_s_Flat.ApplyFinalValue(0, Owner, this);
+                float increaseBonus = maxTarget_s_Increase.ApplyFinalValue(0, Owner, this);
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                var multipliers = maxTarget_s_Multiplier.GetAllValues();
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
+                    result,
+                    Owner.entityStats.MaxTargetModifier_Flat,
+                    Owner.entityStats.MaxTargetModifier_Increase,
+                    Owner.entityStats.MaxTargetModifier_Multiplier,
+                    Owner,
+                    this
+                ));
+            }
+        }
+
 
         [Header("Charges")]
         public Func<CardData, int> chargesFunc;
@@ -158,7 +363,7 @@ namespace facingfate
                 Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
             };
 
-        public Action<EntityScript, Vector3Int, CardData> CardEffectGround =
+        public Action<EntityScript, Vector3, CardData> CardEffectGround =
             (user, target, data) => 
             {
                 // Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
@@ -173,6 +378,11 @@ namespace facingfate
         public CardAiBias CardAiBias = new();
 
         private int Resolve(Func<CardData, int> func, int fallback)
+        {
+            return func != null ? func(this) : fallback;
+        }
+
+        private float Resolve(Func<CardData, float> func, float fallback)
         {
             return func != null ? func(this) : fallback;
         }
@@ -219,18 +429,55 @@ namespace facingfate
                 charges_u = charges_u,
                 chargesFunc = chargesFunc,
 
-                cost_s = new Stat(),
-                power_s = new Stat(),
-                damage_s = new Stat(),
-                healing_s = new Stat(),
+                // Card Stats - Cost
+                cost_s_Flat = new Stat(),
+                cost_s_Increase = new Stat(),
+                cost_s_Multiplier = new Stat(),
 
-                duration_s = new Stat(),
-                repeats_s = new Stat(),
-                range_s = new Stat(),
-                area_s = new Stat(),
-                radius_s = new Stat(),
-                maxTarget_s = new Stat(),
+                // Card Stats - Power
+                power_s_Flat = new Stat(),
+                power_s_Increase = new Stat(),
+                power_s_Multiplier = new Stat(),
 
+                // Card Stats - Damage
+                damage_s_Flat = new Stat(),
+                damage_s_Increase = new Stat(),
+                damage_s_Multiplier = new Stat(),
+
+                // Card Stats - Healing
+                healing_s_Flat = new Stat(),
+                healing_s_Increase = new Stat(),
+                healing_s_Multiplier = new Stat(),
+
+                // Card Stats - Duration
+                duration_s_Flat = new Stat(),
+                duration_s_Increase = new Stat(),
+                duration_s_Multiplier = new Stat(),
+
+                // Card Stats - Repeats
+                repeats_s_Flat = new Stat(),
+                repeats_s_Increase = new Stat(),
+                repeats_s_Multiplier = new Stat(),
+
+                // Card Stats - Range
+                range_s_Flat = new Stat(),
+                range_s_Increase = new Stat(),
+                range_s_Multiplier = new Stat(),
+
+                // Card Stats - Area
+                area_s_Flat = new Stat(),
+                area_s_Increase = new Stat(),
+                area_s_Multiplier = new Stat(),
+
+                // Card Stats - Radius
+                radius_s_Flat = new Stat(),
+                radius_s_Increase = new Stat(),
+                radius_s_Multiplier = new Stat(),
+
+                // Card Stats - MaxTarget
+                maxTarget_s_Flat = new Stat(),
+                maxTarget_s_Increase = new Stat(),
+                maxTarget_s_Multiplier = new Stat(),
 
                 // Targeting-Flags (keine Ziel-Referenzen übernehmen)
                 targetingData = targetingData,
@@ -354,14 +601,13 @@ namespace facingfate
         {
             if (bias == null) return total;
 
-            // Treat bias values as percentage modifiers (e.g. 50 -> +50% -> multiplier 1.5)
+            // Apply bias values as direct multipliers (e.g. 1.5 -> 50% increase)
             foreach (var reference in bias.cardReferenceBias)
             {
                 if (reference.Value == 0) continue;
                 if (card.GameplayReferences != null && card.GameplayReferences.Contains(reference.Key))
                 {
-                    float mul = 1f + (reference.Value / 100f);
-                    total *= mul;
+                    total *= reference.Value;
                 }
             }
 
@@ -370,8 +616,7 @@ namespace facingfate
                 if (identity.Value == 0) continue;
                 if (card.cardIdentities != null && card.cardIdentities.Contains(identity.Key))
                 {
-                    float mul = 1f + (identity.Value / 100f);
-                    total *= mul;
+                    total *= identity.Value;
                 }
             }
 
@@ -392,7 +637,7 @@ namespace facingfate
             if (bias == null) return total;
             if (bias.targetReferenceBias == null || bias.targetReferenceBias.Count == 0) return total;
 
-            // Combine target-level biases into a multiplier (percent based)
+            // Combine target-level biases into a multiplier (direct multiplier values)
             float multiplier = 1f;
             foreach (var tb in bias.targetReferenceBias)
             {
@@ -400,7 +645,7 @@ namespace facingfate
                 var has = target.HasReference(tb.Key);
                 if (has.found)
                 {
-                    multiplier *= (1f + (tb.Value / 100f));
+                    multiplier *= tb.Value;
                 }
             }
 

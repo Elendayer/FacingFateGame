@@ -7,7 +7,7 @@ namespace facingfate
     public interface IStatModifier
     {
         string ModifierName { get; }
-        int BaseValue { get; set; }
+        float BaseValue { get; set; }
         ModifierScaling ModifierScaling { get; }
         int Duration { get; set; }
         int Charges { get; set; }
@@ -31,7 +31,7 @@ namespace facingfate
     {
         public string ModifierName { get; private set; }
 
-        public int BaseValue
+        public float BaseValue
         {
             get => DynamicValueFunc != null ? DynamicValueFunc.Invoke() : StaticValue ?? 0;
             set
@@ -41,8 +41,8 @@ namespace facingfate
                 StaticValue = value;
             }
         }
-        private int? StaticValue;
-        private Func<int> DynamicValueFunc;
+        private float? StaticValue;
+        private Func<float> DynamicValueFunc;
 
         public ModifierScaling ModifierScaling { get; private set; }
         public int Duration { get; set; }
@@ -118,11 +118,11 @@ namespace facingfate
         }
         // -------------------- Constructors --------------------
 
-        // 1) Static int + static bool
+        // 1) Static float + static bool
         public StatModifier(
             string name,
             Stat stat,
-            int value,
+            float value,
             ModifierScaling scaling,
             bool condition = true,
             List<GameplayRef> to_TriggerRefs = null,
@@ -144,11 +144,11 @@ namespace facingfate
             On_RefAction = on_RefAction;
         }
 
-        // 2) Static int + dynamic condition
+        // 2) Static float + dynamic condition
         public StatModifier(
             string name,
             Stat stat,
-            int value,
+            float value,
             ModifierScaling scaling,
             Func<EntityScript, CardData, bool> condition,
             List<GameplayRef> to_TriggerRefs = null,
@@ -170,11 +170,11 @@ namespace facingfate
             On_RefAction = on_RefAction;
         }
 
-        // 3) Dynamic int + static bool
+        // 3) Dynamic float + static bool
         public StatModifier(
             string name,
             Stat stat,
-            Func<int> value,
+            Func<float> value,
             ModifierScaling scaling,
             bool condition = true,
             List<GameplayRef> to_TriggerRefs = null,
@@ -196,11 +196,11 @@ namespace facingfate
             On_RefAction = on_RefAction;
         }
 
-        // 4) Dynamic int + dynamic condition
+        // 4) Dynamic float + dynamic condition
         public StatModifier(
             string name,
             Stat stat,
-            Func<int> value,
+            Func<float> value,
             ModifierScaling scaling,
             Func<EntityScript, CardData, bool> condition,
             List<GameplayRef> to_TriggerRefs = null,

@@ -2,19 +2,20 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Utility;
+using UnityEngine.VFX;
+using UnityEngine.InputSystem;
 
 namespace facingfate
 {
     public class DraggableCard : DraggableUI, IPointerClickHandler
     {
-        public CardScript cardScript; // Reference to the card logic
-        private static readonly Vector3Int InvalidPosition = new Vector3Int(9999, 9999, 9999);
+        public CardScript cardScript;
+        private static readonly Vector3 InvalidPosition = new Vector3(9999, 9999, 9999);
 
-        private Vector3Int? lastHighlightedTile = InvalidPosition;
-        private readonly List<Vector3Int> selectedTilesDuringDrag = new();
+        private readonly List<Vector3> selectedPositionsDuringDrag = new();
         private bool isDragging = false;
         private bool wasDragged = false;
+        private GameObject dragVFX = null;
 
         public override void OnBeginDrag(PointerEventData eventData)
         {
@@ -22,14 +23,30 @@ namespace facingfate
             base.OnBeginDrag(eventData);
             cardScript = GetComponent<CardScript>();
             isDragging = true;
-            selectedTilesDuringDrag.Clear();
+            selectedPositionsDuringDrag.Clear();
+
+            // Create VFX based on targeting type
+            CreateDragVFX();
         }
 
         private void Update()
         {
-            if (!isDragging || lastHighlightedTile == InvalidPosition) return;
+            if (!isDragging) return;
 
-            if (Input.GetMouseButtonDown(1)) // Right-click to select/deselect tiles
+            // Track cursor position and update highlighted position
+            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+            Vector3 cursorPosition = TargetingUtility.GetHoveredNavMesh(ray);
+
+            // Update VFX position to follow cursor only if position is valid
+            if (dragVFX != null && cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
+            {
+                if (HasValidTargetsAtPosition(cursorPosition, cardScript.cardData.targetingData.cardTargetingMode))
+                {
+                    dragVFX.transform.position = cursorPosition;
+                }
+            }
+
+            if (Mouse.current?.rightButton.wasPressedThisFrame == true)
             {
                 int maxTargets = cardScript.cardData.targetingData.cardTargetingMode switch
                 {
@@ -38,13 +55,20 @@ namespace facingfate
                     _ => 1
                 };
 
-                if (selectedTilesDuringDrag.Contains(lastHighlightedTile.Value))
+                // Only add position if it has valid targets
+                if (cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
                 {
-                    selectedTilesDuringDrag.Remove(lastHighlightedTile.Value);
-                }
-                else if (selectedTilesDuringDrag.Count < maxTargets)
-                {
-                    selectedTilesDuringDrag.Add(lastHighlightedTile.Value);
+                    if (HasValidTargetsAtPosition(cursorPosition, cardScript.cardData.targetingData.cardTargetingMode))
+                    {
+                        if (selectedPositionsDuringDrag.Contains(cursorPosition))
+                        {
+                            selectedPositionsDuringDrag.Remove(cursorPosition);
+                        }
+                        else if (selectedPositionsDuringDrag.Count < maxTargets)
+                        {
+                            selectedPositionsDuringDrag.Add(cursorPosition);
+                        }
+                    }
                 }
             }
         }
@@ -52,8 +76,6 @@ namespace facingfate
         public override void OnDrag(PointerEventData eventData)
         {
             base.OnDrag(eventData);
-
-            HighlightCardEffectArea(TargetingUtility.GetHoveredTile(eventData));
         }
 
         public override void OnEndDrag(PointerEventData eventData)
@@ -61,160 +83,109 @@ namespace facingfate
             isDragging = false;
             base.OnEndDrag(eventData);
 
-            TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
-
-            Vector3Int dropCell = InvalidPosition;
-            TargetingModeData targetingModeData;
-            List<EntityScript> allEntities = FindObjectsByType<EntityScript>(0).ToList();
-
-            dropCell = TargetingUtility.GetHoveredTile(eventData) ?? InvalidPosition;
-
-            // Invalid Position
-            if (dropCell == InvalidPosition)
+            // Clean up drag VFX
+            if (dragVFX != null)
             {
+                Destroy(dragVFX);
+                dragVFX = null;
+            }
+
+            // Only play card if valid targets were selected during drag
+            if (selectedPositionsDuringDrag.Count == 0)
+            {
+                HandManager.Instance?.SelectCard(null);
                 return;
             }
 
-            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
-            List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
-
-            if (cardScript.cardData.targetingData.TargetingUsesVision)
+            // Validate that at least one target position has valid targets
+            if (!HasValidTargetsAtPositions(selectedPositionsDuringDrag))
             {
-                validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
-            }
-
-            if (validTiles.Contains(dropCell))
-            {
-                targetingModeData = TargetingUtility.GetAffected(cardScript, dropCell, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedTilesDuringDrag, true);
-
-                // Check If the Card requires a Target
-                if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
-                {
-                    List<EntityScript> t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell });
-
-                    if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
-                    {
-                        return;
-                    }
-                }
-
-                //Check if Cost can be paid
-                if (cardScript.cardData.Cost > cardScript.cardData.Owner.entityStats.CurrentStamina)
-                {
-                    Debug.Log($"[DraggableCard] Cannot pay cost for card {cardScript.cardData.cardName}");
-                    return;
-                }
-
-                Debug.Log($"[DraggableCard] Activating card {cardScript.cardData.cardName} on {string.Join(", ", targetingModeData.targetedEntities.Select(t => t.name))}");
-                cardScript.cardData.Owner.entityStats.CurrentStamina -= cardScript.cardData.Cost;
-                cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
                 HandManager.Instance?.SelectCard(null);
+                return;
             }
+
+            Vector3 aimWorldPos = selectedPositionsDuringDrag[selectedPositionsDuringDrag.Count - 1];
+            TargetingModeData targetingModeData = TargetingUtility.GetAffected(cardScript, aimWorldPos, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedPositionsDuringDrag, true);
+
+            cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
+            HandManager.Instance?.SelectCard(null);
+        }
+
+        private bool HasValidTargetsAtPositions(List<Vector3> positions)
+        {
+            if (positions == null || positions.Count == 0) return false;
+            if (cardScript?.cardData == null) return false;
+
+            CardTargetingMode targetingMode = cardScript.cardData.targetingData.cardTargetingMode;
+
+            foreach (var position in positions)
+            {
+                if (HasValidTargetsAtPosition(position, targetingMode))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasValidTargetsAtPosition(Vector3 position, CardTargetingMode targetingMode)
+        {
+            // Get affected entities at this position based on targeting mode
+            TargetingModeData targetingModeData = TargetingUtility.GetAffected(
+                cardScript,
+                position,
+                cardScript.cardData.Owner,
+                cardScript.cardData.targetingData.EffectUsesVision,
+                new List<Vector3> { position },
+                false
+            );
+
+            // Check if there are any valid targets at this position
+            if (targetingModeData?.targetedEntities != null && targetingModeData.targetedEntities.Count > 0)
+            {
+                return true;
+            }
+
+            // For All targeting mode, any navmesh position is valid
+            if (targetingMode == CardTargetingMode.All && position != Vector3.zero)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            // Klick ignorieren wenn gerade gezogen wurde
             if (wasDragged) { wasDragged = false; return; }
             if (eventData.button != PointerEventData.InputButton.Left) return;
-
             HandManager.Instance?.SelectCard(gameObject);
         }
 
-        private void HighlightCardEffectArea(Vector3Int? hoveredTile)
+        private void CreateDragVFX()
         {
-            if (hoveredTile == null || hoveredTile == InvalidPosition) return;
-
-            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
-
-            TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
-
-            List<Vector3Int> validTiles;
-
-            // Show Range for SelectionTypes
-            switch (cardScript.cardData.targetingData.cardTargetingMode)
-            {
-                case CardTargetingMode.LineSelf:
-                    {
-                        validTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
-                    }
-                    break;
-
-                case CardTargetingMode.Cone:
-                    {
-                        validTiles = TilemapUtilityScript.GetTilesInStar(currentCell, cardScript.cardData.Range);
-                    }
-                    break;
-
-                default:
-                    {
-                        validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
-                    }
-                    break;
-            }
-
-            // If target requires Vision
-            if (cardScript.cardData.targetingData.TargetingUsesVision)
-            {
-                validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
-
-                TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
-            }
-            else
-            {
-                TilemapUtilityScript.SetTilesHighlight(validTiles, TilemapUtilityScript.HighlightType.Range);
-            }
-
-            if (!validTiles.Contains(hoveredTile.Value))
-            {
-                return;
-            }
-
-            var targetingData = TargetingUtility.GetAffected(cardScript, hoveredTile.Value, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedTilesDuringDrag);
-
-            TilemapUtilityScript.SetTilesHighlight(targetingData.targetedTiles, TilemapUtilityScript.HighlightType.Target);
-
-            lastHighlightedTile = hoveredTile;
-        }
-
-        public void PlayCardOnCell(Vector3Int dropCell)
-        {
-            cardScript = GetComponent<CardScript>();
             if (cardScript == null) return;
 
-            Vector3Int currentCell = cardScript.cardData.Owner.GetComponent<EntityOnMap>().currentCell;
-            List<Vector3Int> validTiles = TilemapUtilityScript.GetTilesInRadius(currentCell, cardScript.cardData.Range);
+            string vfxName = GetVFXNameForTargetingMode();
+            if (string.IsNullOrEmpty(vfxName)) return;
 
-            if (cardScript.cardData.targetingData.TargetingUsesVision)
-                validTiles = VisionUtility.GetVisibleTiles(currentCell, validTiles);
+            (GameObject obj, VisualEffect effect) vfx = AssetManager.Instance.CreateVFX(vfxName);
+            if (vfx.obj == null) return;
 
-            if (!validTiles.Contains(dropCell)) return;
+            dragVFX = vfx.obj;
+        }
 
-            // Kosten prüfen
-            if (cardScript.cardData.Cost > cardScript.cardData.Owner.entityStats.CurrentStamina)
+        private string GetVFXNameForTargetingMode()
+        {
+            return cardScript.cardData.targetingData.cardTargetingMode switch
             {
-                Debug.Log($"[DraggableCard] Cannot pay cost for {cardScript.cardData.cardName}");
-                return;
-            }
-
-            var targetingModeData = TargetingUtility.GetAffected(
-                cardScript, dropCell, cardScript.cardData.Owner,
-                cardScript.cardData.targetingData.EffectUsesVision,
-                selectedTilesDuringDrag, true);
-
-            // Entity-Target validieren
-            if (cardScript.cardData.targetingData.CardTargetType == CardTargetType.Entity)
-            {
-                var t = TargetingUtility.GetEntitiesFromTiles(new() { dropCell });
-                if (!TargetingUtility.IsTargetValid(cardScript.cardData, t.FirstOrDefault()))
-                    return;
-            }
-
-            TilemapUtilityScript.ResetMaphightlight(TilemapUtilityScript.BaseTilemap);
-            cardScript.cardData.Owner.entityStats.CurrentStamina -= cardScript.cardData.Cost;
-            cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
-
-            HandManager.Instance?.SelectCard(null);
+                CardTargetingMode.Select => "vfx_targeting_sphere",
+                CardTargetingMode.Radius => "vfx_targeting_sphere",
+                CardTargetingMode.Single => "vfx_targeting_single",
+                CardTargetingMode.LineFree => "vfx_targeting_line",
+                _ => "vfx_targeting_default"
+            };
         }
     }
 }

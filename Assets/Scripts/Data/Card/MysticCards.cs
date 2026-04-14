@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
-using Utility;
 namespace facingfate
 {
     // Mystic cards in Fire Bomb style. Damage-focused; complex utility left as comments.
@@ -21,7 +20,7 @@ namespace facingfate
 
         private static void RegisterMartialArts()
         {
-            // 130101 – Mind Shock – direct damage
+            // 130101 â€“ Mind Shock â€“ direct damage
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Tech_Mind_Shock",
@@ -32,7 +31,7 @@ namespace facingfate
 
                 cost_u = 50,
                 power_u = 70,
-                range_u = 3,
+                range_u = 3f,
 
                 targetingData = new()
                 {
@@ -47,7 +46,7 @@ namespace facingfate
                 }
             });
 
-            // 130102 – Staff Swing – melee damage
+            // 130102 â€“ Staff Swing â€“ melee damage
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Tech_Staff_Swing",
@@ -72,7 +71,7 @@ namespace facingfate
                 }
             });
 
-            // 130103 – Absorb Qi – damage + resource (resource part TODO)
+            // 130103 â€“ Absorb Qi â€“ damage + resource (resource part TODO)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Tech_Absorb_Qi",
@@ -83,7 +82,7 @@ namespace facingfate
 
                 cost_u = 30,
                 power_u = 30,
-                range_u = 2,
+                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -102,7 +101,7 @@ namespace facingfate
 
         private static void RegisterAbilities()
         {
-            // 130201 – Dancing Shadow – all entities attack if possible (non-damage)
+            // 130201 â€“ Dancing Shadow â€“ all entities attack if possible (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Abil_Dancing_Shadow",
@@ -123,7 +122,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) => { /* TODO */ }
             });
 
-            // 130202 – Meditation – regenerate mana? (non-damage)
+            // 130202 â€“ Meditation â€“ regenerate mana? (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Abil_Meditation",
@@ -145,7 +144,7 @@ namespace facingfate
         }
         private static void RegisterSpells()
         {
-            // 130301 – Illusionary Double – summon/aggro (non-damage)
+            // 130301 â€“ Illusionary Double â€“ summon/aggro (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Illusionary_Double",
@@ -155,7 +154,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 0,
-                range_u = 3,
+                range_u = 3f,
 
                 targetingData = new()
                 {
@@ -170,7 +169,7 @@ namespace facingfate
                 }
             });
 
-            // 130302 – Phantom Spear Battalion – ring blockers (non-damage)
+            // 130302 â€“ Phantom Spear Battalion â€“ ring blockers (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Phantom_Spear_Battalion",
@@ -191,7 +190,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) => { /* TODO spawn 3 entities */ }
             });
 
-            // 130303 – Warp Intention – target attacks someone else (non-damage)
+            // 130303 â€“ Warp Intention â€“ target attacks someone else (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Warp_Intention",
@@ -201,7 +200,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Ranged },
 
                 cost_u = 50,
-                range_u = 8,
+                range_u = 8f,
 
                 targetingData = new()
                 {
@@ -217,7 +216,7 @@ namespace facingfate
                 }
             });
 
-            // 130304 – Sleepwalking – force move 2 spaces (non-damage)
+            // 130304 â€“ Sleepwalking â€“ force move 2 spaces (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Sleepwalking",
@@ -228,7 +227,7 @@ namespace facingfate
 
                 cost_u = 0,
                 power_u = 2,
-                range_u = 5,
+                range_u = 5f,
 
                 targetingData = new()
                 {
@@ -239,11 +238,11 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = "Force the target to move 2 spaces.",
                 CardEffect = (User, Target, d) =>
                 {
-                    MovementUtility.ForcedMove(ForcedMovementType.Random, Target, Target.GetComponent<EntityOnMap>().currentCell, d.Power);
+                    MovementUtility.ForcedMove(ForcedMovementType.Random, Target, Target.transform.position, d.Power);
                 }
             });
 
-            // 130305 – Spectral Barrier – blocks 1 space (non-damage)
+            // 130305 â€“ Spectral Barrier â€“ blocks 1 space (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Spectral_Barrier",
@@ -267,7 +266,7 @@ namespace facingfate
                 }
             });
 
-            // 130306 – Spacial Reversal – swap positions (non-damage)
+            // 130306 â€“ Spacial Reversal â€“ swap positions (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Spacial_Reversal",
@@ -277,7 +276,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee },
 
                 cost_u = 70,
-                range_u = 5,
+                range_u = 5f,
 
                 targetingData = new()
                 {
@@ -293,7 +292,7 @@ namespace facingfate
                 }
             });
 
-            // 130307 – Bloody Hex – proc Bleed (non-damage trigger)
+            // 130307 â€“ Bloody Hex â€“ proc Bleed (non-damage trigger)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Bloody_Hex",
@@ -303,7 +302,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Blood },
 
                 cost_u = 30,
-                range_u = 6,
+                range_u = 6f,
 
                 targetingData = new()
                 {
@@ -318,7 +317,7 @@ namespace facingfate
                 }
             });
 
-            // 130308 – Venom Hex – proc Poison (non-damage trigger)
+            // 130308 â€“ Venom Hex â€“ proc Poison (non-damage trigger)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Venom_Hex",
@@ -328,7 +327,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Poison },
 
                 cost_u = 30,
-                range_u = 6,
+                range_u = 6f,
 
                 targetingData = new()
                 {
@@ -343,7 +342,7 @@ namespace facingfate
                 }
             });
 
-            // 130309 – Crimson Hex – Ignite proc (non-damage trigger)
+            // 130309 â€“ Crimson Hex â€“ Ignite proc (non-damage trigger)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Crimson_Hex",
@@ -353,7 +352,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Fire },
 
                 cost_u = 30,
-                range_u = 6,
+                range_u = 6f,
 
                 targetingData = new()
                 {
@@ -365,7 +364,7 @@ namespace facingfate
                 CardEffect = (User, Target, d) => { /* TODO */ }
             });
 
-            // 130310 – Mental Chains – cannot attack this turn (non-damage)
+            // 130310 â€“ Mental Chains â€“ cannot attack this turn (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Mental_Chains",
@@ -389,7 +388,7 @@ namespace facingfate
                 }
             });
 
-            // 130311 – Rainbow Hex – proc all (non-damage trigger, AOE sphere)
+            // 130311 â€“ Rainbow Hex â€“ proc all (non-damage trigger, AOE sphere)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Rainbow_Hex",
@@ -399,8 +398,8 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Ranged },
 
                 cost_u = 80,
-                range_u = 8,
-                area_u = 2,
+                range_u = 8f,
+                area_u = 2f,
 
                 targetingData = new()
                 {
@@ -415,7 +414,7 @@ namespace facingfate
                 }
             });
 
-            // 130312 – Pure Flames – Ignite DoT
+            // 130312 â€“ Pure Flames â€“ Ignite DoT
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Pure_Flames",
@@ -427,7 +426,7 @@ namespace facingfate
                 cost_u = 60,
                 power_u = 80,
                 duration_u = 6,
-                range_u = 4,
+                range_u = 4f,
 
                 targetingData = new()
                 {
@@ -463,7 +462,7 @@ namespace facingfate
 
         private static void RegisterCurses()
         {
-            // 130401 – Psychic Backlash – spells cost more (non-damage)
+            // 130401 â€“ Psychic Backlash â€“ spells cost more (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Curse_Psychic_Backlash",
@@ -486,7 +485,7 @@ namespace facingfate
 
         private static void RegisterBlessings()
         {
-            // 130501 – Inner Calm – spells cheaper (non-damage)
+            // 130501 â€“ Inner Calm â€“ spells cheaper (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Bless_Inner_Calm",

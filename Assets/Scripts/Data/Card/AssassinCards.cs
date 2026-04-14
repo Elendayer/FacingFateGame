@@ -1,10 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
-using Utility;
-using static UnityEngine.GraphicsBuffer;
 using Object = UnityEngine.Object;
 
 namespace facingfate
@@ -24,7 +21,7 @@ namespace facingfate
         // --------------------------- Martial Arts (Techniques) ---------------------------
         private static void RegisterMartialArts()
         {
-            // 120101 – Shadowfang Strike (LineSelf)
+            // 120101 â€“ Shadowfang Strike (LineSelf)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Shadowfang_Strike",
@@ -35,8 +32,8 @@ namespace facingfate
 
                 cost_u = 3,
                 damage_u = 10,
-                range_u = 2,
-                area_u = 2,
+                range_u = 2f,
+                area_u = 2f,
 
                 targetingData = new()
                 {
@@ -55,7 +52,7 @@ namespace facingfate
                 }
             });
 
-            // 120102 – Dance of a Hundred Cuts (Ring, repeats)
+            // 120102 â€“ Dance of a Hundred Cuts (Ring, repeats)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Dance_of_a_Hundred_Cuts",
@@ -83,7 +80,7 @@ namespace facingfate
                 },
             });
 
-            // 120103 – Lotus Death Kiss (Execute <10% HP)
+            // 120103 â€“ Lotus Death Kiss (Execute <10% HP)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Lotus_Death_Kiss",
@@ -93,7 +90,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 1,
-                radius_u = 2,
+                radius_u = 2f,
 
                 targetingData =
                 {
@@ -124,7 +121,7 @@ namespace facingfate
                 }
             });
 
-            // 120104 – Moonlit Needlestorm (3 DoTs)
+            // 120104 â€“ Moonlit Needlestorm (3 DoTs)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Moonlit_Needlestorm",
@@ -136,7 +133,7 @@ namespace facingfate
                 cost_u = 50,
                 damage_u = 2,
                 duration_u = 2,
-                range_u = 4,
+                range_u = 4f,
 
                 targetingData = new()
                 {
@@ -164,7 +161,7 @@ namespace facingfate
                 }
             });
 
-            // 120105 – Black Lotus Needle (Single heavy hit)
+            // 120105 â€“ Black Lotus Needle (Single heavy hit)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Black_Lotus_Needle",
@@ -192,7 +189,7 @@ namespace facingfate
                 },
             });
 
-            // 120106 – Moon Piercing Arrow (LineSelf; multi-hit along the line)
+            // 120106 â€“ Moon Piercing Arrow (LineSelf; multi-hit along the line)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Moon_Piercing_Arrow",
@@ -203,7 +200,7 @@ namespace facingfate
 
                 cost_u = 30,
                 damage_u = 20,
-                range_u = 5,
+                range_u = 5f,
                 maxtarget_u = 3,
 
                 targetingData = new()
@@ -230,7 +227,7 @@ namespace facingfate
             });
 
 
-            // 120107 – Midnight Rain (Small AOE)
+            // 120107 â€“ Midnight Rain (Small AOE)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Midnight_Rain",
@@ -241,8 +238,8 @@ namespace facingfate
 
                 cost_u = 4,
                 damage_u = 5,
-                range_u = 5,
-                area_u = 2,
+                range_u = 5f,
+                area_u = 2f,
 
                 targetingData = new()
                 {
@@ -260,7 +257,7 @@ namespace facingfate
                 }
             });
 
-            // 120108 – Bouncing Shot (chain with ally/enemy + hop distance <= 2)
+            // 120108 â€“ Bouncing Shot (chain with ally/enemy + hop distance <= 2)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Bouncing_Shot",
@@ -271,7 +268,7 @@ namespace facingfate
 
                 cost_u = 3,
                 damage_u = 4,
-                range_u = 4,
+                range_u = 4f,
 
                 targetingData = new()
                 {
@@ -303,10 +300,11 @@ namespace facingfate
                     {
                         var allOnMap = Object.FindObjectsByType<EntityOnMap>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
-                        var fromCell = from.GetComponent<EntityOnMap>()?.currentCell ?? TilemapUtilityScript.InvalidPosition;
+                        var fromEntityOnMap = from.GetComponent<EntityOnMap>();
+                        var fromPosition = from.transform.position;
 
                         EntityScript best = null;
-                        int bestSteps = int.MaxValue;
+                        float bestDistance = float.MaxValue;
 
                         foreach (var eom in allOnMap)
                         {
@@ -315,11 +313,28 @@ namespace facingfate
                             if (alreadyHit.Contains(cand.GetInstanceID())) continue;
                             if (!IsEnemyOf(User, cand)) continue;
 
-                            int steps = StepsBetween(fromCell, eom.currentCell);
-                            if (steps <= maxHopSteps && steps < bestSteps)
+                            // Check visibility using line of sight
+                            Vector3 candPosition = eom.transform.position;
+                            Vector3 direction = (candPosition - fromPosition).normalized;
+                            float distance = Vector3.Distance(fromPosition, candPosition);
+
+                            // Raycast check for line of sight
+                            RaycastHit hit;
+                            if (Physics.Raycast(fromPosition, direction, out hit, distance))
+                            {
+                                // Check if the raycast hit our target
+                                if (hit.collider.GetComponent<EntityScript>() != cand)
+                                    continue; // Ray was blocked by something else
+                            }
+
+                            // Check hop distance constraint
+                            if (distance > maxHopSteps * 2) // Approximate: each hop ~2 units
+                                continue;
+
+                            if (distance < bestDistance)
                             {
                                 best = cand;
-                                bestSteps = steps;
+                                bestDistance = distance;
                             }
                         }
                         return best;
@@ -347,7 +362,7 @@ namespace facingfate
                 }
             });
 
-            // 120109 – Barbed Needle Volley (Damage + Bleed)
+            // 120109 â€“ Barbed Needle Volley (Damage + Bleed)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Barbed_Needle_Volley",
@@ -359,7 +374,7 @@ namespace facingfate
                 cost_u = 50,
                 damage_u = 50,
                 duration_u = 6,
-                range_u = 3,
+                range_u = 3f,
 
                 targetingData = new()
                 {
@@ -381,7 +396,7 @@ namespace facingfate
                 }
             });
 
-            // 120111 – Merciful Headshot (Stun + Damage)
+            // 120111 â€“ Merciful Headshot (Stun + Damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Merciful_Headshot",
@@ -392,8 +407,8 @@ namespace facingfate
 
                 cost_u = 2,
                 damage_u = 6,
-                duration_u = 1, // Stun für 1 Zug
-                range_u = 5,
+                duration_u = 1, // Stun fÃ¼r 1 Zug
+                range_u = 5f,
 
                 targetingData = new()
                 {
@@ -415,7 +430,7 @@ namespace facingfate
                 }
             });
 
-            // 120112 – Crimson Thorn Array (Bleed DoT AOE)
+            // 120112 â€“ Crimson Thorn Array (Bleed DoT AOE)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Tech_Crimson_Thorn_Array",
@@ -428,8 +443,8 @@ namespace facingfate
                 damage_u = 20,
                 duration_u = 3,
 
-                range_u = 10,
-                radius_u = 2,
+                range_u = 10f,
+                radius_u = 2f,
 
                 targetingData = new()
                 {
@@ -476,7 +491,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Shadow },
 
                 cost_u = 40,
-                range_u = 5,
+                range_u = 5f,
 
                 targetingData = new()
                 {
@@ -492,11 +507,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    MovementUtility.ForcedMove(ForcedMovementType.Jump, User, Target.GetComponent<EntityOnMap>().currentCell);
+                    MovementUtility.ForcedMove(ForcedMovementType.Jump, User, Target.transform.position);
                 }
             });
 
-            // 120202 – Apply Scorching Blood Venom – next X hits apply Burn DoT
+            // 120202 â€“ Apply Scorching Blood Venom â€“ next X hits apply Burn DoT
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Abil_Apply_Scorching_Blood_Venom",
@@ -528,7 +543,7 @@ namespace facingfate
                 }
             });
 
-            // 120203 – Apply Black Lotus Venom – next X hits apply Poison DoT
+            // 120203 â€“ Apply Black Lotus Venom â€“ next X hits apply Poison DoT
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Abil_Apply_Black_Lotus_Venom",
@@ -578,7 +593,7 @@ namespace facingfate
                 }
             });
 
-            // 120204 – Apply Dazzlying Numbing Venom (Stun for next X attacks)
+            // 120204 â€“ Apply Dazzlying Numbing Venom (Stun for next X attacks)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Abil_Apply_Dazzlying_Numbing_Venom",
@@ -626,7 +641,7 @@ namespace facingfate
                 }
             });
 
-            // 120205 – Reapply Venom (top-up to X charges of your last venom card)
+            // 120205 â€“ Reapply Venom (top-up to X charges of your last venom card)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Abil_Reapply_Venom",
@@ -673,7 +688,7 @@ namespace facingfate
                 }
             });
 
-            // 120206 – Eye of the Nighthawk – dmg/crit up (non-damage)
+            // 120206 â€“ Eye of the Nighthawk â€“ dmg/crit up (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Abil_Eye_of_the_Nighthawk",
@@ -722,7 +737,7 @@ namespace facingfate
 
         private static void RegisterCurses()
         {
-            // 120401 – Fumble – self-random (non-damage)
+            // 120401 â€“ Fumble â€“ self-random (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Curse_Fumble",    
@@ -745,7 +760,7 @@ namespace facingfate
 
         private static void RegisterBlessings()
         {
-            // 120501 – Lucky Strike – next attack repeats (non-damage)
+            // 120501 â€“ Lucky Strike â€“ next attack repeats (non-damage)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Ass_Bless_Lucky_Strike",

@@ -47,8 +47,8 @@ namespace facingfate
             {
                 id = "StupidFuck",
 
-                cardReferenceBias = new Dictionary<GameplayRef, int>(),
-                identityBias = new Dictionary<CardIdentity, int>(),
+                cardReferenceBias = new Dictionary<GameplayRef, float>(),
+                identityBias = new Dictionary<CardIdentity, float>(),
 
                 RepositionCondition = RepositionCondition.surrounded
             });
@@ -56,18 +56,18 @@ namespace facingfate
             {
                 id = "Balanced",
 
-                cardReferenceBias = new Dictionary<GameplayRef, int>(),
-                identityBias = new Dictionary<CardIdentity, int>(),
+                cardReferenceBias = new Dictionary<GameplayRef, float>(),
+                identityBias = new Dictionary<CardIdentity, float>(),
 
                 RepositionCondition = RepositionCondition.lowHealth
             });
             RegisterBias(new NpcAiBias()
             {
                 id = "Aggressive",
-                cardReferenceBias = new Dictionary<GameplayRef, int>(),
-                identityBias = new Dictionary<CardIdentity, int>()
+                cardReferenceBias = new Dictionary<GameplayRef, float>(),
+                identityBias = new Dictionary<CardIdentity, float>()
             {
-                { CardIdentity.Ranged, 50}
+                { CardIdentity.Ranged, 1.5f}
             },
 
                 RepositionCondition = RepositionCondition.preferRanged

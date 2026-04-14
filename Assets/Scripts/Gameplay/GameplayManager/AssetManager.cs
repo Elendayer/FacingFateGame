@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
-using Utility;
 
 namespace facingfate
 {
@@ -94,8 +93,7 @@ namespace facingfate
                 return;
             }
 
-            List<Vector3Int> positions = new List<Vector3Int> { positon };
-            Mesh mesh = MeshUtility.GenerateHexMesh(positions);
+            List<Vector3> positions = new List<Vector3> { positon };
 
             ApplyVFXData(vfx.effect, vfxData);
 
@@ -111,13 +109,11 @@ namespace facingfate
                 return;
             }
 
-            vfxData.mesh = MeshUtility.GenerateHexMesh(vfxData.positions);
-
             ApplyVFXData(vfx.effect, vfxData);
         }
-        public void CreateVFXAtIndividualPositions(VFXData vfxData, List<Vector3Int> positions)
+        public void CreateVFXAtIndividualPositions(VFXData vfxData, List<Vector3> positions)
         {
-            foreach (Vector3Int pos in positions)
+            foreach (Vector3 pos in positions)
             {
                 (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
 
@@ -127,7 +123,7 @@ namespace facingfate
                     return;
                 }
 
-                vfx.obj.transform.position = TilemapUtilityScript.BaseTilemap.CellToWorld(pos);
+                vfx.obj.transform.position = pos;
 
                 ApplyVFXData(vfx.effect, vfxData);
             }
@@ -252,7 +248,7 @@ namespace facingfate
 
         public EntityScript Entity;
         public GameObject host;
-        public List<Vector3Int> positions = new List<Vector3Int>();
+        public List<Vector3> positions = new List<Vector3>();
 
         // For directional effects, these can be used to set the origin and direction of the effect.
         public Vector3 origin = Vector3.zero;

@@ -195,18 +195,33 @@ namespace facingfate
         {
             int GetBaseValue(CardData d);
             int ResolveCurrent(CardData d, EntityScript owner);
+
+            float GetBaseValueFloat(CardData d);
+            float ResolveCurrentFloat(CardData d, EntityScript owner);
         }
         private abstract class SimpleStatResolver : IStatResolver
         {
             protected abstract int GetBase(CardData d);
             protected abstract int GetCurrent(CardData d);
 
+            protected abstract float GetBaseFloat(CardData d);
+            protected abstract float GetCurrentFloat(CardData d);
+
             public int GetBaseValue(CardData d)
             {
                 return GetBase(d);
             }
 
+
             public int ResolveCurrent(CardData d, EntityScript owner)
+            {
+                return GetCurrent(d);
+            }
+            public float GetBaseValueFloat(CardData d)
+            {
+                return GetBase(d);
+            }
+            public float ResolveCurrentFloat(CardData d, EntityScript owner)
             {
                 return GetCurrent(d);
             }
@@ -235,60 +250,80 @@ namespace facingfate
         {
             protected override int GetBase(CardData d) => d.power_u;
             protected override int GetCurrent(CardData d) => d.Power;
+            protected override float GetBaseFloat(CardData d) => d.power_u;
+            protected override float GetCurrentFloat(CardData d) => d.Power;
         }
 
         private class DamageResolver : SimpleStatResolver
         {
             protected override int GetBase(CardData d) => d.damage_u;
             protected override int GetCurrent(CardData d) => d.Damage;
+            protected override float GetBaseFloat(CardData d) => d.damage_u;
+            protected override float GetCurrentFloat(CardData d) => d.Damage;
         }
 
         private class HealingResolver : SimpleStatResolver
         {
             protected override int GetBase(CardData d) => d.healing_u;
             protected override int GetCurrent(CardData d) => d.Healing;
+            protected override float GetBaseFloat(CardData d) => d.healing_u;
+            protected override float GetCurrentFloat(CardData d) => d.Healing;
         }
 
         private class DurationResolver : SimpleStatResolver
         {
             protected override int GetBase(CardData d) => d.duration_u;
             protected override int GetCurrent(CardData d) => d.Duration;
+            protected override float GetBaseFloat(CardData d) => d.duration_u;
+            protected override float GetCurrentFloat(CardData d) => d.Duration;
         }
 
         private class ChargesResolver : SimpleStatResolver
         {
             protected override int GetBase(CardData d) => d.charges_u;
             protected override int GetCurrent(CardData d) => d.Charges;
+            protected override float GetBaseFloat(CardData d) => d.charges_u;
+            protected override float GetCurrentFloat(CardData d) => d.Charges;
         }
 
         private class RepeatsResolver : SimpleStatResolver
         {
             protected override int GetBase(CardData d) => d.repeats_u;
             protected override int GetCurrent(CardData d) => d.Repeats;
+            protected override float GetBaseFloat(CardData d) => d.repeats_u;
+            protected override float GetCurrentFloat(CardData d) => d.Repeats;
         }
 
         private class RangeResolver : SimpleStatResolver
         {
-            protected override int GetBase(CardData d) => d.range_u;
-            protected override int GetCurrent(CardData d) => d.Range;
+            protected override int GetBase(CardData d) => (int)d.range_u;
+            protected override int GetCurrent(CardData d) => (int)d.Range;
+            protected override float GetBaseFloat(CardData d) => d.range_u;
+            protected override float GetCurrentFloat(CardData d) => d.Range;
         }
 
         private class AreaResolver : SimpleStatResolver
         {
-            protected override int GetBase(CardData d) => d.area_u;
-            protected override int GetCurrent(CardData d) => d.Area;
+            protected override int GetBase(CardData d) => (int)d.area_u;
+            protected override int GetCurrent(CardData d) => (int)d.Area;
+            protected override float GetBaseFloat(CardData d) => d.area_u;
+            protected override float GetCurrentFloat(CardData d) => d.Area;
         }
 
         private class RadiusResolver : SimpleStatResolver
         {
-            protected override int GetBase(CardData d) => d.radius_u;
-            protected override int GetCurrent(CardData d) => d.Radius;
+            protected override int GetBase(CardData d) => (int)d.radius_u;
+            protected override int GetCurrent(CardData d) => (int)d.Radius;
+            protected override float GetBaseFloat(CardData d) => d.radius_u;
+            protected override float GetCurrentFloat(CardData d) => d.Radius;
         }
 
         private class MaxTargetResolver : SimpleStatResolver
         {
             protected override int GetBase(CardData d) => d.maxtarget_u;
             protected override int GetCurrent(CardData d) => d.MaxTarget;
+            protected override float GetBaseFloat(CardData d) => d.maxtarget_u;
+            protected override float GetCurrentFloat(CardData d) => d.MaxTarget;
         }
 
 

@@ -1,7 +1,5 @@
-using UnityEngine;
-using Utility;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace facingfate
 {
@@ -17,7 +15,7 @@ namespace facingfate
 
         private static void RegisterMartialArts()
         {
-            // 110101 – Tempest of a Hundred Spears (Ring 1, repeats=2)
+            // 110101 â€“ Tempest of a Hundred Spears (Ring 1, repeats=2)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Tempest_of_a_Hundred_Spears",
@@ -30,9 +28,9 @@ namespace facingfate
                 damage_u = 20,
                 repeats_u = 2,
 
-                range_u = 6,
-                radius_u = 3,
-                area_u = 1,
+                range_u = 6f,
+                radius_u = 3f,
+                area_u = 1f,
 
                 targetingData = new()
                 {
@@ -54,7 +52,7 @@ namespace facingfate
                 },
             });
 
-            // 110102 – Piercing Light (LineSelf 3)
+            // 110102 â€“ Piercing Light (LineSelf 3)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Piercing_Light",
@@ -66,7 +64,7 @@ namespace facingfate
                 cost_u = 25,
                 damage_u = 50,
 
-                range_u = 3,
+                range_u = 3f,
 
                 targetingData = new()
                 {
@@ -86,11 +84,11 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround") { positions = Target.targetedTiles});
+                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround") { positions = Target.targetedPositions});
                 }
             });
 
-            // 110103 – Sky-Piercing Leap (LineSelf 2)
+            // 110103 â€“ Sky-Piercing Leap (LineSelf 2)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Sky_Piercing_Leap",
@@ -102,7 +100,7 @@ namespace facingfate
                 cost_u = 30,
                 damage_u = 45,
 
-                range_u = 4,
+                range_u = 4f,
                 power_u = 3,
 
                 targetingData = new()
@@ -127,7 +125,7 @@ namespace facingfate
                 }
             });
 
-            // 110104 – Heaven Piercing Spear (Single, Range 1) – Bleed DoT
+            // 110104 â€“ Heaven Piercing Spear (Single, Range 1) â€“ Bleed DoT
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Heaven_Piercing_Spear",
@@ -139,7 +137,7 @@ namespace facingfate
                 cost_u = 10,
                 damage_u = 4,
 
-                range_u = 4,
+                range_u = 4f,
                 maxtarget_u = 3,
 
                 targetingData = new()
@@ -169,7 +167,7 @@ namespace facingfate
                 }
             });
 
-            // 110105 – Salamander Sweep (Cone 1)
+            // 110105 â€“ Salamander Sweep (Cone 1)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Salamander_Tail_Sweep",
@@ -181,8 +179,8 @@ namespace facingfate
                 cost_u = 20,
                 damage_u = 30,
 
-                range_u = 2,
-                area_u = 2,
+                range_u = 2f,
+                area_u = 30f,
 
                 targetingData = new()
                 {
@@ -202,11 +200,11 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm"), Target.targetedTiles);
+                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm"), Target.targetedPositions);
                 }
             });
 
-            // 110106 – Dragon Fang Thrust (Cone)
+            // 110106 â€“ Dragon Fang Thrust (Cone)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Snake_Tail_Sweep",
@@ -221,8 +219,8 @@ namespace facingfate
                 //Slow Movement Cost increase
                 power_u = 1,
 
-                range_u = 3,
-                area_u = 3,
+                range_u = 3f,
+                area_u = 35f,
 
 
                 targetingData = new()
@@ -255,7 +253,7 @@ namespace facingfate
                 }
             });
 
-            // 110107 – Dragon Tail Sweep (cone)
+            // 110107 â€“ Dragon Tail Sweep (cone)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Dragon_Tail_Sweep",
@@ -267,8 +265,8 @@ namespace facingfate
                 cost_u = 30,
                 damage_u = 25,
 
-                range_u = 4,
-                area_u = 4,
+                range_u = 4f,
+                area_u = 40f,
 
 
                 targetingData = new()
@@ -290,7 +288,7 @@ namespace facingfate
                 }
             });
 
-            // 110108 – Earthshatter Pole 
+            // 110108 â€“ Earthshatter Pole 
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Earthshatter_Pole",
@@ -302,8 +300,8 @@ namespace facingfate
                 cost_u = 10,
                 damage_u = 60,
 
-                range_u = 3,
-                radius_u = 2,
+                range_u = 3f,
+                radius_u = 2f,
 
                 targetingData = new()
                 {
@@ -323,12 +321,12 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm"), Target.targetedTiles);
+                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm"), Target.targetedPositions);
                 }
 
             });
 
-            // 110109 – Azure Dragon's Roar (Self; until end of turn)
+            // 110109 â€“ Azure Dragon's Roar (Self; until end of turn)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Azure_Dragons_Roar",
@@ -377,7 +375,7 @@ namespace facingfate
                 }
             });
 
-            // 110110 – Pillar of the Earth (Radius Stun)
+            // 110110 â€“ Pillar of the Earth (Radius Stun)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Tech_Pillar_of_the_Earth",
@@ -391,9 +389,9 @@ namespace facingfate
 
                 duration_u = 2,
 
-                range_u = 2,
-                radius_u = 2,
-                area_u = 2,
+                range_u = 2f,
+                radius_u = 2f,
+                area_u = 2f,
 
                 targetingData = new()
                 {
@@ -430,7 +428,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround") {positions = Target.targetedTiles });
+                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround") {positions = Target.targetedPositions });
                     AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
                 }
             });
@@ -438,7 +436,7 @@ namespace facingfate
 
         private static void RegisterAbilities()
         {
-            // 110201 – Extending Heaven's Lance (Self; +range until end of turn)
+            // 110201 â€“ Extending Heaven's Lance (Self; +range until end of turn)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Abil_Extending_Heavens_Lance",
@@ -484,7 +482,7 @@ namespace facingfate
                 }
             });
 
-            // 110202 – Iron Wall Reversal (Self; fixed melee counter once)
+            // 110202 â€“ Iron Wall Reversal (Self; fixed melee counter once)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Abil_Iron_Wall_Reversal",
@@ -540,7 +538,7 @@ namespace facingfate
                 }
             });
 
-            // 110203 – Whirling Heaven Ward (Self; deflect ranged once)
+            // 110203 â€“ Whirling Heaven Ward (Self; deflect ranged once)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Abil_Whirling_Heaven_Ward",
@@ -593,7 +591,7 @@ namespace facingfate
                 }
             });
 
-            // 110204 – Unyielding Spear Stance (Self; Taunt + Armour +10 for 1 turn)
+            // 110204 â€“ Unyielding Spear Stance (Self; Taunt + Armour +10 for 1 turn)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Abil_Unyielding_Spear_Stance",
@@ -602,7 +600,7 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                range_u = 2,
+                range_u = 2f,
 
                 cost_u = 20,
                 power_u = 50,
@@ -640,13 +638,12 @@ namespace facingfate
                 CardVfx = (Data, Target) =>
                 {
                     AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
-                    List < EntityScript > caster  = new List<EntityScript>() { TargetingUtility.GetEntitiesFromTile(Target.castingPosition) };
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData ("Buff"),  caster);
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), new List<EntityScript>() { Data.Owner });
                 }
             });
 
             /*
-            // 110205 – Sky-Rending Reversal (Self; stronger fixed counter)
+            // 110205 â€“ Sky-Rending Reversal (Self; stronger fixed counter)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Abil_Sky_Rending_Reversal",
@@ -694,7 +691,7 @@ namespace facingfate
             });
             */
 
-            // 110206 – Phalanx Guard (Self; defensive placeholder)
+            // 110206 â€“ Phalanx Guard (Self; defensive placeholder)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Abil_Phalanx_Guard",
@@ -708,7 +705,7 @@ namespace facingfate
                 damage_u = 10,
                 duration_u = 3,
 
-                radius_u = 2,
+                radius_u = 2f,
 
                 targetingData = new()
                 {
@@ -760,7 +757,7 @@ namespace facingfate
 
         private static void RegisterCurses()
         {
-            // 110401 – Brittle Courage (Self)
+            // 110401 â€“ Brittle Courage (Self)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Curse_Brittle_Courage",
@@ -772,7 +769,7 @@ namespace facingfate
                 cost_u = 0,
                 power_u = 50,
 
-                range_u = 5,
+                range_u = 5f,
 
                 targetingData = new()
                 {
@@ -807,7 +804,7 @@ namespace facingfate
 
         private static void RegisterBlessings()
         {
-            // 110501 – Brilliant Spear (Self)
+            // 110501 â€“ Brilliant Spear (Self)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Bless_Brilliant_Spear",

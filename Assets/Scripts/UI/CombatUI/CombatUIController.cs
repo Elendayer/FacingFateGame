@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Utility;
 
 namespace facingfate
 {
@@ -193,17 +192,18 @@ namespace facingfate
 
             Ray ray = hoverCamera.ScreenPointToRay(mousePos);
 
+            Vector3 worldPos = TargetingUtility.GetHoveredPosition(ray);
 
-
-            Vector3Int cell = TargetingUtility.GetHoveredTile(ray);
-
-            if (cell == TilemapUtilityScript.InvalidPosition)
+            if (worldPos == Vector3.zero)
                 return null;
 
             if (cachedEntities.Count == 0)
                 CacheEntities();
 
-            // Wenn mehrere Entities auf einem Tile sind: Gegner bevorzugen
+            // Find entities near the hovered world position (use a small radius for detection)
+            const float detectionRadius = 1f;
+            EntityScript closest = null;
+            float closestDist = detectionRadius;
             EntityScript playerCandidate = null;
 
             for (int i = 0; i < cachedEntities.Count; i++)
@@ -211,19 +211,29 @@ namespace facingfate
                 EntityScript e = cachedEntities[i];
                 if (e == null) continue;
 
-                EntityOnMap eom = e.GetComponent<EntityOnMap>();
-                if (eom == null) continue;
-
-                if (eom.currentCell != cell) continue;
+                float dist = Vector3.Distance(e.transform.position, worldPos);
+                if (dist >= detectionRadius) continue;
 
                 // Gegner bevorzugen: alles ohne PlayerScript ist "enemy candidate"
                 if (e.GetComponent<PlayerScript>() == null)
+                {
+                    if (closest == null || dist < closestDist)
+                    {
+                        closest = e;
+                        closestDist = dist;
+                    }
                     return e;
+                }
 
-                playerCandidate = e;
+                if (closest == null || dist < closestDist)
+                {
+                    closest = e;
+                    closestDist = dist;
+                    playerCandidate = e;
+                }
             }
 
-            return playerCandidate;
+            return closest ?? playerCandidate;
         }
 
         private static bool IsFinite(Vector3 v)

@@ -106,7 +106,8 @@ GameObject:
   - component: {fileID: 8935636570208141450}
   - component: {fileID: 4777331206848150532}
   - component: {fileID: 1263019130342493916}
-  - component: {fileID: 7505124071678357189}
+  - component: {fileID: 5251075547011999912}
+  - component: {fileID: 2429520394743626887}
   m_Layer: 0
   m_Name: Character Npc
   m_TagString: Untagged
@@ -153,7 +154,9 @@ MonoBehaviour:
     IsStunned: 0
     IsRooted: 0
     tauntTarget: {fileID: 0}
+  EntityVisual: {fileID: 0}
   EntityModel: {fileID: 7149920695243058398}
+  entityOnMap: {fileID: 0}
   modifierNames: []
   NpcID: 0001
 --- !u!114 &9001171521745787760
@@ -165,11 +168,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5925646098595141539}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10ba6d1c153c2384bb92f441c93238ab, type: 3}
+  m_Script: {fileID: 11500000, guid: 90448836e3efdb1418a6c25770b9c72a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentCell: {x: 0, y: 0, z: 0}
-  defaultMovementSpeed: 3
   jumpDuration: 0.35
   jumpHeight: 1.5
 --- !u!114 &2899245957936834516
@@ -243,7 +244,7 @@ LineRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 589123887
-  m_SortingLayer: 4
+  m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Positions:
@@ -345,33 +346,44 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.4
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &7505124071678357189
-Rigidbody:
+--- !u!195 &5251075547011999912
+NavMeshAgent:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5925646098595141539}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!208 &2429520394743626887
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925646098595141539}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 0
+  m_Extents: {x: 0.4, y: 1, z: 0.4}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.1
 --- !u!1001 &2823061478717140666
 PrefabInstance:
   m_ObjectHideFlags: 0

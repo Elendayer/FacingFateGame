@@ -8,9 +8,9 @@ namespace facingfate
     {
         public string id;
 
-        public Dictionary<GameplayRef, int> cardReferenceBias = new Dictionary<GameplayRef, int>();
-        public Dictionary<GameplayRef, int> targetReferenceBias = new Dictionary<GameplayRef, int>();
-        public Dictionary<CardIdentity, int> identityBias = new Dictionary<CardIdentity, int>();
+        public Dictionary<GameplayRef, float> cardReferenceBias = new Dictionary<GameplayRef, float>();
+        public Dictionary<GameplayRef, float> targetReferenceBias = new Dictionary<GameplayRef, float>();
+        public Dictionary<CardIdentity, float> identityBias = new Dictionary<CardIdentity, float>();
 
         public RepositionCondition RepositionCondition;
 
@@ -19,9 +19,9 @@ namespace facingfate
             return new NpcAiBias
             {
                 id = this.id,
-                cardReferenceBias = new Dictionary<GameplayRef, int>(this.cardReferenceBias),
-                targetReferenceBias = new Dictionary<GameplayRef, int>(this.targetReferenceBias),
-                identityBias = new Dictionary<CardIdentity, int>(this.identityBias),
+                cardReferenceBias = new Dictionary<GameplayRef, float>(this.cardReferenceBias),
+                targetReferenceBias = new Dictionary<GameplayRef, float>(this.targetReferenceBias),
+                identityBias = new Dictionary<CardIdentity, float>(this.identityBias),
 
                 RepositionCondition = this.RepositionCondition
             };

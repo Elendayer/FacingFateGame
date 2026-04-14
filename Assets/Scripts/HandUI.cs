@@ -5,9 +5,9 @@ namespace facingfate
     public static class HandUI
     {
         public static void RefreshHandLocks(EntityScript user)
-        {
-            if (HandManager.Instance == null || user == null) return;
-            int stamina = user.entityStats.CurrentStamina;
+            {
+                if (HandManager.Instance == null || user == null) return;
+                float stamina = user.entityStats.CurrentStamina;
 
             foreach (var go in HandManager.Instance.cardsInHand)
             {
