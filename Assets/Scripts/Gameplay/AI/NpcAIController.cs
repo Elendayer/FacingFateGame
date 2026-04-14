@@ -341,7 +341,7 @@ namespace facingfate
 
         private void Draw()
         {
-            int cardsToDraw = Mathf.RoundToInt(npcScript.entityStats.Wisdom.Value() / 2);
+            int cardsToDraw = Mathf.RoundToInt(npcScript.entityStats.Wisdom / 2);
 
             for (int i = 0; i < cardsToDraw; i++)
             {
@@ -559,7 +559,7 @@ namespace facingfate
                 case RepositionCondition.lowHealth:
 
                     if (npcScript.entityStats.CurrentHealth <
-                        npcScript.entityStats.MaxHealth.Value() * 0.3f)
+                        npcScript.entityStats.MaxHealth * 0.3f)
                     {
                         // Use virtual position and stamina for consistent turn planning
                         moveOption = DetermineRepositionTarget(

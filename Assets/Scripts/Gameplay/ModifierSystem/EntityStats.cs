@@ -85,17 +85,15 @@ namespace facingfate
         public Stat DurationModifier_Increase = new();
         public Stat DurationModifier_Multiplier = new();
 
-        public Stat IgnoreArmour_Flat = new();
-        public Stat IgnoreArmour_Increase = new();
-        public Stat IgnoreArmour_Multiplier = new();
+        // Percent based effects.
 
-        public Stat IgnoreBlock_Flat = new();
-        public Stat IgnoreBlock_Increase = new();
-        public Stat IgnoreBlock_Multiplier = new();
+        public Stat IgnoreArmour = new();
 
-        public Stat Lifesteal_Flat = new();
-        public Stat Lifesteal_Increase = new();
-        public Stat Lifesteal_Multiplier = new();
+        public Stat IgnoreBlock = new();
+
+        public Stat Lifesteal = new();
+
+        // Effect modifiers - flat increases to the base value of an effect, % increases to the base value of an effect, and % multipliers to the entire effect after all other calculations.
 
         public Stat RangeModifier_Flat = new();
         public Stat RangeModifier_Increase = new();
@@ -123,15 +121,15 @@ namespace facingfate
             Owner = entityScript;
 
             // Base attribute values - Flat
-            Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: 10f, ModifierScaling.Flat));
-            Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: 10f, ModifierScaling.Flat));
-            Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: 10f, ModifierScaling.Flat));
-            Foresight_Flat.AddModifier(new StatModifier("BaseValue", Foresight_Flat, value: 10f, ModifierScaling.Flat));
-            Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: 10f, ModifierScaling.Flat));
-            Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: 10f, ModifierScaling.Flat));
+            Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: 10f));
+            Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: 10f));
+            Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: 10f));
+            Foresight_Flat.AddModifier(new StatModifier("BaseValue", Foresight_Flat, value: 10f));
+            Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: 10f));
+            Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: 10f));
 
-            MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => Tenacity_Flat.Value() * 50f, ModifierScaling.Flat));
-            MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => Endurance_Flat.Value() * 5f, ModifierScaling.Flat));
+            MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => Tenacity_Flat.Value() * 50f));
+            MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => Endurance_Flat.Value() * 5f));
 
             CurrentHealth = GetMaxHealthValue();
             CurrentStamina = GetMaxStaminaValue();
@@ -179,31 +177,34 @@ namespace facingfate
             return (baseValue + flat) * (1f + (increase / 100f)) * multipliers;
         }
 
-        // Convenience properties for backward compatibility
-        public Stat MaxHealth => MaxHealth_Flat;
-        public Stat MaxStamina => MaxStamina_Flat;
-        public Stat Armour => Armour_Flat;
-        public Stat Strength => Strength_Flat;
-        public Stat Dexterity => Dexterity_Flat;
-        public Stat Wisdom => Wisdom_Flat;
-        public Stat Foresight => Foresight_Flat;
-        public Stat Endurance => Endurance_Flat;
-        public Stat Tenacity => Tenacity_Flat;
-        public Stat MovementCostModifier => MovementCostModifier_Flat;
-        public Stat DamageTakenModifier => DamageTakenModifier_Flat;
-        public Stat HealingTakenModifier => HealingTakenModifier_Flat;
-        public Stat DamageOutModifier => DamageOutModifier_Flat;
-        public Stat HealingOutModifier => HealingOutModifier_Flat;
-        public Stat CardCostModifier => CardCostModifier_Flat;
-        public Stat PowerModifier => PowerModifier_Flat;
-        public Stat DurationModifier => DurationModifier_Flat;
-        public Stat IgnoreArmour => IgnoreArmour_Flat;
-        public Stat IgnoreBlock => IgnoreBlock_Flat;
-        public Stat Lifesteal => Lifesteal_Flat;
-        public Stat RangeModifier => RangeModifier_Flat;
-        public Stat AreaModifier => AreaModifier_Flat;
-        public Stat RadiusModifier => RadiusModifier_Flat;
-        public Stat MaxTargetModifier => MaxTargetModifier_Flat;
+        // Convenience properties — return the fully computed stat value across all three tiers
+        // Base stats
+        public float MaxHealth => GetMaxHealthValue();
+        public float MaxStamina => GetMaxStaminaValue();
+        public float Armour => ApplyStatModifiers(0f, Armour_Flat, Armour_Increase, Armour_Multiplier);
+        public float Strength => ApplyStatModifiers(0f, Strength_Flat, Strength_Increase, Strength_Multiplier);
+        public float Dexterity => ApplyStatModifiers(0f, Dexterity_Flat, Dexterity_Increase, Dexterity_Multiplier);
+        public float Wisdom => ApplyStatModifiers(0f, Wisdom_Flat, Wisdom_Increase, Wisdom_Multiplier);
+        public float Foresight => ApplyStatModifiers(0f, Foresight_Flat, Foresight_Increase, Foresight_Multiplier);
+        public float Endurance => ApplyStatModifiers(0f, Endurance_Flat, Endurance_Increase, Endurance_Multiplier);
+        public float Tenacity => ApplyStatModifiers(0f, Tenacity_Flat, Tenacity_Increase, Tenacity_Multiplier);
+
+        // Other modifiers
+        public float MovementCostModifier => ApplyStatModifiers(0f, MovementCostModifier_Flat, MovementCostModifier_Increase, MovementCostModifier_Multiplier);
+        public float DamageTakenModifier => ApplyStatModifiers(0f, DamageTakenModifier_Flat, DamageTakenModifier_Increase, DamageTakenModifier_Multiplier);
+        public float HealingTakenModifier => ApplyStatModifiers(0f, HealingTakenModifier_Flat, HealingTakenModifier_Increase, HealingTakenModifier_Multiplier);
+        public float DamageOutModifier => ApplyStatModifiers(0f, DamageOutModifier_Flat, DamageOutModifier_Increase, DamageOutModifier_Multiplier);
+        public float HealingOutModifier => ApplyStatModifiers(0f, HealingOutModifier_Flat, HealingOutModifier_Increase, HealingOutModifier_Multiplier);
+        public float CardCostModifier => ApplyStatModifiers(0f, CardCostModifier_Flat, CardCostModifier_Increase, CardCostModifier_Multiplier);
+        public float PowerModifier => ApplyStatModifiers(0f, PowerModifier_Flat, PowerModifier_Increase, PowerModifier_Multiplier);
+        public float DurationModifier => ApplyStatModifiers(0f, DurationModifier_Flat, DurationModifier_Increase, DurationModifier_Multiplier);
+
+        // Aoe effect modifiers
+        public float RangeModifier => ApplyStatModifiers(0f, RangeModifier_Flat, RangeModifier_Increase, RangeModifier_Multiplier);
+        public float AreaModifier => ApplyStatModifiers(0f, AreaModifier_Flat, AreaModifier_Increase, AreaModifier_Multiplier);
+        public float RadiusModifier => ApplyStatModifiers(0f, RadiusModifier_Flat, RadiusModifier_Increase, RadiusModifier_Multiplier);
+        public float MaxTargetModifier => ApplyStatModifiers(0f, MaxTargetModifier_Flat, MaxTargetModifier_Increase, MaxTargetModifier_Multiplier);
+
         public void TickAllStats()
         {
             var statFields = typeof(EntityStats).GetFields().Where(f => f.FieldType == typeof(Stat));

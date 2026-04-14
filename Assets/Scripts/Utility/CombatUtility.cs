@@ -40,17 +40,17 @@ using facingfate;
             Debug.Log($"Applying {damage} damage to {target.name}");
 
             // 1) Pre-Mitigation
-            damage = target.entityStats.DamageTakenModifier.ApplyFinalValue(damage);
+            damage = target.entityStats.ApplyStatModifiers(damage, target.entityStats.DamageTakenModifier_Flat, target.entityStats.DamageTakenModifier_Increase, target.entityStats.DamageTakenModifier_Multiplier);
 
             // 2) Armour
-            if (target.entityStats.Armour.Value() > 0)
+            if (target.entityStats.Armour > 0)
             {
-                float effectiveArmour = target.entityStats.IgnoreArmour.ApplyFinalValue(target.entityStats.Armour.Value());
+                float effectiveArmour = target.entityStats.Armour * cardData.Owner.entityStats.IgnoreArmour.Value();
                 damage = Mathf.Max(0, damage - effectiveArmour);
             }
 
             // 3) Block
-            float block = target.entityStats.IgnoreBlock.ApplyFinalValue(target.entityStats.Block);
+            float block = target.entityStats.Block;
             if (block > 0 && damage > 0)
             {
                 refs.Add(GameplayRef.onBlocking);
@@ -71,11 +71,11 @@ using facingfate;
             if (cardData != null)
             {
                 // 5) Lifesteal
-                if (damage > 0 && cardData.Owner.entityStats.Lifesteal.GetAllValues().Count > 0)
+                if (damage > 0 && cardData.Owner.entityStats.Lifesteal.Value() > 0)
                 {
                     refs.Add(GameplayRef.onLifesteal);
 
-                    float heal = damage * (cardData.Owner.entityStats.Lifesteal.Value() / 100f);
+                    float heal = damage * (cardData.Owner.entityStats.Lifesteal.Value());
                     ApplyHealing(cardData, cardData.Owner, heal);
                 }
                 HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, (int)damage); return;
@@ -92,7 +92,7 @@ using facingfate;
 
             List<GameplayRef> refs = new();
 
-            float missing = target.entityStats.MaxHealth.Value() - target.entityStats.CurrentHealth;
+            float missing = target.entityStats.MaxHealth - target.entityStats.CurrentHealth;
             float effHeal = Mathf.Clamp(healing, 0, Mathf.Max(0, missing));
 
             if (effHeal > 0)

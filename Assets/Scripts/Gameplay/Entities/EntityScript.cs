@@ -153,7 +153,7 @@ namespace facingfate
 
             switch (condititon)
             {
-                case GameplayCondition.isDamaged: c = entityStats.CurrentHealth < entityStats.MaxHealth.Value(); break;
+                case GameplayCondition.isDamaged: c = entityStats.CurrentHealth < entityStats.MaxHealth; break;
             }
             return c;
         }
@@ -181,7 +181,7 @@ namespace facingfate
 
         public virtual void StartTurn()
         {
-            entityStats.CurrentStamina = entityStats.MaxStamina.Value();
+            entityStats.CurrentStamina = entityStats.MaxStamina;
 
             ActionQueueUtility.EnqueueAction(() =>
             {

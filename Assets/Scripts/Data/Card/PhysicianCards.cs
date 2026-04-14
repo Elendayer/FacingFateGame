@@ -286,8 +286,13 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    // TODO: TemporÃ¤ren Modifier auf den User anwenden, der die Bewegungs-Kosten halbiert.
-                    // (z. B. Multiplikator 0.5 auf Stamina/Movement-Cost; endet am Turn-End.)
+                    var mod = new StatModifier(
+                        name: "MovementCostMultiplier",
+                        stat: Target.entityStats.MovementCostModifier_Multiplier,
+                        value: 0.5f,
+                        duration: d.Duration
+                    );
+                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
         }
@@ -317,18 +322,16 @@ namespace facingfate
                 },
 
                 CardDescription = (User, d) =>
-                    d.cardDescription = $"Allies in range gain {d.Power} damage increase for {d.Duration} turns.",
+                    d.cardDescription = $"Allies in range gain {d.Power} increased damage for {d.Duration} turns.",
 
                 CardEffect = (User, Target, d) =>
                 {
                     // Buff DamageIncrease on each affected ally
-                    var stat = Target.entityStats.DamageOutModifier;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Damage",
+                        stat: Target.entityStats.DamageOutModifier_Increase,
                         value: d.Power,
-                        scaling: ModifierScaling.Percent,
-                        duration: d.Duration,
-                        name: $"JadeResonance_Dmg+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -421,13 +424,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.MaxHealth;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Health",
+                        stat: Target.entityStats.MaxHealth_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"MaxHP+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -459,13 +460,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.MaxHealth;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Health",
+                        stat: Target.entityStats.MaxHealth_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration, // 0 => indefinite in deinem System
-                        name: $"MaxHP+{d.Power}_Pill"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Merge);
                 }
@@ -509,9 +508,12 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
+                cost_u = 20,
+                
                 duration_u = 3,
-                power_u = 150,
+                power_u = 50,
+
+
                 range_u = 2f,
 
                 targetingData = new()
@@ -526,13 +528,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.MaxStamina;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Stamina",
+                        stat: Target.entityStats.MaxStamina_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"MaxStamina+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -548,8 +548,11 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 10,
-                duration_u = 0,
-                power_u = 150,
+
+                duration_u = 1,
+
+                power_u = 60,
+
                 range_u = 2f,
 
                 targetingData = new()
@@ -564,13 +567,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.MaxStamina;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Stamina",
+                        stat: Target.entityStats.MaxStamina_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"MaxStamina+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Merge);
                 }
@@ -602,13 +603,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.DamageOutModifier;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Armour",
+                        stat: Target.entityStats.Armour_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"ArmourIncrease+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -640,13 +639,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.Armour;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: $"ArmourIncrease",
+                        stat: Target.entityStats.Armour_Increase,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"ArmourIncrease+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -678,13 +675,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.Armour;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Armour",
+                        stat: Target.entityStats.Armour_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"ArmourIncrease+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Merge);
                 }
@@ -719,13 +714,10 @@ namespace facingfate
                     CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier
                         (
-                        stat: User.entityStats.DamageOutModifier,
+                        name: $"SoaringDragon",
+                        stat: Target.entityStats.DamageOutModifier_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        condition: true,
-                        to_TriggerRefs: new() { },
-                        duration: d.Duration,
-                        name: $"SoaringDragon"
+                        duration: d.Duration
                     ),
                    ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -757,13 +749,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.DamageOutModifier;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Damage",
+                        stat: Target.entityStats.DamageOutModifier_Increase,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"SoaringDragonElixir_Dmg+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -795,13 +785,11 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.DamageOutModifier;
                     var mod = new StatModifier(
-                        stat: stat,
+                        name: "Damage",
+                        stat: Target.entityStats.DamageOutModifier_Increase,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"SoaringDragonPill_Dmg+{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Merge);
                 }

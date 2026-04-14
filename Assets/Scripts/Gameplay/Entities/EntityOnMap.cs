@@ -7,6 +7,8 @@ public class EntityOnMap : MonoBehaviour
 {
     private Coroutine moveRoutine;
     private NavMeshAgent navMeshAgent;
+    private NavMeshObstacle navMeshObstacle;
+    private PathData cachedPath;
 
     [SerializeField] private float jumpDuration = 0.35f;
     [SerializeField] private float jumpHeight = 1.5f;
@@ -14,17 +16,24 @@ public class EntityOnMap : MonoBehaviour
     public void Startup()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
-        Debug.Log($"[EntityOnMap] Startup called. Found NavMeshAgent: {navMeshAgent != null}");
 
         if (navMeshAgent != null)
         {
             navMeshAgent.velocity = Vector3.zero;
             navMeshAgent.enabled = true;
-            Debug.Log($"[EntityOnMap] NavMeshAgent initialized and enabled");
         }
-        else
+
+
+        navMeshObstacle = GetComponent<NavMeshObstacle>();
+        // Add NavMeshObstacle with carving enabled for dynamic avoidance
+        if (navMeshObstacle == null)
         {
-            Debug.LogError($"[EntityOnMap] Failed to find NavMeshAgent on {gameObject.name}");
+            navMeshObstacle = gameObject.AddComponent<NavMeshObstacle>();
+            navMeshObstacle.enabled = false;
+            navMeshObstacle.shape = NavMeshObstacleShape.Capsule;
+            navMeshObstacle.center = Vector3.zero;
+            navMeshObstacle.size = new Vector3(0.2f, 2f, 0f); // Adjust size as needed
+            navMeshObstacle.carving = true;
         }
     }
 
@@ -52,6 +61,41 @@ public class EntityOnMap : MonoBehaviour
             navMeshAgent.Warp(hit.position);
     }
 
+    /// <summary>Enable obstacle carving for pathfinding preview. Disables the NavMeshAgent.</summary>
+    public void EnableObstacleCarving()
+    {
+        if (navMeshAgent != null && navMeshAgent.enabled)
+        {
+            navMeshAgent.enabled = false;
+        }
+
+        if (navMeshObstacle != null && !navMeshObstacle.enabled)
+        {
+            navMeshObstacle.enabled = true;
+        }
+    }
+
+    /// <summary>Disable obstacle carving after pathfinding preview. Re-enables the NavMeshAgent.</summary>
+    public void DisableObstacleCarving()
+    {
+        if (navMeshObstacle != null && navMeshObstacle.enabled)
+        {
+            navMeshObstacle.enabled = false;
+        }
+    }
+
+    /// <summary>Re-enable the NavMeshAgent after obstacle carving is disabled and navmesh has rebuilt.</summary>
+    public IEnumerator ReenableAgentAfterCarvingDisabled()
+    {
+        // Yield one frame for the NavMesh to rebuild after obstacle carving is disabled
+        yield return null;
+
+        if (navMeshAgent != null && !navMeshAgent.enabled)
+        {
+            navMeshAgent.enabled = true;
+        }
+    }
+
     public IEnumerator StartJumpRoutine(Vector3 target)
     {
         if (moveRoutine != null) StopCoroutine(moveRoutine);
@@ -66,21 +110,31 @@ public class EntityOnMap : MonoBehaviour
         yield return moveRoutine;
     }
 
+    /// <summary>Start movement using a cached path. Use this for optimized pathfinding.</summary>
+    public IEnumerator StartMoveRoutineWithPath(PathData pathData)
+    {
+        if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
+        {
+            yield break;
+        }
+
+        cachedPath = pathData;
+        if (moveRoutine != null) StopCoroutine(moveRoutine);
+        moveRoutine = StartCoroutine(FollowPath(pathData.End));
+        yield return moveRoutine;
+        cachedPath = null;
+    }
+
     private IEnumerator FollowPath(Vector3 target)
     {
         // The NavMesh carved by the obstacle is rebuilt asynchronously.
         // Yield one frame so the hole closes before the agent queries its position.
         yield return null;
 
-        Debug.Log($"[EntityOnMap] FollowPath called. Target: {target}");
-
         if (navMeshAgent == null)
         {
-            Debug.LogError($"[EntityOnMap] NavMeshAgent is null! Movement cannot proceed.");
             yield break;
         }
-
-        Debug.Log($"[EntityOnMap] NavMeshAgent found. Current position: {navMeshAgent.transform.position}");
 
         // Clear velocity before starting pathfinding to prevent jitter
         navMeshAgent.velocity = Vector3.zero;
@@ -90,23 +144,28 @@ public class EntityOnMap : MonoBehaviour
 
         if (!navMeshAgent.isOnNavMesh)
         {
-            Debug.LogError($"[EntityOnMap] NavMeshAgent is not on NavMesh after TrySnapToNavMesh! Position: {navMeshAgent.transform.position}");
             yield break;
         }
 
-        Debug.Log($"[EntityOnMap] NavMeshAgent is on NavMesh. Calculating path...");
+        NavMeshPath path;
+        bool pathCalculated;
 
-        var path = new NavMeshPath();
-        bool pathCalculated = navMeshAgent.CalculatePath(target, path);
-        Debug.Log($"[EntityOnMap] Path calculation result: {pathCalculated}, Status: {path.status}");
+        // Use cached path if available, otherwise calculate new one
+        if (cachedPath != null && cachedPath.CachedNavMeshPath != null)
+        {
+            path = cachedPath.CachedNavMeshPath;
+            pathCalculated = true;
+        }
+        else
+        {
+            path = new NavMeshPath();
+            pathCalculated = navMeshAgent.CalculatePath(target, path);
+        }
 
         if (!pathCalculated || path.status != NavMeshPathStatus.PathComplete)
         {
-            Debug.LogError($"[EntityOnMap] Path calculation failed or incomplete. PathCalculated: {pathCalculated}, Status: {path.status}");
             yield break;
         }
-
-        Debug.Log($"[EntityOnMap] Valid path found with {path.corners.Length} corners");
 
         navMeshAgent.path = path;
 
@@ -114,7 +173,6 @@ public class EntityOnMap : MonoBehaviour
         // The NavMeshAgent.remainingDistance will naturally decrease as the agent moves
         while (navMeshAgent.hasPath && navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance)
         {
-            Debug.Log($"[EntityOnMap] Moving... Remaining: {navMeshAgent.remainingDistance}, Velocity: {navMeshAgent.velocity.magnitude}");
             yield return null;
         }
 
@@ -122,9 +180,7 @@ public class EntityOnMap : MonoBehaviour
         navMeshAgent.velocity = Vector3.zero;
         navMeshAgent.ResetPath();
         moveRoutine = null;
-        Debug.Log($"[EntityOnMap] Movement completed. Final position: {navMeshAgent.transform.position}");
     }
-
 
     private IEnumerator JumpTo(Vector3 target)
     {

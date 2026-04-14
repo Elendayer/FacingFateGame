@@ -28,7 +28,7 @@ namespace facingfate
 
                 damageFunc = card =>
                 {
-                    return Mathf.RoundToInt(card.Owner.entityStats.Strength.Value() / 2);
+                    return Mathf.RoundToInt(card.Owner.entityStats.Strength / 2);
                 },
 
                 range_u = 1f,
@@ -72,12 +72,11 @@ namespace facingfate
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                     CombatUtility.ApplyStatDebuff(d, Target,
                         new StatModifier(
-                        stat: Target.entityStats.MovementCostModifier,
+                        name: "Movement",
+                        stat: Target.entityStats.MovementCostModifier_Increase,
                         value: 1,
                         condition: true,
-                        scaling: ModifierScaling.Flat,
-                        duration: 2,
-                        name: $"HeavyBlowMovementDecrease"
+                        duration: 2
                     ), ModifierMergeStrategy.RefreshDurationAndMerge);
                 },
                 CardVfx = (Data,Target) =>
@@ -460,13 +459,12 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = $"Your next attack is empowered by {d.power_u}.",
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.DamageOutModifier;
+                    var stat = Target.entityStats.DamageOutModifier_Increase;
                     var mod = new StatModifier(
-                        value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
+                        name: "Damage",
                         stat: stat,
-                        name: $"SoaringDragonElixir"
+                        value: d.Power,
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -498,11 +496,10 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyStatDebuff(d, Target, new StatModifier(
-                        stat: Target.entityStats.DamageOutModifier,
+                        name: "Damage",
+                        stat: Target.entityStats.DamageOutModifier_Increase,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"GrowlDecrease{d.Power}"
+                        duration: d.Duration
                     ), ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
@@ -535,11 +532,10 @@ namespace facingfate
                     CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier
                         (
-                            stat: Target.entityStats.DamageOutModifier,
+                            name: "Damage",
+                            stat: Target.entityStats.DamageOutModifier_Increase,
                             value: d.Power,
-                            scaling: ModifierScaling.Flat,
-                            duration: d.Duration,
-                            name: $"HowlIncrease{d.Power}"
+                            duration: d.Duration
                             ),
                         ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -568,14 +564,13 @@ namespace facingfate
                 CardDescription = (User, d) => d.cardDescription = $"Increase your defense until end of turn by {d.Power}.",
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.Armour;
+                    var stat = Target.entityStats.Armour_Increase;
                     var mod = new StatModifier(
+                        name: "Armour",
                         stat: stat,
                         value: d.Power,
                         condition: true,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"ArmourIncrease{d.Power}"
+                        duration: d.Duration
                     );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }

@@ -102,7 +102,7 @@ namespace facingfate
                 CardAiBias =
                 {
                     DamageOverrideValue = 1,
-                    TargetDynamicConditionFunc = (target, data) => target.entityStats.CurrentHealth <= target.entityStats.MaxHealth.Value() / 10,
+                    TargetDynamicConditionFunc = (target, data) => target.entityStats.CurrentHealth <= target.entityStats.MaxHealth / 10,
                     ConditionalOverrideValue = 99999,
                 },
 
@@ -110,7 +110,7 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    if (Target.entityStats.CurrentHealth <= Target.entityStats.MaxHealth.Value() / 10)
+                    if (Target.entityStats.CurrentHealth <= Target.entityStats.MaxHealth / 10)
                     {
                         CombatUtility.ApplyEffectDamage(99999, Target, GameplayRef.Physical, new VFXData("Impact"));
                     }
@@ -491,6 +491,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Shadow },
 
                 cost_u = 40,
+
                 range_u = 5f,
 
                 targetingData = new()
@@ -711,10 +712,9 @@ namespace facingfate
                 {
                     CombatUtility.ApplyStatBuff(data, Target, new StatModifier
                         (
-                            name: "CritOnNextTechnique",
-                            stat: Target.entityStats.DamageOutModifier,
-                            value: 200,
-                            scaling: ModifierScaling.Multiplier,
+                            name: "Crit",
+                            stat: Target.entityStats.DamageOutModifier_Multiplier,
+                            value: 2,
                             to_TriggerRefs: new() { },
                             charges: 1,
                             condition: (target, data) => data.cardType == CardType.Technique,

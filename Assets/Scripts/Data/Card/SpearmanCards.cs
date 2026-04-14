@@ -242,12 +242,11 @@ namespace facingfate
                     CombatUtility.ApplyStatDebuff(d, Target,
                         new StatModifier
                         (
-                            stat: Target.entityStats.MovementCostModifier,
+                            name: "MovementFlat",
+                            stat: Target.entityStats.MovementCostModifier_Flat,
                             value: d.Power,
-                            scaling: ModifierScaling.Flat,
                             duration: d.Duration,
-                            to_TriggerRefs: new() { GameplayRef.onSlowed },
-                            name: $"MovementCostIncrease"
+                            to_TriggerRefs: new() { GameplayRef.onSlowed }
                         ),
                         ModifierMergeStrategy.RefreshDurationAndOverride);
                 }
@@ -361,11 +360,10 @@ namespace facingfate
                 {
                     var mod = new StatModifier
                     (
-                        stat: Target.entityStats.DamageOutModifier,
+                        name: "Damage",
+                        stat: Target.entityStats.DamageOutModifier_Increase,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"DamageIncrease"
+                        duration: d.Duration
                         );
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.AddUnique);
                 },
@@ -465,13 +463,12 @@ namespace facingfate
                 {
                     CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier(
-                            stat: Target.entityStats.RangeModifier,
+                            name: $"MeleeRangeFlat",
+                            stat: Target.entityStats.RangeModifier_Flat,
                             value: d.Power,
-                            scaling: ModifierScaling.Flat,
                             condition: (e, c) => c.cardIdentities.Contains(CardIdentity.Melee) && c.range_u > 1,
                             to_TriggerRefs: new() { },
-                            duration: d.Duration,
-                            name: $"MeleeRangeIncrease"
+                            duration: d.Duration
                             ),
                         ModifierMergeStrategy.RefreshDurationAndMerge
                         );
@@ -572,14 +569,13 @@ namespace facingfate
                  CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier
                         (
-                            stat: Target.entityStats.DamageTakenModifier,
+                            name: "RangedDamage",
+                            stat: Target.entityStats.DamageTakenModifier_Flat,
                             value: 0,
-                            scaling: ModifierScaling.Multiplier,
                             condition: (e, c) => c.cardType == CardType.Technique && c.cardIdentities.Contains(CardIdentity.Ranged),
                             to_TriggerRefs: new() { },
                             duration: d.Duration,
-                            charges: 1,
-                            name: $"RangedDamageReduction"
+                            charges: 1
                         ),
                     ModifierMergeStrategy.RefreshDurationAndMerge
                     );
@@ -624,11 +620,10 @@ namespace facingfate
                     CombatUtility.ApplyStatBuff(d, User,
                         new StatModifier
                         (
-                        stat: User.entityStats.Armour,
+                        name: "Armour",
+                        stat: User.entityStats.Armour_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"ArmourIncrease"
+                        duration: d.Duration
                         ),
                         ModifierMergeStrategy.RefreshDurationAndMerge);
 
@@ -723,11 +718,10 @@ namespace facingfate
                 {
                     CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier(
-                        stat: Target.entityStats.Armour,
+                        name: "ArmourFlat",
+                        stat: Target.entityStats.Armour_Flat,
                         value: d.Power,
-                        scaling: ModifierScaling.Flat,
-                        duration: d.Duration,
-                        name: $"ArmourIncrease#{d.cardID}"),
+                        duration: d.Duration),
                         ModifierMergeStrategy.RefreshDurationAndMerge);
 
                     CombatUtility.ApplyEntityModifier(d, Target,
@@ -787,11 +781,10 @@ namespace facingfate
                 {
                     var stat = Target.entityStats.IgnoreArmour;
                     var mod = new StatModifier(
+                        name: "Armour",
                         stat: stat,
                         value: -d.Power,
-                        scaling: ModifierScaling.Percent,
-                        duration: d.Duration,
-                        name: $"ArmourReducution");
+                        duration: d.Duration);
 
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 },
@@ -830,13 +823,12 @@ namespace facingfate
 
                 CardEffect = (User, Target, d) =>
                 {
-                    var stat = Target.entityStats.DamageOutModifier;
+                    var stat = Target.entityStats.DamageOutModifier_Increase;
                     var mod = new StatModifier(
+                        name: "Damage",
                         stat: stat,
                         value: d.Power,
-                        scaling: ModifierScaling.Percent,
-                        duration: d.Duration,
-                        name: $"AttackIncrease#{d.cardID}");
+                        duration: d.Duration);
 
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
 

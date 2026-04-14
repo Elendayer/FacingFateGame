@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace facingfate
 {
@@ -97,10 +96,10 @@ namespace facingfate
 
         private void Update()
         {
-            //HandleEntityClick();
-           // UpdateHover();
+            HandleEntityClick();
+            UpdateHover();
 
-            //ApplyRefreshIfDirty();
+            ApplyRefreshIfDirty();
         }
 
         public void RefreshAll()
@@ -154,7 +153,7 @@ namespace facingfate
 
         private void HandleEntityClick()
         {
-            if (!InputSystem.actions.FindAction("LeftClick").enabled) return;
+            if (!InputManager.Instance.IsLeftMouseButtonPressed) return;
 
             EntityScript clicked = FindHoveredEntity();
             if (clicked == null) return;
@@ -179,9 +178,7 @@ namespace facingfate
 
         private EntityScript FindHoveredEntity()
         {
-            if (hoverCamera == null) return null;
-
-            Vector3 mousePos = Mouse.current.position.ReadValue();
+            Vector2 mousePos = InputManager.Instance.MousePositionScreen;
 
             // Guard gegen (inf, inf) / NaN
             if (!IsFinite(mousePos)) return null;
@@ -190,55 +187,49 @@ namespace facingfate
             if (mousePos.x < 0f || mousePos.y < 0f || mousePos.x > Screen.width || mousePos.y > Screen.height)
                 return null;
 
-            Ray ray = hoverCamera.ScreenPointToRay(mousePos);
+            // Use InputManager's raycast to detect entity under mouse
+            RaycastHit[] hits = InputManager.Instance.RaycastAllFromMouse();
 
-            Vector3 worldPos = TargetingUtility.GetHoveredPosition(ray);
-
-            if (worldPos == Vector3.zero)
+            if (hits.Length == 0)
                 return null;
 
-            if (cachedEntities.Count == 0)
-                CacheEntities();
-
-            // Find entities near the hovered world position (use a small radius for detection)
-            const float detectionRadius = 1f;
-            EntityScript closest = null;
-            float closestDist = detectionRadius;
+            EntityScript enemyCandidate = null;
             EntityScript playerCandidate = null;
 
-            for (int i = 0; i < cachedEntities.Count; i++)
+            // Iterate through all hits and prioritize enemies over player
+            for (int i = 0; i < hits.Length; i++)
             {
-                EntityScript e = cachedEntities[i];
-                if (e == null) continue;
-
-                float dist = Vector3.Distance(e.transform.position, worldPos);
-                if (dist >= detectionRadius) continue;
+                EntityScript entity = hits[i].collider.GetComponent<EntityScript>();
+                if (entity == null) continue;
 
                 // Gegner bevorzugen: alles ohne PlayerScript ist "enemy candidate"
-                if (e.GetComponent<PlayerScript>() == null)
+                if (entity.GetComponent<PlayerScript>() == null)
                 {
-                    if (closest == null || dist < closestDist)
-                    {
-                        closest = e;
-                        closestDist = dist;
-                    }
-                    return e;
+                    if (enemyCandidate == null)
+                        enemyCandidate = entity;
+                }
+                else
+                {
+                    if (playerCandidate == null)
+                        playerCandidate = entity;
                 }
 
-                if (closest == null || dist < closestDist)
-                {
-                    closest = e;
-                    closestDist = dist;
-                    playerCandidate = e;
-                }
+                // Return enemy immediately if found (prioritized)
+                if (enemyCandidate != null)
+                    return enemyCandidate;
             }
 
-            return closest ?? playerCandidate;
+            return playerCandidate;
         }
 
         private static bool IsFinite(Vector3 v)
         {
             return IsFinite(v.x) && IsFinite(v.y) && IsFinite(v.z);
+        }
+
+        private static bool IsFinite(Vector2 v)
+        {
+            return IsFinite(v.x) && IsFinite(v.y);
         }
 
         private static bool IsFinite(float f)

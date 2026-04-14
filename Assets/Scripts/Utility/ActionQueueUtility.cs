@@ -111,7 +111,7 @@ namespace facingfate
             PathData pathData,
             Action onComplete)
         {
-            yield return entityOnMap.StartMoveRoutine(pathData.End);
+            yield return entityOnMap.StartMoveRoutineWithPath(pathData);
             onComplete?.Invoke();
         }
 

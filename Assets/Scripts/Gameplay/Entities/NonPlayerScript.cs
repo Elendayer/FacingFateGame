@@ -126,14 +126,14 @@ namespace facingfate
 
         /// <summary>
         /// Enqueues a movement action through the ActionQueueUtility with completion callback.
-        /// Uses NavMesh to move directly to the target destination.
+        /// Uses the cached NavMesh path for optimized movement.
         /// </summary>
         private void EnqueueMoveAction(PlannedAction action, Action onActionComplete)
         {
             Debug.Log($"[NpcAI] {name} moving to {action.PathData.End}");
 
             ActionQueueUtility.EnqueueActionRoutine(this, () =>
-                entityOnMap.StartMoveRoutine(action.PathData.End), () =>
+                entityOnMap.StartMoveRoutineWithPath(action.PathData), () =>
             {
                 Debug.Log($"[NpcAI] {name} finished moving");
                 onActionComplete?.Invoke();

@@ -1,22 +1,20 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using System.Collections;
 
 namespace facingfate
 {
 
-    [RequireComponent(typeof(Collider))]
     public class DraggableCharacter : Draggable3D
     {
         public EntityOnMap characterOnMap;
         public EntityScript characterEntity;
 
         [Header("Movement Cost Preview")]
-        public int previewPathCost;
+        [SerializeField] private int previewPathCost;
         public TextMeshProUGUI staminaPreviewText;
 
-        private Vector3 dragEndPosition;
+        private PathData _lastPathData;
+        private bool _hasDragTarget;
 
         private void Awake()
         {
@@ -43,12 +41,13 @@ namespace facingfate
             if (!isDragging) return;
 
             // Execute movement BEFORE calling base.OnMouseUp() which disables drag
-            if (dragEndPosition != Vector3.zero && dragEndPosition != currentPosition)
+            if (_hasDragTarget)
             {
-                MoveToPosition(dragEndPosition);
+                MoveToPosition(_lastPathData);
             }
 
-            dragEndPosition = Vector3.zero;
+            _hasDragTarget = false;
+            _lastPathData = null;
 
             // Now end the drag
             base.OnMouseUp();
@@ -57,16 +56,15 @@ namespace facingfate
         protected override void OnDragUpdate()
         {
             // Raycast from camera to world
-            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (InputManager.Instance.TryRaycastFromMouse(out RaycastHit hit))
             {
                 Vector3 cursorPosition = hit.point;
-                dragEndPosition = cursorPosition;
 
-                // Calculate path and cost for preview
-                PathData pathData = MovementUtility.FindPath(currentPosition, cursorPosition, false, true, moveCostModifer);
-                previewPathCost = pathData.PathCost;
+                // Calculate path once and cache it to avoid redundant FindPath calls
+                _lastPathData = MovementUtility.FindPath(currentPosition, cursorPosition, false, true, moveCostModifer);
+                previewPathCost = _lastPathData.PathCost;
+                currentPathCost = _lastPathData.PathCost;
+                _hasDragTarget = true;
 
                 // Update arrow preview
                 if (lineRenderer != null)
@@ -90,46 +88,42 @@ namespace facingfate
             }
         }
 
-        private void MoveToPosition(Vector3 targetPosition)
+        protected override void UpdateLineRendererColor(Vector3 start, Vector3 end)
         {
-            // Validate path exists and has sufficient stamina
-            PathData pathData = MovementUtility.FindPath(currentPosition, targetPosition, false, true, moveCostModifer);
+            // currentPathCost is already set from the cached PathData; skip the redundant FindPath call
+            ApplyLineRendererColor();
+        }
 
-            Debug.Log($"[DraggableCharacter] MoveToPosition called. From: {currentPosition}, To: {targetPosition}");
-            Debug.Log($"[DraggableCharacter] Path valid: {pathData.Path != null && pathData.Path.Count > 0}, Cost: {pathData.PathCost}");
-
-            if (pathData.Path == null || pathData.Path.Count == 0)
+        protected override void ApplyLineRendererColor()
+        {
+            // Override to check character stamina and set line color accordingly
+            if (characterEntity != null && lineRenderer != null && lineRenderer.material != null)
             {
-                Debug.Log($"[DraggableCharacter] No valid path found");
-                return;
+                float currentStamina = characterEntity.entityStats.CurrentStamina;
+                Color lineColor = currentStamina >= currentPathCost ? affordablePathColor : unaffordablePathColor;
+                lineRenderer.material.color = lineColor;
             }
-
-            float currentStamina = characterEntity.entityStats.CurrentStamina;
-            Debug.Log($"[DraggableCharacter] Current stamina: {currentStamina}, Path cost: {pathData.PathCost}");
-
-            if (currentStamina < pathData.PathCost)
+            else
             {
-                Debug.Log($"[DraggableCharacter] Insufficient stamina");
-                return;
-            }
-
-            // Deduct stamina cost first
-            characterEntity.entityStats.CurrentStamina -= pathData.PathCost;
-            Debug.Log($"[DraggableCharacter] Stamina deducted. New stamina: {characterEntity.entityStats.CurrentStamina}");
-
-            // Execute movement via wrapper coroutine
-            Debug.Log($"[DraggableCharacter] Starting move routine to: {targetPosition}");
-            if (characterOnMap != null)
-            {
-                StartCoroutine(ExecuteMovement(targetPosition));
+                base.ApplyLineRendererColor();
             }
         }
 
-        private IEnumerator ExecuteMovement(Vector3 targetPosition)
+        private void MoveToPosition(PathData pathData)
         {
-            Debug.Log($"[DraggableCharacter] ExecuteMovement coroutine started");
-            yield return characterOnMap.StartMoveRoutine(targetPosition);
-            Debug.Log($"[DraggableCharacter] Movement completed");
+            if (pathData?.Path == null || pathData.Path.Count == 0) return;
+
+            float currentStamina = characterEntity.entityStats.CurrentStamina;
+            if (currentStamina < pathData.PathCost) return;
+
+            // Deduct stamina cost first
+            characterEntity.entityStats.CurrentStamina -= pathData.PathCost;
+
+            // Execute movement using the cached path
+            if (characterOnMap != null)
+            {
+                StartCoroutine(characterOnMap.StartMoveRoutineWithPath(pathData));
+            }
         }
     }
 }

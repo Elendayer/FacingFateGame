@@ -12,6 +12,8 @@ namespace facingfate
         [SerializeField] private TMP_Text titleText;
         [SerializeField] private TMP_Text hpText;
         [SerializeField] private Slider hpSlider;
+        [SerializeField] private TMP_Text stamText;
+        [SerializeField] private Slider stamSlider;
         [SerializeField] private StatusEffectBarUI statusBar;
         private Component boundEntity;
 
@@ -40,6 +42,8 @@ namespace facingfate
                 if (titleText != null) titleText.text = "Hover Target";
                 if (hpText != null) hpText.text = "-";
                 if (hpSlider != null) SetSlider(hpSlider, 0f, 1f);
+                if (stamText != null) stamText.text = "-";
+                if (stamSlider != null) SetSlider(stamSlider, 0f, 1f);
                 statusBar?.Refresh();
 
                 if (canvasGroup != null)
@@ -68,6 +72,24 @@ namespace facingfate
             if (hpSlider != null)
             {
                 SetSlider(hpSlider, hpCur, hpMax);
+            }
+
+            EntityStatReader.TryGetStamina(boundEntity, out int stamCur, out int stamMax);
+
+            string stamString;
+            if (stamCur >= 0f && stamMax > 0f)
+                stamString = $"{stamCur:0}/{stamMax:0}";
+            else if (stamCur >= 0f)
+                stamString = $"{stamCur:0}/??";
+            else
+                stamString = "-";
+
+            if (stamText != null && stamText.text != stamString)
+                stamText.text = stamString;
+
+            if (stamSlider != null)
+            {
+                SetSlider(stamSlider, stamCur, stamMax);
             }
 
             statusBar?.Refresh();

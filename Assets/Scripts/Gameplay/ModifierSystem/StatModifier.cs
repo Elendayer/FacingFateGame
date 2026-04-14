@@ -123,7 +123,6 @@ namespace facingfate
             string name,
             Stat stat,
             float value,
-            ModifierScaling scaling,
             bool condition = true,
             List<GameplayRef> to_TriggerRefs = null,
             int duration = 99999,
@@ -135,7 +134,6 @@ namespace facingfate
             ModifierName = name;
             Stat = stat;
             StaticValue = value;
-            ModifierScaling = scaling;
             StaticBool = condition;
             To_TriggerGameplayRefs = to_TriggerRefs;
             Duration = duration;
@@ -149,7 +147,6 @@ namespace facingfate
             string name,
             Stat stat,
             float value,
-            ModifierScaling scaling,
             Func<EntityScript, CardData, bool> condition,
             List<GameplayRef> to_TriggerRefs = null,
             int duration = 99999,
@@ -161,7 +158,6 @@ namespace facingfate
             ModifierName = name;
             Stat = stat;
             StaticValue = value;
-            ModifierScaling = scaling;
             DynamicConditionFunc = condition;
             To_TriggerGameplayRefs = to_TriggerRefs;
             Duration = duration;
@@ -175,7 +171,6 @@ namespace facingfate
             string name,
             Stat stat,
             Func<float> value,
-            ModifierScaling scaling,
             bool condition = true,
             List<GameplayRef> to_TriggerRefs = null,
             int duration = 99999,
@@ -186,7 +181,6 @@ namespace facingfate
         {
             ModifierName = name;
             DynamicValueFunc = value;
-            ModifierScaling = scaling;
             To_TriggerGameplayRefs = to_TriggerRefs;
             Duration = duration;
             Charges = charges;
@@ -201,7 +195,6 @@ namespace facingfate
             string name,
             Stat stat,
             Func<float> value,
-            ModifierScaling scaling,
             Func<EntityScript, CardData, bool> condition,
             List<GameplayRef> to_TriggerRefs = null,
             int duration = 99999,
@@ -213,7 +206,6 @@ namespace facingfate
             ModifierName = name;
             Stat = stat;
             DynamicValueFunc = value;
-            ModifierScaling = scaling;
             DynamicConditionFunc = condition;
             To_TriggerGameplayRefs = to_TriggerRefs;
             Duration = duration;
