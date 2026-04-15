@@ -111,7 +111,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Ally,
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
@@ -189,7 +189,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.None,
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
@@ -316,7 +316,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Ally,
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
@@ -353,7 +353,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Ally,
                     cardTargetingMode = CardTargetingMode.Cone,
                 },
@@ -809,7 +809,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Radius,
 
@@ -843,7 +843,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
@@ -911,7 +911,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
@@ -941,7 +941,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Radius,
                 },

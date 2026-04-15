@@ -1,99 +1,89 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
+/// <summary>
+/// Manages an entity's position on the NavMesh.
+///
+/// STATE MACHINE
+/// ─────────────
+///   IDLE   : NavMeshObstacle ON (carving) | NavMeshAgent OFF
+///   MOVING : NavMeshObstacle OFF          | NavMeshAgent ON
+///
+/// While IDLE the entity carves a hole in the NavMesh so all other
+/// agents and path previews naturally route *around* it.
+/// While MOVING the hole is gone and the agent steers freely.
+/// </summary>
 public class EntityOnMap : MonoBehaviour
 {
-    private Coroutine moveRoutine;
-    private NavMeshAgent navMeshAgent;
-    private NavMeshObstacle navMeshObstacle;
-    private PathData cachedPath;
-
     [SerializeField] private float jumpDuration = 0.35f;
     [SerializeField] private float jumpHeight = 1.5f;
+
+    private NavMeshAgent navMeshAgent;
+    private NavMeshObstacle navMeshObstacle;
+    private Coroutine moveRoutine;
+
+    /// <summary>World-space position (replaces old Vector3Int currentCell).</summary>
+    public Vector3 currentPosition => transform.position;
+
+    // ─────────────────────────────────────────────────────────────────
+    // Startup
+    // ─────────────────────────────────────────────────────────────────
 
     public void Startup()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
 
+        navMeshObstacle = GetComponent<NavMeshObstacle>();
+        if (navMeshObstacle == null)
+            navMeshObstacle = gameObject.AddComponent<NavMeshObstacle>();
+
+        // Capsule matches the agent's own footprint
+        navMeshObstacle.shape = NavMeshObstacleShape.Capsule;
+        navMeshObstacle.center = Vector3.zero;
+        navMeshObstacle.radius = navMeshAgent != null ? navMeshAgent.radius : 0.4f;
+        navMeshObstacle.height = 2f;
+        navMeshObstacle.carving = true;
+
         if (navMeshAgent != null)
         {
-            navMeshAgent.velocity = Vector3.zero;
-            navMeshAgent.enabled = true;
+            // Random priority prevents two agents deadlocking at the same spot
+            navMeshAgent.avoidancePriority = Random.Range(30, 70);
+
+            if (navMeshAgent.stoppingDistance < 0.05f)
+                navMeshAgent.stoppingDistance = navMeshAgent.radius * 0.5f;
         }
 
-
-        navMeshObstacle = GetComponent<NavMeshObstacle>();
-        // Add NavMeshObstacle with carving enabled for dynamic avoidance
-        if (navMeshObstacle == null)
-        {
-            navMeshObstacle = gameObject.AddComponent<NavMeshObstacle>();
-            navMeshObstacle.enabled = false;
-            navMeshObstacle.shape = NavMeshObstacleShape.Capsule;
-            navMeshObstacle.center = Vector3.zero;
-            navMeshObstacle.size = new Vector3(0.2f, 2f, 0f); // Adjust size as needed
-            navMeshObstacle.carving = true;
-        }
+        SetIdleState();
     }
 
-    /// <summary>Helper to re-snap the agent to the NavMesh if it's off the surface.</summary>
-    private void TrySnapToNavMesh()
+    // ─────────────────────────────────────────────────────────────────
+    // State switching
+    // ─────────────────────────────────────────────────────────────────
+
+    /// <summary>Obstacle ON, Agent OFF — entity carves the NavMesh.</summary>
+    private void SetIdleState()
     {
-        if (navMeshAgent == null || navMeshAgent.isOnNavMesh) return;
-
-        Debug.Log($"[EntityOnMap] TrySnapToNavMesh: Agent is off mesh. Attempting to snap...");
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
-        {
-            navMeshAgent.Warp(hit.position);
-            Debug.Log($"[EntityOnMap] Successfully snapped to NavMesh at: {hit.position}");
-        }
-        else
-        {
-            Debug.LogWarning($"[EntityOnMap] Could not find NavMesh position near {transform.position}");
-        }
+        if (navMeshAgent != null) navMeshAgent.enabled = false;
+        if (navMeshObstacle != null) navMeshObstacle.enabled = true;
     }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Public API
+    // ─────────────────────────────────────────────────────────────────
 
     public void TeleportTo(Vector3 position)
     {
-        if (navMeshAgent == null) return;
-        if (NavMesh.SamplePosition(position, out NavMeshHit hit, 5f, NavMesh.AllAreas))
-            navMeshAgent.Warp(hit.position);
-    }
-
-    /// <summary>Enable obstacle carving for pathfinding preview. Disables the NavMeshAgent.</summary>
-    public void EnableObstacleCarving()
-    {
-        if (navMeshAgent != null && navMeshAgent.enabled)
-        {
-            navMeshAgent.enabled = false;
-        }
-
-        if (navMeshObstacle != null && !navMeshObstacle.enabled)
-        {
-            navMeshObstacle.enabled = true;
-        }
-    }
-
-    /// <summary>Disable obstacle carving after pathfinding preview. Re-enables the NavMeshAgent.</summary>
-    public void DisableObstacleCarving()
-    {
-        if (navMeshObstacle != null && navMeshObstacle.enabled)
-        {
-            navMeshObstacle.enabled = false;
-        }
-    }
-
-    /// <summary>Re-enable the NavMeshAgent after obstacle carving is disabled and navmesh has rebuilt.</summary>
-    public IEnumerator ReenableAgentAfterCarvingDisabled()
-    {
-        // Yield one frame for the NavMesh to rebuild after obstacle carving is disabled
-        yield return null;
-
-        if (navMeshAgent != null && !navMeshAgent.enabled)
+        // Brief agent mode just to call Warp, then back to idle
+        if (navMeshObstacle != null) navMeshObstacle.enabled = false;
+        if (navMeshAgent != null)
         {
             navMeshAgent.enabled = true;
+            if (NavMesh.SamplePosition(position, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+                navMeshAgent.Warp(hit.position);
+            navMeshAgent.enabled = false;
         }
+        if (navMeshObstacle != null) navMeshObstacle.enabled = true;
     }
 
     public IEnumerator StartJumpRoutine(Vector3 target)
@@ -110,109 +100,138 @@ public class EntityOnMap : MonoBehaviour
         yield return moveRoutine;
     }
 
-    /// <summary>Start movement using a cached path. Use this for optimized pathfinding.</summary>
     public IEnumerator StartMoveRoutineWithPath(PathData pathData)
     {
-        if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
-        {
-            yield break;
-        }
+        if (pathData?.Path == null || pathData.Path.Count == 0) yield break;
 
-        cachedPath = pathData;
         if (moveRoutine != null) StopCoroutine(moveRoutine);
         moveRoutine = StartCoroutine(FollowPath(pathData.End));
         yield return moveRoutine;
-        cachedPath = null;
     }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Movement coroutine
+    // ─────────────────────────────────────────────────────────────────
 
     private IEnumerator FollowPath(Vector3 target)
     {
-        // The NavMesh carved by the obstacle is rebuilt asynchronously.
-        // Yield one frame so the hole closes before the agent queries its position.
+        // ── MOVING state: disable obstacle so the carved hole closes ──
+        if (navMeshObstacle != null) navMeshObstacle.enabled = false;
+
+        // Two frames for the NavMesh to finish rebuilding
+        yield return null;
         yield return null;
 
-        if (navMeshAgent == null)
-        {
-            yield break;
-        }
+        if (navMeshAgent == null) { SetIdleState(); yield break; }
 
-        // Clear velocity before starting pathfinding to prevent jitter
+        navMeshAgent.enabled = true;
         navMeshAgent.velocity = Vector3.zero;
 
-        // Re-snap after the NavMesh update in case the agent missed the mesh.
         TrySnapToNavMesh();
+        if (!navMeshAgent.isOnNavMesh) { SetIdleState(); yield break; }
 
-        if (!navMeshAgent.isOnNavMesh)
+        // Always calculate a fresh path here.
+        // The cached PathData path was built during drag-preview; by now
+        // other entities may have moved and the NavMesh has changed.
+        var fresh = new NavMeshPath();
+        bool ok = navMeshAgent.CalculatePath(target, fresh) &&
+                  (fresh.status == NavMeshPathStatus.PathComplete ||
+                   fresh.status == NavMeshPathStatus.PathPartial);   // partial = walk as close as possible
+
+        if (!ok)
         {
+            Debug.Log($"[EntityOnMap] {name}: no path to {target} (status={fresh.status})");
+            SetIdleState();
             yield break;
         }
 
-        NavMeshPath path;
-        bool pathCalculated;
+        // Disable auto-replanning: prevents the agent changing direction
+        // mid-move when another entity switches obstacle state
+        navMeshAgent.autoRepath = false;
+        navMeshAgent.path = fresh;
 
-        // Use cached path if available, otherwise calculate new one
-        if (cachedPath != null && cachedPath.CachedNavMeshPath != null)
-        {
-            path = cachedPath.CachedNavMeshPath;
-            pathCalculated = true;
-        }
-        else
-        {
-            path = new NavMeshPath();
-            pathCalculated = navMeshAgent.CalculatePath(target, path);
-        }
+        // Two frames so remainingDistance is valid before the loop starts
+        yield return null;
+        yield return null;
 
-        if (!pathCalculated || path.status != NavMeshPathStatus.PathComplete)
+        float elapsed = 0f;
+        while (navMeshAgent.hasPath &&
+               navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance)
         {
-            yield break;
-        }
-
-        navMeshAgent.path = path;
-
-        // Wait for the agent to reach the destination
-        // The NavMeshAgent.remainingDistance will naturally decrease as the agent moves
-        while (navMeshAgent.hasPath && navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance)
-        {
+            if ((elapsed += Time.deltaTime) > 15f)
+            {
+                Debug.LogWarning($"[EntityOnMap] {name}: movement timed out.");
+                break;
+            }
             yield return null;
         }
 
-        // Ensure complete stop
+        // ── Back to IDLE state ────────────────────────────────────────
         navMeshAgent.velocity = Vector3.zero;
+        navMeshAgent.autoRepath = true;
         navMeshAgent.ResetPath();
+        navMeshAgent.enabled = false;
+
+        yield return null; // let position settle before re-carving
+        if (navMeshObstacle != null) navMeshObstacle.enabled = true;
+
         moveRoutine = null;
     }
 
+    // ─────────────────────────────────────────────────────────────────
+    // Jump coroutine
+    // ─────────────────────────────────────────────────────────────────
+
     private IEnumerator JumpTo(Vector3 target)
     {
-        // Yield one frame for the NavMesh to rebuild after obstacle removal.
+        if (navMeshObstacle != null) navMeshObstacle.enabled = false;
+        yield return null;
         yield return null;
 
-        if (navMeshAgent == null) yield break;
+        if (navMeshAgent == null) { SetIdleState(); yield break; }
 
-        // Clear velocity before jump to prevent jitter
+        navMeshAgent.enabled = true;
         navMeshAgent.velocity = Vector3.zero;
-
         TrySnapToNavMesh();
-
-        if (!navMeshAgent.isOnNavMesh) yield break;
+        if (!navMeshAgent.isOnNavMesh) { SetIdleState(); yield break; }
 
         Vector3 start = transform.position;
-        NavMeshHit hit;
-        if (!NavMesh.SamplePosition(target, out hit, 5f, NavMesh.AllAreas))
+        if (!NavMesh.SamplePosition(target, out NavMeshHit hit, 5f, NavMesh.AllAreas))
             hit.position = target;
 
-        for (float t = 0; t < jumpDuration; t += Time.deltaTime)
+        for (float t = 0f; t < jumpDuration; t += Time.deltaTime)
         {
-            float norm = Mathf.Clamp01(t / jumpDuration);
-            Vector3 pos = Vector3.Lerp(start, hit.position, norm);
-            pos.y += jumpHeight * 4f * norm * (1f - norm);
-            navMeshAgent.Warp(pos);
+            float n = Mathf.Clamp01(t / jumpDuration);
+            Vector3 p = Vector3.Lerp(start, hit.position, n);
+            p.y += jumpHeight * 4f * n * (1f - n);
+            navMeshAgent.Warp(p);
             yield return null;
         }
 
         navMeshAgent.Warp(hit.position);
         navMeshAgent.velocity = Vector3.zero;
         navMeshAgent.ResetPath();
+        navMeshAgent.enabled = false;
+
+        yield return null;
+        if (navMeshObstacle != null) navMeshObstacle.enabled = true;
+
         moveRoutine = null;
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────────────────────────
+
+    private void TrySnapToNavMesh()
+    {
+        if (navMeshAgent == null || navMeshAgent.isOnNavMesh) return;
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
+            navMeshAgent.Warp(hit.position);
+            Debug.Log($"[EntityOnMap] Snapped {name} to NavMesh at {hit.position}");
+        }
+        else
+            Debug.LogWarning($"[EntityOnMap] Could not snap {name} near {transform.position}");
     }
 }

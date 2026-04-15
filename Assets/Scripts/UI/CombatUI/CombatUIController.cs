@@ -7,6 +7,8 @@ namespace facingfate
     [DisallowMultipleComponent]
     public class CombatUIController : MonoBehaviour
     {
+        public static CombatUIController Instance { get; private set; }
+
         [Header("Managers (optional, otherwise uses Instance)")]
         [SerializeField] private TurnManager turnManager;
         [SerializeField] private DeckManager deckManager;
@@ -60,6 +62,13 @@ namespace facingfate
 
         private void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
             if (hoverCamera == null) hoverCamera = Camera.main;
         }
 
@@ -235,21 +244,6 @@ namespace facingfate
         private static bool IsFinite(float f)
         {
             return !(float.IsNaN(f) || float.IsInfinity(f));
-        }
-
-        private EntityScript GetActiveEntitySafe()
-        {
-            TurnManager tm = turnManager != null ? turnManager : TurnManager.Instance;
-            if (tm == null) return null;
-
-            if (tm.TurnOrder == null || tm.TurnOrder.Count == 0)
-                return null;
-
-            int idx = tm.CurrentTurnIndex;
-            if (idx < 0 || idx >= tm.TurnOrder.Count)
-                idx = 0;
-
-            return tm.TurnOrder[idx];
         }
 
         private void CacheEntities()

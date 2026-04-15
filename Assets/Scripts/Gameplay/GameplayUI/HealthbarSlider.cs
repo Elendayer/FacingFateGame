@@ -27,7 +27,7 @@ namespace facingfate
 
             StartCoroutine(SlowUpdate());
         }
-
+            
         // Update is called once per frame
         IEnumerator SlowUpdate()
         {

@@ -665,7 +665,6 @@ namespace facingfate
     public enum CardTargetType
     {
         Entity,
-        CombatTile,
         Ground,
     }
     public enum CardTargetAffiliation

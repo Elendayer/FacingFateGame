@@ -16,6 +16,7 @@ namespace facingfate
         private bool isDragging = false;
         private bool wasDragged = false;
         private GameObject dragVFX = null;
+        private VisualEffect dragVFXEffect = null;
 
         public override void OnBeginDrag(PointerEventData eventData)
         {
@@ -29,21 +30,21 @@ namespace facingfate
             CreateDragVFX();
         }
 
-        private void Update()
+        public override void OnDrag(PointerEventData eventData)
         {
+            base.OnDrag(eventData);
+
             if (!isDragging) return;
 
-            // Track cursor position and update highlighted position
-            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-            Vector3 cursorPosition = TargetingUtility.GetHoveredNavMesh(ray);
+            // Track cursor position using floor collider raycast for stable targeting
+            Ray ray = Camera.main.ScreenPointToRay(eventData.position);
+            Vector3 cursorPosition = GetFloorHitPosition(ray);
 
-            // Update VFX position to follow cursor only if position is valid
+            // Always update VFX position to follow cursor for smooth movement
             if (dragVFX != null && cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
             {
-                if (HasValidTargetsAtPosition(cursorPosition, cardScript.cardData.targetingData.cardTargetingMode))
-                {
-                    dragVFX.transform.position = cursorPosition;
-                }
+                dragVFXEffect.SetVector3("End", cursorPosition);
+                dragVFX.transform.position = cursorPosition;
             }
 
             if (Mouse.current?.rightButton.wasPressedThisFrame == true)
@@ -73,11 +74,6 @@ namespace facingfate
             }
         }
 
-        public override void OnDrag(PointerEventData eventData)
-        {
-            base.OnDrag(eventData);
-        }
-
         public override void OnEndDrag(PointerEventData eventData)
         {
             isDragging = false;
@@ -90,25 +86,62 @@ namespace facingfate
                 dragVFX = null;
             }
 
-            // Only play card if valid targets were selected during drag
-            if (selectedPositionsDuringDrag.Count == 0)
+            // Determine if this card uses multi-selection or single-cast targeting
+            bool isMultiSelectMode = IsMultiSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
+
+            Vector3 aimWorldPos;
+            List<Vector3> targetPositions;
+
+            if (isMultiSelectMode)
             {
-                HandManager.Instance?.SelectCard(null);
-                return;
+                // Multi-selection mode: require explicit right-click selections
+                if (selectedPositionsDuringDrag.Count == 0)
+                {
+                    HandManager.Instance?.SelectCard(null);
+                    return;
+                }
+
+                // Validate that at least one target position has valid targets
+                if (!HasValidTargetsAtPositions(selectedPositionsDuringDrag))
+                {
+                    HandManager.Instance?.SelectCard(null);
+                    return;
+                }
+
+                aimWorldPos = selectedPositionsDuringDrag[selectedPositionsDuringDrag.Count - 1];
+                targetPositions = selectedPositionsDuringDrag;
+            }
+            else
+            {
+                // Single-cast mode: use the drag end position
+                Ray ray = Camera.main.ScreenPointToRay(eventData.position);
+                aimWorldPos = GetFloorHitPosition(ray);
+
+                if (aimWorldPos == InvalidPosition || aimWorldPos == Vector3.zero)
+                {
+                    HandManager.Instance?.SelectCard(null);
+                    return;
+                }
+
+                // Validate that this position has valid targets
+                if (!HasValidTargetsAtPosition(aimWorldPos, cardScript.cardData.targetingData.cardTargetingMode))
+                {
+                    HandManager.Instance?.SelectCard(null);
+                    return;
+                }
+
+                targetPositions = new List<Vector3> { aimWorldPos };
             }
 
-            // Validate that at least one target position has valid targets
-            if (!HasValidTargetsAtPositions(selectedPositionsDuringDrag))
-            {
-                HandManager.Instance?.SelectCard(null);
-                return;
-            }
-
-            Vector3 aimWorldPos = selectedPositionsDuringDrag[selectedPositionsDuringDrag.Count - 1];
-            TargetingModeData targetingModeData = TargetingUtility.GetAffected(cardScript, aimWorldPos, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, selectedPositionsDuringDrag, true);
+            TargetingModeData targetingModeData = TargetingUtility.GetAffected(cardScript, aimWorldPos, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, targetPositions, true);
 
             cardScript.cardData.ActivateCardEffect(targetingModeData, gameObject);
             HandManager.Instance?.SelectCard(null);
+        }
+
+        private bool IsMultiSelectionTargetingMode(CardTargetingMode mode)
+        {
+            return mode == CardTargetingMode.Select || mode == CardTargetingMode.LineFree;
         }
 
         private bool HasValidTargetsAtPositions(List<Vector3> positions)
@@ -131,7 +164,13 @@ namespace facingfate
 
         private bool HasValidTargetsAtPosition(Vector3 position, CardTargetingMode targetingMode)
         {
-            // Get affected entities at this position based on targeting mode
+            // Ground-type cards can be cast at any valid position without requiring entities
+            if (cardScript?.cardData?.targetingData?.CardTargetType == CardTargetType.Ground)
+            {
+                return position != Vector3.zero && position != InvalidPosition;
+            }
+
+            // Entity-type cards require at least one valid target entity at the position
             TargetingModeData targetingModeData = TargetingUtility.GetAffected(
                 cardScript,
                 position,
@@ -147,7 +186,7 @@ namespace facingfate
                 return true;
             }
 
-            // For All targeting mode, any navmesh position is valid
+            // For All targeting mode, any valid position is valid
             if (targetingMode == CardTargetingMode.All && position != Vector3.zero)
             {
                 return true;
@@ -173,7 +212,13 @@ namespace facingfate
             (GameObject obj, VisualEffect effect) vfx = AssetManager.Instance.CreateVFX(vfxName);
             if (vfx.obj == null) return;
 
+            vfx.effect.SetFloat("Range", cardScript.cardData.Range);
+            vfx.effect.SetFloat("Width", cardScript.cardData.Radius);
+            vfx.effect.SetVector3("Start", cardScript.cardData.Owner.transform.position);
+            vfx.effect.SetVector3("End", cardScript.cardData.Owner.transform.position);
+
             dragVFX = vfx.obj;
+            dragVFXEffect = vfx.effect;
         }
 
         private string GetVFXNameForTargetingMode()
@@ -184,8 +229,20 @@ namespace facingfate
                 CardTargetingMode.Radius => "vfx_targeting_sphere",
                 CardTargetingMode.Single => "vfx_targeting_single",
                 CardTargetingMode.LineFree => "vfx_targeting_line",
+                CardTargetingMode.LineSelf => "vfx_targeting_line",
                 _ => "vfx_targeting_default"
             };
+        }
+
+        private Vector3 GetFloorHitPosition(Ray ray)
+        {
+            int floorLayer = LayerMask.GetMask("Floor");
+            if (Physics.Raycast(ray, out RaycastHit hit, 1000f, floorLayer))
+            {
+                Debug.DrawLine(ray.origin, hit.point, Color.green);
+                return hit.point;
+            }
+            return InvalidPosition;
         }
     }
 }

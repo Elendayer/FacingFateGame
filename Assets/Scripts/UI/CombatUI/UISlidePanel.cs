@@ -17,7 +17,7 @@ namespace facingfate
 
         [Header("Positionen (AnchoredPosition Y)")]
         [SerializeField] private float panelOpenY = 0f;
-        [SerializeField] private float panelClosedY = 100f;
+        [SerializeField] private float panelClosedY = 0f;
         [SerializeField] private float extrasOpenY = -30f;
         [SerializeField] private float extrasClosedY = 0f;
 

@@ -31,7 +31,9 @@ namespace facingfate
         private void Awake()
         {
             if (toggleButton != null)
+            {
                 toggleButton.onClick.AddListener(Toggle);
+            }
         }
 
         private void OnEnable()

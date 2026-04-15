@@ -63,10 +63,16 @@ namespace facingfate
                 e.entityStats.UpdateStats();
             }
 
-            // 5️ Post-combat delay to ensure all effects are processed
+            // 5️ Refresh UI after stats update
+            if (CombatUIController.Instance != null)
+            {
+                CombatUIController.Instance.RefreshAll();
+            }
+
+            // 6 Post-combat delay to ensure all effects are processed
             yield return new WaitForSeconds(1f);
 
-            // 6️ Signal that this action is complete
+            // 7 Signal that this action is complete
             onComplete?.Invoke();
         }
 
@@ -112,6 +118,13 @@ namespace facingfate
             Action onComplete)
         {
             yield return entityOnMap.StartMoveRoutineWithPath(pathData);
+
+            // Refresh UI after movement completes
+            if (CombatUIController.Instance != null)
+            {
+                CombatUIController.Instance.RefreshAll();
+            }
+
             onComplete?.Invoke();
         }
 

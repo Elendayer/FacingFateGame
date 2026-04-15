@@ -13,7 +13,7 @@ public class DestroyVFXAfterEffect : MonoBehaviour
         if (vfx == null)return;
 
         // Start checking for completion
-        InvokeRepeating("CheckIfFinished", 0.1f, checkInterval);
+        InvokeRepeating("CheckIfFinished", 0.2f, checkInterval);
     }
 
     private void CheckIfFinished()

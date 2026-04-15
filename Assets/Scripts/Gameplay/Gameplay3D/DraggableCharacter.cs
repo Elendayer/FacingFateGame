@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace facingfate
 {
-
     public class DraggableCharacter : Draggable3D
     {
         public EntityOnMap characterOnMap;
@@ -13,8 +12,13 @@ namespace facingfate
         [SerializeField] private int previewPathCost;
         public TextMeshProUGUI staminaPreviewText;
 
+        [Header("Entity Spacing")]
+        [Tooltip("Minimum allowed distance to any other entity at the drop destination.")]
+        [SerializeField] private float minEntityDistance = 1.2f;
+
         private PathData _lastPathData;
         private bool _hasDragTarget;
+        private bool _destinationBlocked; // true = too close to another entity
 
         private void Awake()
         {
@@ -24,15 +28,14 @@ namespace facingfate
 
         public override void OnMouseDown()
         {
-            // Character-specific validation before starting drag
             if (TimelineManager.isPaused) return;
             if (characterEntity.entityStats.IsRooted) return;
-            if (TurnManager.Instance.CurrentTurnEntity != characterEntity) return;
 
-            // Cache the movement cost modifier for this drag session
+            // FIX: Guard against TurnManager having an empty / uninitialised TurnOrder.
+            EntityScript currentTurn = TurnManager.Instance?.CurrentTurnEntity;
+            if (currentTurn == null || currentTurn != characterEntity) return;
+
             moveCostModifer = characterEntity.entityStats.MovementCostModifier;
-
-            // Validation passed, start drag
             base.OnMouseDown();
         }
 
@@ -40,90 +43,120 @@ namespace facingfate
         {
             if (!isDragging) return;
 
-            // Execute movement BEFORE calling base.OnMouseUp() which disables drag
-            if (_hasDragTarget)
-            {
+            // Only move if we have a valid, unblocked destination.
+            if (_hasDragTarget && !_destinationBlocked)
                 MoveToPosition(_lastPathData);
-            }
 
             _hasDragTarget = false;
+            _destinationBlocked = false;
             _lastPathData = null;
 
-            // Now end the drag
             base.OnMouseUp();
         }
 
         protected override void OnDragUpdate()
         {
-            // Raycast from camera to world
-            if (InputManager.Instance.TryRaycastFromMouse(out RaycastHit hit))
+            if (!InputManager.Instance.TryRaycastFromMouse(out RaycastHit hit)) return;
+
+            Vector3 cursorPosition = hit.point;
+
+            // ── Path calculation ──────────────────────────────────────────
+            _lastPathData = MovementUtility.FindPath(currentPosition, cursorPosition, false, true, moveCostModifer);
+            previewPathCost = _lastPathData.PathCost;
+            currentPathCost = _lastPathData.PathCost;
+            _hasDragTarget = true;
+
+            // ── Minimum-distance check ────────────────────────────────────
+            // Use the actual end of the found path (may differ from cursor
+            // if walkClose stopped the path early near an obstacle).
+            Vector3 pathEnd = (_lastPathData.Path != null && _lastPathData.Path.Count > 0)
+                ? _lastPathData.Path[_lastPathData.Path.Count - 1]
+                : cursorPosition;
+
+            _destinationBlocked = IsTooCloseToEntity(pathEnd);
+
+            // ── Arrow preview ─────────────────────────────────────────────
+            if (lineRenderer != null)
+                UpdateArrow(currentPosition, cursorPosition);
+
+            // ── Stamina text ──────────────────────────────────────────────
+            if (staminaPreviewText != null)
             {
-                Vector3 cursorPosition = hit.point;
+                float stamina = characterEntity.entityStats.CurrentStamina;
 
-                // Calculate path once and cache it to avoid redundant FindPath calls
-                _lastPathData = MovementUtility.FindPath(currentPosition, cursorPosition, false, true, moveCostModifer);
-                previewPathCost = _lastPathData.PathCost;
-                currentPathCost = _lastPathData.PathCost;
-                _hasDragTarget = true;
-
-                // Update arrow preview
-                if (lineRenderer != null)
-                    UpdateArrow(currentPosition, cursorPosition);
-
-                // Update stamina preview text
-                if (staminaPreviewText != null)
+                if (_destinationBlocked)
                 {
-                    float currentStamina = characterEntity.entityStats.CurrentStamina;
-                    if (currentStamina >= previewPathCost)
-                    {
-                        staminaPreviewText.text = $"{currentStamina:F0} → {currentStamina - previewPathCost:F0}";
-                        staminaPreviewText.color = Color.white;
-                    }
-                    else
-                    {
-                        staminaPreviewText.text = $"{currentStamina:F0} (Insufficient)";
-                        staminaPreviewText.color = Color.red;
-                    }
+                    staminaPreviewText.text = "Too close!";
+                    staminaPreviewText.color = Color.red;
+                }
+                else if (stamina >= previewPathCost)
+                {
+                    staminaPreviewText.text = $"{stamina:F0} → {stamina - previewPathCost:F0}";
+                    staminaPreviewText.color = Color.white;
+                }
+                else
+                {
+                    staminaPreviewText.text = $"{stamina:F0} (Insufficient)";
+                    staminaPreviewText.color = Color.red;
                 }
             }
         }
 
+        // ── Colour helpers ────────────────────────────────────────────────
+
         protected override void UpdateLineRendererColor(Vector3 start, Vector3 end)
         {
-            // currentPathCost is already set from the cached PathData; skip the redundant FindPath call
             ApplyLineRendererColor();
         }
 
         protected override void ApplyLineRendererColor()
         {
-            // Override to check character stamina and set line color accordingly
-            if (characterEntity != null && lineRenderer != null && lineRenderer.material != null)
-            {
-                float currentStamina = characterEntity.entityStats.CurrentStamina;
-                Color lineColor = currentStamina >= currentPathCost ? affordablePathColor : unaffordablePathColor;
-                lineRenderer.material.color = lineColor;
-            }
-            else
+            if (characterEntity == null || lineRenderer == null || lineRenderer.material == null)
             {
                 base.ApplyLineRendererColor();
+                return;
             }
+
+            if (_destinationBlocked)
+            {
+                lineRenderer.material.color = unaffordablePathColor; // zeigt rot an
+                return;
+            }
+
+            float stamina = characterEntity.entityStats.CurrentStamina;
+            Color lineColor = stamina >= currentPathCost ? affordablePathColor : unaffordablePathColor;
+            lineRenderer.material.color = lineColor;
         }
+
+        // ── Movement execution ────────────────────────────────────────────
 
         private void MoveToPosition(PathData pathData)
         {
             if (pathData?.Path == null || pathData.Path.Count == 0) return;
 
-            float currentStamina = characterEntity.entityStats.CurrentStamina;
-            if (currentStamina < pathData.PathCost) return;
+            float stamina = characterEntity.entityStats.CurrentStamina;
+            if (stamina < pathData.PathCost) return;
 
-            // Deduct stamina cost first
             characterEntity.entityStats.CurrentStamina -= pathData.PathCost;
 
-            // Execute movement using the cached path
             if (characterOnMap != null)
-            {
                 StartCoroutine(characterOnMap.StartMoveRoutineWithPath(pathData));
+        }
+
+        // ── Proximity helper ──────────────────────────────────────────────
+
+        /// <summary>Returns true if <paramref name="position"/> is within
+        /// <see cref="minEntityDistance"/> of any entity other than this one.</summary>
+        private bool IsTooCloseToEntity(Vector3 position)
+        {
+            EntityOnMap[] all = FindObjectsByType<EntityOnMap>(FindObjectsSortMode.None);
+            foreach (EntityOnMap other in all)
+            {
+                if (other == characterOnMap) continue;
+                if (Vector3.Distance(position, other.transform.position) < minEntityDistance)
+                    return true;
             }
+            return false;
         }
     }
 }

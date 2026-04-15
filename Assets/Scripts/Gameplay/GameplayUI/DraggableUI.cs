@@ -40,14 +40,17 @@ namespace facingfate
 
         public virtual void OnDrag(PointerEventData eventData)
         {
+            Camera uiCamera = eventData.pressEventCamera != null ? eventData.pressEventCamera : FindObjectOfType<Canvas>()?.worldCamera;
+            if (uiCamera == null) uiCamera = Camera.main;
+
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rectTransform.parent as RectTransform,
                 eventData.position,
-                eventData.pressEventCamera,
+                uiCamera,
                 out var localPoint);
             rectTransform.anchoredPosition = localPoint;
 
-            UpdateLine(rectTransform.position, Camera.main.ScreenToWorldPoint(eventData.position));
+            UpdateLine(rectTransform.position, uiCamera.ScreenToWorldPoint(eventData.position));
         }
 
         public virtual void OnEndDrag(PointerEventData eventData)

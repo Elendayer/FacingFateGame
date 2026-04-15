@@ -46,14 +46,22 @@ namespace facingfate
         {
             if (entity is PlayerScript)
             {
-                GameObject cardDock = Instantiate(deckDockPrefab, transform);
                 List<GameObject> cardObjs = new();
+
+                GameObject cardDock = Instantiate(deckDockPrefab, transform);
                 cardDock.name = entity.name + "_Dock";
-                DeckManagement.Add(entity, cardDock.transform);
+
+                GameObject dockDeck = Instantiate(deckDockPrefab, cardDock.transform);
+                dockDeck.name = entity.name + "_Deck";
+
+                GameObject dockDiscard = Instantiate(deckDockPrefab, cardDock.transform);
+                dockDiscard.name = entity.name + "_Discard";
+
+                DeckManagement.Add(entity, dockDeck.transform);
 
                 foreach (string cardID in entity.deckCardIDs)
                 {
-                    GameObject cardObj = CreateCard(cardID, cardDock.transform, entity);
+                    GameObject cardObj = CreateCard(cardID, dockDeck.transform, entity);
                     if (cardObj != null)
                     {
                         cardObjs.Add(cardObj);
@@ -62,7 +70,7 @@ namespace facingfate
 
                 foreach (GameObject child in cardObjs)
                 {
-                    child.transform.SetParent(cardDock.transform);
+                    child.transform.SetParent(dockDeck.transform);
                     TransformUtility.ZeroLocalRectTransform(child.transform as RectTransform);
                     cardStack.Push(child.gameObject);
                 }
@@ -176,6 +184,15 @@ namespace facingfate
             HandManager.Instance.RemoveCard(cardobject);
             CardScript cs = cardobject.GetComponent<CardScript>();
             HandUtility.Discard(cs);
+
+            // Reset card position to discard pile
+            RectTransform cardRect = cardobject.GetComponent<RectTransform>();
+            if (cardRect != null && discardParent != null)
+            {
+                cardRect.SetParent(discardParent);
+                TransformUtility.ZeroLocalRectTransform(cardRect);
+            }
+
             discardStack.Push(cardobject);
 
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardPlayed }, null, null));
@@ -225,8 +242,6 @@ namespace facingfate
 
             foreach (GameObject card in cards)
             {
-                card.transform.SetParent(deckParent);
-                TransformUtility.ZeroTransform(card.transform);
                 cardStack.Push(card);
             }
 
@@ -235,27 +250,41 @@ namespace facingfate
 
         public void Player_MoveOutDeck(EntityScript entity)
         {
-            List<GameObject> cards = new();
+            Transform dock = DeckManagement[entity].parent;
+            Transform dockDeck = DeckManagement[entity];
+            Transform dockDiscard = dock.Find(entity.name + "_Discard");
 
+            List<GameObject> deckCards = new();
+            List<GameObject> discardCards = new();
+
+            // Remaining deck cards move to the Deck child
+            foreach (GameObject card in cardStack)
+            {
+                deckCards.Add(card);
+            }
+
+            // Hand cards move to the Discard child
             foreach (GameObject card in HandManager.Instance.cardsInHand)
             {
-                cards.Add(card);
+                discardCards.Add(card);
             }
+
+            // Discard stack cards move to the Discard child
             foreach (GameObject card in discardStack)
             {
-                cards.Add(card);
-            }
-            foreach (Transform child in deckParent)
-            {
-                cards.Add(child.gameObject);
+                discardCards.Add(card);
             }
 
-            foreach (GameObject card in cards)
+            foreach (GameObject card in deckCards)
             {
-                EntityScript owner = card.GetComponent<CardScript>().cardData.Owner;
-                Transform Dock = DeckManagement[owner];
+                card.transform.SetParent(dockDeck);
+                TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
+            }
 
-                card.transform.SetParent(Dock);
+            foreach (GameObject card in discardCards)
+            {
+                card.transform.SetParent(dockDiscard);
+                TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
             }
 
             // Clear the stacks when moving out to Dock
@@ -268,20 +297,37 @@ namespace facingfate
             cardStack.Clear();
             discardStack.Clear();
 
-            Transform dock = DeckManagement[entity];
-            Debug.Log($"[DeckManager] Moving cards into deck of {entity.name} from {dock.name}");
+            Transform dockDeck = DeckManagement[entity];
+            Transform dockDiscard = dockDeck.parent.Find(entity.name + "_Discard");
 
-            List<CardScript> cards = dock.GetComponentsInChildren<CardScript>()
+            Debug.Log($"[DeckManager] Moving cards into deck of {entity.name}");
+
+            // Get all cards from the Deck child
+            List<CardScript> deckCards = dockDeck.GetComponentsInChildren<CardScript>()
                 .Where(c => c.cardData != null && c.cardData.Owner == entity)
                 .ToList();
 
-            foreach (CardScript c in cards)
+            // Get all cards from the Discard child
+            List<CardScript> discardCards = dockDiscard.GetComponentsInChildren<CardScript>()
+                .Where(c => c.cardData != null && c.cardData.Owner == entity)
+                .ToList();
+
+            // Move Deck cards to cardStack
+            foreach (CardScript c in deckCards)
             {
                 c.cardData.Owner = entity;
                 RectTransform ct = c.GetComponent<RectTransform>();
                 ct.SetParent(deckParent);
                 TransformUtility.ZeroLocalRectTransform(ct);
                 cardStack.Push(ct.gameObject);
+            }
+
+            // Move Discard cards to discardStack
+            foreach (CardScript c in discardCards)
+            {
+                c.cardData.Owner = entity;
+                RectTransform ct = c.GetComponent<RectTransform>();
+                discardStack.Push(ct.gameObject);
             }
         }
 

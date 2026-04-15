@@ -36,7 +36,7 @@ namespace facingfate
                 {
                     TargetingUsesVision = true,
                     EffectUsesVision = true,
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
@@ -64,11 +64,12 @@ namespace facingfate
                 cost_u = 25,
                 damage_u = 50,
 
-                range_u = 3f,
+                range_u = 5f,
+                area_u = 1f,
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.LineSelf,
                 },
@@ -84,7 +85,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround") { positions = Target.targetedPositions});
+                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { width = Data.Area, start = Data.Owner.transform.position, end = Target.targetedPositions[0] });
                 }
             });
 
@@ -184,7 +185,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Cone,
                 },
@@ -225,7 +226,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Cone,
                 },
@@ -304,7 +305,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
@@ -393,7 +394,7 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.CombatTile,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
@@ -426,7 +427,7 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtUnifiedPositions(new VFXData("SpearsFromGround") {positions = Target.targetedPositions });
+                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") {positions = Target.targetedPositions });
                     AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
                 }
             });

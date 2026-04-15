@@ -316,8 +316,7 @@ public static class TargetingUtility
                 entities = entities.FindAll(e => HasPhysicsLineOfSight(castWorldPos, e.transform.position));
             }
 
-            targetingModeData.castingPosition = new Vector3Int((int)aimWorldPos.x, (int)aimWorldPos.y, (int)aimWorldPos.z);
-            targetingModeData.targetedPositions = entities.Select(e => e.transform.position).ToList();
+            targetingModeData.castingPosition = aimWorldPos;
 
             if (isVetted)
             {
@@ -326,6 +325,25 @@ public static class TargetingUtility
             else
             {
                 targetingModeData.targetedEntities = entities;
+            }
+
+            // For Ground-type cards, use the activation positions; for Entity-type, use targeted entity positions
+            if (cardData.targetingData.CardTargetType == CardTargetType.Ground)
+            {
+                // Use selectedPositions for multi-select modes, otherwise use aimWorldPos
+                if (selectedPositions != null && selectedPositions.Count > 0)
+                {
+                    targetingModeData.targetedPositions = new List<Vector3>(selectedPositions);
+                }
+                else
+                {
+                    targetingModeData.targetedPositions = new List<Vector3> { aimWorldPos };
+                }
+            }
+            else
+            {
+                // Entity-type cards: use positions of targeted entities
+                targetingModeData.targetedPositions = targetingModeData.targetedEntities.Select(e => e.transform.position).ToList();
             }
 
             return targetingModeData;

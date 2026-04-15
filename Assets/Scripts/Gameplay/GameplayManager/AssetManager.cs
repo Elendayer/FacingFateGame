@@ -61,48 +61,33 @@ namespace facingfate
 
         private void ApplyVFXData(VisualEffect effect, VFXData overrides)
         {
-            if (effect.HasInt("Size"))
+            if (effect.HasFloat("Width"))
             {
-                effect.SetInt("Size", overrides.sizeMultiplier);
+                effect.SetFloat("Width", overrides.width);
             }
-            if (overrides.activationCount != 0 && effect.HasInt("Count"))
+            if (effect.HasInt("Count"))
             {
                 effect.SetInt("Count", overrides.activationCount);
             }
-            if (overrides.mesh != null && effect.HasMesh("Mesh"))
+            if (effect.HasMesh("Mesh"))
             {
                 effect.SetMesh("Mesh", overrides.mesh);
             }
-            if (overrides.origin != Vector3.zero && effect.HasVector3("Origin"))
+            if (effect.HasVector3("Start"))
             {
-                effect.SetVector3("Origin", overrides.origin);
+                effect.SetVector3("Start", overrides.start);
             }
-            if (overrides.direction != Vector3.zero && effect.HasVector3("Direction"))
+            if (effect.HasVector3("End"))
             {
-                effect.SetVector3("Direction", overrides.direction);
+                effect.SetVector3("End", overrides.end);
             }
         }
 
-        public void CreateFxAtPosition(VFXData vfxData, Vector3Int positon)
+        public void CreateVFXAtSinglePosition(VFXData vfxData)
         {
             (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
 
-            if (vfx.obj == null || vfx.effect == null)
-            {
-                Debug.LogError("Failed to create VFX.");
-                return;
-            }
-
-            List<Vector3> positions = new List<Vector3> { positon };
-
-            ApplyVFXData(vfx.effect, vfxData);
-
-        }
-
-        public void CreateVFXAtUnifiedPositions(VFXData vfxData)
-        {
-            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
-
+            Debug.Log($"Creating {vfx.effect.name} at {vfx.obj.transform.position}");
             if (vfx.obj == null || vfx.effect == null)
             {
                 Debug.LogError("Failed to create VFX.");
@@ -221,13 +206,13 @@ namespace facingfate
             if (vfxAsset != null)
             {
                 GameObject vfxObject = new GameObject("VFX_Instance");
-                vfxObject.transform.position = transform.position;
 
                 // Add the VisualEffect component and assign the asset
                 VisualEffect vfx = vfxObject.AddComponent<VisualEffect>();
                 vfx.visualEffectAsset = vfxAsset;
 
                 vfxObject.AddComponent<DestroyVFXAfterEffect>();
+                vfxObject.name = name;
 
                 return (vfxObject, vfx);
             }
@@ -243,16 +228,16 @@ namespace facingfate
         public string vfxName;
         public bool attachToMesh = false;
 
-        public int sizeMultiplier => positions.Count;
         public int activationCount = 0;
+        public float width;
 
-        public EntityScript Entity;
+        public EntityScript entity;
         public GameObject host;
         public List<Vector3> positions = new List<Vector3>();
 
         // For directional effects, these can be used to set the origin and direction of the effect.
-        public Vector3 origin = Vector3.zero;
-        public Vector3 direction = Vector3.zero;
+        public Vector3 start = Vector3.zero;
+        public Vector3 end = Vector3.zero;
 
         public Mesh mesh;
 

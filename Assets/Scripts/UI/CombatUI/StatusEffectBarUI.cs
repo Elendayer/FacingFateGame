@@ -21,7 +21,7 @@ namespace facingfate
 
         public void Refresh()
         {
-            Debug.Log($"[StatusBar] auf {gameObject.name} – boundEntity={boundEntity?.gameObject.name ?? "NULL"}");
+            //Debug.Log($"[StatusBar] auf {gameObject.name} – boundEntity={boundEntity?.gameObject.name ?? "NULL"}");
             Clear();
 
             if (boundEntity == null || iconContainer == null || iconPrefab == null)
