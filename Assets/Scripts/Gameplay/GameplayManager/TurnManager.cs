@@ -33,11 +33,19 @@ namespace facingfate
         {
             AddListeners();
         }
+        private bool combatEnded = false;
+
         public void AddListeners()
         {
             GameEvents.OnTurnStart += OnTurnStart;
             GameEvents.OnTurnEnd += OnTurnEnd;
             GameEvents.OnCombatStart += GameEvents_OnCombatStart;
+            GameEvents.OnCombatEnd += OnCombatEnd;
+        }
+
+        private void OnCombatEnd()
+        {
+            combatEnded = true;
         }
 
         public void AddTurn(EntityScript entityScript)
@@ -60,6 +68,7 @@ namespace facingfate
 
         private void GameEvents_OnCombatStart()
         {
+            combatEnded = false;
             SetTurnOrder();
             CurrentTurnIndex = 0;
             CurrentRoundIndex = 1;
@@ -77,6 +86,7 @@ namespace facingfate
 
         private void OnTurnStart()
         {
+            if (combatEnded || TurnOrder.Count == 0) return;
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
             GameEvents.TriggerTurnEntityChanged(TurnOrder[CurrentTurnIndex]);
@@ -91,6 +101,7 @@ namespace facingfate
 
         private void OnTurnEnd()
         {
+            if (combatEnded) return;
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
 

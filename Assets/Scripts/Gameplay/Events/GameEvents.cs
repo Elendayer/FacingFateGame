@@ -13,6 +13,7 @@ namespace facingfate
         public static event Action OnRoundStart;
         public static event Action OnCombatStart;
         public static event Action OnCombatEnd;
+        public static event Action<bool> OnCombatResult;
         public static event Action<EntityScript> OnActivePlayerChanged;
         public static event Action<EntityScript> OnTurnEntityChanged;
 
@@ -26,6 +27,11 @@ namespace facingfate
 
         public static void TriggerCombatStart() => OnCombatStart?.Invoke();
         public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
+        public static void TriggerCombatResult(bool playerWon)
+        {
+            OnCombatResult?.Invoke(playerWon);
+            TriggerCombatEnd();
+        }
         public static void TriggerActivePlayerChanged(EntityScript entity)
             => OnActivePlayerChanged?.Invoke(entity);
         public static void TriggerTurnEntityChanged(EntityScript entity)
@@ -42,10 +48,10 @@ namespace facingfate
 
         public static bool CheckIfRelevantTrigger(ToSendTriggerReference sendReference, RelevantTriggerCheck checkReference)
         {
-            // Null checks – positive condition: both references must be non-null
+            // Null checks ï¿½ positive condition: both references must be non-null
             if (sendReference.OnTriggerReference != null && checkReference.OnTriggerReference != null)
             {
-                // Check for overlap in OnTriggerReference – positive condition: there is at least one overlapping trigger
+                // Check for overlap in OnTriggerReference ï¿½ positive condition: there is at least one overlapping trigger
                 if (sendReference.OnTriggerReference.Intersect(checkReference.OnTriggerReference).Any())
                 {
                     // Check entity relevance based on type

@@ -37,6 +37,7 @@ namespace facingfate
 
             DeckManager.Instance.StartUp();
             TurnManager.Instance.StartUp();
+            EncounterManager.Instance.StartUp();
 
             foreach (var entity in GameObject.FindObjectsByType<EntityScript>(0))
             {

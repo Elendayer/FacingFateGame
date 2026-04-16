@@ -85,7 +85,9 @@ namespace facingfate
                 },
                 CardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { width = Data.Area, start = Data.Owner.transform.position, end = Target.targetedPositions[0] });
+                    Vector3 pierceDir = (Target.targetedPositions[0] - Data.Owner.transform.position).normalized;
+                    Vector3 pierceEnd = Data.Owner.transform.position + pierceDir * Data.Range;
+                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { width = Data.Area, start = Data.Owner.transform.position, end = pierceEnd });
                 }
             });
 
