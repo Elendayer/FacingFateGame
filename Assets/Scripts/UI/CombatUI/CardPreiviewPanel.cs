@@ -33,6 +33,11 @@ namespace facingfate
         {
             if (source?.cardData == null) return;
 
+            // Only reset alpha/scale when the panel was actually hidden.
+            // Skipping the reset when already visible prevents the flicker
+            // caused by jumping back to alpha 0 on every card hover.
+            bool wasHidden = !previewRoot.activeSelf || canvasGroup.alpha < 0.01f;
+
             previewRoot.SetActive(true);
             previewCardScript.cardData = source.cardData;
             previewCardScript.ApplyCardDataVisuals();
@@ -42,18 +47,34 @@ namespace facingfate
 
             canvasGroup.DOKill();
             previewRoot.transform.DOKill();
-            canvasGroup.alpha = 0f;
-            previewRoot.transform.localScale = Vector3.one * 0.85f;
+
+            if (wasHidden)
+            {
+                canvasGroup.alpha = 0f;
+                previewRoot.transform.localScale = Vector3.one * 0.85f;
+            }
+
             canvasGroup.DOFade(1f, fadeDuration).SetUpdate(true);
             previewRoot.transform.DOScale(1f, scaleDuration)
                 .SetEase(Ease.OutBack).SetUpdate(true);
 
-            // Raycasts aktivieren damit Drag funktioniert
             canvasGroup.blocksRaycasts = HandManager.Instance?.GetSelectedCard() != null;
         }
 
         public void Hide()
         {
+            // If a card is selected keep showing it — don't collapse the preview
+            GameObject selected = HandManager.Instance?.GetSelectedCard();
+            if (selected != null)
+            {
+                CardScript selectedCard = selected.GetComponent<CardScript>();
+                if (selectedCard?.cardData != null)
+                {
+                    Show(selectedCard);
+                    return;
+                }
+            }
+
             previewCardScript.StopAllCoroutines();
             canvasGroup.blocksRaycasts = false;
 
@@ -70,27 +91,21 @@ namespace facingfate
         {
             GameObject selected = HandManager.Instance?.GetSelectedCard();
             if (selected == null) return;
-
-            ExecuteEvents.Execute<IBeginDragHandler>(
-                selected, eventData, ExecuteEvents.beginDragHandler);
+            ExecuteEvents.Execute<IBeginDragHandler>(selected, eventData, ExecuteEvents.beginDragHandler);
         }
 
         public void OnDrag(PointerEventData eventData)
         {
             GameObject selected = HandManager.Instance?.GetSelectedCard();
             if (selected == null) return;
-
-            ExecuteEvents.Execute<IDragHandler>(
-                selected, eventData, ExecuteEvents.dragHandler);
+            ExecuteEvents.Execute<IDragHandler>(selected, eventData, ExecuteEvents.dragHandler);
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
             GameObject selected = HandManager.Instance?.GetSelectedCard();
             if (selected == null) return;
-
-            ExecuteEvents.Execute<IEndDragHandler>(
-                selected, eventData, ExecuteEvents.endDragHandler);
+            ExecuteEvents.Execute<IEndDragHandler>(selected, eventData, ExecuteEvents.endDragHandler);
         }
     }
 }

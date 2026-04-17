@@ -11,6 +11,12 @@ namespace facingfate
         public NpcAIController npcAIController;
         public NpcData npcData = new();
 
+        /// <summary>
+        /// When true, StartUp skips NpcDatabase lookup and uses the pre-assigned npcData + deckCardIDs.
+        /// Set by RandomEncounterManager before the StartUp loop.
+        /// </summary>
+        [HideInInspector] public bool usePresetConfig = false;
+
         [SerializeField]
         private List<PlannedAction> plan = new();
 
@@ -18,17 +24,21 @@ namespace facingfate
         {
             base.StartUp();
 
-            // Load NPC data
-            npcData = NpcDatabase.GetNpcById(NpcID, this);
+            if (usePresetConfig)
+            {
+                // Preset by RandomEncounterManager — skip database lookup
+                npcAIController = new NpcAIController(this, npcData);
+                // deckCardIDs already set; name already set on the GameObject
+            }
+            else
+            {
+                // Normal flow — load from NpcDatabase
+                npcData = NpcDatabase.GetNpcById(NpcID, this);
+                npcAIController = new NpcAIController(this, npcData);
+                name = $"{entityAffiliation}_{npcData.name}";
+                deckCardIDs = npcData.cardIds;
+            }
 
-            // Initialize AI
-            npcAIController = new NpcAIController(this, npcData);
-
-            // Set entity name
-            name = $"{entityAffiliation}_{npcData.name}";
-
-            // Build deck from NPC data
-            deckCardIDs = npcData.cardIds;
             DeckManager.Instance.BuildDeckFromIDs(this);
 
             Debug.Log($"[NonPlayerScript] Setup complete for {name}");
