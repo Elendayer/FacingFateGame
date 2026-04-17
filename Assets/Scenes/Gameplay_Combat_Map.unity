@@ -244,6 +244,11 @@ CapsuleCollider:
   m_Height: 5
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!224 &109420750 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4197674300905765086, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
+  m_PrefabInstance: {fileID: 1312907590}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &117021340
 GameObject:
   m_ObjectHideFlags: 0
@@ -4594,6 +4599,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 601488709035347746, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
+      propertyPath: panelRoot
+      value: 
+      objectReference: {fileID: 109420750}
     - target: {fileID: 890340804256250067, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -5842,11 +5851,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25596ffaca74ed542ad8b7dc75d8af17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::facingfate.EncounterResultPanel
-  canvasGroup: {fileID: 1064762876}
+  rootGroup: {fileID: 0}
+  overlayGroup: {fileID: 0}
+  panelRect: {fileID: 0}
+  panelGroup: {fileID: 0}
   titleText: {fileID: 530879683}
   playAgainButton: {fileID: 2015027668}
+  playAgainGroup: {fileID: 0}
   mainMenuButton: {fileID: 787315673}
-  fadeInDuration: 0.6
+  mainMenuGroup: {fileID: 0}
+  winColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  loseColor: {r: 0.9, g: 0.2, b: 0.2, a: 1}
+  overlayFadeDuration: 0.35
+  panelSlideDuration: 0.55
+  titlePopDuration: 0.4
+  buttonFadeDuration: 0.3
+  buttonStagger: 0.1
+  panelSlideOffset: 80
+  overlayTargetAlpha: 0.65
   mainMenuSceneName: TitleScreen
 --- !u!114 &1523738404
 MonoBehaviour:
