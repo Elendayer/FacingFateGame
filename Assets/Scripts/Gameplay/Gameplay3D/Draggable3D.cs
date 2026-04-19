@@ -19,7 +19,7 @@ namespace facingfate
         protected Vector3 currentPosition;
         protected int currentPathCost = 0;
 
-        public float moveCostModifer;
+        protected EntityStats entityStats;
 
         protected virtual void Update()
         {
@@ -104,7 +104,7 @@ namespace facingfate
 
         protected virtual void UpdateLineRendererColor(Vector3 start, Vector3 end)
         {
-            PathData pathData = MovementUtility.FindPath(start, end, false, true, moveCostModifer);
+            PathData pathData = MovementUtility.FindPath(start, end, entityStats, false, true);
             currentPathCost = pathData.PathCost;
             ApplyLineRendererColor();
         }

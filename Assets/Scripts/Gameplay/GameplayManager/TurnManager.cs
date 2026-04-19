@@ -80,7 +80,7 @@ namespace facingfate
         {
             // Find all PlayerCharacter entities
             TurnOrder = FindObjectsByType<EntityScript>(0)
-                .OrderByDescending(e => e.entityStats.Dexterity)
+                .OrderByDescending(e => e.entityStats.CurrentDexterity)
                 .ToList();
         }
 

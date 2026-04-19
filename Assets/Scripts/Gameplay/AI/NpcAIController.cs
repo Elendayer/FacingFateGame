@@ -91,7 +91,7 @@ namespace facingfate
                     var pathData = MovementUtility.FindPath(
                         virtualPosition,
                         suggestedCastPos,
-                        movementCostModifier: npcScript.entityStats.MovementCostModifier);
+                        entityStats: npcScript.entityStats);
 
                     if (pathData != null && pathData.Path != null && pathData.Path.Count > 0 && pathData.PathCost <= movementBudget)
                     {
@@ -148,7 +148,7 @@ namespace facingfate
                         continue;
 
                     // Try to find a path to this position
-                    var pathData = MovementUtility.FindPath(currentPos, candidate, movementCostModifier: npcScript.entityStats.MovementCostModifier);
+                    var pathData = MovementUtility.FindPath(currentPos, candidate, entityStats: npcScript.entityStats);
                     if (pathData != null && pathData.Path != null && pathData.Path.Count > 0 && pathData.PathCost <= movementBudget)
                     {
                         positions.Add((pathData, candidate));
@@ -341,7 +341,7 @@ namespace facingfate
 
         private void Draw()
         {
-            int cardsToDraw = Mathf.RoundToInt(npcScript.entityStats.Wisdom / 2);
+            int cardsToDraw = Mathf.RoundToInt(npcScript.entityStats.CurrentWisdom / 2);
 
             for (int i = 0; i < cardsToDraw; i++)
             {
@@ -612,7 +612,7 @@ namespace facingfate
                     virtualPosition,
                     targetPosition,
                     walkClose: true,
-                    movementCostModifier: npcScript.entityStats.MovementCostModifier);
+                    entityStats: npcScript.entityStats);
 
                 if (pathData == null || pathData.PathCost > remainingStamina)
                     continue;
@@ -698,7 +698,7 @@ namespace facingfate
                         continue;
 
                     // Pathfinding
-                    var pathData = MovementUtility.FindPath(realPosition, candidate, movementCostModifier: npcScript.entityStats.MovementCostModifier);
+                    var pathData = MovementUtility.FindPath(realPosition, candidate, entityStats: npcScript.entityStats);
                     if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
                         continue;
 

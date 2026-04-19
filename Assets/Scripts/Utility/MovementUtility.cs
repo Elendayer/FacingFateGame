@@ -46,20 +46,7 @@ public static class MovementUtility
 
     #region Pathfinding
 
-    /// <summary>
-    /// Finds a path from start to goal position with optional movement cost modifiers.
-    /// </summary>
-    public static PathData FindPath(Vector3Int startPos, Vector3Int goalPos, bool ignoreCost = false, bool walkClose = false, float movementCostModifier = 0f)
-    {
-        return FindPath((Vector3)startPos, (Vector3)goalPos, ignoreCost, walkClose, movementCostModifier);
-    }
-
-    /// <summary>
-    /// Finds a path from start to goal position with optional movement cost modifiers.
-    /// Returns PathData with path corners and cost information.
-    /// Cost is calculated as (4 + movementCostModifier) stamina per meter of path length.
-    /// </summary>
-    public static PathData FindPath(Vector3 startPos, Vector3 goalPos, bool ignoreCost = false, bool walkClose = false, float movementCostModifier = 0f)
+    public static PathData FindPath(Vector3 startPos, Vector3 goalPos, EntityStats entityStats, bool ignoreCost = false, bool walkClose = false)
     {
         startPos = GetNavMeshPosition(startPos);
         goalPos = GetNavMeshPosition(goalPos);
@@ -85,6 +72,17 @@ public static class MovementUtility
             totalDistance += Vector3.Distance(previous, corner);
             previous = corner;
         }
+
+        // Calculate movement cost modifier from EntityStats if provided
+        float movementCostModifier = 0f;
+        if (entityStats != null)
+        {
+            float flat = entityStats.MovementCostModifier_Flat.Value();
+            float increase = entityStats.MovementCostModifier_Increase.Value();
+            float multiplierProduct = CalculateMultiplierProduct(entityStats.MovementCostModifier_Multiplier);
+            movementCostModifier = flat * (1f + (increase / 100f)) * multiplierProduct;
+        }
+
         float costRate = 4f + movementCostModifier;
         int pathCost = Mathf.Max(1, Mathf.RoundToInt(totalDistance * costRate));
 
@@ -99,21 +97,25 @@ public static class MovementUtility
     }
 
     /// <summary>
-    /// Finds a path limited by maximum length.
+    /// Helper to calculate multiplier product from a Stat.
     /// </summary>
-    public static PathData FindPathWithMaxLength(Vector3Int start, Vector3Int goal, int maxLength, bool ignoreCost = false, bool walkClose = false)
+    private static float CalculateMultiplierProduct(Stat multiplierStat)
     {
-        return FindPathWithMaxLength((Vector3)start, (Vector3)goal, maxLength, ignoreCost, walkClose);
+        if (multiplierStat == null)
+            return 1f;
+
+        float product = 1f;
+        var multipliers = multiplierStat.GetAllMultiplierValues();
+        foreach (var mult in multipliers)
+        {
+            product *= (mult / 100f);
+        }
+        return product;
     }
 
-    /// <summary>
-    /// Finds a path limited by maximum length. Truncates path if it exceeds maxLength.
-    /// Cost is calculated as 4 stamina per meter of actual path length.
-    /// Note: CachedNavMeshPath is cleared when path is truncated since it no longer matches waypoints.
-    /// </summary>
-    public static PathData FindPathWithMaxLength(Vector3 start, Vector3 goal, int maxLength, bool ignoreCost = false, bool walkClose = false)
+    public static PathData FindPathWithMaxLength(Vector3 start, Vector3 goal, int maxLength, EntityStats entityStats, bool ignoreCost = false, bool walkClose = false)
     {
-        var pathData = FindPath(start, goal, ignoreCost, walkClose);
+        var pathData = FindPath(start, goal, entityStats, ignoreCost, walkClose);
 
         if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
         {
@@ -285,19 +287,19 @@ public static class MovementUtility
         switch (type)
         {
             case ForcedMovementType.Random:
-                pathData = GetRandomInRange(entityOnMap.transform.position, Distance);
+                pathData = GetRandomInRange(entityOnMap.transform.position, Distance, entity.entityStats);
                 break;
             case ForcedMovementType.Targeted:
-                pathData = FindPathWithMaxLength(entityOnMap.transform.position, targetPosition, Distance);
+                pathData = FindPathWithMaxLength(entityOnMap.transform.position, targetPosition, Distance, entity.entityStats);
                 break;
             case ForcedMovementType.Flee:
                 pathData = GetFleePosition(Distance, entityOnMap, entity);
                 break;
             case ForcedMovementType.Push:
-                pathData = GetFurtherPosition(ReferencePos, Distance, entityOnMap);
+                pathData = GetFurtherPosition(ReferencePos, Distance, entity);
                 break;
             case ForcedMovementType.Pull:
-                pathData = GetPathDataToCloserPosition(ReferencePos, Distance, entityOnMap);
+                pathData = GetPathDataToCloserPosition(ReferencePos, Distance, entity);
                 break;
             case ForcedMovementType.Jump:
                 ActionQueueUtility.EnqueueActionRoutine(entityOnMap, () => entityOnMap.StartJumpRoutine(targetPosition));
@@ -344,18 +346,11 @@ public static class MovementUtility
 
     #region Force Movement Candidate Generation
 
-    /// <summary>
-    /// Gets a random reachable position within the specified distance.
-    /// </summary>
-    public static PathData GetRandomInRange(Vector3Int pos, int distance)
-    {
-        return GetRandomInRange((Vector3)pos, distance);
-    }
 
     /// <summary>
     /// Gets a random reachable position within the specified distance.
     /// </summary>
-    public static PathData GetRandomInRange(Vector3 pos, int distance)
+    public static PathData GetRandomInRange(Vector3 pos, int distance, EntityStats entityStats)
     {
         List<Vector3> possiblePositions = new List<Vector3>();
 
@@ -375,7 +370,7 @@ public static class MovementUtility
             return new PathData();
 
         Vector3 randomTarget = possiblePositions[new System.Random().Next(0, possiblePositions.Count)];
-        PathData pathData = FindPath(pos, randomTarget);
+        PathData pathData = FindPath(pos, randomTarget, entityStats);
 
         return pathData;
     }
@@ -384,9 +379,9 @@ public static class MovementUtility
     /// <summary>
     /// Gets a path to a closer position toward a target.
     /// </summary>
-    public static PathData GetPathDataToCloserPosition(Vector3 to, int distance, EntityOnMap entityOnMap)
+    public static PathData GetPathDataToCloserPosition(Vector3 to, int distance, EntityScript entity)
     {
-        PathData path = FindPathWithMaxLength(entityOnMap.transform.position, to, distance, walkClose: true);
+        PathData path = FindPathWithMaxLength(entity.transform.position, to, distance,entity.entityStats, walkClose: true);
         return path;
     }
 
@@ -394,16 +389,16 @@ public static class MovementUtility
     /// <summary>
     /// Gets the furthest reachable position from a reference point.
     /// </summary>
-    public static PathData GetFurtherPosition(Vector3 from, int distance, EntityOnMap entityOnMap)
+    public static PathData GetFurtherPosition(Vector3 from, int distance, EntityScript entity)
     {
         List<Vector3> targets = new List<Vector3>();
 
-        for (float x = entityOnMap.transform.position.x - distance; x <= entityOnMap.transform.position.x + distance; x++)
+        for (float x = entity.transform.position.x - distance; x <= entity.transform.position.x + distance; x++)
         {
-            for (float z = entityOnMap.transform.position.z - distance; z <= entityOnMap.transform.position.z + distance; z++)
+            for (float z = entity.transform.position.z - distance; z <= entity.transform.position.z + distance; z++)
             {
-                Vector3 candidate = new Vector3(x, entityOnMap.transform.position.y, z);
-                if (Vector3.Distance(candidate, entityOnMap.transform.position) <= distance && IsPositionOnNavMesh(candidate))
+                Vector3 candidate = new Vector3(x, entity.transform.position.y, z);
+                if (Vector3.Distance(candidate, entity.transform.position) <= distance && IsPositionOnNavMesh(candidate))
                 {
                     targets.Add(GetNavMeshPosition(candidate));
                 }
@@ -417,7 +412,7 @@ public static class MovementUtility
             .OrderByDescending(pos => Vector3.Distance(pos, from))
             .First();
 
-        PathData path = FindPath(entityOnMap.transform.position, furthest);
+        PathData path = FindPath(entity.transform.position, furthest, entity.entityStats);
 
         return path;
     }
@@ -463,7 +458,7 @@ public static class MovementUtility
                 if (candidate == virtualPosition || !IsPositionOnNavMesh(candidate))
                     continue;
 
-                var pathData = FindPath(virtualPosition, candidate);
+                var pathData = FindPath(virtualPosition, candidate, entity.entityStats);
                 if (pathData?.Path == null || pathData.Path.Count == 0)
                     continue;
 

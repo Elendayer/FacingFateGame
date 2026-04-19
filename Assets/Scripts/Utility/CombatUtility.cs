@@ -43,20 +43,20 @@ using facingfate;
             damage = target.entityStats.ApplyStatModifiers(damage, target.entityStats.DamageTakenModifier_Flat, target.entityStats.DamageTakenModifier_Increase, target.entityStats.DamageTakenModifier_Multiplier);
 
             // 2) Armour
-            if (target.entityStats.Armour > 0)
+            if (target.entityStats.CurrentArmour > 0)
             {
-                float effectiveArmour = target.entityStats.Armour * cardData.Owner.entityStats.IgnoreArmour.Value();
+                float effectiveArmour = target.entityStats.CurrentArmour * cardData.Owner.entityStats.IgnoreArmour.Value();
                 damage = Mathf.Max(0, damage - effectiveArmour);
             }
 
             // 3) Block
-            float block = target.entityStats.Block;
+            float block = target.entityStats.CurrentBlock;
             if (block > 0 && damage > 0)
             {
                 refs.Add(GameplayRef.onBlocking);
 
                 float blockAbsorb = Mathf.Min(damage, block);
-                target.entityStats.Block -= blockAbsorb;
+                target.entityStats.CurrentBlock -= blockAbsorb;
             }
 
             // 4) Health

@@ -10,43 +10,60 @@ namespace facingfate
 
         [Header("Base Stats")]
         [SerializeField]
+        public float CurrentHealth;
+
+        public float MaxHealth => MaxHealth_Flat.Value() * (1f + (MaxHealth_Increase.Value() / 100f)) * GetMultiplierProduct(MaxHealth_Multiplier);
         public Stat MaxHealth_Flat = new();
         public Stat MaxHealth_Increase = new();
         public Stat MaxHealth_Multiplier = new();
-        public float CurrentHealth;
 
+        public float CurrentStamina;
+        public float MaxStamina => MaxStamina_Flat.Value() * (1f + (MaxStamina_Increase.Value() / 100f)) * GetMultiplierProduct(MaxStamina_Multiplier);
         public Stat MaxStamina_Flat = new();
         public Stat MaxStamina_Increase = new();
         public Stat MaxStamina_Multiplier = new();
-        public float CurrentStamina;
+
 
         [Header("Defense")]
-        public float Block = 0;
+        public float CurrentBlock = 0;
+        public Stat BlockGain_Flat = new();
+        public Stat BlockGain_Increase = new();
+        public Stat BlockGain_Multiplier = new();
+        
+        public float CurrentArmour => Armour_Flat.Value() * (1f + (Armour_Increase.Value() / 100f)) * GetMultiplierProduct(Armour_Multiplier);
+
         public Stat Armour_Flat = new();
         public Stat Armour_Increase = new();
         public Stat Armour_Multiplier = new();
 
         [Header("Attributes")]
+
+        public float CurrentStrength => Strength_Flat.Value() * (1f + (Strength_Increase.Value() / 100f)) * GetMultiplierProduct(Strength_Multiplier);
         public Stat Strength_Flat = new();
         public Stat Strength_Increase = new();
         public Stat Strength_Multiplier = new();
 
+        public float CurrentDexterity => Dexterity_Flat.Value() * (1f + (Dexterity_Increase.Value() / 100f)) * GetMultiplierProduct(Dexterity_Multiplier);
         public Stat Dexterity_Flat = new();
         public Stat Dexterity_Increase = new();
         public Stat Dexterity_Multiplier = new();
 
+        public float CurrentWisdom => Wisdom_Flat.Value() * (1f + (Wisdom_Increase.Value() / 100f)) * GetMultiplierProduct(Wisdom_Multiplier);
         public Stat Wisdom_Flat = new();
         public Stat Wisdom_Increase = new();
         public Stat Wisdom_Multiplier = new();
 
+        public float CurrentForesight => Foresight_Flat.Value() * (1f + (Foresight_Increase.Value() / 100f)) * GetMultiplierProduct(Foresight_Multiplier);
         public Stat Foresight_Flat = new();
         public Stat Foresight_Increase = new();
         public Stat Foresight_Multiplier = new();
 
+        public float CurrentEndurance => Endurance_Flat.Value() * (1f + (Endurance_Increase.Value() / 100f)) * GetMultiplierProduct(Endurance_Multiplier);
         public Stat Endurance_Flat = new();
         public Stat Endurance_Increase = new();
         public Stat Endurance_Multiplier = new();
 
+        public float CurrentTenacity => Tenacity_Flat.Value() * (1f + (Tenacity_Increase.Value() / 100f)) * GetMultiplierProduct(Tenacity_Multiplier);
         public Stat Tenacity_Flat = new();
         public Stat Tenacity_Increase = new();
         public Stat Tenacity_Multiplier = new();
@@ -84,6 +101,10 @@ namespace facingfate
         public Stat DurationModifier_Flat = new();
         public Stat DurationModifier_Increase = new();
         public Stat DurationModifier_Multiplier = new();
+
+        public Stat RepeatsModifier_Flat = new();
+        public Stat RepeatsModifier_Increase = new();
+        public Stat RepeatsModifier_Multiplier = new();
 
         // Percent based effects.
 
@@ -157,10 +178,10 @@ namespace facingfate
             return flat * increase * multipliers;
         }
 
-        private float GetMultiplierProduct(Stat multiplierStat)
+        private float GetMultiplierProduct(Stat multiplierStat, EntityScript entityScript = null, CardData cardData = null)
         {
             float product = 1f;
-            var multipliers = multiplierStat.GetAllValues();
+            var multipliers = multiplierStat.GetAllMultiplierValues(entityScript, cardData);
             foreach (var mult in multipliers)
             {
                 product *= (mult / 100f);
@@ -170,40 +191,12 @@ namespace facingfate
 
         public float ApplyStatModifiers(float baseValue, Stat flatStat, Stat increaseStat, Stat multiplierStat, EntityScript entityScript = null, CardData cardData = null)
         {
-            float flat = flatStat.ApplyFinalValue(0, entityScript, cardData);
-            float increase = increaseStat.ApplyFinalValue(0, entityScript, cardData);
-            float multipliers = GetMultiplierProduct(multiplierStat);
+            float flat = flatStat.Value(entityScript, cardData);
+            float increase = increaseStat.Value(entityScript, cardData);
+            float multipliers = GetMultiplierProduct(multiplierStat, entityScript, cardData);
 
             return (baseValue + flat) * (1f + (increase / 100f)) * multipliers;
         }
-
-        // Convenience properties — return the fully computed stat value across all three tiers
-        // Base stats
-        public float MaxHealth => GetMaxHealthValue();
-        public float MaxStamina => GetMaxStaminaValue();
-        public float Armour => ApplyStatModifiers(0f, Armour_Flat, Armour_Increase, Armour_Multiplier);
-        public float Strength => ApplyStatModifiers(0f, Strength_Flat, Strength_Increase, Strength_Multiplier);
-        public float Dexterity => ApplyStatModifiers(0f, Dexterity_Flat, Dexterity_Increase, Dexterity_Multiplier);
-        public float Wisdom => ApplyStatModifiers(0f, Wisdom_Flat, Wisdom_Increase, Wisdom_Multiplier);
-        public float Foresight => ApplyStatModifiers(0f, Foresight_Flat, Foresight_Increase, Foresight_Multiplier);
-        public float Endurance => ApplyStatModifiers(0f, Endurance_Flat, Endurance_Increase, Endurance_Multiplier);
-        public float Tenacity => ApplyStatModifiers(0f, Tenacity_Flat, Tenacity_Increase, Tenacity_Multiplier);
-
-        // Other modifiers
-        public float MovementCostModifier => ApplyStatModifiers(0f, MovementCostModifier_Flat, MovementCostModifier_Increase, MovementCostModifier_Multiplier);
-        public float DamageTakenModifier => ApplyStatModifiers(0f, DamageTakenModifier_Flat, DamageTakenModifier_Increase, DamageTakenModifier_Multiplier);
-        public float HealingTakenModifier => ApplyStatModifiers(0f, HealingTakenModifier_Flat, HealingTakenModifier_Increase, HealingTakenModifier_Multiplier);
-        public float DamageOutModifier => ApplyStatModifiers(0f, DamageOutModifier_Flat, DamageOutModifier_Increase, DamageOutModifier_Multiplier);
-        public float HealingOutModifier => ApplyStatModifiers(0f, HealingOutModifier_Flat, HealingOutModifier_Increase, HealingOutModifier_Multiplier);
-        public float CardCostModifier => ApplyStatModifiers(0f, CardCostModifier_Flat, CardCostModifier_Increase, CardCostModifier_Multiplier);
-        public float PowerModifier => ApplyStatModifiers(0f, PowerModifier_Flat, PowerModifier_Increase, PowerModifier_Multiplier);
-        public float DurationModifier => ApplyStatModifiers(0f, DurationModifier_Flat, DurationModifier_Increase, DurationModifier_Multiplier);
-
-        // Aoe effect modifiers
-        public float RangeModifier => ApplyStatModifiers(0f, RangeModifier_Flat, RangeModifier_Increase, RangeModifier_Multiplier);
-        public float AreaModifier => ApplyStatModifiers(0f, AreaModifier_Flat, AreaModifier_Increase, AreaModifier_Multiplier);
-        public float RadiusModifier => ApplyStatModifiers(0f, RadiusModifier_Flat, RadiusModifier_Increase, RadiusModifier_Multiplier);
-        public float MaxTargetModifier => ApplyStatModifiers(0f, MaxTargetModifier_Flat, MaxTargetModifier_Increase, MaxTargetModifier_Multiplier);
 
         public void TickAllStats()
         {

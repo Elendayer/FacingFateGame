@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace facingfate
@@ -32,24 +33,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(costFunc, cost_u);
-                float flatBonus = cost_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = cost_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.CardCostModifier_Flat.Value(Owner, cardData: this) + cost_s_Flat.Value(Owner, this);
+
+                float increaseBonus = cost_s_Increase.Value (Owner, this) + Owner.entityStats.CardCostModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = cost_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.CardCostModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List <float> cMult = cost_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.CardCostModifier_Flat,
-                    Owner.entityStats.CardCostModifier_Increase,
-                    Owner.entityStats.CardCostModifier_Multiplier,
-                    Owner,
-                    this
-                ));
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
             }
         }
 
@@ -64,24 +65,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(powerFunc, power_u);
-                float flatBonus = power_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = power_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.PowerModifier_Flat.Value(Owner, cardData: this) + power_s_Flat.Value( Owner, this);
+
+                float increaseBonus = power_s_Increase.Value(Owner, this) + Owner.entityStats.PowerModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = power_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.PowerModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = power_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.PowerModifier_Flat,
-                    Owner.entityStats.PowerModifier_Increase,
-                    Owner.entityStats.PowerModifier_Multiplier,
-                    Owner,
-                    this
-                ));
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
             }
         }
 
@@ -96,24 +97,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(damageFunc, damage_u);
-                float flatBonus = damage_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = damage_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.DamageOutModifier_Flat.Value(Owner, cardData: this) + damage_s_Flat.Value(Owner, this);
+
+                float increaseBonus = damage_s_Increase.Value(Owner, this) + Owner.entityStats.DamageOutModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = damage_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.DamageOutModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = damage_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.DamageOutModifier_Flat,
-                    Owner.entityStats.DamageOutModifier_Increase,
-                    Owner.entityStats.DamageOutModifier_Multiplier,
-                    Owner,
-                    this
-                ));
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
             }
         }
 
@@ -128,24 +129,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(healingFunc, healing_u);
-                float flatBonus = healing_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = healing_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.HealingOutModifier_Flat.Value(Owner, cardData: this) + healing_s_Flat.Value(Owner, this);
+
+                float increaseBonus = healing_s_Increase.Value(Owner, this) + Owner.entityStats.HealingOutModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = healing_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.HealingOutModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = healing_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.HealingOutModifier_Flat,
-                    Owner.entityStats.HealingOutModifier_Increase,
-                    Owner.entityStats.HealingOutModifier_Multiplier,
-                    Owner,
-                    this
-                ));
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
             }
         }
 
@@ -160,24 +161,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(durationFunc, duration_u);
-                float flatBonus = duration_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = duration_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.DurationModifier_Flat.Value(Owner, cardData: this) + duration_s_Flat.Value(Owner, this);
+
+                float increaseBonus = duration_s_Increase.Value(Owner, this) + Owner.entityStats.DurationModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = duration_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.DurationModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = duration_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.DurationModifier_Flat,
-                    Owner.entityStats.DurationModifier_Increase,
-                    Owner.entityStats.DurationModifier_Multiplier,
-                    Owner,
-                    this
-                ));
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
             }
         }
 
@@ -192,17 +193,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(repeatsFunc, repeats_u);
-                float flatBonus = repeats_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = repeats_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = repeats_s_Flat.Value(Owner, this);
+
+                float increaseBonus = repeats_s_Increase.Value(Owner, this);
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = repeats_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.RepeatsModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = repeats_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Mathf.RoundToInt(result);
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
             }
         }
 
@@ -217,24 +225,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(rangeFunc, range_u);
-                float flatBonus = range_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = range_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.RangeModifier_Flat.Value(Owner, cardData: this) + range_s_Flat.Value(Owner, this);
+
+                float increaseBonus = range_s_Increase.Value(Owner, this) + Owner.entityStats.RangeModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = range_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.RangeModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = range_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.RangeModifier_Flat,
-                    Owner.entityStats.RangeModifier_Increase,
-                    Owner.entityStats.RangeModifier_Multiplier,
-                    Owner,
-                    this
-                );
+                return result < 0 ? 0 : result;
             }
         }
 
@@ -248,24 +256,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(areaFunc, area_u);
-                float flatBonus = area_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = area_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.AreaModifier_Flat.Value(Owner, cardData: this) + area_s_Flat.Value(Owner, this);
+
+                float increaseBonus = area_s_Increase.Value(Owner, this) + Owner.entityStats.AreaModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = area_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.AreaModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = area_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.AreaModifier_Flat,
-                    Owner.entityStats.AreaModifier_Increase,
-                    Owner.entityStats.AreaModifier_Multiplier,
-                    Owner,
-                    this
-                );
+                return result < 0 ? 0 : result;
             }
         }
 
@@ -279,24 +287,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(radiusFunc, radius_u);
-                float flatBonus = radius_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = radius_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.RadiusModifier_Flat.Value(Owner, cardData: this) + radius_s_Flat.Value(Owner, this);
+
+                float increaseBonus = radius_s_Increase.Value(Owner, this) + Owner.entityStats.RadiusModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = radius_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.RadiusModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = radius_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.RadiusModifier_Flat,
-                    Owner.entityStats.RadiusModifier_Increase,
-                    Owner.entityStats.RadiusModifier_Multiplier,
-                    Owner,
-                    this
-                );
+                return result < 0 ? 0 : result;
             }
         }
 
@@ -310,24 +318,24 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(maxTargetFunc, maxtarget_u);
-                float flatBonus = maxTarget_s_Flat.ApplyFinalValue(0, Owner, this);
-                float increaseBonus = maxTarget_s_Increase.ApplyFinalValue(0, Owner, this);
+
+                float flatBonus = Owner.entityStats.MaxTargetModifier_Flat.Value(Owner, cardData: this) + maxTarget_s_Flat.Value(Owner, this);
+
+                float increaseBonus = maxTarget_s_Increase.Value(Owner, this) + Owner.entityStats.MaxTargetModifier_Increase.Value();
+
                 float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
 
-                var multipliers = maxTarget_s_Multiplier.GetAllValues();
+                List<float> oMult = Owner.entityStats.MaxTargetModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = maxTarget_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
                 foreach (var mult in multipliers)
                 {
                     result *= mult;
                 }
 
-                return Mathf.RoundToInt(Owner.entityStats.ApplyStatModifiers(
-                    result,
-                    Owner.entityStats.MaxTargetModifier_Flat,
-                    Owner.entityStats.MaxTargetModifier_Increase,
-                    Owner.entityStats.MaxTargetModifier_Multiplier,
-                    Owner,
-                    this
-                ));
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
             }
         }
 

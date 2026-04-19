@@ -35,7 +35,7 @@ namespace facingfate
             EntityScript currentTurn = TurnManager.Instance?.CurrentTurnEntity;
             if (currentTurn == null || currentTurn != characterEntity) return;
 
-            moveCostModifer = characterEntity.entityStats.MovementCostModifier;
+            entityStats = characterEntity.entityStats;
             base.OnMouseDown();
         }
 
@@ -61,7 +61,7 @@ namespace facingfate
             Vector3 cursorPosition = hit.point;
 
             // ── Path calculation ──────────────────────────────────────────
-            _lastPathData = MovementUtility.FindPath(currentPosition, cursorPosition, false, true, moveCostModifer);
+            _lastPathData = MovementUtility.FindPath(currentPosition, cursorPosition, characterEntity.entityStats, false, true);
             previewPathCost = _lastPathData.PathCost;
             currentPathCost = _lastPathData.PathCost;
             _hasDragTarget = true;

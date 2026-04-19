@@ -291,7 +291,7 @@ namespace facingfate
                     }
                     int StepsBetween(Vector3Int from, Vector3Int to)
                     {
-                        var p = MovementUtility.FindPath(from, to, ignoreCost: true);
+                        var p = MovementUtility.FindLine(from, to);
                         // Path.Count = Anzahl Knoten; Schritte = Knoten - 1
                         return (p.Path == null || p.Path.Count == 0) ? int.MaxValue : Mathf.Max(0, p.Path.Count - 1);
                     }

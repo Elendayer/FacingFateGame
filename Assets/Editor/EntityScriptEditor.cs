@@ -29,7 +29,7 @@ namespace facingfate
             try
             {
                 // === Base Stats ===
-                DrawStat("Max Health", entity.entityStats.MaxHealth);
+                DrawStat("Max Health", entity.entityStats.MaxHealth_Flat);
                 DrawStat("Current Health", entity.entityStats.CurrentHealth);
                 DrawStat("Max Stamina", entity.entityStats.MaxStamina);
                 DrawStat("Current Stamina", entity.entityStats.CurrentStamina);
@@ -37,32 +37,32 @@ namespace facingfate
 
                 // === Defense ===
                 EditorGUILayout.LabelField("🛡️ Defense", EditorStyles.boldLabel);
-                DrawStat("Armour", entity.entityStats.Armour);
-                DrawStat("Block", entity.entityStats.Block);
+                DrawStat("Armour", entity.entityStats.CurrentArmour);
+                DrawStat("Block", entity.entityStats.CurrentBlock);
                 EditorGUILayout.Space(5);
 
                 // === Movement ===
                 EditorGUILayout.LabelField("🏃 Movement", EditorStyles.boldLabel);
-                DrawStat("Movement Cost", entity.entityStats.MovementCostModifier);
+                DrawStat("Movement Cost", entity.entityStats.MovementCostModifier_Flat, entity.entityStats.MovementCostModifier_Increase, entity.entityStats.MovementCostModifier_Multiplier);
 
                 // === Attributes ===
                 EditorGUILayout.LabelField("💪 Attributes", EditorStyles.boldLabel);
-                DrawStat("Strength", entity.entityStats.Strength);
-                DrawStat("Dexterity", entity.entityStats.Dexterity);
-                DrawStat("Wisdom", entity.entityStats.Wisdom);
-                DrawStat("Foresight", entity.entityStats.Foresight);
-                DrawStat("Endurance", entity.entityStats.Endurance);
-                DrawStat("Tenacity", entity.entityStats.Tenacity);
+                DrawStat("Strength", entity.entityStats.CurrentStrength);
+                DrawStat("Dexterity", entity.entityStats.CurrentDexterity);
+                DrawStat("Wisdom", entity.entityStats.CurrentWisdom);
+                DrawStat("Foresight", entity.entityStats.CurrentForesight);
+                DrawStat("Endurance", entity.entityStats.CurrentEndurance);
+                DrawStat("Tenacity", entity.entityStats.CurrentTenacity);
                 EditorGUILayout.Space(5);
 
                 // === Combat Modifiers ===
                 EditorGUILayout.LabelField("⚔️ Combat Modifiers", EditorStyles.boldLabel);
-                DrawStat("Damage Increase", entity.entityStats.DamageOutModifier);
-                DrawStat("Damage Reduction", entity.entityStats.DamageTakenModifier);
-                DrawStat("Healing Increase", entity.entityStats.HealingOutModifier);
-                DrawStat("Cost Increase", entity.entityStats.CardCostModifier);
-                DrawStat("Power Increase", entity.entityStats.PowerModifier);
-                DrawStat("Duration Increase", entity.entityStats.DurationModifier);
+                DrawStat("Damage Increase", entity.entityStats.DamageOutModifier_Flat, entity.entityStats.DamageOutModifier_Increase, entity.entityStats.DamageOutModifier_Multiplier);
+                DrawStat("Damage Reduction", entity.entityStats.DamageTakenModifier_Flat, entity.entityStats.DamageTakenModifier_Increase, entity.entityStats.DamageTakenModifier_Multiplier);
+                DrawStat("Healing Increase", entity.entityStats.HealingOutModifier_Flat, entity.entityStats.HealingOutModifier_Increase, entity.entityStats.HealingOutModifier_Multiplier);
+                DrawStat("Cost Increase", entity.entityStats.CardCostModifier_Flat, entity.entityStats.CardCostModifier_Increase, entity.entityStats.CardCostModifier_Multiplier);
+                DrawStat("Power Increase", entity.entityStats.PowerModifier_Flat, entity.entityStats.PowerModifier_Increase, entity.entityStats.PowerModifier_Multiplier);
+                DrawStat("Duration Increase", entity.entityStats.DurationModifier_Flat, entity.entityStats.DurationModifier_Increase, entity.entityStats.DurationModifier_Multiplier);
                 DrawStat("Ignore Armour", entity.entityStats.IgnoreArmour);
                 DrawStat("Ignore Block", entity.entityStats.IgnoreBlock);
                 DrawStat("Lifesteal", entity.entityStats.Lifesteal);
@@ -87,15 +87,33 @@ namespace facingfate
             if (Application.isPlaying)
                 Repaint();
         }
-
         private void DrawStat(string label, Stat stat)
-        {
-            if (stat == null)
-            {
-                EditorGUILayout.LabelField($"{label}: null");
-                return;
-            }
+        {           
+            // Column widths for clean alignment
+            float colLabel = 120f;
+            float colValue = 60f;
 
+            float value = stat.Value();
+
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+            EditorGUILayout.LabelField(stat.Value().ToString(), EditorStyles.boldLabel);
+            EditorGUILayout.EndHorizontal();
+
+            // Header Row
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
+            EditorGUILayout.LabelField("Value", GUILayout.Width(colValue));
+            EditorGUILayout.EndHorizontal();
+
+            // Main Row (first multiplier if present)
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty because label already shown above
+            EditorGUILayout.LabelField(value.ToString(), GUILayout.Width(colValue));
+        }
+
+        private void DrawStat(string label, Stat stat_Flat, Stat stat_Increase, Stat stat_Multiplier)
+        {
             // Column widths for clean alignment
             float colLabel = 120f;
             float colValue = 60f;
@@ -103,24 +121,14 @@ namespace facingfate
             float colPercent = 50f;
             float colMult = 50f;
 
-            float final = stat.Value();
-            float flat = stat.GetFlatValue();
-            float percent = stat.GetPercentValue();
-            List<float> multipliers = stat.GetMultiplierValues();
+            float flat = stat_Flat.Value();
+            float percent = stat_Increase.Value();
+            List<float> multipliers = stat_Multiplier.GetAllMultiplierValues();
 
-            // Header Row
-            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
-            EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
-            EditorGUILayout.LabelField("Final", GUILayout.Width(colValue));
-            EditorGUILayout.LabelField("Flat", GUILayout.Width(colFlat));
-            EditorGUILayout.LabelField("%", GUILayout.Width(colPercent));
-            EditorGUILayout.LabelField("xMult", GUILayout.Width(colMult));
-            EditorGUILayout.EndHorizontal();
 
             // Main Row (first multiplier if present)
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty because label already shown above
-            EditorGUILayout.LabelField(final.ToString(), GUILayout.Width(colValue));
             EditorGUILayout.LabelField(flat.ToString(), GUILayout.Width(colFlat));
             EditorGUILayout.LabelField(percent.ToString(), GUILayout.Width(colPercent));
 

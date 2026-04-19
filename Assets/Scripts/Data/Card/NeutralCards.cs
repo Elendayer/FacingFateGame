@@ -28,7 +28,7 @@ namespace facingfate
 
                 damageFunc = card =>
                 {
-                    return Mathf.RoundToInt(card.Owner.entityStats.Strength / 2);
+                    return Mathf.RoundToInt(card.Owner.entityStats.CurrentStrength / 2);
                 },
 
                 range_u = 1f,
