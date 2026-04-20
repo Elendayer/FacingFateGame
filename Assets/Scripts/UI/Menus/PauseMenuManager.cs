@@ -74,11 +74,16 @@ namespace facingfate
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+            {
+                // Don't open pause while a card-targeting drag is active —
+                // Escape is already consumed by DraggableCard.CancelDrag().
+                if (DraggableCard.ActiveDraggingCard != null) return;
                 TogglePause();
+            }
         }
 
-        private void TogglePause() // InputAction.CallbackContext context
+        private void TogglePause()
         {
             if (!TimelineManager.isPaused)
             {
@@ -147,8 +152,6 @@ namespace facingfate
             }
              */
 
-            Time.timeScale = 1f;
-            TimelineManager.isPaused = false;
             pausePanel.transform.DOScale(0, fadeDuration).SetEase(Ease.InBack).SetUpdate(true);
             _pauseGroup.DOFade(0, fadeDuration).SetUpdate(true).OnComplete(() =>
             {
@@ -217,10 +220,10 @@ namespace facingfate
             {
                 controlPanel.SetActive(false);
 
-                if (EventSystem.current != null && defaultSelectedButton != null & !_allClosing)
+                if (EventSystem.current != null && defaultSelectedButton != null && !_allClosing)
                 {
                     EventSystem.current.SetSelectedGameObject(null);
-                    EventSystem.current.SetSelectedGameObject(tutorialSelectedButton);
+                    EventSystem.current.SetSelectedGameObject(defaultSelectedButton);
                 }
             });
         }
@@ -259,7 +262,7 @@ namespace facingfate
         {
             confirmationPopup.SetActive(true);
             confirmationPopup.transform.localScale = Vector3.zero;
-            confirmationPopup.transform.DOScale(0.5f, fadeDuration).SetEase(Ease.OutBack).SetUpdate(true).OnComplete(
+            confirmationPopup.transform.DOScale(1f, fadeDuration).SetEase(Ease.OutBack).SetUpdate(true).OnComplete(
                 () =>
                 {
                     if (confirmSelectedButton != null && EventSystem.current != null)

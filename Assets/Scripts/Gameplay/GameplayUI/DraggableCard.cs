@@ -9,12 +9,17 @@ namespace facingfate
 {
     public class DraggableCard : DraggableUI, IPointerClickHandler
     {
+        /// <summary>Set while a card drag/targeting is in progress. Used by CardPreviewPanel to cancel.</summary>
+        public static DraggableCard ActiveDraggingCard { get; private set; }
+
         public CardScript cardScript;
         private static readonly Vector3 InvalidPosition = new Vector3(9999, 9999, 9999);
 
         private readonly List<Vector3> selectedPositionsDuringDrag = new();
         private bool isDragging = false;
         private bool wasDragged = false;
+        private bool isCancelled = false;
+        private bool wasSelectedBeforeDrag = false;
         private GameObject dragVFX = null;
         private VisualEffect dragVFXEffect = null;
 
@@ -22,69 +27,114 @@ namespace facingfate
         {
             wasDragged = true;
             base.OnBeginDrag(eventData);
-            cardScript = GetComponent<CardScript>();
-            isDragging = true;
+
+            // Suppress base LineRenderer — DraggableCard uses VFX for targeting
+            if (lineRenderer != null)
+                lineRenderer.enabled = false;
+
+            cardScript  = GetComponent<CardScript>();
+            isDragging  = true;
+            isCancelled = false;
             selectedPositionsDuringDrag.Clear();
 
-            // Create VFX based on targeting type
+            // Highlight the card in-hand during targeting (slight upward offset via selectedOffsetY)
+            wasSelectedBeforeDrag = HandManager.Instance?.GetSelectedCard() == gameObject;
+            if (!wasSelectedBeforeDrag)
+                HandManager.Instance?.SelectCard(gameObject);
+
+            ActiveDraggingCard = this;
+
             CreateDragVFX();
         }
 
         public override void OnDrag(PointerEventData eventData)
         {
-            base.OnDrag(eventData);
-
+            // Do NOT call base.OnDrag — card stays in the hand, only VFX follows cursor
             if (!isDragging) return;
 
-            // Track cursor position using floor collider raycast for stable targeting
+            // Escape cancels targeting
+            if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+            {
+                CancelDrag();
+                return;
+            }
+
             Ray ray = Camera.main.ScreenPointToRay(eventData.position);
             Vector3 cursorPosition = GetFloorHitPosition(ray);
 
-            // Always update VFX position to follow cursor for smooth movement
             if (dragVFX != null && cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
             {
                 dragVFXEffect.SetVector3("End", cursorPosition);
                 dragVFX.transform.position = cursorPosition;
             }
 
+            bool isMultiSelect = IsMultiSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
+
             if (Mouse.current?.rightButton.wasPressedThisFrame == true)
             {
-                int maxTargets = cardScript.cardData.targetingData.cardTargetingMode switch
+                if (isMultiSelect)
                 {
-                    CardTargetingMode.Select => cardScript.cardData.MaxTarget,
-                    CardTargetingMode.LineFree => 2,
-                    _ => 1
-                };
+                    // Multi-select: right-click adds / removes a target position
+                    int maxTargets = cardScript.cardData.targetingData.cardTargetingMode == CardTargetingMode.Select
+                        ? cardScript.cardData.MaxTarget : 2;
 
-                // Only add position if it has valid targets
-                if (cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
-                {
-                    if (HasValidTargetsAtPosition(cursorPosition, cardScript.cardData.targetingData.cardTargetingMode))
+                    if (cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
                     {
-                        if (selectedPositionsDuringDrag.Contains(cursorPosition))
+                        if (HasValidTargetsAtPosition(cursorPosition, cardScript.cardData.targetingData.cardTargetingMode))
                         {
-                            selectedPositionsDuringDrag.Remove(cursorPosition);
-                        }
-                        else if (selectedPositionsDuringDrag.Count < maxTargets)
-                        {
-                            selectedPositionsDuringDrag.Add(cursorPosition);
+                            if (selectedPositionsDuringDrag.Contains(cursorPosition))
+                                selectedPositionsDuringDrag.Remove(cursorPosition);
+                            else if (selectedPositionsDuringDrag.Count < maxTargets)
+                                selectedPositionsDuringDrag.Add(cursorPosition);
                         }
                     }
+                }
+                else
+                {
+                    // All other modes: right-click cancels targeting
+                    CancelDrag();
                 }
             }
         }
 
+        /// <summary>
+        /// Cancels targeting and returns the card to its highlighted-but-idle state in the hand.
+        /// Triggered by Escape, right-click (non-multi-select), or clicking the CardPreviewPanel.
+        /// </summary>
+        public void CancelDrag()
+        {
+            if (!isDragging) return;
+
+            isCancelled        = true;
+            isDragging         = false;
+            ActiveDraggingCard = null;
+
+            if (dragVFX != null) { Destroy(dragVFX); dragVFX = null; }
+            if (lineRenderer != null) lineRenderer.enabled = false;
+
+            canvasGroup.blocksRaycasts = true;
+
+            // Deselect only if we highlighted the card ourselves; otherwise leave it selected
+            if (!wasSelectedBeforeDrag)
+                HandManager.Instance?.SelectCard(null);
+        }
+
         public override void OnEndDrag(PointerEventData eventData)
         {
-            isDragging = false;
-            base.OnEndDrag(eventData);
+            isDragging         = false;
+            ActiveDraggingCard = null;
 
-            // Clean up drag VFX
-            if (dragVFX != null)
+            if (dragVFX != null) { Destroy(dragVFX); dragVFX = null; }
+
+            // Cancelled — cleanup was done in CancelDrag(), just reset the flag
+            if (isCancelled)
             {
-                Destroy(dragVFX);
-                dragVFX = null;
+                isCancelled                = false;
+                canvasGroup.blocksRaycasts = true;
+                return;
             }
+
+            base.OnEndDrag(eventData); // restores blocksRaycasts + anchoredPosition
 
             // Determine if this card uses multi-selection or single-cast targeting
             bool isMultiSelectMode = IsMultiSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
