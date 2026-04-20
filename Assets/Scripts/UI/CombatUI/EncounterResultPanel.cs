@@ -65,6 +65,14 @@ namespace facingfate
 
         private void Show(bool playerWon)
         {
+            // Kill any in-flight tweens so a re-triggered Show doesn't stack sequences.
+            if (panelRect     != null) DOTween.Kill(panelRect);
+            if (overlayGroup  != null) DOTween.Kill(overlayGroup);
+            if (panelGroup    != null) DOTween.Kill(panelGroup);
+            if (titleText     != null) DOTween.Kill(titleText.transform);
+            if (playAgainGroup != null) DOTween.Kill(playAgainGroup);
+            if (mainMenuGroup  != null) DOTween.Kill(mainMenuGroup);
+
             titleText.text  = playerWon ? "Victory!" : "Defeat";
             titleText.color = playerWon ? winColor : loseColor;
 

@@ -131,6 +131,11 @@ namespace facingfate
                         ExecuteNextAction(plan, actionIndex + 1, onAllActionsComplete);
                     });
                     break;
+
+                default:
+                    Debug.LogWarning($"[NonPlayerScript] Unhandled ActionType: {action.Type} — skipping action.");
+                    ExecuteNextAction(plan, actionIndex + 1, onAllActionsComplete);
+                    break;
             }
         }
 

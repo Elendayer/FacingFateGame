@@ -19,8 +19,6 @@ namespace facingfate
 
         [Header("UI Panels")]
         [SerializeField] private PlayerStatsPanel playerStatsPanel;     // left
-        [SerializeField] private CardPilePeekPanel deckPanel;           // deck
-        [SerializeField] private CardPilePeekPanel discardPanel;        // discard
         [SerializeField] private EndTurnPanel endTurnPanel;             // end turn
         [SerializeField] private HoverTargetPanel hoverTargetPanel;     // top right
 
@@ -98,8 +96,6 @@ namespace facingfate
             if (deckManager == null) deckManager = DeckManager.Instance;
 
             CacheEntities();
-            WirePileRootsIfPossible();
-
             MarkDirty(DirtyFlags.All);
         }
 
@@ -258,18 +254,6 @@ namespace facingfate
             }
         }
 
-        private void WirePileRootsIfPossible()
-        {
-            DeckManager dm = deckManager != null ? deckManager : DeckManager.Instance;
-            if (dm == null) return;
-
-            if (deckPanel != null && deckPanel.PileRoot == null && dm.deckParent != null)
-                deckPanel.SetPileRoot(dm.deckParent);
-
-            if (discardPanel != null && discardPanel.PileRoot == null && dm.discardParent != null)
-                discardPanel.SetPileRoot(dm.discardParent);
-        }
-
         private void ApplyRefreshIfDirty()
         {
             if (dirty == DirtyFlags.None) return;
@@ -295,8 +279,7 @@ namespace facingfate
             // Piles (deck/discard preview)
             if ((dirty & DirtyFlags.Piles) != 0)
             {
-                deckPanel?.Refresh();
-                discardPanel?.Refresh();
+                CardPilePeekPanel.Instance?.Refresh();
             }
 
             // Hover (top right)
@@ -323,7 +306,6 @@ namespace facingfate
         private void HandleCombatStart()
         {
             CacheEntities();
-            WirePileRootsIfPossible();
             MarkDirty(DirtyFlags.All);
         }
 

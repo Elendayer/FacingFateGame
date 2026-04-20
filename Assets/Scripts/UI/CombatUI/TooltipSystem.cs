@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using TMPro;
 using System.Collections;
 
@@ -96,7 +97,7 @@ namespace facingfate
             float w = root.rect.width;
             float h = root.rect.height;
             float margin = 20f;
-            Vector2 mouse = Input.mousePosition;
+            Vector2 mouse = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
 
             // Untere linke Ecke = Mausposition
             float x = mouse.x + margin;

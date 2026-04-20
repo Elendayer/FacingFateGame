@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
@@ -5,22 +6,29 @@ using DG.Tweening;
 namespace facingfate
 {
     public class CardPreviewPanel : MonoBehaviour,
-        IBeginDragHandler, IDragHandler, IEndDragHandler
+        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         public static CardPreviewPanel Instance { get; private set; }
 
         [SerializeField] private GameObject previewRoot;
         [SerializeField] private CardScript previewCardScript;
 
-        [Header("Animation")]
-        [SerializeField] private float fadeDuration = 0.15f;
+        [Header("Hover Animation")]
+        [SerializeField] private float fadeDuration  = 0.15f;
         [SerializeField] private float scaleDuration = 0.15f;
 
+        [Header("Toggle Button")]
+        [SerializeField] private TMP_Text toggleButtonText;
+
         private CanvasGroup canvasGroup;
+        private bool        isPreviewEnabled = true;
+
+        // ── Lifecycle ──────────────────────────────────────────────────────────
 
         private void Awake()
         {
             Instance = this;
+
             canvasGroup = previewRoot.GetComponent<CanvasGroup>();
             if (canvasGroup == null)
                 canvasGroup = previewRoot.AddComponent<CanvasGroup>();
@@ -29,8 +37,32 @@ namespace facingfate
             previewRoot.SetActive(false);
         }
 
+        // ── Toggle ─────────────────────────────────────────────────────────────
+
+        /// <summary>Called by the toggle button's OnClick.</summary>
+        public void TogglePreview()
+        {
+            isPreviewEnabled = !isPreviewEnabled;
+
+            if (!isPreviewEnabled)
+                ForceHide();
+
+            if (toggleButtonText != null)
+            {
+                toggleButtonText.text = isPreviewEnabled ? "◄" : "►";
+                toggleButtonText.transform.DOKill();
+                toggleButtonText.transform
+                    .DOPunchScale(Vector3.one * 0.35f, 0.3f, vibrato: 1, elasticity: 0.5f)
+                    .SetUpdate(true);
+            }
+        }
+
+        // ── Show / Hide ────────────────────────────────────────────────────────
+
         public void Show(CardScript source)
         {
+            // Honour the toggle — don't show while preview is disabled
+            if (!isPreviewEnabled) return;
             if (source?.cardData == null) return;
 
             // Only reset alpha/scale when the panel was actually hidden.
@@ -63,18 +95,27 @@ namespace facingfate
 
         public void Hide()
         {
-            // If a card is selected keep showing it — don't collapse the preview
-            GameObject selected = HandManager.Instance?.GetSelectedCard();
-            if (selected != null)
+            // If preview is enabled and a card is selected, keep showing it
+            if (isPreviewEnabled)
             {
-                CardScript selectedCard = selected.GetComponent<CardScript>();
-                if (selectedCard?.cardData != null)
+                GameObject selected = HandManager.Instance?.GetSelectedCard();
+                if (selected != null)
                 {
-                    Show(selectedCard);
-                    return;
+                    CardScript selectedCard = selected.GetComponent<CardScript>();
+                    if (selectedCard?.cardData != null)
+                    {
+                        Show(selectedCard);
+                        return;
+                    }
                 }
             }
 
+            ForceHide();
+        }
+
+        /// <summary>Always hides the panel, regardless of selected card or enabled state.</summary>
+        private void ForceHide()
+        {
             previewCardScript.StopAllCoroutines();
             canvasGroup.blocksRaycasts = false;
 
@@ -85,7 +126,14 @@ namespace facingfate
                 .OnComplete(() => previewRoot.SetActive(false));
         }
 
-        // ── Drag von Preview an ausgewählte Karte weiterleiten ──
+        // ── Pointer: cancel targeting on click ────────────────────────────────
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            DraggableCard.ActiveDraggingCard?.CancelDrag();
+        }
+
+        // ── Drag forwarding to selected hand card ─────────────────────────────
 
         public void OnBeginDrag(PointerEventData eventData)
         {
