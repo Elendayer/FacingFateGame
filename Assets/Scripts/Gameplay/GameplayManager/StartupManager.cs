@@ -12,12 +12,11 @@ namespace facingfate
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject); // Ensure only one instance exists
+                return;
             }
 
             Instance = this;
             DontDestroyOnLoad(gameObject); // Optional: persist between scenes
-
-            new WaitForSeconds(1f);
 
             Invoke(nameof(HandleMapStartup), 0.1f);
             Invoke(nameof(HandleStartup), 0.2f);
@@ -38,6 +37,11 @@ namespace facingfate
             DeckManager.Instance.StartUp();
             TurnManager.Instance.StartUp();
             EncounterManager.Instance.StartUp();
+
+            if (RandomEncounterManager.Instance != null)
+                RandomEncounterManager.Instance.SpawnEntities();
+            if (TrainingEncounterManager.Instance != null)
+                TrainingEncounterManager.Instance.SpawnEntities();
 
             foreach (var entity in GameObject.FindObjectsByType<EntityScript>(0))
             {
