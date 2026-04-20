@@ -113,7 +113,7 @@ public static class MovementUtility
         return product;
     }
 
-    public static PathData FindPathWithMaxLength(Vector3 start, Vector3 goal, int maxLength, EntityStats entityStats, bool ignoreCost = false, bool walkClose = false)
+    public static PathData FindPathWithMaxLength(Vector3 start, Vector3 goal, float maxLength, EntityStats entityStats, bool ignoreCost = false, bool walkClose = false)
     {
         var pathData = FindPath(start, goal, entityStats, ignoreCost, walkClose);
 
@@ -122,12 +122,34 @@ public static class MovementUtility
             return new PathData();
         }
 
-        if (pathData.Path.Count > maxLength)
+        // Truncate path based on maximum distance
+        float accumulatedDistance = 0f;
+        Vector3 previous = start;
+        List<Vector3> truncatedPath = new List<Vector3>();
+        bool pathTruncated = false;
+
+        foreach (var corner in pathData.Path)
         {
-            pathData.Path = pathData.Path.Take(maxLength).ToList();
+            float distanceToCorner = Vector3.Distance(previous, corner);
+
+            if (accumulatedDistance + distanceToCorner > maxLength)
+            {
+                // This corner exceeds the max length, don't add it
+                pathTruncated = true;
+                break;
+            }
+
+            truncatedPath.Add(corner);
+            accumulatedDistance += distanceToCorner;
+            previous = corner;
+        }
+
+        if (pathTruncated)
+        {
+            pathData.Path = truncatedPath;
             // Recalculate cost based on truncated path
             float truncatedDistance = 0f;
-            Vector3 previous = start;
+            previous = start;
             foreach (var corner in pathData.Path)
             {
                 truncatedDistance += Vector3.Distance(previous, corner);
@@ -140,14 +162,6 @@ public static class MovementUtility
         }
 
         return pathData;
-    }
-
-    /// <summary>
-    /// Finds a line-of-sight path between two positions.
-    /// </summary>
-    public static PathData FindLine(Vector3Int start, Vector3Int goal)
-    {
-        return FindLine((Vector3)start, (Vector3)goal);
     }
 
     /// <summary>
@@ -272,7 +286,7 @@ public static class MovementUtility
     /// <summary>
     /// Performs forced movement on an entity based on the specified movement type.
     /// </summary>
-    public static void ForcedMove(ForcedMovementType type, EntityScript entity, Vector3 ReferencePos, int Distance = 99, float speed = 3f)
+    public static void ForcedMove(ForcedMovementType type, EntityScript entity, Vector3 ReferencePos, float Distance = 99, float speed = 3f)
     {
         if (entity == null)
             return;
@@ -350,7 +364,7 @@ public static class MovementUtility
     /// <summary>
     /// Gets a random reachable position within the specified distance.
     /// </summary>
-    public static PathData GetRandomInRange(Vector3 pos, int distance, EntityStats entityStats)
+    public static PathData GetRandomInRange(Vector3 pos, float distance, EntityStats entityStats)
     {
         List<Vector3> possiblePositions = new List<Vector3>();
 
@@ -379,7 +393,7 @@ public static class MovementUtility
     /// <summary>
     /// Gets a path to a closer position toward a target.
     /// </summary>
-    public static PathData GetPathDataToCloserPosition(Vector3 to, int distance, EntityScript entity)
+    public static PathData GetPathDataToCloserPosition(Vector3 to, float distance, EntityScript entity)
     {
         PathData path = FindPathWithMaxLength(entity.transform.position, to, distance,entity.entityStats, walkClose: true);
         return path;
@@ -389,7 +403,7 @@ public static class MovementUtility
     /// <summary>
     /// Gets the furthest reachable position from a reference point.
     /// </summary>
-    public static PathData GetFurtherPosition(Vector3 from, int distance, EntityScript entity)
+    public static PathData GetFurtherPosition(Vector3 from, float distance, EntityScript entity)
     {
         List<Vector3> targets = new List<Vector3>();
 
@@ -420,7 +434,7 @@ public static class MovementUtility
     /// <summary>
     /// Gets the best flee position away from all hostile entities.
     /// </summary>
-    private static PathData GetFleePosition(int distance, EntityOnMap entityOnMap, EntityScript entityScript)
+    private static PathData GetFleePosition(float distance, EntityOnMap entityOnMap, EntityScript entityScript)
     {
         List<EntityScript> allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0).ToList();
         PathData path = GetBestFleePath(entityOnMap.transform.position, allEntities, entityScript);

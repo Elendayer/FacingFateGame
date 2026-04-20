@@ -31,5 +31,14 @@ namespace facingfate
                 return;
             }
         }
+
+
+        public override void DrawCards(int toDraw)
+        {
+            for (int i = 0; i < toDraw; i++)
+            {
+                DeckManager.Instance.Player_DrawTopCard();
+            }
+        }
     }
 }

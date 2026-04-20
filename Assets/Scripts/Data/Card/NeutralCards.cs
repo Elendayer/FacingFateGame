@@ -28,7 +28,7 @@ namespace facingfate
 
                 damageFunc = card =>
                 {
-                    return Mathf.RoundToInt(card.Owner.entityStats.CurrentStrength / 2);
+                    return Mathf.RoundToInt(card.Owner.entityStats.CurrentStrength);
                 },
 
                 range_u = 1f,
@@ -40,7 +40,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal Damage equal to half your Strength: ({Damage})",
+                CardDescription = (User, d) => d.cardDescription = "Deal Damage equal to your Strength: {Damage}",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
@@ -56,8 +56,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-                cost_u = 40,
-                damage_u = 75,
+                cost_u = 20,
+
+                duration_u = 2,
+
+                damageFunc = card =>
+                {
+                    return Mathf.RoundToInt(card.Owner.entityStats.CurrentStrength * 2);
+                },
 
                 targetingData = new()
                 {
@@ -66,7 +72,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} Damage, Increase Movement Cost by 1 for {Duration turns",
+                CardDescription = (User, d) => d.cardDescription = "Deal Damage equal to twice your Strength: {Damage}, increase movement cost by 1 for {Duration} turns",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
@@ -76,7 +82,7 @@ namespace facingfate
                         stat: Target.entityStats.MovementCostModifier_Increase,
                         value: 1,
                         condition: true,
-                        duration: 2
+                        duration: d.Duration
                     ), ModifierMergeStrategy.RefreshDurationAndMerge);
                 },
                 CardVfx = (Data,Target) =>
@@ -124,7 +130,10 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 10,
-                damage_u = 30,
+                damageFunc = card =>
+                {
+                    return Mathf.RoundToInt(card.Owner.entityStats.CurrentDexterity);
+                },
 
                 targetingData = new()
                 {
@@ -133,7 +142,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage.",
+                CardDescription = (User, d) => d.cardDescription = "Deal damage equal to your Dexterity: {Damage}.",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") ,d.Damage);
@@ -160,7 +169,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Hit the target {Repeats} for {Damage}.",
+                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage, {Repeats} times.",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = d.Repeats }, d.Damage);
@@ -178,7 +187,6 @@ namespace facingfate
 
                 cost_u = 20,
                 damage_u = 10,
-                range_u = 2f,
 
                 targetingData = new()
                 {
@@ -187,7 +195,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = $"Push enemy 1 space and deals {d.Damage}.",
+                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} and push enemy 1 meter.",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") , d.Damage);
@@ -204,10 +212,10 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-                cost_u = 50,
+                cost_u = 40,
                 damage_u = 60,
-                range_u = 2f,
-                power_u = 1,
+
+                range_u = 6f,
 
                 targetingData = new()
                 {
@@ -216,11 +224,12 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Charge and move both 1 space.",
+                CardDescription = (User, d) => d.cardDescription = "Charge to target and push them back 1 meter.",
                 CardEffect = (User, Target, d) =>
                 {
-                    MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.transform.position, d.Power);
-                    MovementUtility.ForcedMove(ForcedMovementType.Pull, User, Target.transform.position, d.Power);
+                    MovementUtility.ForcedMove(ForcedMovementType.Pull, User, Target.transform.position);
+                    MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.transform.position, 1);
+
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                     // TODO: User/Target bewegen und Stun anwenden
                 }
@@ -236,7 +245,6 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 2,
-                power_u = 1,
 
                 targetingData = new()
                 {
@@ -245,10 +253,10 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Disengage after your attack (step back).",
+                CardDescription = (User, d) => d.cardDescription = "Disengage by 2.5 meters.",
                 CardEffect = (User, Target, d) =>
                 {
-                    MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.transform.position, d.Power);
+                    MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.transform.position, 2.5f);
                     // TODO: User 1 Feld rückwärts bewegen
                 }
             });
@@ -306,15 +314,12 @@ namespace facingfate
                     // direct hit (per repeat)
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("SlashImpact"), d.Damage);
 
-                    // Bleed DoT + immediate tick
-                    int dur = d.Duration > 0 ? d.Duration : 6;
-                    string name = $"Bleed#{d.cardID}";
                     var bleed = new EntityModifier(
-                        modifierName: name,
+                        modifierName: "Bleed",
                         owner: Target,
                         baseValue: d.Damage,
                         toTriggerRefs: new() { GameplayRef.onBleed },
-                        duration: dur,
+                        duration: d.Duration,
                         onRef_Trigger: new RelevantTriggerCheck
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -323,13 +328,14 @@ namespace facingfate
                         },
                         onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, new VFXData ("BleedEffect"), value);
+                            CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBleed , new VFXData ("BleedEffect"));
                         });
 
                     CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
 
+            /*
             // 100110 – Sting – damage + Poison DoT
             CardDatabase.RegisterCard(new CardData()
             {
@@ -376,7 +382,7 @@ namespace facingfate
 
                     CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
-            });
+            });*/
 
             // 100111 – Arrowshot – ranged hit
             CardDatabase.RegisterCard(new CardData()
@@ -414,9 +420,9 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Ranged },
 
-                cost_u = 80,
+                cost_u = 25,
                 damage_u = 30,
-                repeats_u = 5,
+
                 range_u = 5f,
 
                 targetingData = new()
@@ -426,7 +432,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Select,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Shoot multiple arrows at selected enemies (2 shots).",
+                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} Damage.",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"),d.Damage);
@@ -436,6 +442,28 @@ namespace facingfate
 
         private static void RegisterAbilities()
         {
+
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Neutral_Ab_Meditate",
+                cardName = "Meditate",
+                cardType = CardType.Ability,
+                cardClass = CardClass.Neutral,
+                cardIdentities = new() { CardIdentity.Soul },
+
+                cost_u = 10,
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Entity,
+                    CardTargetAffiliation = CardTargetAffiliation.Self,
+                    cardTargetingMode = CardTargetingMode.Single,
+                },
+                CardDescription = (User, d) => d.cardDescription = "Draw a Card",
+                CardEffect = (User, Target, d) =>
+                {
+                    User.DrawCards(1);
+                }
+            });
             // 100201 – Focus – empower next attack (Self)
             CardDatabase.RegisterCard(new CardData()
             {
@@ -446,7 +474,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 30,
-                power_u = 100,
+                power_u = 30,
                 duration_u = 3,
 
                 targetingData = new()
@@ -456,12 +484,12 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = $"Your next attack is empowered by {d.power_u}.",
+                CardDescription = (User, d) => d.cardDescription = "Your next attack is empowered by {Power}.",
                 CardEffect = (User, Target, d) =>
                 {
                     var stat = Target.entityStats.DamageOutModifier_Increase;
                     var mod = new StatModifier(
-                        name: "Damage",
+                        name: "Focus",
                         stat: stat,
                         value: d.Power,
                         duration: d.Duration
@@ -480,7 +508,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 20,
-                power_u = 10,
+                power_u = 5,
                 duration_u = 2,
                 range_u = 4f,
                 area_u = 4f,
@@ -492,13 +520,21 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = $"Demoralize enemies in an area and reduces damage by {d.Power}.",
+                CardDescription = (User, d) => d.cardDescription = "Demoralize enemies reduces damage by {Power} and their Armor by 10%.",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyStatDebuff(d, Target, new StatModifier(
-                        name: "Damage",
-                        stat: Target.entityStats.DamageOutModifier_Increase,
+                        name: "Growl Damage Reduction",
+                        stat: Target.entityStats.DamageOutModifier_Flat,
                         value: d.Power,
+                        duration: d.Duration
+                    ), ModifierMergeStrategy.RefreshDurationAndMerge);
+
+                    CombatUtility.ApplyStatDebuff(d, Target, new StatModifier(
+                        name: "Growl Armour Reduction",
+                        stat: Target.entityStats.Armour_Increase,
+                        value: 10,
+                        condition: true,
                         duration: d.Duration
                     ), ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
@@ -513,27 +549,28 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 50,
-                power_u = 50, // stat buff (non-damage)
+                cost_u = 20,
+                power_u = 5,
                 duration_u = 2,
-                range_u = 4f,
-                area_u = 4f,
+
+                range_u = 0f,
+                radius_u = 4f,
 
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Ally,
-                    cardTargetingMode = CardTargetingMode.Ring,
+                    cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = $"Bolster allies damage in range by {d.Power} ).",
+                CardDescription = (User, d) => d.cardDescription = "Bolster allies damage {Power}.",
                 CardEffect = (User, Target, d) =>
                 {
                     CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier
                         (
                             name: "Damage",
-                            stat: Target.entityStats.DamageOutModifier_Increase,
+                            stat: Target.entityStats.DamageOutModifier_Flat,
                             value: d.Power,
                             duration: d.Duration
                             ),
@@ -550,8 +587,11 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 50,
-                power_u = 50,
+                cost_u = 15,
+                powerFunc = card =>
+                {
+                    return Mathf.RoundToInt(card.Owner.entityStats.CurrentTenacity * 5);
+                },
                 duration_u = 2,
 
                 targetingData = new()
@@ -561,24 +601,26 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = $"Increase your defense until end of turn by {d.Power}.",
+                CardDescription = (User, d) => d.cardDescription = "Increase your Armour until end of turn by {Power}.",
                 CardEffect = (User, Target, d) =>
                 {
                     var stat = Target.entityStats.Armour_Increase;
                     var mod = new StatModifier(
-                        name: "Armour",
+                        name: "Guard_Up",
                         stat: stat,
                         value: d.Power,
                         condition: true,
                         duration: d.Duration
                     );
-                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Override);
                 }
             });
         }
 
+    
         private static void RegisterItems()
-        {
+        {   
+            /*
             // 100601 – Throw Poison – Single/Radius; apply Poison DoT (with immediate tick)
             CardDatabase.RegisterCard(new CardData()
             {
@@ -670,8 +712,7 @@ namespace facingfate
 
                     CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
-            });
+            });*/
         }
     }
 }
-

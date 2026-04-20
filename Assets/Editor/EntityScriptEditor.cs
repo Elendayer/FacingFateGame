@@ -1,8 +1,9 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using ES3Editor;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 namespace facingfate
 {
@@ -29,8 +30,9 @@ namespace facingfate
             try
             {
                 // === Base Stats ===
-                DrawStat("Max Health", entity.entityStats.MaxHealth_Flat);
+                DrawStat("Max Health", entity.entityStats.MaxHealth);
                 DrawStat("Current Health", entity.entityStats.CurrentHealth);
+
                 DrawStat("Max Stamina", entity.entityStats.MaxStamina);
                 DrawStat("Current Stamina", entity.entityStats.CurrentStamina);
                 EditorGUILayout.Space(5);
@@ -72,9 +74,7 @@ namespace facingfate
                 DrawStat("Stunned", entity.entityStats.IsStunned);
                 DrawStat("Rooted", entity.entityStats.IsRooted);
                 DrawStat("Taunt Target", entity.entityStats.tauntTarget ? entity.entityStats.tauntTarget.name : "not Taunted");
-                EditorGUILayout.Space(10);
-
-
+                EditorGUILayout.Space(6);
             }
             catch
             {
@@ -97,19 +97,8 @@ namespace facingfate
 
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
-            EditorGUILayout.LabelField(stat.Value().ToString(), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(stat.Value().ToString());
             EditorGUILayout.EndHorizontal();
-
-            // Header Row
-            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
-            EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel));
-            EditorGUILayout.LabelField("Value", GUILayout.Width(colValue));
-            EditorGUILayout.EndHorizontal();
-
-            // Main Row (first multiplier if present)
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty because label already shown above
-            EditorGUILayout.LabelField(value.ToString(), GUILayout.Width(colValue));
         }
 
         private void DrawStat(string label, Stat stat_Flat, Stat stat_Increase, Stat stat_Multiplier)
@@ -127,31 +116,26 @@ namespace facingfate
 
 
             // Main Row (first multiplier if present)
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty because label already shown above
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(label, EditorStyles.boldLabel, GUILayout.Width(colLabel)); // empty because label already shown above
             EditorGUILayout.LabelField(flat.ToString(), GUILayout.Width(colFlat));
             EditorGUILayout.LabelField(percent.ToString(), GUILayout.Width(colPercent));
 
             if (multipliers.Count > 0)
-                EditorGUILayout.LabelField(multipliers[0].ToString(), GUILayout.Width(colMult));
-            else
-                EditorGUILayout.LabelField("-", GUILayout.Width(colMult));
-
-            EditorGUILayout.EndHorizontal();
-
-            // Additional multiplier rows
-            for (int i = 1; i < multipliers.Count; i++)
             {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("", GUILayout.Width(colLabel)); // empty column
-                EditorGUILayout.LabelField("", GUILayout.Width(colValue));
-                EditorGUILayout.LabelField("", GUILayout.Width(colFlat));
-                EditorGUILayout.LabelField("", GUILayout.Width(colPercent));
-                EditorGUILayout.LabelField(multipliers[i].ToString(), GUILayout.Width(colMult));
-                EditorGUILayout.EndHorizontal();
+                string multStr = "";
+                foreach (float mult in multipliers)
+                {
+                     multStr = mult.ToString() + ", ";
+                }
+                EditorGUILayout.LabelField(multStr, GUILayout.Width(colMult));
+            }
+            else
+            {
+                EditorGUILayout.LabelField("-", GUILayout.Width(colMult));
             }
 
-            EditorGUILayout.Space(6);
+            EditorGUILayout.EndHorizontal();
         }
         private void DrawStat(string label, float stat)
         {

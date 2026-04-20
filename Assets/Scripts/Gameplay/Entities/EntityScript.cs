@@ -188,6 +188,9 @@ namespace facingfate
                 entityStats.TickAllStats();
             });
         }
+
+        public virtual void DrawCards(int toDraw) { }
+
     }
 
     public enum EntityAttributeEnum
