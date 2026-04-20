@@ -40,5 +40,12 @@ namespace facingfate
                 DeckManager.Instance.Player_DrawTopCard();
             }
         }
+        public override void DiscardCards(int toDiscard)
+        {
+            for (int i = 0; i < toDiscard; i++)
+            {
+                DeckManager.Instance.Player_DiscardRandomCardFromHand();
+            }
+        }
     }
 }

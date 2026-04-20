@@ -42,7 +42,7 @@ namespace facingfate
 
         }
         #region Events
-    
+
         #endregion
 
         #region Modifier System
@@ -177,7 +177,7 @@ namespace facingfate
             modifierNames.Clear();
             modifierNames.AddRange(entityModifiers.Select(c => c.ModifierName));
         }
-#endregion
+        #endregion
 
         public virtual void StartTurn()
         {
@@ -191,8 +191,8 @@ namespace facingfate
 
         public virtual void DrawCards(int toDraw) { }
 
+        public virtual void DiscardCards(int toDiscard) { }
     }
-
     public enum EntityAttributeEnum
     {
         Strength,

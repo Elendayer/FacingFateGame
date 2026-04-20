@@ -171,7 +171,7 @@ namespace facingfate
             List<PlannedAction> plan = new();
             var playedCards = new HashSet<CardScript>();
 
-            Draw();
+            DrawCard();
 
             // Execute the turn planning
             yield return ExecuteTurnPlanning(plan, playedCards);
@@ -339,7 +339,7 @@ namespace facingfate
             yield break;
         }
 
-        private void Draw()
+        public void DrawCard()
         {
             int cardsToDraw = Mathf.RoundToInt(npcScript.entityStats.CurrentWisdom / 2);
 
@@ -374,6 +374,23 @@ namespace facingfate
 
                     cardObj.SetParent(discard);
                 }
+            }
+        }
+        public void DiscardCard(int toDiscard)
+        {
+            for (int i = 0; i < toDiscard; i++)
+            {
+                if (hand.Count == 0)
+                    break;
+
+                // Discard random card from hand
+                System.Random rng = new();
+                int idx = rng.Next(hand.Count);
+                CardScript cardToDiscard = hand[idx];
+                hand.RemoveAt(idx);
+
+                // Move card object to discard pile
+                cardToDiscard.transform.SetParent(discard);
             }
         }
 

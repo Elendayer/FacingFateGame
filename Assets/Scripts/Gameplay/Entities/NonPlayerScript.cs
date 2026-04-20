@@ -93,6 +93,23 @@ namespace facingfate
             });
         }
 
+        public override void DrawCards(int toDraw)
+        {
+            for (int i = 0; i < toDraw; i++)
+            {
+                npcAIController.DrawCard();
+                GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardDrawn }, this, affectedEntities: new() { this }));
+            }
+        }
+        public override void DiscardCards(int toDiscard)
+        {
+            for (int i = 0; i < toDiscard; i++)
+            {
+                npcAIController.DiscardCard(toDiscard); 
+                GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardDiscarded }, this , affectedEntities: new() { this }));
+            }
+        }
+
         /// <summary>
         /// Executes a list of planned actions sequentially, waiting for each to complete.
         /// </summary>

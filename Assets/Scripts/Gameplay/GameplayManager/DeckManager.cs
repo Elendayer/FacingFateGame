@@ -4,6 +4,7 @@ using DG.Tweening;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 namespace facingfate
 {
@@ -179,8 +180,47 @@ namespace facingfate
             deckParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
 
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardDrawn }, null, null));
-            //Debug.Log($"Drew card: {topCard.name}");
         }
+        public void Player_DiscardRandomCardFromHand()
+        {
+            // Get a random card from the hand
+            if (HandManager.Instance.cardsInHand.Count == 0) return;
+
+
+            GameObject cardobject = HandManager.Instance.cardsInHand[UnityEngine.Random.Range(0, HandManager.Instance.cardsInHand.Count)];
+
+            if (cardobject == null) return;
+
+            // Kill all running DOTween animations before re-parenting.
+            // Hand layout tweens (DOAnchorPos / DOLocalRotate) would otherwise
+            // keep running relative to the new discardParent and corrupt position.
+            RectTransform cardRect = cardobject.GetComponent<RectTransform>();
+            if (cardRect != null)
+            {
+                cardRect.DOKill();
+                cardRect.localScale = Vector3.one;
+            }
+            cardobject.GetComponent<CanvasGroup>()?.DOKill();
+
+            HandManager.Instance.RemoveCard(cardobject);
+
+            CardScript cs = cardobject.GetComponent<CardScript>();
+            // HandUtility.Discard: SetParent(discardParent), SetHidden, ResetCard,
+            //                      discardStack.Push (guarded – no duplicate needed here)
+            HandUtility.Discard(cs);
+
+            // Zero local transform AFTER HandUtility re-parented the card
+            if (cardRect != null)
+                TransformUtility.ZeroLocalRectTransform(cardRect);
+
+            // NOTE: discardStack.Push removed – HandUtility.Discard already handles it.
+
+            // Rebuild the stacked pile visuals
+            discardParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
+
+            GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardDiscarded }, null, null));
+        }
+
         public void Player_DiscardCardFromHand(GameObject cardobject)
         {
             if (cardobject == null) return;
