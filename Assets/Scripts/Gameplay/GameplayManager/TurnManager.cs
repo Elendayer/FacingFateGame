@@ -12,7 +12,10 @@ namespace facingfate
         [HideInInspector]
         public List<EntityScript> TurnOrder = new List<EntityScript>();
 
-        public EntityScript CurrentTurnEntity => TurnOrder[CurrentTurnIndex];
+        public EntityScript CurrentTurnEntity =>
+            (TurnOrder != null && CurrentTurnIndex < TurnOrder.Count)
+            ? TurnOrder[CurrentTurnIndex]
+            : null;
 
         public int CurrentTurnIndex = 0;
         public int CurrentRoundIndex = 1;
@@ -23,6 +26,7 @@ namespace facingfate
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject); // Ensure only one instance exists
+                return;
             }
 
             DontDestroyOnLoad(gameObject); // Optional: persist between scenes
@@ -34,13 +38,24 @@ namespace facingfate
             AddListeners();
         }
         private bool combatEnded = false;
+        private bool listenersAdded = false;
 
         public void AddListeners()
         {
+            if (listenersAdded) return;
+            listenersAdded = true;
             GameEvents.OnTurnStart += OnTurnStart;
             GameEvents.OnTurnEnd += OnTurnEnd;
             GameEvents.OnCombatStart += GameEvents_OnCombatStart;
             GameEvents.OnCombatEnd += OnCombatEnd;
+        }
+
+        private void OnDestroy()
+        {
+            GameEvents.OnTurnStart -= OnTurnStart;
+            GameEvents.OnTurnEnd -= OnTurnEnd;
+            GameEvents.OnCombatStart -= GameEvents_OnCombatStart;
+            GameEvents.OnCombatEnd -= OnCombatEnd;
         }
 
         private void OnCombatEnd()

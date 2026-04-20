@@ -52,39 +52,36 @@ namespace facingfate
             rectTransform.DOKill();
             canvasGroup.alpha        = 1f;
             rectTransform.localScale = Vector3.one;
-            // Reset Y — layout group controls X, but Y drift from DOLocalMoveY must be cleared
-            rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, 0f, rectTransform.localPosition.z);
+            // Reset Y only — TurnOrderUI owns X via anchoredPosition
+            rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, 0f);
 
             var le = GetComponent<LayoutElement>();
-            if (le != null) le.ignoreLayout = false;
+            if (le != null)
+            {
+                DOTween.Kill(le);
+                le.preferredWidth = -1f;
+                le.ignoreLayout   = false;
+            }
         }
 
         /// <summary>
-        /// Slide down + fade out sequentially.
-        /// onSlideComplete fires when the slide finishes (before the fade).
+        /// Slide down and fade out simultaneously.
+        /// onComplete fires when the fade ends (= entryAnimDuration in TurnOrderUI).
         /// </summary>
-        public void AnimateOut(float duration, System.Action onComplete = null, System.Action onSlideComplete = null)
+        public void AnimateOut(float duration, System.Action onComplete = null)
         {
             if (canvasGroup   == null) canvasGroup   = gameObject.AddComponent<CanvasGroup>();
             if (rectTransform == null) rectTransform  = GetComponent<RectTransform>();
 
-            float slideDur = duration * 0.65f;
-            float fadeDur  = duration * 0.75f;
-
-            DOTween.Sequence()
-                .SetUpdate(true)
-                .Append(rectTransform.DOLocalMoveY(rectTransform.localPosition.y - slideAmount, slideDur)
-                    .SetEase(Ease.OutQuart))
-                .AppendCallback(() => onSlideComplete?.Invoke())
-                .Append(canvasGroup.DOFade(0f, fadeDur)
-                    .SetEase(Ease.InQuart))
-                .OnComplete(() =>
-                {
-                    onComplete?.Invoke();
-                });
+            // Slide and fade run in parallel — fade is the longer of the two and carries onComplete
+            rectTransform.DOAnchorPosY(rectTransform.anchoredPosition.y - slideAmount, duration * 0.65f)
+                .SetEase(Ease.OutQuart).SetUpdate(true);
+            canvasGroup.DOFade(0f, duration * 0.55f)
+                .SetEase(Ease.InQuart).SetUpdate(true)
+                .OnComplete(() => onComplete?.Invoke());
         }
 
-        /// <summary>Slide in from below.</summary>
+        /// <summary>Slide in from below. Always starts slideAmount below the resting Y=0.</summary>
         public void AnimateIn(float duration)
         {
             if (canvasGroup   == null) canvasGroup   = gameObject.AddComponent<CanvasGroup>();
@@ -93,10 +90,10 @@ namespace facingfate
             canvasGroup.alpha        = 0f;
             rectTransform.localScale = Vector3.one;
 
-            float startY = rectTransform.localPosition.y - slideAmount;
-            rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, startY, rectTransform.localPosition.z);
+            // Always snap to the fixed start position so accumulated Y from AnimateOut doesn't double the distance.
+            rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, -slideAmount, rectTransform.localPosition.z);
 
-            rectTransform.DOLocalMoveY(startY + slideAmount, duration).SetEase(Ease.OutCubic).SetUpdate(true);
+            rectTransform.DOLocalMoveY(0f, duration).SetEase(Ease.OutCubic).SetUpdate(true);
             canvasGroup.DOFade(1f, duration * 0.6f).SetEase(Ease.OutQuart).SetUpdate(true);
         }
 

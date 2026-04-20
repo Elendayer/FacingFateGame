@@ -24,6 +24,13 @@ namespace facingfate
         [Header("Entry Animation")]
         [SerializeField] private float entryAnimDuration = 0.55f;
 
+        [Header("Entry Layout")]
+        [SerializeField] private float entryWidth   = 120f;  // match your prefab width in the Inspector
+        [SerializeField] private float entrySpacing = 8f;
+
+        private float SlotWidth        => entryWidth + entrySpacing;
+        private float GetTargetX(int i) => i * SlotWidth;
+
         [Header("Panel Toggle Animation")]
         [SerializeField] private float toggleDuration       = 0.45f;
         [SerializeField] private float contentsFadeDuration = 0.2f;
@@ -39,6 +46,7 @@ namespace facingfate
         private RectTransform toggleButtonRect;
         private CanvasGroup panelCanvasGroup;
         private bool panelAnimating = false;
+        private bool turnEndAnimating = false;
 
         private void Awake()
         {
@@ -93,6 +101,7 @@ namespace facingfate
 
         private void Refresh()
         {
+            turnEndAnimating = false;
             TurnManager tm = TurnManager.Instance;
             if (tm == null || tm.TurnOrder == null || tm.TurnOrder.Count == 0) return;
 
@@ -116,6 +125,8 @@ namespace facingfate
                     : enemyTurnColor;
 
                 pool[i].HardReset();
+                // Snap to the correct horizontal slot — no LayoutGroup needed
+                pool[i].GetComponent<RectTransform>().anchoredPosition = new Vector2(GetTargetX(i), 0f);
                 pool[i].Setup(GetEntityName(entity), color, isCurrent, entity);
                 pool[i].gameObject.name = entity.gameObject.name;
                 pool[i].gameObject.SetActive(true);
@@ -128,40 +139,54 @@ namespace facingfate
         {
             if (pool.Count == 0) { Refresh(); return; }
 
+            // Guard: rapid turn-end fires before animation finished — snap to clean state.
+            if (turnEndAnimating)
+            {
+                foreach (var e in pool) e.HardReset();
+                Refresh();
+                return;
+            }
+            turnEndAnimating = true;
+
             TurnOrderEntryUI outgoing = pool[0];
 
-            // Move outgoing to back of logical list immediately
-            pool.RemoveAt(0);
-            pool.Add(outgoing);
+            // ── Slide all remaining entries one slot to the left ──────────────
+            // Runs simultaneously with the exit animation.
+            for (int i = 1; i < pool.Count; i++)
+            {
+                pool[i].GetComponent<RectTransform>()
+                    .DOAnchorPosX(GetTargetX(i - 1), entryAnimDuration)
+                    .SetEase(Ease.OutCubic).SetUpdate(true);
+            }
 
-            // Pin the current width so the layout doesn't shift until we're ready
-            var layoutEl = outgoing.GetComponent<LayoutElement>();
-            if (layoutEl == null) layoutEl = outgoing.gameObject.AddComponent<LayoutElement>();
-            float entryWidth = outgoing.GetComponent<RectTransform>().rect.width;
-            layoutEl.preferredWidth  = entryWidth;
-            layoutEl.ignoreLayout    = false;
-
-            // Slide down + fade
+            // ── Exit: current-turn entry slides down + fades ──────────────────
+            // onComplete fires at exactly entryAnimDuration (= same frame the left-shift finishes).
             outgoing.AnimateOut(entryAnimDuration, onComplete: () =>
             {
-                DOTween.Kill(layoutEl);
-                layoutEl.preferredWidth = -1f;         // hand sizing back to the layout
-                outgoing.transform.SetAsLastSibling();
-                SetupLastPoolEntry(outgoing);
-                outgoing.AnimateIn(entryAnimDuration);
-            });
+                pool.RemoveAt(0);
+                pool.Add(outgoing);
 
-            // After the slide finishes, collapse the reserved width slowly so the
-            // remaining entries drift into place rather than jumping.
-            float collapseDelay = entryAnimDuration * 0.60f;   // wait for slide to almost finish
-            float collapseDur   = entryAnimDuration * 0.55f;   // then ease the gap closed
-            DOTween.To(() => layoutEl.preferredWidth,
-                       x  => layoutEl.preferredWidth = x,
-                       0f, collapseDur)
-                .SetDelay(collapseDelay)
-                .SetEase(Ease.InOutSine)
-                .SetUpdate(true)
-                .SetTarget(layoutEl);
+                SetupLastPoolEntry(outgoing);
+                outgoing.gameObject.SetActive(true);
+                outgoing.transform.SetAsLastSibling();
+
+                // ── New entry slides in from the right ────────────────────────
+                int lastIdx = pool.Count - 1;
+                RectTransform rt = outgoing.GetComponent<RectTransform>();
+                CanvasGroup   cg = outgoing.GetComponent<CanvasGroup>()
+                                   ?? outgoing.gameObject.AddComponent<CanvasGroup>();
+
+                rt.anchoredPosition = new Vector2(GetTargetX(pool.Count), 0f); // one slot off-screen right
+                cg.alpha            = 0f;
+                rt.localScale       = Vector3.one;
+
+                rt.DOAnchorPosX(GetTargetX(lastIdx), entryAnimDuration)
+                    .SetEase(Ease.OutCubic).SetUpdate(true);
+                cg.DOFade(1f, entryAnimDuration * 0.6f)
+                    .SetEase(Ease.OutQuart).SetUpdate(true);
+
+                turnEndAnimating = false;
+            });
         }
 
         private void SetupLastPoolEntry(TurnOrderEntryUI entry)
