@@ -1245,7 +1245,7 @@ MonoBehaviour:
   pauseOpenSfx:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: 5a14c015c7b242c40820260dc4f72be6, type: 2}
+    WwiseObjectReference: {fileID: 11400000, guid: bbd410cedbd0ea4488d6b2eddbbdda18, type: 2}
   pauseCloseSfx:
     idInternal: 0
     valueGuidInternal: 
