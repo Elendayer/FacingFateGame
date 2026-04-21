@@ -52,7 +52,7 @@ namespace facingfate
                 DrawStat("Strength", entity.entityStats.CurrentStrength);
                 DrawStat("Dexterity", entity.entityStats.CurrentDexterity);
                 DrawStat("Wisdom", entity.entityStats.CurrentWisdom);
-                DrawStat("Foresight", entity.entityStats.CurrentForesight);
+                DrawStat("Foresight", entity.entityStats.CurrentIntelligence);
                 DrawStat("Endurance", entity.entityStats.CurrentEndurance);
                 DrawStat("Tenacity", entity.entityStats.CurrentTenacity);
                 EditorGUILayout.Space(5);

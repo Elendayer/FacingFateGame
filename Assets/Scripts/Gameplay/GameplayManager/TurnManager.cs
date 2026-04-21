@@ -20,6 +20,10 @@ namespace facingfate
         public int CurrentTurnIndex = 0;
         public int CurrentRoundIndex = 1;
 
+        // Combat state tracking
+        private bool combatEnded = false;
+        private bool listenersAdded = false;
+
         private void Awake()
         {
             // Singleton enforcement
@@ -35,89 +39,44 @@ namespace facingfate
 
         public void StartUp()
         {
+            combatEnded = false;
+            SetTurnOrder();
+            CurrentTurnIndex = 0;
+            CurrentRoundIndex = 1;
+
             AddListeners();
         }
-        private bool combatEnded = false;
-        private bool listenersAdded = false;
 
         public void AddListeners()
         {
             if (listenersAdded) return;
             listenersAdded = true;
+
             GameEvents.OnTurnStart += OnTurnStart;
             GameEvents.OnTurnEnd += OnTurnEnd;
-            GameEvents.OnCombatStart += GameEvents_OnCombatStart;
+            GameEvents.OnCombatStart += OnCombatStart;
             GameEvents.OnCombatEnd += OnCombatEnd;
+
         }
 
         private void OnDestroy()
         {
             GameEvents.OnTurnStart -= OnTurnStart;
             GameEvents.OnTurnEnd -= OnTurnEnd;
-            GameEvents.OnCombatStart -= GameEvents_OnCombatStart;
+            GameEvents.OnCombatStart -= OnCombatStart;
             GameEvents.OnCombatEnd -= OnCombatEnd;
         }
 
-        private void OnCombatEnd()
+        private void OnCombatEnd(bool playerWon)
         {
             combatEnded = true;
-        }
-
-        public void AddTurn(EntityScript entityScript)
-        {
-            if (entityScript == null || TurnOrder.Contains(entityScript))
-                return;
-
-            // Insert in descending order of dexterity
-            int insertIndex = TurnOrder.FindIndex(e => e.entityStats.CurrentDexterity < entityScript.entityStats.CurrentDexterity);
-
-            if (insertIndex < 0)
-            {
-                // Add at the end if no entity has lower dexterity
-                TurnOrder.Add(entityScript);
-            }
-            else
-            {
-                // Adjust CurrentTurnIndex if inserting before or at current position
-                if (insertIndex <= CurrentTurnIndex)
-                    CurrentTurnIndex++;
-
-                TurnOrder.Insert(insertIndex, entityScript);
-            }
-        }
-
-        public void RemoveTurn(EntityScript entityScript)
-        {
-            if (entityScript == null)
-                return;
-
-            int indexToRemove = TurnOrder.IndexOf(entityScript);
-
-            if (indexToRemove < 0)
-                return; // Entity not in turn order
-
-            TurnOrder.RemoveAt(indexToRemove);
-
-            // Adjust CurrentTurnIndex if needed
-            if (indexToRemove < CurrentTurnIndex)
-            {
-                // Entity was before current, shift index back
-                CurrentTurnIndex--;
-            }
-            else if (indexToRemove == CurrentTurnIndex && CurrentTurnIndex >= TurnOrder.Count && TurnOrder.Count > 0)
-            {
-                // We removed the current entity and it was the last one, wrap to beginning
-                CurrentTurnIndex = 0;
-            }
-        }
-
-        private void GameEvents_OnCombatStart()
-        {
-            combatEnded = false;
-            SetTurnOrder();
+            TurnOrder.Clear();
             CurrentTurnIndex = 0;
             CurrentRoundIndex = 1;
+        }
 
+        private void OnCombatStart()
+        {
             GameEvents.TriggerTurnStart();
         }
 
@@ -164,6 +123,53 @@ namespace facingfate
             //Start the next Turn
             //ActionQueueUtility.EnqueueAction(new Action(OnTurnStart), 0.5f);
             ActionQueueUtility.EnqueueAction(GameEvents.TriggerTurnStart, 0.5f);
+        }
+        public void AddTurn(EntityScript entityScript)
+        {
+            if (entityScript == null || TurnOrder.Contains(entityScript))
+                return;
+
+            // Insert in descending order of dexterity
+            int insertIndex = TurnOrder.FindIndex(e => e.entityStats.CurrentDexterity < entityScript.entityStats.CurrentDexterity);
+
+            if (insertIndex < 0)
+            {
+                // Add at the end if no entity has lower dexterity
+                TurnOrder.Add(entityScript);
+            }
+            else
+            {
+                // Adjust CurrentTurnIndex if inserting before or at current position
+                if (insertIndex <= CurrentTurnIndex)
+                    CurrentTurnIndex++;
+
+                TurnOrder.Insert(insertIndex, entityScript);
+            }
+        }
+
+        public void RemoveTurn(EntityScript entityScript)
+        {
+            if (entityScript == null)
+                return;
+
+            int indexToRemove = TurnOrder.IndexOf(entityScript);
+
+            if (indexToRemove < 0)
+                return; // Entity not in turn order
+
+            TurnOrder.RemoveAt(indexToRemove);
+
+            // Adjust CurrentTurnIndex if needed
+            if (indexToRemove < CurrentTurnIndex)
+            {
+                // Entity was before current, shift index back
+                CurrentTurnIndex--;
+            }
+            else if (indexToRemove == CurrentTurnIndex && CurrentTurnIndex >= TurnOrder.Count && TurnOrder.Count > 0)
+            {
+                // We removed the current entity and it was the last one, wrap to beginning
+                CurrentTurnIndex = 0;
+            }
         }
     }
 }

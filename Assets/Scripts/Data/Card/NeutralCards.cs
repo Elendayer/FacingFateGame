@@ -31,8 +31,6 @@ namespace facingfate
                     return Mathf.RoundToInt(card.Owner.entityStats.CurrentStrength);
                 },
 
-                range_u = 1f,
-
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Entity,

@@ -27,6 +27,8 @@ namespace facingfate
         private GameObject selectedCard;
         public GameObject GetSelectedCard() => selectedCard;
 
+        private bool listenersAdded = false;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -37,6 +39,33 @@ namespace facingfate
             {
                 Instance = this;
             }
+
+            AddListeners();
+        }
+        public void AddListeners()
+        {
+            if (listenersAdded) return;
+            listenersAdded = true;
+
+            GameEvents.OnCombatEnd += OnCombatEnd;
+        }
+
+        private void OnDestroy()
+        {
+            GameEvents.OnCombatEnd -= OnCombatEnd;
+        }
+
+        private void OnCombatEnd(bool playerWon)
+        {
+            // Destroy all card objects in hand
+            foreach (GameObject card in cardsInHand)
+            {
+                if (card != null)
+                {
+                    Destroy(card);
+                }
+            }
+            cardsInHand.Clear();
         }
 
         private void Update()
@@ -226,6 +255,7 @@ namespace facingfate
                 if (card != null && cardsInHand.Contains(card))
                 {
                     DiscardCard(card);
+                    cardsInHand.Remove(card);
                 }
             }
         }

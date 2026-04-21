@@ -41,6 +41,8 @@ namespace facingfate
         public Stack<GameObject> cardStack = new Stack<GameObject>();
         public Stack<GameObject> discardStack = new Stack<GameObject>();
 
+        private bool listenersAdded = false;
+
         void Start()
         {
             // Singleton enforcement
@@ -57,6 +59,72 @@ namespace facingfate
         {
             if (deckDrawButton != null)
                 deckDrawButton.onClick.AddListener(Player_DrawTopCard);
+
+            cardStack.Clear();
+            discardStack.Clear();
+        }
+
+        public void AddListeners()
+        {
+            if (listenersAdded) return;
+            listenersAdded = true;
+
+            GameEvents.OnCombatEnd += OnCombatEnd;
+        }
+
+        private void OnDestroy()
+        {
+            GameEvents.OnCombatEnd -= OnCombatEnd;
+        }
+
+
+        private void OnCombatEnd(bool playerWon)
+        {
+            // Clear all decks and discards at combat end
+            cardStack.Clear();
+            discardStack.Clear();
+
+            // Optionally, also clear the visual elements in the deck and discard parents
+            foreach (Transform child in deckParent)
+            {
+                Destroy(child.gameObject);
+            }
+            foreach (Transform child in discardParent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            // Clear deck management storage
+            DeckManagement.Clear();
+        }
+
+        /// <summary>
+        /// Removes destroyed (null) GameObjects from the card stacks.
+        /// Call this if you suspect destroyed references have accumulated in the stacks.
+        /// </summary>
+        public void CleanupDestroyedReferences()
+        {
+            // Clean up cardStack
+            var validCards = new Stack<GameObject>();
+            foreach (var card in cardStack)
+            {
+                if (card != null)
+                    validCards.Push(card);
+            }
+            cardStack.Clear();
+            foreach (var card in validCards)
+                cardStack.Push(card);
+
+            // Clean up discardStack
+            var validDiscards = new Stack<GameObject>();
+            foreach (var card in discardStack)
+            {
+                if (card != null)
+                    validDiscards.Push(card);
+            }
+            discardStack.Clear();
+            foreach (var card in validDiscards)
+                discardStack.Push(card);
         }
 
         public void BuildDeckFromIDs(EntityScript entity)
@@ -220,15 +288,10 @@ namespace facingfate
             HandManager.Instance.RemoveCard(cardobject);
 
             CardScript cs = cardobject.GetComponent<CardScript>();
-            // HandUtility.Discard: SetParent(discardParent), SetHidden, ResetCard,
-            //                      discardStack.Push (guarded – no duplicate needed here)
             HandUtility.Discard(cs);
 
             // Zero local transform AFTER HandUtility re-parented the card
-            if (cardRect != null)
-                TransformUtility.ZeroLocalRectTransform(cardRect);
-
-            // NOTE: discardStack.Push removed – HandUtility.Discard already handles it.
+            if (cardRect != null) TransformUtility.ZeroLocalRectTransform(cardRect);
 
             // Rebuild the stacked pile visuals
             discardParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
@@ -254,15 +317,10 @@ namespace facingfate
             HandManager.Instance.RemoveCard(cardobject);
 
             CardScript cs = cardobject.GetComponent<CardScript>();
-            // HandUtility.Discard: SetParent(discardParent), SetHidden, ResetCard,
-            //                      discardStack.Push (guarded – no duplicate needed here)
             HandUtility.Discard(cs);
 
             // Zero local transform AFTER HandUtility re-parented the card
-            if (cardRect != null)
-                TransformUtility.ZeroLocalRectTransform(cardRect);
-
-            // NOTE: discardStack.Push removed – HandUtility.Discard already handles it.
+            if (cardRect != null)TransformUtility.ZeroLocalRectTransform(cardRect);
 
             // Rebuild the stacked pile visuals
             discardParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
@@ -332,22 +390,14 @@ namespace facingfate
             if (dockDeck == null || dockDiscard == null)
                 return;
 
-            // Collect all cards needing to be stored
-            var allCards = new List<GameObject>(cardStack.Count + HandManager.Instance.cardsInHand.Count + discardStack.Count);
-            allCards.AddRange(cardStack);
-            allCards.AddRange(HandManager.Instance.cardsInHand);
-            allCards.AddRange(discardStack);
-
-            // Separate deck cards from discard cards
-            var deckCards = allCards.Take(cardStack.Count).ToList();
-            var discardCards = allCards.Skip(cardStack.Count).ToList();
-
-            // Move cards to their respective storage locations
+            // Move deck cards
+            var deckCards = new List<GameObject>(cardStack);
             MoveCardsToTransform(deckCards, dockDeck);
-            MoveCardsToTransform(discardCards, dockDiscard);
-
-            // Clear the stacks
             cardStack.Clear();
+
+            // Move discard cards
+            var discardCards = new List<GameObject>(discardStack);
+            MoveCardsToTransform(discardCards, dockDiscard);
             discardStack.Clear();
         }
 
@@ -357,6 +407,10 @@ namespace facingfate
             {
                 if (card != null)
                 {
+                    // Ensure card remains active
+                    if (!card.activeInHierarchy)
+                        card.SetActive(true);
+
                     card.transform.SetParent(target);
                     TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
                 }
@@ -393,8 +447,15 @@ namespace facingfate
             // Move Deck cards to cardStack
             foreach (CardScript c in deckCards)
             {
+                if (c.gameObject == null) continue;
+
                 c.cardData.Owner = entity;
                 RectTransform ct = c.GetComponent<RectTransform>();
+
+                // Ensure card is active
+                if (!c.gameObject.activeInHierarchy)
+                    c.gameObject.SetActive(true);
+
                 ct.SetParent(deckParent);
                 TransformUtility.ZeroLocalRectTransform(ct);
                 cardStack.Push(ct.gameObject);
@@ -403,8 +464,17 @@ namespace facingfate
             // Move Discard cards to discardStack
             foreach (CardScript c in discardCards)
             {
+                if (c.gameObject == null) continue;
+
                 c.cardData.Owner = entity;
                 RectTransform ct = c.GetComponent<RectTransform>();
+
+                // Ensure card is active
+                if (!c.gameObject.activeInHierarchy)
+                    c.gameObject.SetActive(true);
+
+                ct.SetParent(discardParent);
+                TransformUtility.ZeroLocalRectTransform(ct);
                 discardStack.Push(ct.gameObject);
             }
         }
@@ -417,7 +487,10 @@ namespace facingfate
             Player_MoveInDeck(entity);
 
             // Draw opening hand
-            for (int i = 0; i < 5; i++)
+
+            int initialDrawCount = Mathf.Max(1, Mathf.FloorToInt(entity.entityStats.CurrentWisdom / 2f));
+
+            for (int i = 0; i < initialDrawCount; i++)
             {
                 Player_DrawTopCard();
             }

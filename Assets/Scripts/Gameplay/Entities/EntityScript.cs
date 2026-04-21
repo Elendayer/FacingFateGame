@@ -21,7 +21,7 @@ namespace facingfate
         [Header("Entity Gameplay References")]
         public EntityVisualScript EntityVisual;
         public MeshFilter EntityModel;
-        public EntityOnMap entityOnMap;
+        public EntityOnMap EntityOnMap;
 
 
 
@@ -33,13 +33,12 @@ namespace facingfate
         public virtual void StartUp()
         {
             EntityVisual = GetComponentInChildren<EntityVisualScript>();
-            entityOnMap = GetComponentInChildren<EntityOnMap>();
+            EntityOnMap = GetComponentInChildren<EntityOnMap>();
 
             entityStats = new();
             entityStats.StartUp(this);
 
-            entityOnMap.Startup();
-
+            EntityOnMap.Startup();
         }
         #region Events
 
@@ -198,7 +197,7 @@ namespace facingfate
         Strength,
         Dexterity,
         Wisdom,
-        Foresight,
+        Intelligence,
         Endurance,
         Tenacity
     }

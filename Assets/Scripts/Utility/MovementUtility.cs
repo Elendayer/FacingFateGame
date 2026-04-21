@@ -291,7 +291,7 @@ public static class MovementUtility
         if (entity == null)
             return;
 
-        EntityOnMap entityOnMap = entity.entityOnMap;
+        EntityOnMap entityOnMap = entity.EntityOnMap;
         if (entityOnMap == null)
             return;
 
@@ -487,7 +487,7 @@ public static class MovementUtility
                     if (e == null || e.entityAffiliation == entity.entityAffiliation)
                         continue;
 
-                    EntityOnMap enemyEntityOnMap = e.entityOnMap;
+                    EntityOnMap enemyEntityOnMap = e.EntityOnMap;
                     if (enemyEntityOnMap == null)
                         continue;
 

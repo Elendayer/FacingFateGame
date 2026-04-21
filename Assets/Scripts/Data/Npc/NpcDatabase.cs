@@ -52,7 +52,10 @@ namespace facingfate
                     "Neutral_Tech_Strike",
                     "Neutral_Tech_Strike",
                     "Neutral_Tech_Strike",
-                }
+                },
+
+                baseStrength = 16,
+                baseTenacity = 1,
             });
 
             RegisterNpc(new NpcData()
@@ -65,7 +68,10 @@ namespace facingfate
                 {
                     "Neutral_Abil_Recover",
                     "Neutral_Abil_Recover"
-                }
+                },
+
+                baseWisdom = 16,
+
             });
 
             RegisterNpc(new NpcData()
@@ -96,7 +102,9 @@ namespace facingfate
                     "Spear_Curse_Brittle_Courage",
                     "Spear_Bless_Brilliant_Spear",
 
-                }
+                },
+
+                baseStrength = 16,
             });
 
             RegisterNpc(new NpcData()
@@ -126,7 +134,9 @@ namespace facingfate
                 "Mystic_Spell_Pure_Flames",
                 //"Mystic_Curse_Psychic_Backlash",
                 //"Mystic_Bless_Inner_Calm",
-            }
+            },
+
+                baseWisdom = 16,
             });
 
             RegisterNpc(new NpcData()
@@ -205,6 +215,14 @@ namespace facingfate
 
         public List<string> cardIds = new();
 
+        //base stats
+        public int baseStrength = 10;
+        public int baseDexterity = 10;
+        public int baseWisdom = 10;
+        public int baseIntelligence = 10;
+        public int baseEndurance = 10;
+        public int baseTenacity = 10;
+
         public NpcData Clone(EntityScript entity)
         {
             return new NpcData
@@ -212,7 +230,14 @@ namespace facingfate
                 id = this.id,
                 name = this.name,
                 aiBias = this.aiBias,
-                cardIds = this.cardIds
+                cardIds = this.cardIds,
+
+                baseStrength = this.baseStrength,
+                baseDexterity = this.baseDexterity,
+                baseWisdom = this.baseWisdom,
+                baseIntelligence = this.baseIntelligence,
+                baseEndurance = this.baseEndurance,
+                baseTenacity = this.baseTenacity
             };
         }
     }

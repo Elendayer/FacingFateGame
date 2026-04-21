@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections;
 
 namespace facingfate
 {
@@ -60,8 +61,8 @@ namespace facingfate
             mainMenuButton.onClick.AddListener(OnMainMenu);
         }
 
-        private void OnEnable()  => GameEvents.OnCombatResult += Show;
-        private void OnDisable() => GameEvents.OnCombatResult -= Show;
+        private void OnEnable()  => GameEvents.OnCombatEnd += Show;
+        private void OnDisable() => GameEvents.OnCombatEnd -= Show;
 
         private void Show(bool playerWon)
         {
@@ -122,9 +123,13 @@ namespace facingfate
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
+
         private void OnMainMenu()
         {
             DOTween.KillAll();
+
+            // No need to restart for main menu - just load the scene
+            // Persistent managers will remain but won't interfere with the title screen
             SceneManager.LoadScene(mainMenuSceneName);
         }
     }

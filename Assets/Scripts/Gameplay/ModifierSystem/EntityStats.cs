@@ -7,6 +7,7 @@ namespace facingfate
     public class EntityStats
     {
         public EntityScript Owner;
+        private bool deathProcessed = false;
 
         [Header("Base Stats")]
         [SerializeField]
@@ -53,10 +54,10 @@ namespace facingfate
         public Stat Wisdom_Increase = new();
         public Stat Wisdom_Multiplier = new();
 
-        public float CurrentForesight => Foresight_Flat.Value() * (1f + (Foresight_Increase.Value() / 100f)) * GetMultiplierProduct(Foresight_Multiplier);
-        public Stat Foresight_Flat = new();
-        public Stat Foresight_Increase = new();
-        public Stat Foresight_Multiplier = new();
+        public float CurrentIntelligence => Intelligence_Flat.Value() * (1f + (Intelligence_Increase.Value() / 100f)) * GetMultiplierProduct(Intelligence_Multiplier);
+        public Stat Intelligence_Flat = new();
+        public Stat Intelligence_Increase = new();
+        public Stat Intelligence_Multiplier = new();
 
         public float CurrentEndurance => Endurance_Flat.Value() * (1f + (Endurance_Increase.Value() / 100f)) * GetMultiplierProduct(Endurance_Multiplier);
         public Stat Endurance_Flat = new();
@@ -139,21 +140,44 @@ namespace facingfate
 
         public void StartUp(EntityScript entityScript)
         {
+            // Set the owner of the stats to the entity script
             Owner = entityScript;
 
             // Base attribute values - Flat
-            Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: 10f));
-            Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: 10f));
-            Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: 10f));
-            Foresight_Flat.AddModifier(new StatModifier("BaseValue", Foresight_Flat, value: 10f));
-            Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: 10f));
-            Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: 10f));
+            NonPlayerScript npcScript = Owner as NonPlayerScript;
+            if (npcScript != null)
+            {
+                Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: npcScript.npcData.baseStrength));
+                Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: npcScript.npcData.baseDexterity));
+                Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: npcScript.npcData.baseWisdom));
+                Intelligence_Flat.AddModifier(new StatModifier("BaseValue", Intelligence_Flat, value: npcScript.npcData.baseIntelligence));
+                Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: npcScript.npcData.baseEndurance));
+                Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: npcScript.npcData.baseTenacity));
 
-            MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => Tenacity_Flat.Value() * 50f));
-            MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => Endurance_Flat.Value() * 5f));
+                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f));
+                MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f));
+            }
+            else
+            {
+                Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: 10f));
+                Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: 10f));
+                Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: 10f));
+                Intelligence_Flat.AddModifier(new StatModifier("BaseValue", Intelligence_Flat, value: 10f));
+                Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: 10f));
+                Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: 10f));
+
+                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f));
+                MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f));
+            }
+
 
             CurrentHealth = GetMaxHealthValue();
             CurrentStamina = GetMaxStaminaValue();
+
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Strength", DamageOutModifier_Increase, value: () => CurrentStrength, condition: (e,d) => d != null && d.cardIdentities.Contains(CardIdentity.Melee)));
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Dexterity", DamageOutModifier_Increase, value: () => CurrentDexterity, condition: (e,d) => d != null && d.cardIdentities.Contains(CardIdentity.Ranged)));
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Intelligence", DamageOutModifier_Increase, value: () => CurrentIntelligence, condition: (e,d) => d != null && d.cardType == CardType.Spell));
+
 
             // Initial tick to set all stats correctly
             ActionQueueUtility.EnqueueAction(() =>
@@ -212,6 +236,7 @@ namespace facingfate
 
         public void UpdateStats()
         {
+            // Update all stat modifiers
             var statFields = typeof(EntityStats).GetFields().Where(f => f.FieldType == typeof(Stat));
 
             foreach (var field in statFields)
@@ -220,20 +245,65 @@ namespace facingfate
                 stat?.UpdateStat();
             }
 
-            if (CurrentHealth <= 0)
+            Debug.Log($"Checking death for {Owner.name}", Owner);
+            // Handle death condition - only process once per entity
+            if (CurrentHealth <= 0 && !deathProcessed && Owner != null)
             {
-                ActionQueueUtility.EnqueueAction(() =>
+                Debug.Log($"Death for {Owner.name}", Owner);
+
+                deathProcessed = true;
+                HandleEntityDeath();
+            }
+        }
+
+        private void HandleEntityDeath()
+        {
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                try
                 {
-                    TurnManager.Instance.RemoveTurn(Owner);
-                    Owner.GetComponent<EntityOnMap>().enabled = false;
+                    if (Owner == null)
+                        return;
+
+                    // Remove turn safely
+                    if (TurnManager.Instance != null)
+                    {
+                        TurnManager.Instance.RemoveTurn(Owner);
+                    }
+
+                    // Disable entity on map component
+                    var entityOnMap = Owner.GetComponent<EntityOnMap>();
+                    if (entityOnMap != null)
+                    {
+                        entityOnMap.enabled = false;
+                    }
+
+                    // Disable the owner GameObject
                     Owner.enabled = false;
 
+                    // Trigger death event - this will notify EncounterManager to check win/lose
                     GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onDeath }, Owner, new() { Owner }));
+
+                    // Remove all modifiers
                     Owner.RemoveAllModifiers();
 
-                    Owner.EntityModel.transform.rotation = new();
-                });
-            }
+                    // Reset rotation
+                    if (Owner.EntityModel != null)
+                    {
+                        Owner.EntityModel.transform.rotation = new();
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"Error during entity death handling for {Owner?.name}: {ex.Message}", Owner);
+                }
+            });
+        }
+
+        private void CheckForOtherDeaths()
+        {
+            // This method is kept for potential future use
+            // Deaths are handled individually through UpdateStats() and events
         }
     }
 }

@@ -209,21 +209,26 @@ namespace facingfate
 
         private void RefreshHUDCounts()
         {
-            DeckManager  dm     = DeckManager.Instance;
+            DeckManager dm = DeckManager.Instance;
             if (dm == null) return;
+
+            // Clean up any destroyed card references that may have accumulated
+            dm.CleanupDestroyedReferences();
 
             EntityScript active = GetActivePlayer();
             int deckCount = 0, discardCount = 0;
 
             foreach (GameObject go in dm.cardStack)
             {
-                CardScript cs = go?.GetComponent<CardScript>();
+                if (go == null) continue;
+                CardScript cs = go.GetComponent<CardScript>();
                 if (cs?.cardData == null) continue;
                 if (active == null || cs.cardData.Owner == active) deckCount++;
             }
             foreach (GameObject go in dm.discardStack)
             {
-                CardScript cs = go?.GetComponent<CardScript>();
+                if (go == null) continue;
+                CardScript cs = go.GetComponent<CardScript>();
                 if (cs?.cardData == null) continue;
                 if (active == null || cs.cardData.Owner == active) discardCount++;
             }
@@ -248,7 +253,8 @@ namespace facingfate
                 Stack<GameObject> source = isDeckActive ? dm.cardStack : dm.discardStack;
                 foreach (GameObject go in source)
                 {
-                    CardScript cs = go?.GetComponent<CardScript>();
+                    if (go == null) continue;
+                    CardScript cs = go.GetComponent<CardScript>();
                     if (cs?.cardData == null) continue;
                     if (target == null || cs.cardData.Owner == target)
                         cards.Add(go);

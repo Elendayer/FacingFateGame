@@ -7,18 +7,19 @@ namespace facingfate
 {
     public static class GameEvents
     {
+        public static event Action OnEncounterStart;
         public static event Action OnTurnStart;
         public static event Action OnTurnEnd;
         public static event Action OnRoundEnd;
         public static event Action OnRoundStart;
         public static event Action OnCombatStart;
-        public static event Action OnCombatEnd;
-        public static event Action<bool> OnCombatResult;
+        public static event Action<bool> OnCombatEnd;
         public static event Action<EntityScript> OnActivePlayerChanged;
         public static event Action<EntityScript> OnTurnEntityChanged;
 
         public static event Action<ToSendTriggerReference> OnGameplayReference;
 
+        public static void TriggerEncounterStart() => OnEncounterStart?.Invoke();
         public static void TriggerTurnStart() => OnTurnStart?.Invoke();
         public static void TriggerTurnEnd() => OnTurnEnd?.Invoke();
 
@@ -26,16 +27,11 @@ namespace facingfate
         public static void TriggerRoundStart() => OnRoundStart?.Invoke();
 
         public static void TriggerCombatStart() => OnCombatStart?.Invoke();
-        public static void TriggerCombatEnd() => OnCombatEnd?.Invoke();
-        public static void TriggerCombatResult(bool playerWon)
-        {
-            OnCombatResult?.Invoke(playerWon);
-            TriggerCombatEnd();
-        }
-        public static void TriggerActivePlayerChanged(EntityScript entity)
-            => OnActivePlayerChanged?.Invoke(entity);
-        public static void TriggerTurnEntityChanged(EntityScript entity)
-            => OnTurnEntityChanged?.Invoke(entity);
+        public static void TriggerCombatEnd(bool playerWon) => OnCombatEnd?.Invoke(playerWon);
+
+
+        public static void TriggerActivePlayerChanged(EntityScript entity)=> OnActivePlayerChanged?.Invoke(entity);
+        public static void TriggerTurnEntityChanged(EntityScript entity)=> OnTurnEntityChanged?.Invoke(entity);
 
 
         public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());

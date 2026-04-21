@@ -6,6 +6,7 @@ namespace facingfate
     {
         private static Dictionary<string, CardData> cardLookup = new Dictionary<string, CardData>();
 
+        public static bool isRegistered = false;
         public static void RegisterCard(CardData card)
         {
             if (!cardLookup.ContainsKey(card.cardID))
@@ -35,6 +36,8 @@ namespace facingfate
 
         public static void RegisterAll()
         {
+            if (isRegistered) return;
+
             // Register cards from all classes
             SpearmanCards.RegisterAll();
             AssassinCards.RegisterAll();
@@ -46,6 +49,7 @@ namespace facingfate
             EffectDatabase.RegisterAll();
 
             // Register completed
+            isRegistered = true;
         }
     }
 }

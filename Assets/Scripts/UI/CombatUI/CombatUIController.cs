@@ -309,7 +309,7 @@ namespace facingfate
             MarkDirty(DirtyFlags.All);
         }
 
-        private void HandleCombatEnd()
+        private void HandleCombatEnd(bool playerWon)
         {
             hoveredEntity = null;
             currentActiveEntity = null;

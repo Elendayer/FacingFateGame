@@ -22,23 +22,23 @@ namespace facingfate
 
         public override void StartUp()
         {
-            base.StartUp();
-
+            // Load NPC data BEFORE calling base.StartUp() so EntityStats can access it
             if (usePresetConfig)
             {
                 // Preset by RandomEncounterManager — skip database lookup
-                npcAIController = new NpcAIController(this, npcData);
-                // deckCardIDs already set; name already set on the GameObject
+                // npcData already set; name already set on the GameObject
             }
             else
             {
                 // Normal flow — load from NpcDatabase
                 npcData = NpcDatabase.GetNpcById(NpcID, this);
-                npcAIController = new NpcAIController(this, npcData);
                 name = $"{entityAffiliation}_{npcData.name}";
                 deckCardIDs = npcData.cardIds;
             }
 
+            base.StartUp();
+
+            npcAIController = new NpcAIController(this, npcData);
             DeckManager.Instance.BuildDeckFromIDs(this);
 
             Debug.Log($"[NonPlayerScript] Setup complete for {name}");
@@ -53,7 +53,7 @@ namespace facingfate
                 ActionQueueUtility.EnqueueAction(() =>
                 {
                     Debug.Log($"[NonPlayerScript] {name} is stunned and skips their turn.");
-                    EventManager.Instance.Endturn();
+                    GameEvents.TriggerTurnEnd();
                 });
 
                 entityStats.IsStunned = false;
@@ -84,10 +84,7 @@ namespace facingfate
                     ExecutePlanSequentially(plan, () =>
                     {
                         // Step 3: End turn after plan finishes
-                        ActionQueueUtility.EnqueueAction(() =>
-                        {
-                            EventManager.Instance.Endturn();
-                        }, 1f);
+                        ActionQueueUtility.EnqueueAction(() =>{ GameEvents.TriggerTurnEnd(); }, 1f);
                     });
                 });
             });
@@ -165,7 +162,7 @@ namespace facingfate
             Debug.Log($"[NpcAI] {name} moving to {action.PathData.End}");
 
             ActionQueueUtility.EnqueueActionRoutine(this, () =>
-                entityOnMap.StartMoveRoutineWithPath(action.PathData), () =>
+                EntityOnMap.StartMoveRoutineWithPath(action.PathData), () =>
             {
                 Debug.Log($"[NpcAI] {name} finished moving");
                 onActionComplete?.Invoke();
