@@ -65,19 +65,49 @@ namespace facingfate
 
         public void AddTurn(EntityScript entityScript)
         {
-            TurnOrder.Insert(CurrentTurnIndex++, entityScript);
+            if (entityScript == null || TurnOrder.Contains(entityScript))
+                return;
+
+            // Insert in descending order of dexterity
+            int insertIndex = TurnOrder.FindIndex(e => e.entityStats.CurrentDexterity < entityScript.entityStats.CurrentDexterity);
+
+            if (insertIndex < 0)
+            {
+                // Add at the end if no entity has lower dexterity
+                TurnOrder.Add(entityScript);
+            }
+            else
+            {
+                // Adjust CurrentTurnIndex if inserting before or at current position
+                if (insertIndex <= CurrentTurnIndex)
+                    CurrentTurnIndex++;
+
+                TurnOrder.Insert(insertIndex, entityScript);
+            }
         }
 
         public void RemoveTurn(EntityScript entityScript)
         {
-            if (TurnOrder.Take(CurrentTurnIndex).Contains(entityScript))
+            if (entityScript == null)
+                return;
+
+            int indexToRemove = TurnOrder.IndexOf(entityScript);
+
+            if (indexToRemove < 0)
+                return; // Entity not in turn order
+
+            TurnOrder.RemoveAt(indexToRemove);
+
+            // Adjust CurrentTurnIndex if needed
+            if (indexToRemove < CurrentTurnIndex)
             {
+                // Entity was before current, shift index back
                 CurrentTurnIndex--;
-                TurnOrder.Remove(entityScript);
             }
-            else
+            else if (indexToRemove == CurrentTurnIndex && CurrentTurnIndex >= TurnOrder.Count && TurnOrder.Count > 0)
             {
-                TurnOrder.Remove(entityScript);
+                // We removed the current entity and it was the last one, wrap to beginning
+                CurrentTurnIndex = 0;
             }
         }
 
@@ -116,7 +146,7 @@ namespace facingfate
 
         private void OnTurnEnd()
         {
-            if (combatEnded) return;
+            if (combatEnded || TurnOrder.Count == 0 || CurrentTurnIndex >= TurnOrder.Count) return;
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
 

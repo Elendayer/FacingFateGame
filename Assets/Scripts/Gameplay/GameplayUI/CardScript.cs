@@ -15,6 +15,7 @@ namespace facingfate
         public CardData cardData;
         public UnityEngine.UI.Image artworkRenderer;
         public GameObject cardBack;
+        public GameObject cardFront;
         public TextMeshProUGUI nameText; // Optional: if you're using UI elements
         public TextMeshProUGUI descriptionText;
         public TextMeshProUGUI range;
@@ -96,7 +97,7 @@ namespace facingfate
             if (value < baseValue)
                 return $"<color=#FF0000>{value}</color>"; // Red
 
-            return $"<color=#FFFFFF>{value}</color>"; // White
+            return $"<color=#000000>{value}</color>"; // Black
         }
         private string FormatCardRange(CardData d)
         {
@@ -112,31 +113,31 @@ namespace facingfate
             switch (t.cardTargetingMode)
             {
                 case CardTargetingMode.Single:
-                    parts.Add("Single Target");
+                    parts.Add("Single");
                     break;
 
                 case CardTargetingMode.Ring:
-                    parts.Add($"Ring, {cardData.Radius} by {cardData.Area}");
+                    parts.Add($"Ring, {cardData.Radius}m * {cardData.Area}m");
                     break;
 
                 case CardTargetingMode.Radius:
-                    parts.Add($"Radius, {cardData.Radius}");
+                    parts.Add($"Radius, {cardData.Radius}m");
                     break;
 
                 case CardTargetingMode.LineFree:
-                    parts.Add($"Line Free, with maximum length {cardData.Area}");
+                    parts.Add($"Line Draw,{cardData.Area}m");
                     break;
 
                 case CardTargetingMode.LineSelf:
-                    parts.Add($"Line from Self, {cardData.Range}");
+                    parts.Add($"Line, {cardData.Range}m");
                     break;
 
                 case CardTargetingMode.Cone:
-                    parts.Add($"Cone from Self, {cardData.Range} by {cardData.Area}");
+                    parts.Add($"Cone, {cardData.Range}m");
                     break;
 
                 case CardTargetingMode.Select:
-                    parts.Add($"Select, {cardData.MaxTarget} targets");
+                    parts.Add($"Select, {cardData.MaxTarget}");
                     break;
 
                 case CardTargetingMode.All:
@@ -147,7 +148,7 @@ namespace facingfate
             // if effect uses Vision
             if (t.EffectUsesVision)
             {
-                parts.Add("Blocked by Obstacles,");
+                parts.Add("Blocked,");
             }
             else
             {
@@ -159,15 +160,15 @@ namespace facingfate
             {
                 if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
                 {
-                    parts.Add("Targeting Allies");
+                    parts.Add("Allies");
                 }
                 else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
                 {
-                    parts.Add("Targeting Enemies");
+                    parts.Add("Enemies");
                 }
                 else
                 {
-                    parts.Add("Targeting Everything");
+                    parts.Add("ALL");
                 }
 
                 // if targeting uses Vision
@@ -178,13 +179,13 @@ namespace facingfate
             }
             else
             {
-                parts.Add("Targets Self");
+                parts.Add("Self");
             }
 
             // Range (only if mode uses range)
             if (t.cardTargetingMode is not CardTargetingMode.All)
             {
-                parts.Add($"within {cardData.Range} Tiles");
+                parts.Add($"{cardData.Range}m");
             }
 
             // Final join
@@ -335,12 +336,14 @@ namespace facingfate
         internal void SetHidden()
         {
             cardBack.SetActive(true);
+            cardFront.SetActive(false);
             GetComponent<DraggableCard>().enabled = false;
         }
 
         internal void SetRevealed()
         {
             cardBack.SetActive(false);
+            cardFront.SetActive(true);
             GetComponent<DraggableCard>().enabled = true;
             ApplyCardDataVisuals();
         }

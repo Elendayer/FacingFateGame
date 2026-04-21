@@ -154,6 +154,7 @@ namespace facingfate
         {
             newCard.GetComponent<CardScript>().SetHidden();
             newCard.transform.SetParent(handAnchor, false);
+            newCard.transform.position = Vector3.zero;
             cardsInHand.Add(newCard);
             UpdateHandLayout();
         }
@@ -218,9 +219,14 @@ namespace facingfate
 
         public void DiscardAllInHand()
         {
-            while (cardsInHand.Count > 0)
+            // Create a copy to avoid modification during iteration
+            List<GameObject> cardsToDiscard = new List<GameObject>(cardsInHand);
+            foreach (GameObject card in cardsToDiscard)
             {
-                DiscardCard(cardsInHand[0]);
+                if (card != null && cardsInHand.Contains(card))
+                {
+                    DiscardCard(card);
+                }
             }
         }
 

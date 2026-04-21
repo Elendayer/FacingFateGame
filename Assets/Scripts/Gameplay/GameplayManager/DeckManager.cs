@@ -10,6 +10,21 @@ namespace facingfate
 {
     public class DeckManager : MonoBehaviour
     {
+        /// <summary>
+        /// Stores both Deck and Discard transforms for an entity's deck storage.
+        /// </summary>
+        private struct EntityDeckStorage
+        {
+            public Transform Deck { get; set; }
+            public Transform Discard { get; set; }
+
+            public EntityDeckStorage(Transform deck, Transform discard)
+            {
+                Deck = deck;
+                Discard = discard;
+            }
+        }
+
         public static DeckManager Instance { get; private set; }
 
         [Header("Deck Configuration")]
@@ -21,7 +36,7 @@ namespace facingfate
         [Header("Deck Management")]
         public GameObject deckDockPrefab;
 
-        public Dictionary<EntityScript, Transform> DeckManagement = new Dictionary<EntityScript, Transform>();
+        private Dictionary<EntityScript, EntityDeckStorage> DeckManagement = new Dictionary<EntityScript, EntityDeckStorage>();
 
         public Stack<GameObject> cardStack = new Stack<GameObject>();
         public Stack<GameObject> discardStack = new Stack<GameObject>();
@@ -59,7 +74,7 @@ namespace facingfate
                 GameObject dockDiscard = Instantiate(deckDockPrefab, cardDock.transform);
                 dockDiscard.name = entity.name + "_Discard";
 
-                DeckManagement.Add(entity, dockDeck.transform);
+                DeckManagement.Add(entity, new EntityDeckStorage(dockDeck.transform, dockDiscard.transform));
 
                 foreach (string cardID in entity.deckCardIDs)
                 {
@@ -79,6 +94,7 @@ namespace facingfate
 
                 Player_ShuffleDeck();
             }
+
             // For non-player entities
             if (entity is NonPlayerScript nonPlayer)
             {
@@ -95,8 +111,7 @@ namespace facingfate
                 dockDiscard.name = entity.name + "_Discard";
                 nonPlayer.npcAIController.discard = dockDiscard.transform;
 
-
-                DeckManagement.Add(entity, dockDeck.transform);
+                DeckManagement.Add(entity, new EntityDeckStorage(dockDeck.transform, dockDiscard.transform));
 
                 foreach (string cardID in entity.deckCardIDs)
                 {
@@ -156,7 +171,7 @@ namespace facingfate
             return cardData;
         }
 
-        #region player Deck interactions
+        #region Player Deck interactions
         public void Player_DrawTopCard()
         {
             if (cardStack.Count == 0)
@@ -307,55 +322,61 @@ namespace facingfate
 
         public void Player_MoveOutDeck(EntityScript entity)
         {
-            Transform dock = DeckManagement[entity].parent;
-            Transform dockDeck = DeckManagement[entity];
-            Transform dockDiscard = dock.Find(entity.name + "_Discard");
+            if (entity == null || !DeckManagement.ContainsKey(entity))
+                return;
 
-            List<GameObject> deckCards = new();
-            List<GameObject> discardCards = new();
+            var deckStorage = DeckManagement[entity];
+            Transform dockDeck = deckStorage.Deck;
+            Transform dockDiscard = deckStorage.Discard;
 
-            // Remaining deck cards move to the Deck child
-            foreach (GameObject card in cardStack)
-            {
-                deckCards.Add(card);
-            }
+            if (dockDeck == null || dockDiscard == null)
+                return;
 
-            // Hand cards move to the Discard child
-            foreach (GameObject card in HandManager.Instance.cardsInHand)
-            {
-                discardCards.Add(card);
-            }
+            // Collect all cards needing to be stored
+            var allCards = new List<GameObject>(cardStack.Count + HandManager.Instance.cardsInHand.Count + discardStack.Count);
+            allCards.AddRange(cardStack);
+            allCards.AddRange(HandManager.Instance.cardsInHand);
+            allCards.AddRange(discardStack);
 
-            // Discard stack cards move to the Discard child
-            foreach (GameObject card in discardStack)
-            {
-                discardCards.Add(card);
-            }
+            // Separate deck cards from discard cards
+            var deckCards = allCards.Take(cardStack.Count).ToList();
+            var discardCards = allCards.Skip(cardStack.Count).ToList();
 
-            foreach (GameObject card in deckCards)
-            {
-                card.transform.SetParent(dockDeck);
-                TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
-            }
+            // Move cards to their respective storage locations
+            MoveCardsToTransform(deckCards, dockDeck);
+            MoveCardsToTransform(discardCards, dockDiscard);
 
-            foreach (GameObject card in discardCards)
-            {
-                card.transform.SetParent(dockDiscard);
-                TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
-            }
-
-            // Clear the stacks when moving out to Dock
+            // Clear the stacks
             cardStack.Clear();
             discardStack.Clear();
         }
 
+        private void MoveCardsToTransform(List<GameObject> cards, Transform target)
+        {
+            foreach (GameObject card in cards)
+            {
+                if (card != null)
+                {
+                    card.transform.SetParent(target);
+                    TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
+                }
+            }
+        }
+
         public void Player_MoveInDeck(EntityScript entity)
         {
+            if (entity == null || !DeckManagement.ContainsKey(entity))
+                return;
+
             cardStack.Clear();
             discardStack.Clear();
 
-            Transform dockDeck = DeckManagement[entity];
-            Transform dockDiscard = dockDeck.parent.Find(entity.name + "_Discard");
+            var deckStorage = DeckManagement[entity];
+            Transform dockDeck = deckStorage.Deck;
+            Transform dockDiscard = deckStorage.Discard;
+
+            if (dockDeck == null || dockDiscard == null)
+                return;
 
             Debug.Log($"[DeckManager] Moving cards into deck of {entity.name}");
 
@@ -390,40 +411,39 @@ namespace facingfate
 
         public void StartTurn(EntityScript entity)
         {
-            // Only for player for now
-            if (entity.GetType() == typeof(PlayerScript))
-            {
-                if (entity.GetType() == typeof(PlayerScript))
-                {
-                    Player_MoveInDeck(entity);
+            if (entity == null || !(entity is PlayerScript))
+                return;
 
-                    for (int i = 0; i < 5; i++)
-                    {
-                        Player_DrawTopCard();
-                    }
-                }
-                else
-                {
-                    Player_DrawTopCard();
-                }
+            Player_MoveInDeck(entity);
+
+            // Draw opening hand
+            for (int i = 0; i < 5; i++)
+            {
+                Player_DrawTopCard();
             }
         }
         public void EndTurn(EntityScript entity)
         {
-            if (entity.GetType() == typeof(PlayerScript))
-            {
-                // Move any remaining cards in hand to discard
-                HandManager.Instance.DiscardAllInHand();
+            if (entity == null)
+                return;
 
-                // Move all discarded cards back into the deck
-                Player_ShuffleDiscard();
+            // Only process player turn end
+            if (!(entity is PlayerScript))
+                return;
 
-                // Move out the deck for storage
-                Player_MoveOutDeck(entity);
-            }
+            // Verify it's actually the player's turn
+            if (TurnManager.Instance.CurrentTurnEntity != entity)
+                return;
+
+            // Move any remaining cards in hand to discard
+            HandManager.Instance.DiscardAllInHand();
+
+            // Move all discarded cards back into the deck
+            Player_ShuffleDiscard();
+
+            // Move out the deck for storage
+            Player_MoveOutDeck(entity);
         }
         #endregion
-
-
     }
 }
