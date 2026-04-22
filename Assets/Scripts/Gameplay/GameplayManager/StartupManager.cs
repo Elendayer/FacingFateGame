@@ -89,6 +89,12 @@ namespace facingfate
                 yield return null;
             }
 
+            if (TutorialEncounterSetup.Instance != null)
+            {
+                TutorialEncounterSetup.Instance.SpawnEntities();
+                yield return null;
+            }
+
             // Initialize all entities
             foreach (var entity in GameObject.FindObjectsByType<EntityScript>(0))
             {

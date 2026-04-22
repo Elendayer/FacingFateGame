@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Tutorial_de
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: 81577f562cf5c1f4a92e57e7d8b77d62, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 8310534144
+    m_Localized: "Willkommen bei Facing Fate! Dieses Tutorial f\xFChrt dich durch
+      die Grundlagen des Kampfes. \nKlicke \u201EWeiter\"."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53353164800
+    m_Localized: "Links siehst du deine Lebenspunkte (HP) und Ausdauer (Stamina).
+      \nStamina gibt an, wie viele und wie teure Karten du pro Zug spielen kannst.
+      \nSie entscheidet auch, wie weit du dich \xFCber das Spielfeld bewegen kannst."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56008159232
+    m_Localized: "Das ist deine Hand. Jede Karte zeigt ihre Stamina-Kosten oben links.
+      \nHovere \xFCber eine Karte um Details, Reichweite und Effekte zu lesen. \nKannst
+      du eine Karte nicht spielen? Deine Stamina reicht nicht aus."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 57769766912
+    m_Localized: "Spiel jetzt die Angriffskarte! Ziehe sie auf den Gegner. \nBeachte:
+      Karten haben eine Reichweite. Ist man zu weit weg verfehlt der Angriff."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59422322688
+    m_Localized: "Gut gemacht! Der Gegner hat Schaden erlitten dadurch hat sich sein
+      HP verringert. \nSind alle Gegner besiegt, endet der Kampf."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 61104238592
+    m_Localized: "Du kannst dich mit Stamina \xFCber das Spielfeld bewegen.\nDeine
+      Position beeinflusst Reichweite und Sichtlinie."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62958120960
+    m_Localized: "Spiel die Blutungskarte! Statuseffekte wie Blutung wirken \xFCber
+      mehrere Runden und werden als Symbole unter dem HP-Balken angezeigt. \nHovere
+      \xFCber ein Icon um den Effekt zu lesen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 64614871040
+    m_Localized: "Dein Zug ist vorbei. Dr\xFCcke \u201EZug beenden\"! Danach ist
+      der Gegner an der Reihe. \nZu Beginn deines n\xE4chsten Zuges wird deine Stamina
+      aufgefrischt und neue Karten werden gezogen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 66380673024
+    m_Localized: "Der Gegner hat seinen Zug beendet. Du hast neue Karten gezogen
+      und deine Stamina ist aufgefrischt. \nJede Runde bietet neue M\xF6glichkeiten
+      also kombiniere Karten klug!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 68385550336
+    m_Localized: "Besiege den Gegner! Alle Karten sind spielbar. Denk an Reichweite,
+      Stamina-Kosten und Statuseffekte. \nViel Erfolg!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14214657257472
+    m_Localized: "Bewege den Mauszeiger \xFCber den Gegner um seine Stats zu sehen."
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

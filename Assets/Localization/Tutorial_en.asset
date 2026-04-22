@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Tutorial_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 81577f562cf5c1f4a92e57e7d8b77d62, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 8310534144
+    m_Localized: Welcome to Facing Fate! This tutorial walks you through the basics
+      of combat. Click "Continue".
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53353164800
+    m_Localized: "On the left you see your Health Points (HP) and Stamina. \nYour
+      Stamina determines how many actions you can take in your turn.\nPlaying cards
+      and moving on the map costs stamina."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56008159232
+    m_Localized: "This is your Hand. Each card shows its Stamina cost in the top
+      left. \nHover over a card to read its details, range, and effects. \n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 57769766912
+    m_Localized: "Play the \"Strike\" card now! Drag it onto the enemy. \nNote: cards
+      have a range too. If too far away the attack will fail or miss."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59422322688
+    m_Localized: "Well done! The enemy took damage so their HP decreased. \nWhen
+      alll enemy are dead, you win. Hover over the enemy to inspect their stats."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 61104238592
+    m_Localized: 'You can also use stamina to move across the map.
+
+      Repositioning
+      affects what you can see and what you can reach with your cards.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62958120960
+    m_Localized: "Play Heavens Spear! \nThis card must target multiple Eniemies.
+      Click three Enemies in Range to play the card"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 64614871040
+    m_Localized: "Your turn is over. Press \"End Turn\"! \nBut beware: The enemy
+      acts next. "
+    m_Metadata:
+      m_Items: []
+  - m_Id: 66380673024
+    m_Localized: "The enemy finished their turn. You drew new cards and your Stamina
+      is refreshed. \nNow you can play with your whole deck. "
+    m_Metadata:
+      m_Items: []
+  - m_Id: 68385550336
+    m_Localized: Defeat the enemy!  Good luck!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14214657257472
+    m_Localized: Hover over the enemy to inspect their stats.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16562616053760
+    m_Localized: 'You have a third card in your Hand, but you have no Stamina left
+      to play it.
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17840951832576
+    m_Localized: "It causes the Bleed Status effects which last multiple rounds and
+      appear as icons below the HP bar. \nHover over an icon to read the effect."
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
