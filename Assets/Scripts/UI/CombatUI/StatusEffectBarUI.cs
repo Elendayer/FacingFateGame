@@ -13,6 +13,7 @@ namespace facingfate
 
         private Component boundEntity;
         private readonly List<StatusEffectIconUI> spawned = new();
+        private readonly Dictionary<string, int> _maxDurations = new();
 
         public void Bind(Component entity)
         {
@@ -44,6 +45,13 @@ namespace facingfate
                 int charges = EntityStatReader.TryGetModifierInt(mod, "Charges", -1);
                 int baseValue = EntityStatReader.TryGetModifierInt(mod, "BaseValue", -1);
 
+                if (duration > 0)
+                {
+                    if (!_maxDurations.TryGetValue(modName, out int stored) || duration > stored)
+                        _maxDurations[modName] = duration;
+                }
+                int maxDuration = _maxDurations.TryGetValue(modName, out int maxStored) ? maxStored : duration;
+
                 bool isExpired = EntityStatReader.TryGetModifierBool(mod, "IsExpired", false);
                 if (isExpired) continue;
 
@@ -53,7 +61,7 @@ namespace facingfate
                 EffectDatabase.TryGetUIInfo(modName, out string desc, out Sprite icon);
 
                 ui.SetIcon(icon);
-                ui.SetCounters(duration, baseValue);
+                ui.SetCounters(duration, baseValue, maxDuration);
                 ui.SetTooltip(modName, BuildTooltip(modName, desc, duration, charges, baseValue));
 
                 spawned.Add(ui);

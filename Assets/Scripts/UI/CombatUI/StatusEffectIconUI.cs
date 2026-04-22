@@ -8,7 +8,7 @@ namespace facingfate
     public class StatusEffectIconUI : MonoBehaviour
     {
         [SerializeField] private Image iconImage;
-        [SerializeField] private TMP_Text durationText;
+        [SerializeField] private Image durationFillImage;
         [SerializeField] private TMP_Text stacksText;
         [SerializeField] private TooltipTrigger tooltip;
 
@@ -18,10 +18,15 @@ namespace facingfate
             if (iconImage != null) iconImage.enabled = (sprite != null);
         }
 
-        public void SetCounters(float duration, float stacks)
+        public void SetCounters(float duration, float stacks, float maxDuration = -1f)
         {
-            if (durationText != null)
-                durationText.text = duration >= 0f ? duration.ToString("0") : "";
+            if (durationFillImage != null)
+            {
+                if (duration >= 0f && maxDuration > 0f)
+                    durationFillImage.fillAmount = Mathf.Clamp01(duration / maxDuration);
+                else
+                    durationFillImage.fillAmount = 1f;
+            }
 
             if (stacksText != null)
                 stacksText.text = stacks >= 0f ? stacks.ToString("0") : "";
