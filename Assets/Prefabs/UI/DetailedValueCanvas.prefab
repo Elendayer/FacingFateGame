@@ -48,6 +48,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5610029248120585577}
   - component: {fileID: 1613997824338933804}
+  - component: {fileID: 492223612110766875}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -100,6 +101,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &492223612110766875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719381494171298402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 1
 --- !u!1 &951382096364919870
 GameObject:
   m_ObjectHideFlags: 0
@@ -1234,8 +1249,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::facingfate.PlayerDetailedStatsPanel
   panelRoot: {fileID: 3988957479379443273}
   rowContainer: {fileID: 5610029248120585577}
-  rowPrefab: {fileID: 7690207525862115108, guid: 53895504731b589419e8859fb4f54118, type: 3}
-  sectionHeaderPrefab: {fileID: 3008312940893663788, guid: 642af27f139c6be4e85557c6f6a9ca1c, type: 3}
+  statRowPrefab: {fileID: 4419308195451272194, guid: 53895504731b589419e8859fb4f54118, type: 3}
+  statHeaderPrefab: {fileID: 4419308195451272194, guid: a7c47eed6b06c7642b2741de93f6cada, type: 3}
+  sectionHeaderRowPrefab: {fileID: 3008312940893663788, guid: 642af27f139c6be4e85557c6f6a9ca1c, type: 3}
   entityNameText: {fileID: 4703575659882884877}
   prevButton: {fileID: 7335181502754458405}
   nextButton: {fileID: 3497559658993352107}
@@ -2000,8 +2016,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 12, y: 0}
-  m_SizeDelta: {x: -24, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6882862850713910968
 CanvasRenderer:

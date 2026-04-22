@@ -174,10 +174,10 @@ namespace facingfate
             CurrentHealth = GetMaxHealthValue();
             CurrentStamina = GetMaxStaminaValue();
 
-            DamageOutModifier_Increase.AddModifier(new StatModifier("Strength", DamageOutModifier_Increase, value: () => CurrentStrength, condition: (e,d) => d != null && d.cardIdentities.Contains(CardIdentity.Melee)));
-            DamageOutModifier_Increase.AddModifier(new StatModifier("Dexterity", DamageOutModifier_Increase, value: () => CurrentDexterity, condition: (e,d) => d != null && d.cardIdentities.Contains(CardIdentity.Ranged)));
-            DamageOutModifier_Increase.AddModifier(new StatModifier("Intelligence", DamageOutModifier_Increase, value: () => CurrentIntelligence, condition: (e,d) => d != null && d.cardType == CardType.Spell));
-
+            // Attribute-based damage bonuses using ConditionalModifierInfo - simple string-based condition lookup
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Strength", DamageOutModifier_Increase, value: () => CurrentStrength, condition: "Melee"));
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Dexterity", DamageOutModifier_Increase, value: () => CurrentDexterity, condition: "Ranged"));
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Intelligence", DamageOutModifier_Increase, value: () => CurrentIntelligence, condition: "Spell"));
 
             // Initial tick to set all stats correctly
             ActionQueueUtility.EnqueueAction(() =>

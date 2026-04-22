@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
@@ -10,13 +11,22 @@ namespace facingfate
 {
     public class PlayerDetailedStatsPanel : MonoBehaviour
     {
+        private enum StatCategory
+        {
+            None,
+            Core,
+            Attribute,
+            Offensive,
+            Defensive,
+        }
         public static PlayerDetailedStatsPanel Instance { get; private set; }
 
         [Header("Popup")]
         [SerializeField] private GameObject     panelRoot;
         [SerializeField] private Transform      rowContainer;       // VerticalLayoutGroup here
-        [SerializeField] private StatRowEntryUI rowPrefab;
-        [SerializeField] private GameObject     sectionHeaderPrefab;
+        [SerializeField] private GameObject     statRowPrefab;
+        [SerializeField] private GameObject     statHeaderPrefab;
+        [SerializeField] private GameObject     sectionHeaderRowPrefab;
 
         [Header("Entity Navigation")]
         [SerializeField] private TMP_Text entityNameText;
@@ -51,6 +61,8 @@ namespace facingfate
                 ? ActiveList[selectedIndex] : null;
 
         private readonly List<(StatRowEntryUI row, Func<EntityStats, string> getter)> liveRows = new();
+        private readonly List<(StatRowEntryUI row, ConditionalModifierDef modifier)> liveConditionalRows = new();
+        private readonly List<(StatHeaderEntryUI header, Func<EntityStats, string> getter)> liveHeaderRows = new();
 
         // ── Stat definitions ───────────────────────────────────────────────────
         private readonly struct StatDef
@@ -60,13 +72,53 @@ namespace facingfate
             public readonly string TipHeader;
             public readonly string TipBody;
             public readonly bool   IsSection;
+            public readonly StatCategory Category;
+            public readonly Func<EntityStats, bool> ShouldDisplay;
+            public readonly Func<EntityStats, Stat> StatReference;
 
             public StatDef(string label, Func<EntityStats, string> getter,
-                           string tipHeader, string tipBody)
-            { Label = label; Getter = getter; TipHeader = tipHeader; TipBody = tipBody; IsSection = false; }
+                           string tipHeader, string tipBody, StatCategory category = StatCategory.None)
+            { Label = label; Getter = getter; TipHeader = tipHeader; TipBody = tipBody; IsSection = false; Category = category; ShouldDisplay = null; StatReference = null; }
 
-            public StatDef(string label)
-            { Label = label; Getter = null; TipHeader = null; TipBody = null; IsSection = true; }
+            public StatDef(string label, StatCategory category = StatCategory.None)
+            { Label = label; Getter = null; TipHeader = null; TipBody = null; IsSection = true; Category = category; ShouldDisplay = null; StatReference = null; }
+
+            public StatDef(string label, Func<EntityStats, string> getter,
+                           string tipHeader, string tipBody, Func<EntityStats, bool> shouldDisplay)
+            { Label = label; Getter = getter; TipHeader = tipHeader; TipBody = tipBody; IsSection = false; Category = StatCategory.None; ShouldDisplay = shouldDisplay; StatReference = null; }
+
+            public StatDef(string label, Func<EntityStats, string> getter,
+                           string tipHeader, string tipBody, Func<EntityStats, Stat> statReference)
+            { Label = label; Getter = getter; TipHeader = tipHeader; TipBody = tipBody; IsSection = false; Category = StatCategory.None; ShouldDisplay = null; StatReference = statReference; }
+        }
+
+        /// <summary>Represents a conditional modifier entry with its metadata</summary>
+        private readonly struct ConditionalModifierDef
+        {
+            public readonly string ModifierName;
+            public readonly Func<EntityStats, string> Getter;
+            public readonly ConditionalModifierInfo Condition;
+            public readonly string ModifierType;  // "Flat", "Increase", "Multiplier"
+
+            public ConditionalModifierDef(string modifierName, Func<EntityStats, string> getter, ConditionalModifierInfo condition, string modifierType = "")
+            {
+                ModifierName = modifierName;
+                Getter = getter;
+                Condition = condition;
+                ModifierType = modifierType;
+            }
+
+            public string GetDisplayLabel()
+            {
+                string baseLabel = Condition?.DisplayName ?? ModifierName;
+                if (!string.IsNullOrEmpty(ModifierType))
+                    return $"    {baseLabel} ({ModifierType})";
+                return $"    {baseLabel}";
+            }
+
+            public string GetDisplayValue(EntityStats stats) => Getter?.Invoke(stats) ?? "—";
+            public string GetDisplayTooltipHeader() => Condition?.DisplayName ?? ModifierName;
+            public string GetDisplayTooltipBody() => Condition?.Description ?? "";
         }
 
         private static readonly StatDef[] Definitions =
@@ -87,48 +139,58 @@ namespace facingfate
                 "Reduces all incoming damage by a flat amount before Block is applied."),
 
             // ── Attributes ────────────────────────────────────────────────────
-            new("── Attributes ──"),
-            new("Strength",   s => $"{s.CurrentStrength:0}",
-                "Strength",
-                "Physical power. Increases the damage of Strength-scaling abilities.\nBase value: 10."),
-            new("Dexterity",  s => $"{s.CurrentDexterity:0}",
-                "Dexterity",
-                "Agility and precision. Increases critical hit chance and may affect evasion.\nBase value: 10."),
-            new("Wisdom",     s => $"{s.CurrentWisdom:0}",
-                "Wisdom",
-                "Magical insight. Increases the power of Wisdom-scaling abilities and status-effect durations.\nBase value: 10."),
-            new("Foresight",  s => $"{s.CurrentIntelligence:0}",
-                "Foresight",
-                "Perception and initiative. Influences draw order and may unlock special ability thresholds.\nBase value: 10."),
-            new("Endurance",  s => $"{s.CurrentEndurance:0}",
-                "Endurance",
-                "Stamina reserve. Directly determines Max Stamina (Endurance × 5).\nBase value: 10."),
-            new("Tenacity",   s => $"{s.CurrentTenacity:0}",
-                "Tenacity",
-                "Resilience and vitality. Directly determines Max Health (Tenacity × 50).\nBase value: 10."),
+            new("Attributes", StatCategory.Attribute),
+
+            new("Strength",     s => $"{s.CurrentStrength:0.0}",
+                "Strength",  "Final calculated Strength value including all modifiers.", s => s.Strength_Flat),
+            new("Dexterity",     s => $"{s.CurrentDexterity:0.0}",
+                "Dexterity",  "Final calculated Dexterity value including all modifiers.", s => s.Dexterity_Flat),
+            new("Wisdom",       s => $"{s.CurrentWisdom:0.0}",
+                "Wisdom",  "Final calculated Wisdom value including all modifiers.", s => s.Wisdom_Flat),
+            new("Foresight",    s => $"{s.CurrentIntelligence:0.0}",
+                "Foresight",  "Final calculated Foresight value including all modifiers.", s => s.Intelligence_Flat),
+            new("Endurance",    s => $"{s.CurrentEndurance:0.0}",
+                "Endurance",  "Final calculated Endurance value including all modifiers.", s => s.Endurance_Flat),
+            new("Tenacity",     s => $"{s.CurrentTenacity:0.0}",
+                "Tenacity",  "Final calculated Tenacity value including all modifiers.", s => s.Tenacity_Flat),
 
             // ── Combat Modifiers ──────────────────────────────────────────────
             new("── Combat ──"),
-            new("Damage Dealt",  s => FormatMod(s.DamageOutModifier_Flat.Value(),    s.DamageOutModifier_Increase.Value()),
-                "Damage Dealt",  "+Flat adds to base value; +% scales result multiplicatively."),
-            new("Damage Taken",  s => FormatMod(s.DamageTakenModifier_Flat.Value(),  s.DamageTakenModifier_Increase.Value()),
-                "Damage Taken",  "Positive values increase damage received; negative reduce it."),
-            new("Healing Dealt", s => FormatMod(s.HealingOutModifier_Flat.Value(),   s.HealingOutModifier_Increase.Value()),
-                "Healing Dealt", "Modifies all healing this entity applies."),
-            new("Healing Taken", s => FormatMod(s.HealingTakenModifier_Flat.Value(), s.HealingTakenModifier_Increase.Value()),
-                "Healing Taken", "Modifies all incoming healing received."),
+            new("── Offensive ──", StatCategory.Offensive),
+
+            new("Damage Dealt", s => FormatMod(s.DamageOutModifier_Flat.Value(), s.DamageOutModifier_Increase.Value()),
+                "Damage Dealt", "Increases damage dealt. Flat = direct bonus, % = percentage increase.", s => s.DamageOutModifier_Increase),
+
+            new("Healing Dealt", s => FormatMod(s.HealingOutModifier_Flat.Value(), s.HealingOutModifier_Increase.Value()),
+                "Healing Dealt", "Increases healing dealt. Flat = direct bonus, % = percentage increase.", s => s.HealingOutModifier_Increase),
+
+            new("Power",         s => FormatMod(s.PowerModifier_Flat.Value(),        s.PowerModifier_Increase.Value()),
+                "Power",         "Global multiplier on the power of all card effects.", s => s.PowerModifier_Increase),
+
+            new("Duration",      s => FormatMod(s.DurationModifier_Flat.Value(),     s.DurationModifier_Increase.Value()),
+                "Duration",      "Modifies duration of all status effects applied by this entity.", s => s.DurationModifier_Increase),
+
+            new("Lifesteal",     s => $"{s.Lifesteal.Value():0}%",
+                "Lifesteal",     "% of all damage dealt returned as healing to this entity.", s => s.Lifesteal),
+
+            new("Ignore Armour", s => $"{s.IgnoreArmour.Value():0}%",
+                "Ignore Armour", "% of target's Armour bypassed when dealing damage.", s => s.IgnoreArmour),
+
+            new("Ignore Block",  s => $"{s.IgnoreBlock.Value():0}%",
+                "Ignore Block",  "% of target's Block bypassed when dealing damage.", s => s.IgnoreBlock),
+
+            new("── Defensive ──", StatCategory.Defensive),
+            new("Damage Reduction", s => FormatMod(s.DamageTakenModifier_Flat.Value(), s.DamageTakenModifier_Increase.Value()),
+                "Damage Reduction", "Reduces damage taken. Flat = direct reduction, % = percentage reduction.", s => s.DamageTakenModifier_Increase),
+            new("Healing Taken",    s => FormatMod(s.HealingTakenModifier_Flat.Value(), s.HealingTakenModifier_Increase.Value()),
+                "Healing Taken",    "Increases healing received. Flat = direct increase, % = percentage increase.", s => s.HealingTakenModifier_Increase),
+
+            // ── Costs ─────────────────────────────────────────────────────────
+            new("── Costs ──"),
             new("Card Cost",     s => FormatMod(s.CardCostModifier_Flat.Value(),     s.CardCostModifier_Increase.Value()),
                 "Card Cost",     "Modifies Stamina cost of all played cards. Negative = cheaper."),
-            new("Power",         s => FormatMod(s.PowerModifier_Flat.Value(),        s.PowerModifier_Increase.Value()),
-                "Power",         "Global multiplier on the power of all card effects."),
-            new("Duration",      s => FormatMod(s.DurationModifier_Flat.Value(),     s.DurationModifier_Increase.Value()),
-                "Duration",      "Modifies duration of all status effects applied by this entity."),
-            new("Lifesteal",     s => $"{s.Lifesteal.Value():0}%",
-                "Lifesteal",     "% of all damage dealt returned as healing to this entity."),
-            new("Ignore Armour", s => $"{s.IgnoreArmour.Value():0}%",
-                "Ignore Armour", "% of target's Armour bypassed when dealing damage."),
-            new("Ignore Block",  s => $"{s.IgnoreBlock.Value():0}%",
-                "Ignore Block",  "% of target's Block bypassed when dealing damage."),
+            new("Movement Cost", s => FormatMod(s.MovementCostModifier_Flat.Value(), s.MovementCostModifier_Increase.Value()),
+                "Movement Cost", "Modifies the Stamina cost of movement actions."),
 
             // ── Range & Area ──────────────────────────────────────────────────
             new("── Range & Area ──"),
@@ -162,7 +224,6 @@ namespace facingfate
 
         private void Update()
         {
-            //if (Input.GetKeyDown(toggleKey)) Toggle();
         }
 
         private void OnEnable()  => GameEvents.OnTurnStart += Refresh;
@@ -246,6 +307,10 @@ namespace facingfate
             if (stats == null) return;
             foreach (var (row, getter) in liveRows)
                 row.UpdateValue(getter(stats));
+            foreach (var (header, getter) in liveHeaderRows)
+                header.UpdateValue(getter(stats));
+            foreach (var (row, modifier) in liveConditionalRows)
+                row.UpdateValue(modifier.GetDisplayValue(stats));
         }
 
         // ── Internal ───────────────────────────────────────────────────────────
@@ -307,6 +372,8 @@ namespace facingfate
         private void RebuildRows()
         {
             liveRows.Clear();
+            liveHeaderRows.Clear();
+            liveConditionalRows.Clear();
             for (int i = rowContainer.childCount - 1; i >= 0; i--)
                 Destroy(rowContainer.GetChild(i).gameObject);
 
@@ -316,27 +383,346 @@ namespace facingfate
             {
                 if (def.IsSection)
                 {
-                    if (sectionHeaderPrefab != null)
+                    // Use sectionHeaderRowPrefab for main sections (no category), use statHeaderPrefab for subsections
+                    if (def.Category == StatCategory.None)
                     {
-                        GameObject header = Instantiate(sectionHeaderPrefab, rowContainer);
-                        TMP_Text t = header.GetComponentInChildren<TMP_Text>();
-                        if (t != null) t.text = def.Label;
+                        if (sectionHeaderRowPrefab != null)
+                        {
+                            GameObject header = Instantiate(sectionHeaderRowPrefab, rowContainer);
+                            TMP_Text t = header.GetComponentInChildren<TMP_Text>();
+                            if (t != null) t.text = def.Label;
+                        }
+                        else if (statRowPrefab != null)
+                        {
+                            GameObject sectionRowObj = Instantiate(statRowPrefab, rowContainer);
+                            StatRowEntryUI r = sectionRowObj.GetComponent<StatRowEntryUI>();
+                            if (r != null) r.Setup(def.Label, "", "", "");
+                        }
                     }
-                    else if (rowPrefab != null)
+                    else
                     {
-                        StatRowEntryUI r = Instantiate(rowPrefab, rowContainer);
-                        r.Setup(def.Label, "", "", "");
+                        // Use statHeaderPrefab for all subsections with StatCategory
+                        if (statHeaderPrefab != null && stats != null && def.Category != StatCategory.None)
+                        {
+                            string displayLabel = def.Label.Replace("── ", "").Replace(" ──", "");
+
+                            GameObject header = Instantiate(statHeaderPrefab, rowContainer);
+                            StatHeaderEntryUI headerUI = header.GetComponent<StatHeaderEntryUI>();
+                            if (headerUI != null)
+                            {
+                                string tooltipBody = def.StatReference != null 
+                                    ? $"Final calculated {displayLabel} value including all modifiers."
+                                    : $"Modifiers and stats for {displayLabel}.";
+
+                                headerUI.Setup(displayLabel, "", displayLabel, tooltipBody);
+
+                                // Only track for live updates if there's a getter
+                                if (def.Getter != null)
+                                    liveHeaderRows.Add((headerUI, def.Getter));
+                            }
+                        }
+                        else if (statRowPrefab != null)
+                        {
+                            GameObject sectionRowObj = Instantiate(statRowPrefab, rowContainer);
+                            StatRowEntryUI r = sectionRowObj.GetComponent<StatRowEntryUI>();
+                            if (r != null) r.Setup(def.Label, "", "", "");
+                        }
+
+                         // Extract and display individual modifier breakdowns for stat entries with StatReference
+                        if (stats != null && def.StatReference != null)
+                        {
+                            Stat stat = def.StatReference(stats);
+                            if (stat != null && stat.statModifiers != null)
+                            {
+                                // Determine modifier type from the stat reference
+                                string modifierType = DetermineModifierType(def.Label);
+
+                                // Get the stat name for display
+                                string statName = def.Label.Replace("── ", "").Replace(" ──", "");
+
+                                // Group non-expired conditional modifiers by condition
+                                var conditionalMods = stat.statModifiers
+                                    .OfType<StatModifier>()
+                                    .Where(m => !m.IsExpired && m.Condition != null)
+                                    .ToList();
+
+                                // Group by condition and aggregate values
+                                var conditionGroups = conditionalMods.GroupBy(m => m.Condition.Name);
+                                foreach (var group in conditionGroups)
+                                {
+                                    var firstMod = group.First();
+                                    float totalValue = group.Sum(m => m.BaseValue);
+
+                                    if (statRowPrefab == null) continue;
+
+                                    Func<EntityStats, string> getter = s => FormatModifierValueFlat(totalValue, modifierType);
+                                    string modValue = getter(stats);
+                                    GameObject modRowObj = Instantiate(statRowPrefab, rowContainer);
+                                    StatRowEntryUI modRow = modRowObj.GetComponent<StatRowEntryUI>();
+                                    if (modRow != null)
+                                    {
+                                        string displayLabel = $"    {firstMod.Condition.DisplayName}";
+                                        modRow.Setup(displayLabel, modValue, firstMod.Condition.DisplayName, firstMod.Condition.Description);
+                                        liveConditionalRows.Add((modRow, new ConditionalModifierDef(firstMod.ModifierName, getter, firstMod.Condition, modifierType)));
+                                    }
+                                }
+                            }
+                        }
                     }
+
+                    // Only extract conditional modifiers for Attribute category
+                    if (stats != null && def.Category == StatCategory.Attribute)
+                    {
+                        var conditionals = ExtractConditionalModifiersByCategory(stats, "Attribute");
+                        foreach (var modifier in conditionals)
+                        {
+                            if (statRowPrefab == null) continue;
+                            string modValue = modifier.GetDisplayValue(stats);
+                            GameObject modRowObj = Instantiate(statRowPrefab, rowContainer);
+                            StatRowEntryUI modRow = modRowObj.GetComponent<StatRowEntryUI>();
+                            if (modRow != null)
+                            {
+                                modRow.Setup(modifier.GetDisplayLabel(), modValue, modifier.GetDisplayTooltipHeader(), modifier.GetDisplayTooltipBody());
+                                liveConditionalRows.Add((modRow, modifier));
+                            }
+                        }
+                    }
+
                     continue;
                 }
 
-                if (rowPrefab == null) continue;
+                if (statRowPrefab == null) continue;
+
+                // Check if this row should be displayed
+                if (def.ShouldDisplay != null && !def.ShouldDisplay(stats))
+                    continue;
 
                 string value = stats != null ? def.Getter(stats) : "—";
-                StatRowEntryUI row = Instantiate(rowPrefab, rowContainer);
-                row.Setup(def.Label, value, def.TipHeader, def.TipBody);
-                if (stats != null) liveRows.Add((row, def.Getter));
+                GameObject rowObj = Instantiate(statRowPrefab, rowContainer);
+                StatRowEntryUI row = rowObj.GetComponent<StatRowEntryUI>();
+                if (row != null)
+                {
+                    row.Setup(def.Label, value, def.TipHeader, def.TipBody);
+                    if (stats != null) liveRows.Add((row, def.Getter));
+                }
+
+                // Display conditional modifiers for this stat if it has any
+                if (stats != null && def.StatReference != null)
+                {
+                    Stat stat = def.StatReference(stats);
+                    if (stat != null && stat.statModifiers != null)
+                    {
+                        // Determine modifier type from the stat reference
+                        string modifierType = DetermineModifierType(def.Label);
+
+                        var statModifiers = stat.statModifiers
+                            .OfType<StatModifier>()
+                            .Where(m => !m.IsExpired && m.Condition != null)
+                            .ToList();
+
+                        // Group by condition and aggregate values
+                        var conditionGroups = statModifiers.GroupBy(m => m.Condition.Name);
+                        foreach (var group in conditionGroups)
+                        {
+                            var firstMod = group.First();
+                            float totalValue = group.Sum(m => m.BaseValue);
+
+                            if (statRowPrefab == null) continue;
+
+                            Func<EntityStats, string> getter = s => FormatModifierValueFlat(totalValue, modifierType);
+                            string modValue = getter(stats);
+                            GameObject modRowObj = Instantiate(statRowPrefab, rowContainer);
+                            StatRowEntryUI modRow = modRowObj.GetComponent<StatRowEntryUI>();
+                            if (modRow != null)
+                            {
+                                string displayLabel = $"    {firstMod.Condition.DisplayName}";
+                                modRow.Setup(displayLabel, modValue, firstMod.Condition.DisplayName, firstMod.Condition.Description);
+                                liveConditionalRows.Add((modRow, new ConditionalModifierDef(firstMod.ModifierName, getter, firstMod.Condition, modifierType)));
+                            }
+                        }
+                    }
+                }
             }
+        }
+
+        /// <summary>Determines if a stat category should display conditional modifiers</summary>
+        private bool IsConditionalModifierCategory(StatCategory category)
+        {
+            return category == StatCategory.Attribute ||
+                   category == StatCategory.Offensive ||
+                   category == StatCategory.Defensive;
+        }
+
+
+        /// <summary>Cached mapping of category names to their stats for performance</summary>
+        private static readonly Dictionary<string, List<(string type, string statName)>> StatsByCategoryDefinition = new()
+        {
+        };
+
+        /// <summary>Extracts conditional modifiers for a specific stat category (e.g., "Damage Dealt" or "Attribute")</summary>
+        private List<ConditionalModifierDef> ExtractConditionalModifiersByCategory(EntityStats stats, string categoryName)
+        {
+            var conditionals = new List<ConditionalModifierDef>();
+            if (stats == null) return conditionals;
+
+            // Map category names to stat lists with their type information
+            var statsByCategory = new Dictionary<string, List<(string type, Stat stat)>>
+            {
+                { "Damage Dealt", new List<(string, Stat)>
+                    { ("Flat", stats.DamageOutModifier_Flat), ("Increase %", stats.DamageOutModifier_Increase), ("Multiplier", stats.DamageOutModifier_Multiplier) }
+                },
+                { "Damage Taken", new List<(string, Stat)>
+                    { ("Flat", stats.DamageTakenModifier_Flat), ("Increase %", stats.DamageTakenModifier_Increase), ("Multiplier", stats.DamageTakenModifier_Multiplier) }
+                },
+                { "Healing Dealt", new List<(string, Stat)>
+                    { ("Flat", stats.HealingOutModifier_Flat), ("Increase %", stats.HealingOutModifier_Increase), ("Multiplier", stats.HealingOutModifier_Multiplier) }
+                },
+                { "Healing Taken", new List<(string, Stat)>
+                    { ("Flat", stats.HealingTakenModifier_Flat), ("Increase %", stats.HealingTakenModifier_Increase), ("Multiplier", stats.HealingTakenModifier_Multiplier) }
+                },
+                { "Strength", new List<(string, Stat)>
+                    { ("Flat", stats.Strength_Flat), ("Increase %", stats.Strength_Increase), ("Multiplier", stats.Strength_Multiplier) }
+                },
+                { "Dexterity", new List<(string, Stat)>
+                    { ("Flat", stats.Dexterity_Flat), ("Increase %", stats.Dexterity_Increase), ("Multiplier", stats.Dexterity_Multiplier) }
+                },
+                { "Wisdom", new List<(string, Stat)>
+                    { ("Flat", stats.Wisdom_Flat), ("Increase %", stats.Wisdom_Increase), ("Multiplier", stats.Wisdom_Multiplier) }
+                },
+                { "Foresight", new List<(string, Stat)>
+                    { ("Flat", stats.Intelligence_Flat), ("Increase %", stats.Intelligence_Increase), ("Multiplier", stats.Intelligence_Multiplier) }
+                },
+                { "Endurance", new List<(string, Stat)>
+                    { ("Flat", stats.Endurance_Flat), ("Increase %", stats.Endurance_Increase), ("Multiplier", stats.Endurance_Multiplier) }
+                },
+                { "Tenacity", new List<(string, Stat)>
+                    { ("Flat", stats.Tenacity_Flat), ("Increase %", stats.Tenacity_Increase), ("Multiplier", stats.Tenacity_Multiplier) }
+                },
+            };
+
+            // Handle generic "Attribute" category by extracting from all attributes
+            if (categoryName == "Attribute")
+            {
+                var attributeStats = new List<(string type, Stat stat)>();
+                attributeStats.AddRange(statsByCategory["Strength"]);
+                attributeStats.AddRange(statsByCategory["Dexterity"]);
+                attributeStats.AddRange(statsByCategory["Wisdom"]);
+                attributeStats.AddRange(statsByCategory["Foresight"]);
+                attributeStats.AddRange(statsByCategory["Endurance"]);
+                attributeStats.AddRange(statsByCategory["Tenacity"]);
+                statsByCategory["Attribute"] = attributeStats;
+            }
+
+            if (!statsByCategory.TryGetValue(categoryName, out var categoryStats))
+                return conditionals;
+
+            var seenModifierNames = new HashSet<string>();
+
+            foreach (var (modifierType, stat) in categoryStats)
+            {
+                if (stat == null) continue;
+
+                foreach (var modifier in stat.statModifiers)
+                {
+                    var statMod = modifier as StatModifier;
+                    if (statMod == null || statMod.IsExpired || statMod.Condition == null) continue;
+
+                    string uniqueKey = $"{categoryName}_{statMod.ModifierName}_{statMod.Condition.Name}";
+                    if (seenModifierNames.Contains(uniqueKey)) continue;
+
+                    seenModifierNames.Add(uniqueKey);
+
+                    // Create a getter that formats the modifier value appropriately
+                    Func<EntityStats, string> getter = s => FormatModifierValue(statMod, s);
+
+                    // Format label as "ConditionName CategoryName" (e.g., "Ice Damage Dealt")
+                    string conditionLabel = $"{statMod.Condition.DisplayName} {categoryName}";
+
+                    conditionals.Add(new ConditionalModifierDef(
+                        $"    {conditionLabel}",  // Indent to show it's under the parent category
+                        getter,
+                        statMod.Condition,
+                        modifierType  // Pass the modifier type (Flat, Increase %, Multiplier)
+                    ));
+                }
+            }
+
+            return conditionals;
+        }
+
+        /// <summary>Formats a conditional modifier value for display</summary>
+        private string FormatModifierValue(StatModifier modifier, EntityStats stats, string modifierType = "")
+        {
+            if (modifier == null) return "—";
+
+            float value = modifier.BaseValue;
+            if (Mathf.Abs(value) < 0.01f) return "—";
+
+            // Format based on the modifier type if provided
+            if (!string.IsNullOrEmpty(modifierType))
+            {
+                if (modifierType.Contains("Increase"))
+                    return $"{value:+0;-0}%";
+                else if (modifierType.Contains("Multiplier"))
+                    return $"{value:+0;-0}%";
+                else if (modifierType.Contains("Flat"))
+                    return $"{value:+0;-0}";
+            }
+
+            // Fallback to name-based detection
+            if (modifier.ModifierName.Contains("Damage") || modifier.ModifierName.Contains("Healing"))
+            {
+                return FormatMod(value, 0f);
+            }
+            else if (modifier.ModifierName.Contains("Multiplier"))
+            {
+                return $"{value:+0;-0}%";
+            }
+            else
+            {
+                return $"{value:+0;-0}";
+            }
+        }
+
+        /// <summary>Formats a flat modifier value (used for aggregated modifiers)</summary>
+        private string FormatModifierValueFlat(float value, string modifierType = "")
+        {
+            if (Mathf.Abs(value) < 0.01f) return "—";
+
+            if (!string.IsNullOrEmpty(modifierType))
+            {
+                if (modifierType.Contains("Increase"))
+                    return $"{value:+0;-0}%";
+                else if (modifierType.Contains("Multiplier"))
+                    return $"{value:+0;-0}%";
+                else if (modifierType.Contains("Flat"))
+                    return $"{value:+0;-0}";
+            }
+
+            return $"{value:+0;-0}";
+        }
+
+        /// <summary>Determines the modifier type (Flat, Increase %, Multiplier) from the stat label</summary>
+        private string DetermineModifierType(string statLabel)
+        {
+            if (statLabel.Contains("Multiplier"))
+                return "Multiplier";
+            if (statLabel.Contains("Increase") || 
+                statLabel.Contains("Damage Dealt") || 
+                statLabel.Contains("Healing Dealt") ||
+                statLabel.Contains("Power") ||
+                statLabel.Contains("Duration") ||
+                statLabel.Contains("Damage Reduction") ||
+                statLabel.Contains("Healing Taken") ||
+                statLabel.Contains("Card Cost") ||
+                statLabel.Contains("Movement Cost") ||
+                statLabel.Contains("Range") ||
+                statLabel.Contains("Radius") ||
+                statLabel.Contains("Max Targets") ||
+                statLabel.Contains("Lifesteal") ||
+                statLabel.Contains("Ignore"))
+                return "Increase %";
+            return "";
         }
 
         private static EntityStats GetStats(EntityScript entity)
@@ -347,6 +733,7 @@ namespace facingfate
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             return field?.GetValue(entity) as EntityStats;
         }
+
 
         private static string FormatMod(float flat, float pct)
         {

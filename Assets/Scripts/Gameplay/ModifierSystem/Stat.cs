@@ -77,12 +77,10 @@ namespace facingfate
 
             foreach (var mod in statModifiers.Where(m => !m.IsExpired))
             {
-                if (mod.Condition(entityScript, cardData))
+                var statMod = mod as StatModifier;
+                if (statMod != null && statMod.EvaluateCondition(entityScript, cardData))
                 {
-                    if (mod is StatModifier statMod)
-                    {
-                        baseValue += statMod.BaseValue;
-                    }
+                    baseValue += statMod.BaseValue;
                 }
             }
 
@@ -92,7 +90,7 @@ namespace facingfate
         public List<float> GetAllMultiplierValues(EntityScript entityScript = null, CardData cardData = null)
         {
             return statModifiers
-                .Where(m => !m.IsExpired && m is StatModifier && m.Condition(entityScript, cardData))
+                .Where(m => !m.IsExpired && m is StatModifier statMod && statMod.EvaluateCondition(entityScript, cardData))
                 .Cast<StatModifier>()
                 .Select(m => m.BaseValue)
                 .ToList();

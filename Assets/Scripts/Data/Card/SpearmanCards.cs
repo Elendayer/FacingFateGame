@@ -131,8 +131,8 @@ namespace facingfate
             // 110104 â€“ Heaven Piercing Spear (Single, Range 1) â€“ Bleed DoT
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Spear_Tech_Heaven_Piercing_Spear",
-                cardName = "Heaven Piercing Spear",
+                cardID = "Spear_Tech_Heavens_Spear",
+                cardName = "Heavens Spear",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
@@ -142,6 +142,7 @@ namespace facingfate
 
                 range_u = 4f,
                 maxtarget_u = 3,
+                duration_u = 3,
 
                 targetingData = new()
                 {
@@ -163,9 +164,6 @@ namespace facingfate
                 CardEffect = (User, Target, d) =>
                 {
                     EntityModifier entityModifier = EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, d, ThroughputSource.Damage, User);
-
-                    Debug.Log($"Applying Bleed modifier from Heaven Piercing Spear to {Target.name} with base damage {entityModifier.BaseValue} for {entityModifier.Duration} turns.");
-
                     CombatUtility.ApplyEntityModifier(d, Target, entityModifier, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
@@ -469,9 +467,9 @@ namespace facingfate
                             name: $"MeleeRangeFlat",
                             stat: Target.entityStats.RangeModifier_Flat,
                             value: d.Power,
-                            condition: (e, c) => c.cardIdentities.Contains(CardIdentity.Melee) && c.range_u > 1,
-                            to_TriggerRefs: new() { },
-                            duration: d.Duration
+                            to_TriggerRefs: new(),
+                            duration: d.Duration,
+                            condition: "Melee"
                             ),
                         ModifierMergeStrategy.RefreshDurationAndMerge
                         );
@@ -575,10 +573,10 @@ namespace facingfate
                             name: "RangedDamage",
                             stat: Target.entityStats.DamageTakenModifier_Flat,
                             value: 0,
-                            condition: (e, c) => c.cardType == CardType.Technique && c.cardIdentities.Contains(CardIdentity.Ranged),
-                            to_TriggerRefs: new() { },
+                            to_TriggerRefs: new(),
                             duration: d.Duration,
-                            charges: 1
+                            charges: 1,
+                            "Technique", "Ranged"
                         ),
                     ModifierMergeStrategy.RefreshDurationAndMerge
                     );
