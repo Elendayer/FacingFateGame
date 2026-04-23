@@ -7,13 +7,17 @@ using UnityEngine.InputSystem;
 
 namespace facingfate
 {
-    public class DraggableCard : DraggableUI, IPointerClickHandler
+    public class DraggableCard : DraggableUI, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
         /// <summary>Set while a card drag/targeting is in progress. Used by CardPreviewPanel to cancel.</summary>
         public static DraggableCard ActiveDraggingCard { get; private set; }
 
         public CardScript cardScript;
         private static readonly Vector3 InvalidPosition = new Vector3(9999, 9999, 9999);
+
+        [Header("Wwise UI SFX")]
+        [Tooltip("Optional, empty = silent")] [SerializeField] private AK.Wwise.Event hoverSfx;
+        [Tooltip("Optional, empty = silent")] [SerializeField] private AK.Wwise.Event dragStartSfx;
 
         private readonly List<Vector3> selectedPositionsDuringDrag = new();
         private bool isDragging = false;
@@ -23,9 +27,13 @@ namespace facingfate
         private GameObject dragVFX = null;
         private VisualEffect dragVFXEffect = null;
 
+        public void OnPointerEnter(PointerEventData eventData) => WwiseAudioHelper.PlayGlobal(hoverSfx, gameObject);
+        public void OnPointerExit(PointerEventData eventData) { }
+
         public override void OnBeginDrag(PointerEventData eventData)
         {
             wasDragged = true;
+<<<<<<< HEAD
 
             cardScript = GetComponent<CardScript>();
 
@@ -37,6 +45,9 @@ namespace facingfate
                 return;
             }
 
+=======
+            WwiseAudioHelper.PlayGlobal(dragStartSfx, gameObject);
+>>>>>>> origin/develop
             base.OnBeginDrag(eventData);
 
             // Suppress base LineRenderer — DraggableCard uses VFX for targeting

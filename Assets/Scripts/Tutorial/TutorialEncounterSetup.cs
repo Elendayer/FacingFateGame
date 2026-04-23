@@ -36,37 +36,10 @@ namespace facingfate
             Instance = this;
         }
 
-        /// <summary>Called by StartupManager before entity initialization loop.</summary>
-        public void SpawnEntities()
-        {
-            if (enemySpawnPoint == null)
-            {
-                Debug.LogError("[TutorialEncounterSetup] enemySpawnPoint not assigned.");
-                return;
-            }
-
-            GameObject obj = Instantiate(AssetManager.Instance.entityPrefab);
-            obj.transform.position = enemySpawnPoint.position;
-            obj.name = "TutorialDummy";
-
-            NonPlayerScript entity = obj.GetComponent<NonPlayerScript>();
-            if (entity == null)
-            {
-                Debug.LogError("[TutorialEncounterSetup] entityPrefab missing NonPlayerScript.");
-                Destroy(obj);
-                return;
-            }
-
-            entity.usePresetConfig = true;
-            entity.entityAffiliation = EntityAffiliation.Enemy;
-            entity.deckCardIDs = new List<string>(dummyCardIds);
-            entity.npcData = new NpcData
-            {
-                id     = "TutorialDummy",
-                name   = "Training Dummy",
-                aiBias = AiBiasDatabase.GetBiasById(dummyAiBiasId),
-                cardIds = new List<string>(dummyCardIds)
-            };
-        }
+        /// <summary>
+        /// Enemy spawning is handled entirely by TutorialCombatManager.enemyWaves.
+        /// This method is kept as a no-op so StartupManager does not need changes.
+        /// </summary>
+        public void SpawnEntities() { }
     }
 }
