@@ -63,6 +63,11 @@
 								<Property Name="Color" Type="int16" Value="5"/>
 								<Property Name="OverrideColor" Type="bool" Value="True"/>
 							</PropertyList>
+							<ReferenceList>
+								<Reference Name="UserAuxSend0">
+									<ObjectRef Name="AUX_OpMenu_Hall" ID="{10FC8C5F-31A0-44B3-A10A-916C7E3BEED3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
 							<ChildrenList>
 								<Bus Name="MX_Overworld" ID="{0DA30F9C-B5F4-41AD-B292-3403631BC4C7}">
 									<PropertyList>
@@ -103,6 +108,75 @@
 															<Point>
 																<XPos>100</XPos>
 																<YPos>0</YPos>
+																<Flags>37</Flags>
+															</Point>
+														</PointList>
+													</Curve>
+												</Custom>
+											</Reference>
+										</ReferenceList>
+									</RTPC>
+									<RTPC Name="" ID="{44F14C35-A823-4891-8F8A-6311EEC17F08}" ShortID="27995617">
+										<PropertyList>
+											<Property Name="PropertyName" Type="string" Value="UserAuxSendVolume0"/>
+										</PropertyList>
+										<ReferenceList>
+											<Reference Name="ControlInput">
+												<ObjectRef Name="RTPC_menu_focus" ID="{73B5204F-8ACE-41C8-AE78-89DCFBD56A11}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+											</Reference>
+											<Reference Name="Curve">
+												<Custom>
+													<Curve Name="" ID="{8948023C-3557-4764-9EB5-C216BC987F87}">
+														<PropertyList>
+															<Property Name="Flags" Type="int32" Value="3"/>
+														</PropertyList>
+														<PointList>
+															<Point>
+																<XPos>0</XPos>
+																<YPos>-200</YPos>
+																<Flags>5</Flags>
+																<SegmentShape>Exp3</SegmentShape>
+															</Point>
+															<Point>
+																<XPos>100</XPos>
+																<YPos>-4.08999</YPos>
+																<Flags>37</Flags>
+															</Point>
+														</PointList>
+													</Curve>
+												</Custom>
+											</Reference>
+										</ReferenceList>
+									</RTPC>
+									<RTPC Name="" ID="{AF4CBC4C-B5B6-45C7-8B1F-72E004252230}" ShortID="275552475">
+										<PropertyList>
+											<Property Name="PropertyName" Type="string" Value="OutputBusLowpass"/>
+										</PropertyList>
+										<ReferenceList>
+											<Reference Name="ControlInput">
+												<ObjectRef Name="RTPC_menu_focus" ID="{73B5204F-8ACE-41C8-AE78-89DCFBD56A11}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+											</Reference>
+											<Reference Name="Curve">
+												<Custom>
+													<Curve Name="" ID="{07F9E78A-8CDC-4297-B920-C3F6B9A186E4}">
+														<PropertyList>
+															<Property Name="Flags" Type="int32" Value="65537"/>
+														</PropertyList>
+														<PointList>
+															<Point>
+																<XPos>0</XPos>
+																<YPos>0</YPos>
+																<Flags>5</Flags>
+															</Point>
+															<Point>
+																<XPos>0.001</XPos>
+																<YPos>0</YPos>
+																<Flags>0</Flags>
+																<SegmentShape>Exp1</SegmentShape>
+															</Point>
+															<Point>
+																<XPos>100</XPos>
+																<YPos>90</YPos>
 																<Flags>37</Flags>
 															</Point>
 														</PointList>
@@ -200,7 +274,83 @@
 								</ObjectList>
 							</ObjectLists>
 						</Bus>
-						<AuxBus Name="AUX_hall_Big" ID="{DBC526F8-C830-4DA4-A8F5-AC2CAF6390C1}"/>
+						<AuxBus Name="AUX_OpMenu_Hall" ID="{10FC8C5F-31A0-44B3-A10A-916C7E3BEED3}">
+							<ObjectLists>
+								<ObjectList Name="Effects">
+									<EffectSlot Name="" ID="{AC6FDDB6-A7C8-4C80-AE2C-1EFE19046B09}" ShortID="753518128">
+										<ReferenceList>
+											<Reference Name="Effect" PluginName="Wwise RoomVerb" CompanyID="0" PluginID="118" PluginType="3">
+												<ObjectRef Name="Space_Dreaming" ID="{4FF7C4B2-37B0-4DFF-8E8A-1420102AE2DD}" WorkUnitID="{E8613F7D-BAD3-45CD-A3ED-505576F31277}"/>
+											</Reference>
+										</ReferenceList>
+									</EffectSlot>
+								</ObjectList>
+								<ObjectList Name="RTPC">
+									<RTPC Name="" ID="{06524F5B-39A4-49B1-95B1-D224D5CD37AE}" ShortID="679193262">
+										<PropertyList>
+											<Property Name="PropertyName" Type="string" Value="OutputBusLowpass"/>
+										</PropertyList>
+										<ReferenceList>
+											<Reference Name="ControlInput">
+												<ObjectRef Name="RTPC_menu_focus" ID="{73B5204F-8ACE-41C8-AE78-89DCFBD56A11}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+											</Reference>
+											<Reference Name="Curve">
+												<Custom>
+													<Curve Name="" ID="{5848742F-E9E5-4091-B6EC-0CA888ACB02A}">
+														<PropertyList>
+															<Property Name="Flags" Type="int32" Value="65537"/>
+														</PropertyList>
+														<PointList>
+															<Point>
+																<XPos>0</XPos>
+																<YPos>0</YPos>
+																<Flags>5</Flags>
+															</Point>
+															<Point>
+																<XPos>100</XPos>
+																<YPos>64</YPos>
+																<Flags>37</Flags>
+															</Point>
+														</PointList>
+													</Curve>
+												</Custom>
+											</Reference>
+										</ReferenceList>
+									</RTPC>
+									<RTPC Name="" ID="{E1885251-5B09-420F-8198-E93BD596A18B}" ShortID="484866063">
+										<PropertyList>
+											<Property Name="PropertyName" Type="string" Value="OutputBusHighpass"/>
+										</PropertyList>
+										<ReferenceList>
+											<Reference Name="ControlInput">
+												<ObjectRef Name="RTPC_menu_focus" ID="{73B5204F-8ACE-41C8-AE78-89DCFBD56A11}" WorkUnitID="{9B0D897A-1664-46E8-8C6F-CEBEDF3787B7}"/>
+											</Reference>
+											<Reference Name="Curve">
+												<Custom>
+													<Curve Name="" ID="{5FA9207B-C772-46AA-AC11-602B40F684D9}">
+														<PropertyList>
+															<Property Name="Flags" Type="int32" Value="65537"/>
+														</PropertyList>
+														<PointList>
+															<Point>
+																<XPos>0</XPos>
+																<YPos>0</YPos>
+																<Flags>5</Flags>
+															</Point>
+															<Point>
+																<XPos>100</XPos>
+																<YPos>24</YPos>
+																<Flags>37</Flags>
+															</Point>
+														</PointList>
+													</Curve>
+												</Custom>
+											</Reference>
+										</ReferenceList>
+									</RTPC>
+								</ObjectList>
+							</ObjectLists>
+						</AuxBus>
 					</ChildrenList>
 					<ObjectLists>
 						<ObjectList Name="RTPC">

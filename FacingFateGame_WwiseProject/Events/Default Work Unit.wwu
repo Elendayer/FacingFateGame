@@ -25,7 +25,6 @@
 						</Event>
 					</ChildrenList>
 				</Folder>
-				<Event Name="End_Game" ID="{F64B7CA3-289D-4367-9DBA-D44E7623962D}"/>
 				<Folder Name="00_Start_Game" ID="{AEA35978-E8D6-43A6-AD04-473E8049C592}" ShortID="686743686">
 					<ChildrenList>
 						<Event Name="Start_Game" ID="{CD32789C-DF13-4FB2-A770-E2156EB996D9}">
@@ -41,26 +40,9 @@
 						</Event>
 					</ChildrenList>
 				</Folder>
-				<Folder Name="03_Scene_01" ID="{BFE01883-0CC2-4B80-B107-6AAC641CB91E}" ShortID="63283058">
+				<Folder Name="04_Scene_01" ID="{BFE01883-0CC2-4B80-B107-6AAC641CB91E}" ShortID="63283058">
 					<ChildrenList>
-						<Event Name="Start_Scene_01" ID="{44CBA0D5-B071-485A-A1F7-34BD46612400}">
-							<ChildrenList>
-								<Action Name="" ID="{C031A55F-48CF-46B7-A5C3-7871F157A5B6}" ShortID="913051429">
-									<ReferenceList>
-										<Reference Name="Target">
-											<ObjectRef Name="Music_Scene_01" ID="{9D0FCD4E-3655-4257-83D3-72A4D746A5E9}" WorkUnitID="{200E256C-B349-4231-A6C0-A35956D8C2AC}"/>
-										</Reference>
-									</ReferenceList>
-								</Action>
-								<Action Name="" ID="{59F8170B-1B34-4260-AF7B-37C5AC1763A3}" ShortID="985783872">
-									<ReferenceList>
-										<Reference Name="Target">
-											<ObjectRef Name="ATMO_TrainGr" ID="{6BEF4718-9249-4401-848E-F8E22C7416CA}" WorkUnitID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}"/>
-										</Reference>
-									</ReferenceList>
-								</Action>
-							</ChildrenList>
-						</Event>
+						<WorkUnit Name="Scene 01 _Work Unit" ID="{AC0128D0-1D67-44B0-A8E5-FD61A298A086}" PersistMode="Reference"/>
 					</ChildrenList>
 				</Folder>
 				<Folder Name="01_Options_Basic-UI" ID="{20BC7C8C-6F76-4BC4-99AA-6AE67962D12D}" ShortID="145301022">
@@ -68,8 +50,12 @@
 						<WorkUnit Name="Options_Basic-UI" ID="{B7FC8390-61B4-49C8-878A-D0A4E3CE6DDC}" PersistMode="Reference"/>
 					</ChildrenList>
 				</Folder>
-				<Folder Name="10_End_Game" ID="{8E83AE3D-D63D-4008-A2EE-60554E5AE1A1}" ShortID="377142964"/>
-				<Folder Name="04_Overworld" ID="{E019CC08-37F5-4FCA-ACBB-931DE9CAAA29}" ShortID="409921465">
+				<Folder Name="10_End_Game" ID="{8E83AE3D-D63D-4008-A2EE-60554E5AE1A1}" ShortID="377142964">
+					<ChildrenList>
+						<Event Name="End_Game" ID="{F64B7CA3-289D-4367-9DBA-D44E7623962D}"/>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="03_Overworld" ID="{E019CC08-37F5-4FCA-ACBB-931DE9CAAA29}" ShortID="409921465">
 					<ChildrenList>
 						<Event Name="Start_Overworld" ID="{E0D0359A-3DBD-4004-9BBE-AC7A6C5C4C94}"/>
 					</ChildrenList>

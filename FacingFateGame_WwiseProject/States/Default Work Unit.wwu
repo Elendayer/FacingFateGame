@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{1B91F4E7-BF6F-4FCD-9ABE-0432F0D93C71}" SchemaVersion="133">
 	<States>
-		<WorkUnit Name="Default Work Unit" ID="{1B91F4E7-BF6F-4FCD-9ABE-0432F0D93C71}" PersistMode="Standalone"/>
+		<WorkUnit Name="Default Work Unit" ID="{1B91F4E7-BF6F-4FCD-9ABE-0432F0D93C71}" PersistMode="Standalone">
+			<ChildrenList>
+				<StateGroup Name="Music_State" ID="{0CA1319D-92CE-430F-9453-72DBD531F597}">
+					<ChildrenList>
+						<State Name="None" ID="{D4DF8DF4-3453-4E24-A5EC-8D761ACDEDA1}"/>
+						<State Name="LowMusic_State" ID="{C08A2C79-0A91-400F-825A-D58AE9E64B4C}"/>
+						<State Name="MidMusic_State" ID="{C0375B17-F1C5-4ED8-A15D-31FC68D714FA}"/>
+						<State Name="HighMusic_State" ID="{2EA45203-08AC-4557-A51B-5423FF8910F3}"/>
+						<State Name="BossMusic_State" ID="{5FF0E415-2AB6-4429-88E6-8EAF74559A49}"/>
+					</ChildrenList>
+				</StateGroup>
+				<StateGroup Name="LVL_State" ID="{F6650A3C-D783-4405-BA8C-1BBB09930234}">
+					<ChildrenList>
+						<State Name="None" ID="{ADBF181A-5842-4024-A943-67EAA076E44C}"/>
+						<State Name="Menu_State" ID="{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"/>
+						<State Name="Level_01_State" ID="{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"/>
+						<State Name="Level_02_State" ID="{E795A0CD-17A2-463C-AFE4-F35086D4CD25}"/>
+						<State Name="Level_03_State" ID="{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"/>
+					</ChildrenList>
+				</StateGroup>
+				<StateGroup Name="Player_State" ID="{24E528FE-3BB3-4801-8749-972FE54BC921}">
+					<ChildrenList>
+						<State Name="None" ID="{4334D4A2-4C75-422F-95B8-DBC6A8546EC3}"/>
+						<State Name="PlayerAlive_State" ID="{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"/>
+						<State Name="PlayerDead_State" ID="{E3F91561-DD3F-4CD7-8F79-FF3799D29D8D}"/>
+					</ChildrenList>
+				</StateGroup>
+				<StateGroup Name="Room_State" ID="{763B9EE7-D35C-410C-A016-967658B82B81}">
+					<ChildrenList>
+						<State Name="None" ID="{C2361FF9-5260-45D8-837B-574D7165D8F8}"/>
+						<State Name="Inside_State" ID="{8481E590-7A79-4275-BA39-BCE962C8BF73}"/>
+						<State Name="Outside_State" ID="{B65683CD-D596-4969-A33A-CDBE0C3CB9B6}"/>
+					</ChildrenList>
+				</StateGroup>
+				<StateGroup Name="Game_State" ID="{F851FEA8-DFBD-4B51-B144-10588A2E1289}">
+					<ChildrenList>
+						<State Name="None" ID="{E7D9376A-F94B-4885-BA08-1A27F6B81FA9}"/>
+						<State Name="InGame_State" ID="{1EAD8DFC-F946-41DB-B496-B9702EC037E2}"/>
+						<State Name="InMenu_State" ID="{207DC457-947F-45F8-8725-DB5DE00986F6}"/>
+					</ChildrenList>
+				</StateGroup>
+			</ChildrenList>
+		</WorkUnit>
 	</States>
 </WwiseDocument>

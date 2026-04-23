@@ -32,6 +32,15 @@
 						</GameParameter>
 					</ChildrenList>
 				</Folder>
+				<Folder Name="Options Menu" ID="{6FCB6F15-1E82-4C9B-A89B-0D545A1E03BA}" ShortID="202597714">
+					<ChildrenList>
+						<GameParameter Name="RTPC_menu_focus" ID="{73B5204F-8ACE-41C8-AE78-89DCFBD56A11}">
+							<PropertyList>
+								<Property Name="InitialValue" Type="Real64" Value="0"/>
+							</PropertyList>
+						</GameParameter>
+					</ChildrenList>
+				</Folder>
 			</ChildrenList>
 		</WorkUnit>
 	</GameParameters>

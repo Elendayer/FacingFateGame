@@ -73,7 +73,7 @@
 						</ObjectList>
 					</ObjectLists>
 				</MusicSegment>
-				<MusicSegment Name="ATMO_TrainGr" ID="{6BEF4718-9249-4401-848E-F8E22C7416CA}" ShortID="405341113">
+				<MusicSegment Name="ATMO_TrainGround" ID="{6BEF4718-9249-4401-848E-F8E22C7416CA}" ShortID="405341113">
 					<ReferenceList>
 						<Reference Name="Conversion">
 							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
