@@ -16,12 +16,16 @@ namespace facingfate
         /// Set by RandomEncounterManager before the StartUp loop.
         /// </summary>
         [HideInInspector] public bool usePresetConfig = false;
+        private bool _initialized = false;
 
         [SerializeField]
         private List<PlannedAction> plan = new();
 
         public override void StartUp()
         {
+            if (_initialized) return;
+            _initialized = true;
+
             // Load NPC data BEFORE calling base.StartUp() so EntityStats can access it
             if (usePresetConfig)
             {

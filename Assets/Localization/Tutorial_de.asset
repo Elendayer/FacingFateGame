@@ -20,61 +20,74 @@ MonoBehaviour:
   m_TableData:
   - m_Id: 8310534144
     m_Localized: "Willkommen bei Facing Fate! Dieses Tutorial f\xFChrt dich durch
-      die Grundlagen des Kampfes. \nKlicke \u201EWeiter\"."
+      die Grundlagen des Kampfes. \nKlicke auf \u201EWeiter\"."
     m_Metadata:
       m_Items: []
   - m_Id: 53353164800
-    m_Localized: "Links siehst du deine Lebenspunkte (HP) und Ausdauer (Stamina).
-      \nStamina gibt an, wie viele und wie teure Karten du pro Zug spielen kannst.
-      \nSie entscheidet auch, wie weit du dich \xFCber das Spielfeld bewegen kannst."
+    m_Localized: "Links siehst du deine Lebenspunkte (HP) und Ausdauer (SP).\nStamina
+      bestimmt, wie viele und wie teure Karten du pro Zug spielen kannst.\nAu\xDFerdem
+      beeinflusst sie, wie weit du dich \xFCber das Spielfeld bewegen kannst."
     m_Metadata:
       m_Items: []
   - m_Id: 56008159232
-    m_Localized: "Das ist deine Hand. Jede Karte zeigt ihre Stamina-Kosten oben links.
-      \nHovere \xFCber eine Karte um Details, Reichweite und Effekte zu lesen. \nKannst
-      du eine Karte nicht spielen? Deine Stamina reicht nicht aus."
+    m_Localized: "Das ist deine Hand. Jede Karte zeigt ihre Stamina-Kosten oben links.\nBewege
+      den Mauszeiger \xFCber eine Karte, um Details, Reichweite und Effekte zu sehen."
     m_Metadata:
       m_Items: []
   - m_Id: 57769766912
+    m_Localized: "Bewege den Mauszeiger \xFCber einen Gegner, um seine Werte zu sehen.
+      \nKlicke auf den Gegner, um die Ansicht zu fixieren."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59422322688
     m_Localized: "Spiel jetzt die Angriffskarte! Ziehe sie auf den Gegner. \nBeachte:
       Karten haben eine Reichweite. Ist man zu weit weg verfehlt der Angriff."
     m_Metadata:
       m_Items: []
-  - m_Id: 59422322688
-    m_Localized: "Gut gemacht! Der Gegner hat Schaden erlitten dadurch hat sich sein
-      HP verringert. \nSind alle Gegner besiegt, endet der Kampf."
-    m_Metadata:
-      m_Items: []
   - m_Id: 61104238592
-    m_Localized: "Du kannst dich mit Stamina \xFCber das Spielfeld bewegen.\nDeine
-      Position beeinflusst Reichweite und Sichtlinie."
+    m_Localized: "Du kannst Stamina auch verwenden, um dich \xFCber die Karte zu
+      bewegen. \nKlicke und ziehe an die Stelle, zu der du dich bewegen m\xF6chtest.\nDeine
+      Position beeinflusst, was du sehen kannst und was du mit deinen Karten erreichen
+      kannst."
     m_Metadata:
       m_Items: []
   - m_Id: 62958120960
-    m_Localized: "Spiel die Blutungskarte! Statuseffekte wie Blutung wirken \xFCber
-      mehrere Runden und werden als Symbole unter dem HP-Balken angezeigt. \nHovere
-      \xFCber ein Icon um den Effekt zu lesen."
+    m_Localized: "Spiele Heavens Spear! Diese Karte muss mehrere Gegner anvisieren.
+      \nKlicke auf drei Gegner in Reichweite, um sie zu spielen."
     m_Metadata:
       m_Items: []
   - m_Id: 64614871040
-    m_Localized: "Dein Zug ist vorbei. Dr\xFCcke \u201EZug beenden\"! Danach ist
-      der Gegner an der Reihe. \nZu Beginn deines n\xE4chsten Zuges wird deine Stamina
-      aufgefrischt und neue Karten werden gezogen."
+    m_Localized: "Dein Zug ist vorbei. Dr\xFCcke \u201EZug beenden\u201C! \nDanach
+      ist der Gegner an der Reihe."
     m_Metadata:
       m_Items: []
   - m_Id: 66380673024
     m_Localized: "Der Gegner hat seinen Zug beendet. Du hast neue Karten gezogen
-      und deine Stamina ist aufgefrischt. \nJede Runde bietet neue M\xF6glichkeiten
-      also kombiniere Karten klug!"
+      und deine Stamina ist aufgefrischt.\nJede Runde bietet neue M\xF6glichkeiten,
+      also kombiniere deine Karten klug!"
     m_Metadata:
       m_Items: []
   - m_Id: 68385550336
-    m_Localized: "Besiege den Gegner! Alle Karten sind spielbar. Denk an Reichweite,
-      Stamina-Kosten und Statuseffekte. \nViel Erfolg!"
+    m_Localized: "Besiege den Gegner! Alle Karten sind spielbar. \nAchte auf Reichweite,
+      Stamina-Kosten und Statuseffekte. Viel Erfolg!"
     m_Metadata:
       m_Items: []
   - m_Id: 14214657257472
-    m_Localized: "Bewege den Mauszeiger \xFCber den Gegner um seine Stats zu sehen."
+    m_Localized: 'Gut gemacht! Der Gegner hat Schaden erlitten, dadurch haben sich
+      seine HP verringert.
+
+      Sind alle Gegner besiegt, endet der Kampf.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17840951832576
+    m_Localized: "Statuseffekte wie Blutung wirken \xFCber mehrere Runden und werden
+      als Symbole unter der HP-Leiste angezeigt.\nBewege den Mauszeiger \xFCber ein
+      Symbol, um den Effekt zu sehen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16562616053760
+    m_Localized: Du hast noch weitere Karten auf der Hand, aber keine Stamina mehr,
+      um sie zu spielen.
     m_Metadata:
       m_Items: []
   references:

@@ -35,25 +35,26 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 57769766912
+    m_Localized: "Hover over the enemy to inspect their stats. \nClick the enemy
+      to lock the view."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59422322688
     m_Localized: "Play the \"Strike\" card now! Drag it onto the enemy. \nNote: cards
       have a range too. If too far away the attack will fail or miss."
     m_Metadata:
       m_Items: []
-  - m_Id: 59422322688
-    m_Localized: "Well done! The enemy took damage so their HP decreased. \nWhen
-      alll enemy are dead, you win. Hover over the enemy to inspect their stats."
-    m_Metadata:
-      m_Items: []
   - m_Id: 61104238592
-    m_Localized: 'You can also use stamina to move across the map.
+    m_Localized: 'You can also use stamina to move across the map. Click and drag
+      where you want to move.
 
-      Repositioning
-      affects what you can see and what you can reach with your cards.'
+      Repositioning affects what you can see and what
+      you can reach with your cards.'
     m_Metadata:
       m_Items: []
   - m_Id: 62958120960
-    m_Localized: "Play Heavens Spear! \nThis card must target multiple Eniemies.
-      Click three Enemies in Range to play the card"
+    m_Localized: "Play Heavens Spear! This card must target multiple Eniemies. \nClick
+      three Enemies in Range to play the card"
     m_Metadata:
       m_Items: []
   - m_Id: 64614871040
@@ -71,12 +72,13 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14214657257472
-    m_Localized: Hover over the enemy to inspect their stats.
+    m_Localized: "Well done! The enemy took damage so their HP decreased. \nWhen
+      alll enemies are dead, you win."
     m_Metadata:
       m_Items: []
   - m_Id: 16562616053760
-    m_Localized: 'You have a third card in your Hand, but you have no Stamina left
-      to play it.
+    m_Localized: 'You have other cards in your Hand, but you have no Stamina left
+      to play them.
 
 '
     m_Metadata:

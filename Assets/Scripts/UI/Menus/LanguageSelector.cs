@@ -22,6 +22,15 @@ namespace dungeonduell
         {
             yield return LocalizationSettings.InitializationOperation;
 
+            // Restore previously saved language
+            string savedCode = PlayerPrefs.GetString("language", "");
+            if (!string.IsNullOrEmpty(savedCode))
+            {
+                var savedLocale = LocalizationSettings.AvailableLocales.GetLocale(savedCode);
+                if (savedLocale != null)
+                    LocalizationSettings.SelectedLocale = savedLocale;
+            }
+
             languageDropdown.ClearOptions();
             List<string> options = new List<string>();
             int currentIndex = 0;

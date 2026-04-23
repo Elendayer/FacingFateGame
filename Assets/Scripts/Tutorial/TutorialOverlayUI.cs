@@ -14,16 +14,27 @@ namespace facingfate
     {
         [Header("Panel")]
         [SerializeField] private CanvasGroup panelGroup;
+        [SerializeField] private RectTransform panelRect;
 
         [Header("Text")]
         [SerializeField] private TextMeshProUGUI stepText;
 
         [Header("Buttons")]
         [SerializeField] private Button continueButton;
-        [SerializeField] private GameObject backToMenuButton;
 
         private const float FadeTime = 0.3f;
         private LocalizedString _currentString;
+
+        private void Awake()
+        {
+            // Hide panel before encounter starts — shown by TutorialCombatManager.StartTutorial()
+            if (panelGroup != null)
+            {
+                panelGroup.alpha          = 0f;
+                panelGroup.interactable   = false;
+                panelGroup.blocksRaycasts = false;
+            }
+        }
 
         private void OnDestroy()
         {
@@ -41,21 +52,30 @@ namespace facingfate
 
             bool showContinue = step.condition == CompletionCondition.ContinueButton;
             continueButton.gameObject.SetActive(showContinue);
-            backToMenuButton.SetActive(false);
 
             panelGroup.DOKill();
+            panelGroup.interactable   = false;
+            panelGroup.blocksRaycasts = false;
             panelGroup.DOFade(0f, FadeTime).OnComplete(() =>
             {
                 BindLocalizedText(step.localizedText);
-                panelGroup.DOFade(1f, FadeTime);
+                panelGroup.DOFade(1f, FadeTime).OnComplete(() =>
+                {
+                    panelGroup.interactable   = true;
+                    panelGroup.blocksRaycasts = true;
+                });
             });
         }
 
-        /// <summary>Shows the Back to Menu button after tutorial complete.</summary>
-        public void ShowBackToMenu()
+        /// <summary>Fades out the tutorial panel. Called by TutorialCombatManager.TutorialComplete().</summary>
+        public void HidePanel()
         {
-            backToMenuButton.SetActive(true);
-            continueButton.gameObject.SetActive(false);
+            panelGroup.DOKill();
+            panelGroup.DOFade(0f, FadeTime).OnComplete(() =>
+            {
+                panelGroup.interactable   = false;
+                panelGroup.blocksRaycasts = false;
+            });
         }
 
         private void BindLocalizedText(LocalizedString newString)
@@ -69,6 +89,8 @@ namespace facingfate
         private void OnStringChanged(string value)
         {
             stepText.text = value;
+            if (panelRect != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(panelRect);
         }
 
         private void UnsubscribeCurrentString()

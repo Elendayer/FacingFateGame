@@ -1,6 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace facingfate
@@ -22,12 +22,14 @@ namespace facingfate
         [SerializeField] private TutorialHighlightArrow highlightArrow;
         [SerializeField] private Button endTurnButton;
 
-        [Header("Scene")]
-        [Tooltip("Name of the main menu scene to load when tutorial ends.")]
-        [SerializeField] private string mainMenuSceneName = "MainMenu";
+        [Header("Enemy Waves")]
+        [Tooltip("Parent transform under which spawned enemies are placed (e.g. the combat entities container).")]
+        [SerializeField] private Transform entitySpawnParent;
+        [SerializeField] private TutorialEnemyWave[] enemyWaves;
 
         private int _currentStepIndex;
         private bool _isActive;
+        public bool IsActive => _isActive;
 
         // ── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -70,6 +72,8 @@ namespace facingfate
 
             var step = steps[index];
 
+            SpawnWaveForStep(index);
+
             LockHandForStep(step);
 
             if (endTurnButton != null)
@@ -77,11 +81,9 @@ namespace facingfate
 
             overlayUI.ShowStep(step, AdvanceStep);
 
-            RectTransform target = step.highlightTarget;
-            if (target == null && !step.unlockAll && step.allowedCardIds.Length > 0)
-                target = FindCardInHand(step.allowedCardIds[0]);
-
-            highlightArrow.PointAt(target);
+            // Resolve dynamic card targets (null target + allowedCardIds = find in hand)
+            var entries = ResolveHighlights(step);
+            highlightArrow.PointAt(entries);
         }
 
         public void AdvanceStep()
@@ -102,13 +104,10 @@ namespace facingfate
 
         private void TutorialComplete()
         {
+            _isActive = false;
             highlightArrow.Hide();
-            overlayUI.ShowBackToMenu();
-        }
-
-        public void LoadMainMenu()
-        {
-            SceneManager.LoadScene(mainMenuSceneName);
+            overlayUI.HidePanel();
+            GameEvents.TriggerCombatEnd(true);
         }
 
         // ── GameEvent handlers ─────────────────────────────────────────────────
@@ -116,7 +115,13 @@ namespace facingfate
         private void OnTurnStart()
         {
             if (!_isActive || _currentStepIndex >= steps.Length) return;
-            LockHandForStep(steps[_currentStepIndex]);
+            StartCoroutine(LockHandNextFrame(steps[_currentStepIndex]));
+        }
+
+        private IEnumerator LockHandNextFrame(TutorialStepData step)
+        {
+            yield return null; // wait one frame so DeckManager draws cards first
+            LockHandForStep(step);
         }
 
         private void OnTurnEnd()
@@ -156,6 +161,28 @@ namespace facingfate
             }
         }
 
+        // ── Enemy wave spawning ────────────────────────────────────────────────
+
+        private void SpawnWaveForStep(int stepIndex)
+        {
+            if (enemyWaves == null) return;
+            foreach (var wave in enemyWaves)
+            {
+                if (wave.stepIndex != stepIndex) continue;
+                foreach (var entry in wave.entries)
+                {
+                    if (string.IsNullOrEmpty(entry.npcId)) continue;
+                    if (entry.spawnPoint == null)
+                    {
+                        Debug.LogWarning($"[TutorialCombatManager] spawnPoint null for npcId '{entry.npcId}' at step {stepIndex} — skipped.");
+                        continue;
+                    }
+                    var spawned = CombatUtility.SpawnEntity(entry.spawnPoint.position, entry.npcId, wave.affiliation);
+                    Debug.Log($"[TutorialCombatManager] Spawned {spawned.name} at step {stepIndex}");
+                }
+            }
+        }
+
         // ── ActionLock helpers ─────────────────────────────────────────────────
 
         private void LockHandForStep(TutorialStepData step)
@@ -191,6 +218,51 @@ namespace facingfate
                 var cg = cardGO.GetComponent<CanvasGroup>();
                 if (cg != null) cg.alpha = 1f;
             }
+        }
+
+        /// <summary>
+        /// Copies the step's highlights array, resolving any entry with null target + matching
+        /// allowedCardIds to the actual card RectTransform currently in hand.
+        /// </summary>
+        private TutorialHighlightEntry[] ResolveHighlights(TutorialStepData step)
+        {
+            if (step.highlights == null || step.highlights.Length == 0)
+            {
+                // Auto-highlight first allowed card if no explicit entries defined
+                if (!step.unlockAll && step.allowedCardIds.Length > 0)
+                {
+                    var cardRect = FindCardInHand(step.allowedCardIds[0]);
+                    if (cardRect != null)
+                        return new[] { new TutorialHighlightEntry { target = cardRect, direction = ArrowDirection.Down } };
+                }
+                return System.Array.Empty<TutorialHighlightEntry>();
+            }
+
+            var resolved = new TutorialHighlightEntry[step.highlights.Length];
+            int cardIdIndex = 0;
+
+            for (int i = 0; i < step.highlights.Length; i++)
+            {
+                var src = step.highlights[i];
+                if (src.target != null)
+                {
+                    resolved[i] = src;
+                    continue;
+                }
+
+                // Null target — try to resolve to a card in hand
+                if (cardIdIndex < step.allowedCardIds.Length)
+                {
+                    var cardRect = FindCardInHand(step.allowedCardIds[cardIdIndex++]);
+                    resolved[i] = new TutorialHighlightEntry { target = cardRect, direction = src.direction };
+                }
+                else
+                {
+                    resolved[i] = src; // remains null → arrow hidden for this entry
+                }
+            }
+
+            return resolved;
         }
 
         private RectTransform FindCardInHand(string cardId)
