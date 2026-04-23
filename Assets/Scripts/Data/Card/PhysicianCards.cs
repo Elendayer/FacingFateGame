@@ -1,4 +1,4 @@
-﻿
+
 namespace facingfate
 {
     public static class PhysicianCards
@@ -16,10 +16,10 @@ namespace facingfate
 
         private static void RegisterMartialArts()
         {
-            // 140101 â€“ Jade Needle Acupuncture â€“ HoT on ally
+            // 140101 – Jade Needle Acupuncture – HoT on ally
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Tech_Jade_Needle_Acupuncture",
+                cardID = "Physician_Tech_Jade_Needle_Acupuncture",
                 cardName = "Jade Needle Acupuncture",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Physician,
@@ -42,14 +42,11 @@ namespace facingfate
                     triggerConditionTargets = (entitiy) => entitiy.HasCondition(GameplayCondition.isDamaged)
                 },
 
-                CardDescription = (User, d) =>
-                {
-                    d.cardDescription = $"Apply a regeneration of {d.Power} for {d.Duration} turns.";
-                },
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Apply a regeneration of {d.Power} for {d.Duration} turns.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
-                    // Heal-over-time as positive â€œon turn startâ€ tick
+                    // Heal-over-time as positive “on turn start” tick
                     var regen = new EntityModifier(
                         modifierName: "Regeneration",
                         owner: Target,
@@ -72,10 +69,10 @@ namespace facingfate
                 }
             });
 
-            // 140102 â€“ Bloodletting â€“ convert Poison â†’ Bleed
+            // 140102 – Bloodletting – convert Poison → Bleed
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Tech_Bloodletting",
+                cardID = "Physician_Tech_Bloodletting",
                 cardName = "Bloodletting",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Physician,
@@ -92,14 +89,14 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Turn target's Poison into Bleed.",
-                CardEffect = (User, Target, d) => { /* TODO: convert Poison stacks to Bleed stacks */ }
+                cardDescriptionAction = (User, d) => d.cardDescription = "Turn target's Poison into Bleed.",
+                cardEffectAction = (User, Target, d) => { /* TODO: convert Poison stacks to Bleed stacks */ }
             });
 
-            // 140103 â€“ Formation of the Hundred Remedies â€“ Heal allies in ring
+            // 140103 – Formation of the Hundred Remedies – Heal allies in ring
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Tech_Formation_of_the_Hundred_Remedies",
+                cardID = "Physician_Tech_Formation_of_the_Hundred_Remedies",
                 cardName = "Formation of the Hundred Remedies",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Physician,
@@ -116,19 +113,18 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Heal allies in range for {d.Healing}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Heal allies in range for {d.Healing}.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyHealing(d, Target, d.Healing);
                 }
             });
 
-            // 140104 â€“ Venomous Grip (Single Enemy) â€“ worsen Poison
+            // 140104 – Venomous Grip (Single Enemy) – worsen Poison
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Tech_Venomous_Grip",
+                cardID = "Physician_Tech_Venomous_Grip",
                 cardName = "Venomous Grip",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Physician,
@@ -144,14 +140,14 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Worsen target's Poison (TBD: add stacks / increase tick).",
-                CardEffect = (User, Target, d) => { /* TODO: modify poison modifier on target */ }
+                cardDescriptionAction = (User, d) => d.cardDescription = "Worsen target's Poison (TBD: add stacks / increase tick).",
+                cardEffectAction = (User, Target, d) => { /* TODO: modify poison modifier on target */ }
             });
 
-            // 140105 â€“ Needle of the Flowing River (Single Ally) â€“ cleanse
+            // 140105 – Needle of the Flowing River (Single Ally) – cleanse
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Tech_Needle_of_the_Flowing_River",
+                cardID = "Physician_Tech_Needle_of_the_Flowing_River",
                 cardName = "Needle of the Flowing River",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Physician,
@@ -167,8 +163,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Cleanse ally (remove negative effects).",
-                CardEffect = (User, Target, d) => { /* TODO: cleanse implementation */ }
+                cardDescriptionAction = (User, d) => d.cardDescription = "Cleanse ally (remove negative effects).",
+                cardEffectAction = (User, Target, d) => { /* TODO: cleanse implementation */ }
             });
         }
 
@@ -176,10 +172,10 @@ namespace facingfate
         // --------------------------- Abilities ---------------------------
         private static void RegisterAbilities()
         {
-            // 140201 â€“ Gather â€“ sammelt Materialien; bei Wert 3 = neue Karte (TODO)
+            // 140201 – Gather – sammelt Materialien; bei Wert 3 = neue Karte (TODO)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Abil_Gather",
+                cardID = "Physician_Abil_Gather",
                 cardName = "Gather",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Physician,
@@ -194,19 +190,18 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = "Gather materials around you. Value=3 â‡’ create/draw a new card (TODO).",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Gather materials around you. Value=3 ⇒ create/draw a new card (TODO).",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
-                    // TODO: Sammel-Stack am User erhÃ¶hen; bei Stack >= 3 -> neue Karte erzeugen/ziehen und Stack resetten.
+                    // TODO: Sammel-Stack am User erhöhen; bei Stack >= 3 -> neue Karte erzeugen/ziehen und Stack resetten.
                 }
             });
 
-            // 140202 â€“ Toxic Remedy Paradox â€“ heilt einen Ally & vergiftet einen Enemy
+            // 140202 – Toxic Remedy Paradox – heilt einen Ally & vergiftet einen Enemy
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Abil_Toxic_Remedy_Paradox",
+                cardID = "Physician_Abil_Toxic_Remedy_Paradox",
                 cardName = "Toxic Remedy Paradox",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Physician,
@@ -223,19 +218,18 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = "Select an ally to heal and an enemy to Poison (TODO amounts).",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Select an ally to heal and an enemy to Poison (TODO amounts).",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     // TODO: Zielauswahl entkoppeln: Ally Cleansen, Enemy Poison-DoT anwenden.
                 }
             });
 
-            // 140203 â€“ Poison Barbs â€“ bei Treffer: Thorns + Poison (Self)
+            // 140203 – Poison Barbs – bei Treffer: Thorns + Poison (Self)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Abil_Poison_Barbs",
+                cardID = "Physician_Abil_Poison_Barbs",
                 cardName = "Poison Barbs",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Physician,
@@ -252,20 +246,19 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = "When attacked this turn, deal Thorns and apply Poison to the attacker.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "When attacked this turn, deal Thorns and apply Poison to the attacker.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     // TODO: Reaktiven Modifier auf den User legen:
-                    // On 'onHitTaken' -> fÃ¼ge fixen Thorns-Schaden zu & apply Poison-DoT auf den Angreifer.
+                    // On 'onHitTaken' -> füge fixen Thorns-Schaden zu & apply Poison-DoT auf den Angreifer.
                 }
             });
 
-            // 140204 â€“ Doctor's Footwork â€“ halbiert Movement-Kosten (Self)
+            // 140204 – Doctor's Footwork – halbiert Movement-Kosten (Self)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Abil_Doctors_Footwork",
+                cardID = "Physician_Abil_Doctors_Footwork",
                 cardName = "Doctor's Footwork",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Physician,
@@ -281,10 +274,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = "Halve movement cost until end of turn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Halve movement cost until end of turn.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "MovementCostMultiplier",
@@ -299,10 +291,10 @@ namespace facingfate
 
         private static void RegisterSpells()
         {
-            // 140301 â€“ Jade Needle Resonance â€“ Buff allies in area (Damage up)
+            // 140301 – Jade Needle Resonance – Buff allies in area (Damage up)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Spell_Jade_Needle_Resonance",
+                cardID = "Physician_Spell_Jade_Needle_Resonance",
                 cardName = "Jade Needle Resonance",
                 cardType = CardType.Spell,
                 cardClass = CardClass.Physician,
@@ -321,10 +313,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Allies in range gain {d.Power} increased damage for {d.Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Allies in range gain {Power} increased damage for {Duration} turns.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     // Buff DamageIncrease on each affected ally
                     var mod = new StatModifier(
@@ -337,10 +328,10 @@ namespace facingfate
                 }
             });
 
-            // 140302 â€“ Breath of the Jade Lotus â€“ Heals everyone in a line
+            // 140302 – Breath of the Jade Lotus – Heals everyone in a line
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Spell_Breath_of_the_Jade_Lotus",
+                cardID = "Physician_Spell_Breath_of_the_Jade_Lotus",
                 cardName = "Breath of the Jade Lotus",
                 cardType = CardType.Spell,
                 cardClass = CardClass.Physician,
@@ -358,10 +349,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Cone,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Heal allies in a line for {d.Healing}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Heal allies in a line for {Healing}.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyHealing(d, Target, d.Healing);
                 }
@@ -369,10 +359,10 @@ namespace facingfate
         }
         private static void RegisterItems()
         {
-            // 140601 â€“ Brew of a Hundred Herbs â€“ Heal an Ally
+            // 140601 – Brew of a Hundred Herbs – Heal an Ally
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Brew_of_a_Hundred_Herbs",
+                cardID = "Physician_Item_Brew_of_a_Hundred_Herbs",
                 cardName = "Brew of a Hundred Herbs",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -389,19 +379,18 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Heal an ally for {d.Healing}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Heal an ally for {Healing}.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyHealing(d, Target, d.Healing);
                 }
             });
 
-            // 140602 â€“ Elixir of a Hundred Herbs â€“ +Max Health for 3 turns
+            // 140602 – Elixir of a Hundred Herbs – +Max Health for 3 turns
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Elixir_of_a_Hundred_Herbs",
+                cardID = "Physician_Item_Elixir_of_a_Hundred_Herbs",
                 cardName = "Elixir of a Hundred Herbs",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -419,10 +408,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Increase Max Health by {d.Power} for {d.Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Increase Max Health by {Power} for {Duration} turns.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "Health",
@@ -434,10 +422,10 @@ namespace facingfate
                 }
             });
 
-            // 140603 â€“ Pill of a Hundred Herbs â€“ +Max Health (indefinite)
+            // 140603 – Pill of a Hundred Herbs – +Max Health (indefinite)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Pill_of_a_Hundred_Herbs",
+                cardID = "Physician_Item_Pill_of_a_Hundred_Herbs",
                 cardName = "Pill of a Hundred Herbs",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -455,10 +443,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Permanently increase Max Health by {d.Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Permanently increase Max Health by {d.Power}.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "Health",
@@ -470,10 +457,10 @@ namespace facingfate
                 }
             });
 
-            // 140604 â€“ Crimson Rejuvenation Brew â€“ Regenerates Stamina
+            // 140604 – Crimson Rejuvenation Brew – Regenerates Stamina
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Crimson_Rejuvenation_Brew",
+                cardID = "Physician_Item_Crimson_Rejuvenation_Brew",
                 cardName = "Crimson Rejuvenation Brew",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -490,19 +477,18 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Regenerate stamina (value {d.Power}).",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Regenerate stamina (value {Power}).",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     // TODO Stamina
                 }
             });
 
-            // 140605 â€“ Crimson Rejuvenation Elixir â€“ +Max Stamina for 3 turns
+            // 140605 – Crimson Rejuvenation Elixir – +Max Stamina for 3 turns
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Crimson_Rejuvenation_Elixir",
+                cardID = "Physician_Item_Crimson_Rejuvenation_Elixir",
                 cardName = "Crimson Rejuvenation Elixir",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -523,10 +509,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Increase Max Stamina by {d.Power} for {d.Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Increase Max Stamina by {d.Power} for {d.Duration} turns.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "Stamina",
@@ -538,10 +523,10 @@ namespace facingfate
                 }
             });
 
-            // 140606 â€“ Crimson Rejuvenation Pill â€“ +Max Stamina (indefinite)
+            // 140606 – Crimson Rejuvenation Pill – +Max Stamina (indefinite)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Crimson_Rejuvenation_Pill",
+                cardID = "Physician_Item_Crimson_Rejuvenation_Pill",
                 cardName = "Crimson Rejuvenation Pill",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -562,10 +547,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Permanently increase Max Stamina by {d.Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Permanently increase Max Stamina by {Power}.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "Stamina",
@@ -577,10 +561,10 @@ namespace facingfate
                 }
             });
 
-            // 140607 â€“ Brew of Unbroken Will â€“ +Armour for 1 Turn (DamageIncrease)
+            // 140607 – Brew of Unbroken Will – +Armour for 1 Turn (DamageIncrease)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Brew_of_Unbroken_Will",
+                cardID = "Physician_Item_Brew_of_Unbroken_Will",
                 cardName = "Brew of Unbroken Will",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -598,10 +582,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Ally gains +{d.Power} armour for this turn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Ally gains +{d.Power} armour for this turn.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "Armour",
@@ -613,10 +596,10 @@ namespace facingfate
                 }
             });
 
-            // 140608 â€“ Elixir of Unbroken Will â€“ +Armour for 3 turns
+            // 140608 – Elixir of Unbroken Will – +Armour for 3 turns
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Elixir_of_Unbroken_Will",
+                cardID = "Physician_Item_Elixir_of_Unbroken_Will",
                 cardName = "Elixir of Unbroken Will",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -634,10 +617,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Ally gains +{d.Power} Armour for {d.Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Ally gains +{d.Power} Armour for {d.Duration} turns.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: $"ArmourIncrease",
@@ -649,10 +631,10 @@ namespace facingfate
                 }
             });
 
-            // 140609 â€“ Pill of Unbroken Will â€“ +Armour (indefinite)
+            // 140609 – Pill of Unbroken Will – +Armour (indefinite)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Pill_of_Unbroken_Will",
+                cardID = "Physician_Item_Pill_of_Unbroken_Will",
                 cardName = "Pill of Unbroken Will",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -670,10 +652,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Permanently increase Armour by {d.Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Permanently increase Armour by {d.Power}.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "Armour",
@@ -685,10 +666,10 @@ namespace facingfate
                 }
             });
 
-            // 140610 â€“ Soaring Dragon Brew â€“ +Attack for 1 turn
+            // 140610 – Soaring Dragon Brew – +Attack for 1 turn
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Soaring_Dragon_Brew",
+                cardID = "Physician_Item_Soaring_Dragon_Brew",
                 cardName = "Soaring Dragon Brew",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -706,10 +687,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Ally gains +{d.Power} damage for this turn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Ally gains +{d.Power} damage for this turn.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier
@@ -723,10 +703,10 @@ namespace facingfate
                 }
             });
 
-            // 140611 â€“ Soaring Dragon Elixir â€“ +Attack for X turns (here 3)
+            // 140611 – Soaring Dragon Elixir – +Attack for X turns (here 3)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Soaring_Dragon_Elixir",
+                cardID = "Physician_Item_Soaring_Dragon_Elixir",
                 cardName = "Soaring Dragon Elixir",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -744,10 +724,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Ally gains +{d.Power} damage for {d.Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Ally gains +{d.Power} damage for {d.Duration} turns.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "Damage",
@@ -759,10 +738,10 @@ namespace facingfate
                 }
             });
 
-            // 140612 â€“ Soaring Dragon Pill â€“ +Attack (indefinite)
+            // 140612 – Soaring Dragon Pill – +Attack (indefinite)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Soaring_Dragon_Pill",
+                cardID = "Physician_Item_Soaring_Dragon_Pill",
                 cardName = "Soaring Dragon Pill",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -780,10 +759,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Permanently increase damage by {d.Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Permanently increase damage by {d.Power}.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     var mod = new StatModifier(
                         name: "Damage",
@@ -795,10 +773,10 @@ namespace facingfate
                 }
             });
 
-            // 140613 â€“ Crystal Cleansing Balm â€“ Cleanse target (status removal) -> TODO
+            // 140613 – Crystal Cleansing Balm – Cleanse target (status removal) -> TODO
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Crystal_Cleansing_Balm",
+                cardID = "Physician_Item_Crystal_Cleansing_Balm",
                 cardName = "Crystal Cleansing Balm",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -815,19 +793,18 @@ namespace facingfate
 
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Cleanses Target of all DoTs.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Cleanses Target of all DoTs.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     //TODO Cleanse
                 }
             });
 
-            // 140614 â€“ Mandrake Poison Cloud â€“ Throws Poison Cloud
+            // 140614 – Mandrake Poison Cloud – Throws Poison Cloud
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Mandrake_Poison_Cloud",
+                cardID = "Physician_Item_Mandrake_Poison_Cloud",
                 cardName = "Mandrake Poison Cloud",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -854,9 +831,9 @@ namespace facingfate
 
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Create a cloud of poison, inflicing Poison dealing {Damage} for {Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Create a cloud of poison, inflicing Poison dealing {Damage} for {Duration} turns.",
 
-                CardEffectGround = (User, TargetTile, d) =>
+                cardEffectGroundAction = (User, TargetTile, d) =>
                 {
                     var mod = new EntityModifier(
                         modifierName: "Poison",
@@ -897,11 +874,11 @@ namespace facingfate
 
         private static void RegisterCurse()
         {
-            // 140401 â€“ Alchemistâ€™s Misstep â€“ failure chance 20% fail for Items
+            // 140401 – Alchemist’s Misstep – failure chance 20% fail for Items
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Curse_Alchemists_Misstep",
-                cardName = "Alchemistâ€™s Misstep",
+                cardID = "Physician_Curse_Alchemists_Misstep",
+                cardName = "Alchemist’s Misstep",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
@@ -916,10 +893,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Cleanses Target of all DoTs.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Cleanses Target of all DoTs.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     //Item Fail 20% der Zeit
                 }
@@ -928,10 +904,10 @@ namespace facingfate
 
         private static void RegisterBlessing()
         {
-            // 140501 â€“ Mythical Herb â€“ Increases potency of items 
+            // 140501 – Mythical Herb – Increases potency of items 
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Phy_Item_Mythical_Herb",
+                cardID = "Physician_Item_Mythical_Herb",
                 cardName = "Mythical Herb",
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
@@ -946,10 +922,9 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                CardDescription = (User, d) =>
-                    d.cardDescription = $"Cleanses Target of all DoTs.",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Cleanses Target of all DoTs.",
 
-                CardEffect = (User, Target, d) =>
+                cardEffectAction = (User, Target, d) =>
                 {
                     //TODO Improve ItemCards
                 }
@@ -957,3 +932,4 @@ namespace facingfate
         }
     }
 }
+

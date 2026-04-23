@@ -46,7 +46,7 @@ namespace facingfate
         {
             if (cardData != null)
             {
-                cardData.CardDescription(cardData.Owner, cardData);
+                cardData.cardDescriptionAction(cardData.Owner, cardData);
                 artworkRenderer.sprite = cardData.cardArtwork;
                 nameText.text = cardData.cardName;
                 cost.text = $"{cardData.Cost}";

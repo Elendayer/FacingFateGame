@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace facingfate
 {
@@ -43,68 +44,142 @@ namespace facingfate
         {
             RegisterNpc(new NpcData()
             {
-                id = "Striker",
-                name = "Striker",
-                aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
+                id = "Npc_Wolf_Normal",
+                name = "Wolf",
+                aiBias = AiBiasDatabase.GetBiasById("Aggressive_Melee"),
 
                 cardIds = new List<string>()
                 {
-                    "Neutral_Tech_Strike",
-                    "Neutral_Tech_Strike",
-                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Abil_Howl",
+                    "Neutral_Abil_Howl",
+                    "Neutral_Abil_Growl",
+                    "Neutral_Abil_Growl",
+                    "Neutral_Tech_Gnaw",
+                    "Neutral_Tech_Gnaw",
+                    "Neutral_Tech_Jump",
+                    "Neutral_Tech_Jump",
                 },
 
                 baseStrength = 16,
-                baseTenacity = 1,
+                baseDexterity = 12,
+                baseTenacity = 13,
+                baseEndurance = 14,
+                baseIntelligence = 4,
+                baseWisdom = 5,
+
             });
 
             RegisterNpc(new NpcData()
             {
-                id = "Healer",
-                name = "Healer",
-                aiBias = AiBiasDatabase.GetBiasById("StupidFuck "),
+                id = "Npc_Wolf_Summon",
+                name = "Summoned Wolf",
+                aiBias = AiBiasDatabase.GetBiasById("Aggressive_Melee"),
 
                 cardIds = new List<string>()
                 {
-                    "Neutral_Abil_Recover",
-                    "Neutral_Abil_Recover"
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Bite",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Tech_Claw",
+                    "Neutral_Tech_Claw",
                 },
 
-                baseWisdom = 16,
+                baseTenacity = 8,
+                baseIntelligence = 4,
+                baseWisdom = 4,
+            });
+
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Bandit_Archer",
+                name = "Bandit Archer",
+                aiBias = AiBiasDatabase.GetBiasById("Aggressive_Ranged"),
+
+                cardIds = new List<string>()
+                {
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Multi_Shot",
+                    "Assassin_Tech_Multi_Shot",
+                    "Assassin_Tech_Multi_Shot",
+                    "Assassin_Tech_Bouncing_Shot",
+                    "Neutral_Abil_Focus",
+                    "Neutral_Abil_Focus",
+                    "Assassin_Abil_Eye_of_the_Nighthawk",
+                    "Assassin_Abil_Eye_of_the_Nighthawk",
+                    "Neutral_Spell_Summmon_Wolf",
+                    "Neutral_Spell_Summmon_Wolf",
+                },
+
+                baseDexterity = 20,
+                baseEndurance = 12,
+                baseTenacity = 8,
 
             });
 
             RegisterNpc(new NpcData()
             {
-                id = "Spear_Test_Npc",
-                name = "Spearman",
-                aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
+                id = "Npc_Bandit_Lord",
+                name = "Bandit Lord",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
 
                 cardIds = new List<string>()
-            {
-                    "Neutral_Tech_Strike",
-                    "Spear_Tech_Tempest_of_a_Hundred_Spears",
-                    "Spear_Tech_Piercing_Light",
-                    "Spear_Tech_Sky_Piercing_Leap",
-                     "Spear_Tech_Heaven_Piercing_Spear",
-                     "Spear_Tech_Salamander_Tail_Sweep",
-                     "Spear_Tech_Snake_Tail_Sweep",
-                     "Spear_Tech_Dragon_Tail_Sweep",
-                     "Spear_Tech_Earthshatter_Pole",
-                     "Spear_Tech_Azure_Dragons_Roar",
-                     "Spear_Tech_Pillar_of_the_Earth",
-                     "Spear_Abil_Extending_Heavens_Lance",
-                     "Spear_Abil_Iron_Wall_Reversal",
-                     "Spear_Abil_Whirling_Heaven_Ward",
-                     "Spear_Abil_Unyielding_Spear_Stance",
-                     //"Spear_Abil_Sky_Rending_Reversal",
-                     "Spear_Abil_Phalanx_Guard",
-                    "Spear_Curse_Brittle_Courage",
-                    "Spear_Bless_Brilliant_Spear",
-
+                {
+                    "Neutral_Tech_Charge",
+                    "Neutral_Tech_Charge",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Punch",
+                    "Neutral_Tech_Punch",
+                    "Neutral_Tech_Punch",
+                    "Neutral_Tech_Punch",
+                    "Neutral_Abil_Guard_Up",
+                    "Neutral_Abil_Guard_Up",
+                    "Neutral_Abil_Guard_Up",
+                    "Spearman_Tech_EarthShattering_Pole",
+                    "Spearman_Tech_EarthShattering_Pole",
+                    "Spearman_Tech_EarthShattering_Pole",
+                    "Neutral_Abil_Howl",
+                    "Neutral_Abil_Growl",
+                    "Spearman_Tech_Sky_Piercing_Leap",
+                    "Spearman_Tech_Iron_wall_reversal",
+                    "Spearman_Tech_Whirling_ward",
+                    "Spearman_Tech_Sweep",
+                    "Spearman_Tech_Sweep",
+                    "Spearman_Tech_Sweep",
+                    "Neutral_Abil_Summon_Wolf",
+                    "Neutral_Tech_Sunder",
+                    "Neutral_Abil_Warcry"
                 },
 
-                baseStrength = 16,
+                baseStrength = 20,
+                baseTenacity = 25,
+                baseEndurance = 16,
             });
 
             RegisterNpc(new NpcData()

@@ -11,11 +11,11 @@ namespace facingfate
         [SerializeField] private StatusEffectIconUI iconPrefab;
         [SerializeField] private int maxIcons = 12;
 
-        private Component boundEntity;
+        private EntityScript boundEntity;
         private readonly List<StatusEffectIconUI> spawned = new();
         private readonly Dictionary<string, int> _maxDurations = new();
 
-        public void Bind(Component entity)
+        public void Bind(EntityScript entity)
         {
             boundEntity = entity;
         }
@@ -30,20 +30,20 @@ namespace facingfate
                 return;
             }
 
-            var modifiers = EntityStatReader.TryGetModifiers(boundEntity);
-            if (modifiers == null) return;
+            var modifiers = boundEntity.GetActiveModifiers();
+            if (modifiers == null || modifiers.Count == 0) return;
 
             int shown = 0;
-            foreach (object mod in modifiers)
+            foreach (var mod in modifiers)
             {
                 if (shown >= maxIcons) break;
 
-                string modName = EntityStatReader.TryGetModifierName(mod);
+                string modName = mod.ModifierName;
                 if (string.IsNullOrWhiteSpace(modName)) continue;
 
-                int duration = EntityStatReader.TryGetModifierInt(mod, "Duration", -1);
-                int charges = EntityStatReader.TryGetModifierInt(mod, "Charges", -1);
-                int baseValue = EntityStatReader.TryGetModifierInt(mod, "BaseValue", -1);
+                int duration = mod.Duration;
+                int charges = mod.Charges;
+                int baseValue = (int)mod.BaseValue;
 
                 if (duration > 0)
                 {
@@ -52,7 +52,7 @@ namespace facingfate
                 }
                 int maxDuration = _maxDurations.TryGetValue(modName, out int maxStored) ? maxStored : duration;
 
-                bool isExpired = EntityStatReader.TryGetModifierBool(mod, "IsExpired", false);
+                bool isExpired = mod.IsExpired;
                 if (isExpired) continue;
 
                 var ui = Instantiate(iconPrefab, iconContainer);

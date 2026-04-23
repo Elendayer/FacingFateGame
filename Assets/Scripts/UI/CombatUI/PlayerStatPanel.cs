@@ -13,15 +13,16 @@ namespace facingfate
         [SerializeField] private Slider hpSlider;
 
         [SerializeField] private TMP_Text staminaText;
+        [SerializeField] private Slider staminaSlider;
         [SerializeField] private StatusEffectBarUI statusBar;
 
-        private Component boundEntity;
+        private EntityScript boundEntity;
 
         [Header("Animation")]
         [SerializeField] private float sliderAnimDuration = 0.4f;
         [SerializeField] private Ease sliderEase = Ease.OutQuart;
 
-        public void Bind(Component entity)
+        public void Bind(EntityScript entity)
         {
             boundEntity = entity;
             //Debug.Log($"[PlayerStatPanel] Bind – entity={entity?.gameObject.name ?? "NULL"}");
@@ -34,27 +35,28 @@ namespace facingfate
             //Debug.Log($"[PlayerStatPanel] Refresh – boundEntity={boundEntity?.gameObject.name ?? "NULL"}, statusBar={statusBar?.name ?? "NULL"}");
             if (boundEntity == null)
             {
-                SetText(nameText, "-"); 
-                SetText(hpText, "-"); 
+                SetText(nameText, "-");
+                SetText(hpText, "-");
                 SetText(staminaText, "-");
                 SetSlider(hpSlider, 0f, 1f);
+                SetSlider(staminaSlider, 0f, 1f);
                 statusBar?.Refresh();
                 return;
             }
 
-            SetText(nameText, GetEntityName(boundEntity));
+            SetText(nameText, boundEntity.name);
 
-            if (EntityStatReader.TryGetHealth(boundEntity, out int hpCur, out int hpMax))
-            {
-                SetText(hpText, hpMax > 0f ? $"{hpCur:0}/{hpMax:0}"+" HP" : $"{hpCur:0}/??");
-                SetSlider(hpSlider, hpCur, hpMax);
-            }
-            else { SetText(hpText, "-"); SetSlider(hpSlider, 0f, 1f); }
+            int hpMax = (int)boundEntity.entityStats.MaxHealth;
+            int hpCur = (int)boundEntity.entityStats.CurrentHealth;
 
-            if (EntityStatReader.TryGetStamina(boundEntity, out int stCur, out int stMax))
-                SetText(staminaText, stMax > 0f ? $"{stCur:0}/{stMax:0}"+" Stamina" : $"{stCur:0}/??");
-            else
-                SetText(staminaText, "-");
+            int stMax = (int)boundEntity.entityStats.MaxStamina;
+            int stCur = (int)boundEntity.entityStats.CurrentStamina;
+
+            SetText(hpText, hpMax > 0f ? $"{hpCur:0}/{hpMax:0}" + " HP" : $"{hpCur:0}/??");
+            SetSlider(hpSlider, hpCur, hpMax);
+
+            SetText(staminaText, stMax > 0f ? $"{stCur:0}/{stMax:0}" + " Stamina" : $"{stCur:0}/??");
+            SetSlider(staminaSlider, stCur, stMax);
 
             statusBar?.Refresh();
         }
@@ -74,22 +76,6 @@ namespace facingfate
             s.DOValue(current >= 0f ? current : 0f, 0.4f)
                 .SetEase(Ease.OutQuart)
                 .SetUpdate(true);
-        }
-        private static string GetEntityName(Component entity)
-        {
-            // Versucht zuerst NpcData.name über NonPlayerScript zu lesen
-            object npcData = ReflectionUtility.TryGetFieldOrProperty(entity, "npcData")
-                          ?? ReflectionUtility.TryGetFieldOrProperty(entity, "NpcData");
-
-            if (npcData != null)
-            {
-                object nameObj = ReflectionUtility.TryGetFieldOrProperty(npcData, "name");
-                if (nameObj != null && !string.IsNullOrWhiteSpace(nameObj.ToString()))
-                    return nameObj.ToString();
-            }
-
-            // Fallback: GameObject-Name
-            return entity.gameObject.name;
         }
     }
 }

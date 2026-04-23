@@ -26,13 +26,23 @@ namespace facingfate
         public override void OnBeginDrag(PointerEventData eventData)
         {
             wasDragged = true;
+
+            cardScript = GetComponent<CardScript>();
+
+            // Check if the player has enough stamina to play this card
+            if (cardScript?.cardData?.Owner != null && cardScript.cardData.Owner.entityStats.CurrentStamina < cardScript.cardData.Cost)
+            {
+                Debug.LogWarning($"Insufficient stamina to play {cardScript.cardData.cardName}. Required: {cardScript.cardData.Cost}, Available: {cardScript.cardData.Owner.entityStats.CurrentStamina}");
+                wasDragged = false;
+                return;
+            }
+
             base.OnBeginDrag(eventData);
 
             // Suppress base LineRenderer — DraggableCard uses VFX for targeting
             if (lineRenderer != null)
                 lineRenderer.enabled = false;
 
-            cardScript  = GetComponent<CardScript>();
             isDragging  = true;
             isCancelled = false;
             selectedPositionsDuringDrag.Clear();
@@ -66,6 +76,13 @@ namespace facingfate
             {
                 dragVFXEffect.SetVector3("End", cursorPosition);
                 dragVFX.transform.position = cursorPosition;
+            }
+
+            // Visualize targeting effect preview during drag
+            if (cursorPosition != Vector3.zero && cursorPosition != InvalidPosition && cardScript?.cardData != null)
+            {
+                List<Vector3> previewPositions = selectedPositionsDuringDrag.Count > 0 ? selectedPositionsDuringDrag : new List<Vector3> { cursorPosition };
+                TargetingModeData previewData = TargetingUtility.GetAffected(cardScript, cursorPosition, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, previewPositions, false);
             }
 
             bool isMultiSelect = IsMultiSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
@@ -214,6 +231,16 @@ namespace facingfate
 
         private bool HasValidTargetsAtPosition(Vector3 position, CardTargetingMode targetingMode)
         {
+            // Check if target is within range of the caster
+            if (cardScript?.cardData?.Owner != null)
+            {
+                float distanceToCaster = Vector3.Distance(cardScript.cardData.Owner.transform.position, position);
+                if (distanceToCaster > cardScript.cardData.Range)
+                {
+                    return false;
+                }
+            }
+
             // Ground-type cards can be cast at any valid position without requiring entities
             if (cardScript?.cardData?.targetingData?.CardTargetType == CardTargetType.Ground)
             {

@@ -45,34 +45,73 @@ namespace facingfate
         {
             RegisterBias(new NpcAiBias()
             {
-                id = "StupidFuck",
+                id = "Balanced",
+                cardReferenceBias = new Dictionary<GameplayRef, float>(),
+                identityBias = new Dictionary<CardIdentity, float>(),
+            });
+
+            RegisterBias(new NpcAiBias()
+            {
+                id = "Balanced_Surrounded",
 
                 cardReferenceBias = new Dictionary<GameplayRef, float>(),
                 identityBias = new Dictionary<CardIdentity, float>(),
 
                 RepositionCondition = RepositionCondition.surrounded
             });
+
             RegisterBias(new NpcAiBias()
             {
-                id = "Balanced",
+                id = "Balanced_LowHealth",
 
                 cardReferenceBias = new Dictionary<GameplayRef, float>(),
                 identityBias = new Dictionary<CardIdentity, float>(),
 
                 RepositionCondition = RepositionCondition.lowHealth
             });
+
             RegisterBias(new NpcAiBias()
             {
-                id = "Aggressive",
+                id = "Aggressive_Ranged",
                 cardReferenceBias = new Dictionary<GameplayRef, float>(),
                 identityBias = new Dictionary<CardIdentity, float>()
-            {
-                { CardIdentity.Ranged, 1.5f}
-            },
+                {
+                    { CardIdentity.Ranged, 1.5f}
+                },
 
                 RepositionCondition = RepositionCondition.preferRanged
             });
 
+            RegisterBias(new NpcAiBias()
+            {
+                id = "Aggressive_Melee",
+                cardReferenceBias = new Dictionary<GameplayRef, float>(),
+                identityBias = new Dictionary<CardIdentity, float>()
+                {
+                    { CardIdentity.Melee, 1.5f}
+                },
+            });
+
+            RegisterBias(new NpcAiBias()
+            {
+                id = "Defensive",
+                cardReferenceBias = new Dictionary<GameplayRef, float>(),
+                identityBias = new Dictionary<CardIdentity, float>(),
+
+                RepositionCondition = RepositionCondition.lowHealth
+            });
+
+            RegisterBias(new NpcAiBias()
+            {
+                id = "Supportive",
+                cardReferenceBias = new Dictionary<GameplayRef, float>(),
+                identityBias = new Dictionary<CardIdentity, float>()
+                {
+                    { CardIdentity.Healing, 1.5f },
+                    { CardIdentity.Buff, 1.5f },
+                    { CardIdentity.Debuff, 1.5f }
+                }
+            });
         }
     }
 }

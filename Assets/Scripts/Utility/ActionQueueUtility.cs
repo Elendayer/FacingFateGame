@@ -83,11 +83,11 @@ namespace facingfate
         {
             foreach (EntityScript target in targetingData.targetedEntities)
             {
-                cardData.CardEffect?.Invoke(source, target, cardData);
+                cardData.cardEffectAction?.Invoke(source, target, cardData);
             }
             foreach (Vector3 tile in targetingData.targetedPositions)
             {
-                cardData.CardEffectGround?.Invoke(source, tile, cardData);
+                cardData.cardEffectGroundAction?.Invoke(source, tile, cardData);
             }
         }
         private static void ApplyCardFX(
@@ -100,7 +100,7 @@ namespace facingfate
             {
                 foreach (EntityScript target in targetingData.targetedEntities)
                 {
-                    cardData.CardVfx?.Invoke(cardData, new TargetingModeData
+                    cardData.cardVfx?.Invoke(cardData, new TargetingModeData
                     {
                         targetedEntities = new List<EntityScript> { target },
                         targetedPositions = new List<Vector3>(),
@@ -109,7 +109,7 @@ namespace facingfate
                 }
             }
             else
-                cardData.CardVfx?.Invoke(cardData, targetingData);
+                cardData.cardVfx?.Invoke(cardData, targetingData);
         }
 
         private static IEnumerator MoveCoroutine(

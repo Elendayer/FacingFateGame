@@ -8,12 +8,13 @@ namespace facingfate
     {
         public static void RegisterAll()
         {
-            RegisterMartialArts();
+            RegisterTechniques();
             RegisterAbilities();
+            RegisterSpells();
             RegisterItems();
         }
 
-        private static void RegisterMartialArts()
+        private static void RegisterTechniques()
         {
             // 100101 – Strike – normal attack
             CardDatabase.RegisterCard(new CardData()
@@ -38,8 +39,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal Damage equal to your Strength: {Damage}",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal Damage equal to your Strength: {Damage}",
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                 },
@@ -70,8 +71,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal Damage equal to twice your Strength: {Damage}, increase movement cost by 1 for {Duration} turns",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal Damage equal to twice your Strength: {Damage}, increase movement cost by 1 for {Duration} turns",
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                     CombatUtility.ApplyStatDebuff(d, Target,
@@ -83,39 +84,12 @@ namespace facingfate
                         duration: d.Duration
                     ), ModifierMergeStrategy.RefreshDurationAndMerge);
                 },
-                CardVfx = (Data,Target) =>
+                cardVfx = (Data,Target) =>
                 {
                     AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData ("Debuff"), Target.targetedEntities);
                 }
             });
 
-            CardDatabase.RegisterCard(new CardData()
-            {
-                cardID = "Neutral_Abil_Recover",
-                cardName = "Recover",
-                cardType = CardType.Ability,
-                cardClass = CardClass.Neutral,
-                cardIdentities = new() { CardIdentity.None },
-
-                cost_u = 30,
-                healing_u = 50,
-
-                targetingData = new()
-                {
-                    CardTargetType = CardTargetType.Entity,
-                    CardTargetAffiliation = CardTargetAffiliation.Self,
-                    cardTargetingMode = CardTargetingMode.Single,
-                },
-
-                CardEffect = (User, Target, d) =>
-                {
-                    CombatUtility.ApplyHealing(d, Target, d.Healing);
-                },
-                CardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData ("Buff"), Target.targetedEntities);
-                }
-            });
 
 
             // 100103 – Quick Jab – fast poke
@@ -140,8 +114,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal damage equal to your Dexterity: {Damage}.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal damage equal to your Dexterity: {Damage}.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") ,d.Damage);
                 },
@@ -167,8 +141,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage, {Repeats} times.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage, {Repeats} times.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = d.Repeats }, d.Damage);
                 },
@@ -193,8 +167,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} and push enemy 1 meter.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} and push enemy 1 meter.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") , d.Damage);
                     MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.transform.position, 1);
@@ -222,8 +196,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Charge to target and push them back 1 meter.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Charge to target and push them back 1 meter.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     MovementUtility.ForcedMove(ForcedMovementType.Pull, User, Target.transform.position);
                     MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.transform.position, 1);
@@ -251,8 +225,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Disengage by 2.5 meters.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Disengage by 2.5 meters.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.transform.position, 2.5f);
                     // TODO: User 1 Feld rückwärts bewegen
@@ -278,8 +252,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
                 }
@@ -306,8 +280,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Bite multiple times and apply Bleed over time.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Bite multiple times and apply Bleed over time.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     // direct hit (per repeat)
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("SlashImpact"), d.Damage);
@@ -333,6 +307,62 @@ namespace facingfate
                 }
             });
 
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Neutral_Tech_Jump",
+                cardName = "Jump",
+                cardType = CardType.Technique,
+                cardClass = CardClass.Neutral,
+                cardIdentities = new() { },
+
+                cost_u = 20,
+                range_u = 3f,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Ground,
+                    CardTargetAffiliation = CardTargetAffiliation.Self,
+                    cardTargetingMode = CardTargetingMode.Single,
+                },
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Jump to a location within range.",
+                cardEffectAction = (User, Target, d) =>
+                {
+                    MovementUtility.ForcedMove(ForcedMovementType.Jump, User, Target.transform.position);
+                },
+            });
+
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Neutral_Tech_Sunder",
+                cardName = "Sunder",
+                cardType = CardType.Technique,
+                cardClass = CardClass.Neutral,
+                cardIdentities = new() { CardIdentity.Physical },
+
+                cost_u = 40,
+                damage_u = 100,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Entity,
+                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                    cardTargetingMode = CardTargetingMode.Cone,
+                },
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage",
+                cardEffectAction = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
+                },
+                cardVfx = (Data, Target) =>
+                {
+                    //Wip VFX for Cone
+                }
+            });
+
+
+
             /*
             // 100110 – Sting – damage + Poison DoT
             CardDatabase.RegisterCard(new CardData()
@@ -355,7 +385,7 @@ namespace facingfate
                 },
 
                 CardDescription = (User, d) => d.cardDescription = "Deal {Damage} damage and apply Poison for {Duration} turns.",
-                CardEffect = (User, Target, d) =>
+                cardEffect = (User, Target, d) =>
                 {
 
                     // Poison DoT + immediate tick
@@ -381,69 +411,41 @@ namespace facingfate
                     CombatUtility.ApplyEntityModifier(d, Target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });*/
-
-            // 100111 – Arrowshot – ranged hit
-            CardDatabase.RegisterCard(new CardData()
-            {
-                cardID = "Neutral_Tech_Arrowshot",
-                cardName = "Arrowshot",
-                cardType = CardType.Technique,
-                cardClass = CardClass.Neutral,
-                cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
-
-                cost_u = 30,
-                damage_u = 100,
-                range_u = 5f,
-
-                targetingData = new()
-                {
-                    CardTargetType = CardTargetType.Entity,
-                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Single,
-                },
-
-                CardDescription = (User, d) => d.cardDescription = $"Shoot an arrow dealing {d.Damage} damage.",
-                CardEffect = (User, Target, d) =>
-                {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"), d.Damage);
-                }
-            });
-
-            // 100112 – Multishot – multi-target (repeat 2)
-            CardDatabase.RegisterCard(new CardData()
-            {
-                cardID = "Neutral_Tech_Multishot",
-                cardName = "Multishot",
-                cardType = CardType.Technique,
-                cardClass = CardClass.Neutral,
-                cardIdentities = new() { CardIdentity.Ranged },
-
-                cost_u = 25,
-                damage_u = 30,
-
-                range_u = 5f,
-
-                targetingData = new()
-                {
-                    CardTargetType = CardTargetType.Ground,
-                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Select,
-                },
-
-                CardDescription = (User, d) => d.cardDescription = "Deal {Damage} Damage.",
-                CardEffect = (User, Target, d) =>
-                {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"),d.Damage);
-                }
-            });
         }
 
         private static void RegisterAbilities()
         {
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Neutral_Abil_Recover",
+                cardName = "Recover",
+                cardType = CardType.Ability,
+                cardClass = CardClass.Neutral,
+                cardIdentities = new() { CardIdentity.None },
+
+                cost_u = 30,
+                healing_u = 50,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Entity,
+                    CardTargetAffiliation = CardTargetAffiliation.Self,
+                    cardTargetingMode = CardTargetingMode.Single,
+                },
+
+                cardEffectAction = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyHealing(d, Target, d.Healing);
+                },
+                cardVfx = (Data, Target) =>
+                {
+                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
+                }
+            });
 
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Neutral_Ab_Meditate",
+                cardID = "Neutral_Abil_Meditate",
                 cardName = "Meditate",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -456,8 +458,8 @@ namespace facingfate
                     CardTargetAffiliation = CardTargetAffiliation.Self,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
-                CardDescription = (User, d) => d.cardDescription = "Draw a Card",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Draw a Card",
+                cardEffectAction = (User, Target, d) =>
                 {
                     User.DrawCards(1);
                 }
@@ -465,7 +467,7 @@ namespace facingfate
             // 100201 – Focus – empower next attack (Self)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Neutral_Ab_Focus",
+                cardID = "Neutral_Abil_Focus",
                 cardName = "Focus",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -482,8 +484,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Your next attack is empowered by {Power}.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Your next attack is empowered by {Power}.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     var stat = Target.entityStats.DamageOutModifier_Increase;
                     var mod = new StatModifier(
@@ -499,7 +501,7 @@ namespace facingfate
             // 100202 – Growl – demoralize enemies (AOE debuff)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Neutral_Ab_Growl",
+                cardID = "Neutral_Abil_Growl",
                 cardName = "Growl",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -518,8 +520,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Demoralize enemies reduces damage by {Power} and their Armor by 10%.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Demoralize enemies reduces damage by {Power} and their Armor by 10%.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyStatDebuff(d, Target, new StatModifier(
                         name: "Growl Damage Reduction",
@@ -541,7 +543,7 @@ namespace facingfate
             // 100203 – Howl – improve allies' stats (AOE buff)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Neutral_Ab_Howl",
+                cardID = "Neutral_Abil_Howl",
                 cardName = "Howl",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -561,8 +563,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Bolster allies damage {Power}.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage {Power}.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier
@@ -576,10 +578,56 @@ namespace facingfate
                 }
             });
 
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Neutral_Abil_Warcry",
+                cardName = "Warcry",
+                cardType = CardType.Ability,
+                cardClass = CardClass.Neutral,
+
+                cardIdentities = new() { },
+
+                cost_u = 25,
+
+                range_u = 4f,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Ground,
+                    CardTargetAffiliation = CardTargetAffiliation.All,
+                    cardTargetingMode = CardTargetingMode.All,
+                },
+                cardEffectAction = (User, Target, d) =>
+                {
+                    if (TargetingUtility.isEnemyOf(User, Target))
+                    {
+                        CombatUtility.ApplyStatDebuff(d, Target,
+                            new StatModifier
+                            (
+                                name: "Warcry Damage Reduction",
+                                stat: Target.entityStats.DamageOutModifier_Increase,
+                                value: -10,
+                                duration: 2
+                            ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                    }
+                    else
+                    {
+                        CombatUtility.ApplyStatBuff(d, Target,
+                            new StatModifier
+                            (
+                                name: "Warcry Damage Taken Reduction",
+                                stat: Target.entityStats.DamageTakenModifier_Increase,
+                                value: -20,
+                                duration: 2
+                            ), ModifierMergeStrategy.Override);
+                    }
+                }
+            });
+
             // 100204 – Guard Up – raise defense until end of turn
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Neutral_Ab_Guard_Up",
+                cardID = "Neutral_Abil_Guard_Up",
                 cardName = "Guard Up",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
@@ -599,8 +647,8 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) => d.cardDescription = "Increase your Armour until end of turn by {Power}.",
-                CardEffect = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Increase your Armour until end of turn by {Power}.",
+                cardEffectAction = (User, Target, d) =>
                 {
                     var stat = Target.entityStats.Armour_Increase;
                     var mod = new StatModifier(
@@ -615,7 +663,35 @@ namespace facingfate
             });
         }
 
-    
+        private static void RegisterSpells()
+        {
+            // 100301 – Fireball – ranged hit + Burn DoT
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Neutral_Spell_Summon_Wolf",
+                cardName = "Summon Wolf",
+                cardType = CardType.Spell,
+                cardClass = CardClass.Neutral,
+                cardIdentities = new() { CardIdentity.Summon },
+
+                cost_u = 50,
+                range_u = 2,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Ground,
+                    CardTargetAffiliation = CardTargetAffiliation.Self,
+                    cardTargetingMode = CardTargetingMode.Single,
+                },
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Summon a Wolf ally",
+                cardEffectGroundAction = (User, Target, d) =>
+                {
+                    CombatUtility.SpawnEntity(d, Target, "Npc_Wolf_Summon", User.entityAffiliation, true);
+                }
+            });
+        }
+
         private static void RegisterItems()
         {   
             /*
@@ -642,7 +718,7 @@ namespace facingfate
                 },
 
                 CardDescription = (User, d) => d.cardDescription = "Apply Poison 2 for 6 turns",
-                CardEffect = (User, Target, d) =>
+                cardEffect = (User, Target, d) =>
                 {
                     var poison = new EntityModifier(
                         modifierName: "Poison",
@@ -688,7 +764,7 @@ namespace facingfate
                 },
 
                 CardDescription = (User, d) => d.cardDescription = $"Apply Burn {d.Damage} for {d.Duration} turns.",
-                CardEffect = (User, Target, d) =>
+                cardEffect = (User, Target, d) =>
                 {
                     string name = "Burn";
                     var burn = new EntityModifier(

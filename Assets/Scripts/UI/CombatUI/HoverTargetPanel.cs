@@ -15,7 +15,8 @@ namespace facingfate
         [SerializeField] private TMP_Text stamText;
         [SerializeField] private Slider stamSlider;
         [SerializeField] private StatusEffectBarUI statusBar;
-        private Component boundEntity;
+
+        private EntityScript boundEntity;
 
         [SerializeField] private float fadeDuration = 0.2f;
         private CanvasGroup canvasGroup;
@@ -29,7 +30,7 @@ namespace facingfate
             canvasGroup.alpha = 0f;
         }
 
-        public void Bind(Component entity)
+        public void Bind(EntityScript entity)
         {
             boundEntity = entity;
             if (statusBar != null) statusBar.Bind(entity);
@@ -56,7 +57,9 @@ namespace facingfate
 
             if (titleText != null) titleText.text = GetEntityName(boundEntity);
 
-            EntityStatReader.TryGetHealth(boundEntity, out int hpCur, out int hpMax);
+            var stats = boundEntity.entityStats;
+            int hpCur = (int)stats.CurrentHealth;
+            int hpMax = (int)stats.MaxHealth;
 
             string hpString;
             if (hpCur >= 0f && hpMax > 0f)
@@ -74,7 +77,8 @@ namespace facingfate
                 SetSlider(hpSlider, hpCur, hpMax);
             }
 
-            EntityStatReader.TryGetStamina(boundEntity, out int stamCur, out int stamMax);
+            int stamCur = (int)stats.CurrentStamina;
+            int stamMax = (int)stats.MaxStamina;
 
             string stamString;
             if (stamCur >= 0f && stamMax > 0f)
@@ -99,18 +103,12 @@ namespace facingfate
                 canvasGroup.DOFade(1f, fadeDuration).SetUpdate(true);
             }
         }
-        private static string GetEntityName(Component entity)
+        private static string GetEntityName(EntityScript entity)
         {
-            // Versucht zuerst NpcData.name über NonPlayerScript zu lesen
-            object npcData = ReflectionUtility.TryGetFieldOrProperty(entity, "npcData")
-                          ?? ReflectionUtility.TryGetFieldOrProperty(entity, "NpcData");
-
-            if (npcData != null)
-            {
-                object nameObj = ReflectionUtility.TryGetFieldOrProperty(npcData, "name");
-                if (nameObj != null && !string.IsNullOrWhiteSpace(nameObj.ToString()))
-                    return nameObj.ToString();
-            }
+            // Try to get NPC name first
+            var npcScript = entity.GetComponent<NonPlayerScript>();
+            if (npcScript != null && npcScript.npcData != null && !string.IsNullOrWhiteSpace(npcScript.npcData.name))
+                return npcScript.npcData.name;
 
             // Fallback: GameObject-Name
             return entity.gameObject.name;

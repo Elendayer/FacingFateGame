@@ -359,24 +359,24 @@ namespace facingfate
         public CardScript TargetCard;
 
 
-        public Action<EntityScript, CardData> CardDescription =
+        public Action<EntityScript, CardData> cardDescriptionAction =
             (user, data) => 
             { 
                 Debug.Log($"Not defined Description of {data.cardName}");
             };
 
-        public Action<EntityScript, EntityScript, CardData> CardEffect =
+        public Action<EntityScript, EntityScript, CardData> cardEffectAction =
             (user, target, data) =>
             {
                 Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
             };
 
-        public Action<EntityScript, Vector3, CardData> CardEffectGround =
+        public Action<EntityScript, Vector3, CardData> cardEffectGroundAction =
             (user, target, data) => 
             {
                 // Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
             };
-        public Action<CardData,TargetingModeData> CardVfx =
+        public Action<CardData,TargetingModeData> cardVfx =
             (cardData, targetData) =>
             {
                 AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("LightningStrike"), targetData.targetedEntities );           
@@ -491,10 +491,10 @@ namespace facingfate
                 targetingData = targetingData,
 
                 // Delegates (zeigen auf dieselben Methoden – gewünscht)
-                CardDescription = CardDescription,
-                CardEffect = CardEffect,
-                CardEffectGround = CardEffectGround,
-                CardVfx = CardVfx,
+                cardDescriptionAction = cardDescriptionAction,
+                cardEffectAction = cardEffectAction,
+                cardEffectGroundAction = cardEffectGroundAction,
+                cardVfx = cardVfx,
 
                 // AI
                 CardAiBias = CardAiBias,
@@ -503,6 +503,16 @@ namespace facingfate
         public void ActivateCardEffect(TargetingModeData targetingModeData, GameObject cardObj)
         {
             CardData cardData = cardObj.GetComponent<CardScript>().cardData;
+
+            // Check if the owner has enough stamina to pay the card cost
+            if (cardData.Owner.entityStats.CurrentStamina < cardData.Cost)
+            {
+                Debug.LogWarning($"Not enough stamina to play {cardData.cardName}. Required: {cardData.Cost}, Available: {cardData.Owner.entityStats.CurrentStamina}");
+                return;
+            }
+
+            // Deduct the card cost from the owner's stamina
+            cardData.Owner.entityStats.CurrentStamina -= cardData.Cost;
 
             // Enqueue the card execution in the action queue
             ActionQueueUtility.EnqueueCardExecution(cardData.Owner, cardData, targetingModeData, cardObj);

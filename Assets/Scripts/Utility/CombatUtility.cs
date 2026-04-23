@@ -171,7 +171,7 @@ using facingfate;
         }
 
         #region Spawning
-        public static void SpawnEntity(CardData cardData, Vector3 spawnPosition, string npcID, EntityAffiliation affiliation, bool hasTurn = true)
+        public static void SpawnEntity(CardData cardData, Vector3 spawnPosition, string npcID, EntityAffiliation affiliation, bool hasTurn)
         {
             List<GameplayRef> refs = new();
             refs.Add(GameplayRef.onSummon);
