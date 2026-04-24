@@ -81,31 +81,22 @@ namespace facingfate
         {
             // Entities are already NavMeshObstacles while idle, so the
             // NavMesh already has holes around them. No manual enabling needed.
-            NavMeshPath path = new NavMeshPath();
-            NavMesh.CalculatePath(start, end, NavMesh.AllAreas, path);
+            NavMeshPathData path = MovementUtility.FindPath(start, end, entityStats);
 
-            if (path.status == NavMeshPathStatus.PathComplete ||
-                path.status == NavMeshPathStatus.PathPartial)
+            if (path?.CachedNavMeshPath != null && path.CachedNavMeshPath.corners.Length > 0)
             {
-                lineRenderer.positionCount = path.corners.Length;
-                for (int i = 0; i < path.corners.Length; i++)
-                    lineRenderer.SetPosition(i, path.corners[i]);
-            }
-            else
-            {
-                // Fallback direct line
-                lineRenderer.positionCount = 2;
-                lineRenderer.SetPosition(0, start);
-                lineRenderer.SetPosition(1, end);
+                lineRenderer.positionCount = path.CachedNavMeshPath.corners.Length;
+                for (int i = 0; i < path.CachedNavMeshPath.corners.Length; i++)
+                    lineRenderer.SetPosition(i, path.CachedNavMeshPath.corners[i]);
             }
 
-            UpdateLineRendererColor(start, end);
+            UpdateLineRendererColor(path);
         }
 
-        protected virtual void UpdateLineRendererColor(Vector3 start, Vector3 end)
+        protected virtual void UpdateLineRendererColor(NavMeshPathData path)
         {
-            PathData pathData = MovementUtility.FindPath(start, end, entityStats, false, true);
-            currentPathCost = pathData.PathCost;
+            if (path != null)
+                currentPathCost = path.PathCost;
             ApplyLineRendererColor();
         }
 

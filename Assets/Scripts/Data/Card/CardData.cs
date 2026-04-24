@@ -153,6 +153,64 @@ namespace facingfate
             }
         }
 
+        [Header("Secondary Damage")]
+        public Func<CardData, int> secondaryDamageFunc;
+        public int secondaryDamage_u = 0;
+        public int SecondaryDamage
+        {
+            get
+            {
+                float baseValue = Resolve(secondaryDamageFunc, secondaryDamage_u);
+
+                float flatBonus = Owner.entityStats.DamageOutModifier_Flat.Value(Owner, cardData: this) + damage_s_Flat.Value(Owner, this);
+
+                float increaseBonus = damage_s_Increase.Value(Owner, this) + Owner.entityStats.DamageOutModifier_Increase.Value();
+
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                List<float> oMult = Owner.entityStats.DamageOutModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = damage_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
+            }
+        }
+
+        [Header("Secondary Healing")]
+        public Func<CardData, int> secondaryHealingFunc;
+        public int secondaryHealing_u = 0;
+        public int SecondaryHealing
+        {
+            get
+            {
+                float baseValue = Resolve(secondaryHealingFunc, secondaryHealing_u);
+
+                float flatBonus = Owner.entityStats.HealingOutModifier_Flat.Value(Owner, cardData: this) + healing_s_Flat.Value(Owner, this);
+
+                float increaseBonus = healing_s_Increase.Value(Owner, this) + Owner.entityStats.HealingOutModifier_Increase.Value();
+
+                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
+
+                List<float> oMult = Owner.entityStats.HealingOutModifier_Multiplier.GetAllMultiplierValues(Owner, this);
+                List<float> cMult = healing_s_Multiplier.GetAllMultiplierValues(Owner, this);
+
+                List<float> multipliers = cMult.Concat(oMult).ToList();
+
+                foreach (var mult in multipliers)
+                {
+                    result *= mult;
+                }
+
+                return result < 0 ? 0 : Mathf.RoundToInt(result);
+            }
+        }
+
         [Header("Duration")]
         public Func<CardData, int> durationFunc;
         public int duration_u = 99999;
@@ -188,32 +246,18 @@ namespace facingfate
         [Header("Repeats")]
         public Func<CardData, int> repeatsFunc;
         public int repeats_u = 1;
-        public Stat repeats_s_Flat = new();
-        public Stat repeats_s_Increase = new();
-        public Stat repeats_s_Multiplier = new();
+        public Stat additionalRepeats = new();
         public int Repeats
         {
             get
             {
                 float baseValue = Resolve(repeatsFunc, repeats_u);
+                float flatBonus = additionalRepeats.Value(Owner, this);
 
-                float flatBonus = repeats_s_Flat.Value(Owner, this);
+                int result = Mathf.RoundToInt(baseValue + flatBonus);
 
-                float increaseBonus = repeats_s_Increase.Value(Owner, this);
 
-                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
-
-                List<float> oMult = Owner.entityStats.RepeatsModifier_Multiplier.GetAllMultiplierValues(Owner, this);
-                List<float> cMult = repeats_s_Multiplier.GetAllMultiplierValues(Owner, this);
-
-                List<float> multipliers = cMult.Concat(oMult).ToList();
-
-                foreach (var mult in multipliers)
-                {
-                    result *= mult;
-                }
-
-                return result < 0 ? 0 : Mathf.RoundToInt(result);
+                return result < 0 ? 0 : result;
             }
         }
 
@@ -313,7 +357,7 @@ namespace facingfate
 
         public Func<CardData, int> maxTargetFunc;
         public int maxtarget_u = 0;
-        public Stat maxTarget_s_Flat = new();
+        public Stat additionalMaxTargets = new();
         public Stat maxTarget_s_Increase = new();
         public Stat maxTarget_s_Multiplier = new();
         public int MaxTarget
@@ -321,24 +365,11 @@ namespace facingfate
             get
             {
                 float baseValue = Resolve(maxTargetFunc, maxtarget_u);
+                float flatBonus = Owner.entityStats.AdditonalMaxTargets.Value(Owner, cardData: this) + additionalMaxTargets.Value(Owner, this);
 
-                float flatBonus = Owner.entityStats.MaxTargetModifier_Flat.Value(Owner, cardData: this) + maxTarget_s_Flat.Value(Owner, this);
+                int result = Mathf.RoundToInt(baseValue + flatBonus);
 
-                float increaseBonus = maxTarget_s_Increase.Value(Owner, this) + Owner.entityStats.MaxTargetModifier_Increase.Value();
-
-                float result = (baseValue + flatBonus) * (1f + (increaseBonus / 100f));
-
-                List<float> oMult = Owner.entityStats.MaxTargetModifier_Multiplier.GetAllMultiplierValues(Owner, this);
-                List<float> cMult = maxTarget_s_Multiplier.GetAllMultiplierValues(Owner, this);
-
-                List<float> multipliers = cMult.Concat(oMult).ToList();
-
-                foreach (var mult in multipliers)
-                {
-                    result *= mult;
-                }
-
-                return result < 0 ? 0 : Mathf.RoundToInt(result);
+                return result < 0 ? 0 : result;
             }
         }
 
@@ -424,6 +455,10 @@ namespace facingfate
                 damageFunc = damageFunc,
                 healing_u = healing_u,
                 healingFunc = healingFunc,
+                secondaryDamage_u = secondaryDamage_u,
+                secondaryDamageFunc = secondaryDamageFunc,
+                secondaryHealing_u = secondaryHealing_u,
+                secondaryHealingFunc = secondaryHealingFunc,
 
                 duration_u = duration_u,
                 durationFunc = durationFunc,
@@ -467,9 +502,7 @@ namespace facingfate
                 duration_s_Multiplier = new Stat(),
 
                 // Card Stats - Repeats
-                repeats_s_Flat = new Stat(),
-                repeats_s_Increase = new Stat(),
-                repeats_s_Multiplier = new Stat(),
+                additionalRepeats = new Stat(),
 
                 // Card Stats - Range
                 range_s_Flat = new Stat(),
@@ -487,9 +520,8 @@ namespace facingfate
                 radius_s_Multiplier = new Stat(),
 
                 // Card Stats - MaxTarget
-                maxTarget_s_Flat = new Stat(),
-                maxTarget_s_Increase = new Stat(),
-                maxTarget_s_Multiplier = new Stat(),
+                additionalMaxTargets = new Stat(),
+
 
                 // Targeting-Flags (keine Ziel-Referenzen übernehmen)
                 targetingData = targetingData,
@@ -709,6 +741,7 @@ namespace facingfate
         LineSelf,
         Cone,
         Select,
+        SelectionUnique,
         All,
     }
 

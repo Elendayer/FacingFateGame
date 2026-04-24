@@ -14,7 +14,7 @@ namespace facingfate
         protected Vector2 originalPosition;
 
         public LineRenderer lineRenderer;
-        public int curveResolution = 6;
+        public int curveResolution = 12;
 
         protected virtual void Awake()
         {
@@ -23,7 +23,7 @@ namespace facingfate
 
             if (lineRenderer != null)
             {
-                lineRenderer.positionCount = 2;
+                lineRenderer.positionCount = 0;
                 lineRenderer.enabled = false;
                 lineRenderer.useWorldSpace = true;
             }
@@ -50,7 +50,7 @@ namespace facingfate
                 out var localPoint);
             rectTransform.anchoredPosition = localPoint;
 
-            UpdateLine(rectTransform.position, uiCamera.ScreenToWorldPoint(eventData.position));
+            UpdateLine(rectTransform.position, eventData.position);
         }
 
         public virtual void OnEndDrag(PointerEventData eventData)
@@ -72,9 +72,7 @@ namespace facingfate
             for (int i = 0; i < curveResolution; i++)
             {
                 float t = i / (float)(curveResolution - 1);
-                Vector3 point = Mathf.Pow(1 - t, 2) * start +
-                                2 * (1 - t) * t * control +
-                                Mathf.Pow(t, 2) * end;
+                Vector3 point = Mathf.Pow(1 - t, 2) * start + 2 * (1 - t) * t * control + Mathf.Pow(t, 2) * end;
                 lineRenderer.SetPosition(i, point);
             }
         }

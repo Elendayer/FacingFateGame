@@ -52,8 +52,8 @@ namespace facingfate
             // 110102 – Piercing Light (LineSelf 3)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Spear_Tech_Piercing_Light",
-                cardName = "Piercing Light",
+                cardID = "Spear_Tech_Piercing_The_Boulder",
+                cardName = "Piercing the Boulder",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Melee },
@@ -86,8 +86,8 @@ namespace facingfate
             // 110103 – Sky-Piercing Leap (LineSelf 2)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Spear_Tech_Sky_Piercing_Leap",
-                cardName = "Sky-Piercing Leap",
+                cardID = "Spear_Tech_Sky_Reaching_Leap",
+                cardName = "Sky-Reaching Leap",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
@@ -176,11 +176,16 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Cone,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage, Inflict 5 Burn.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = 1});
+
+                    EntityModifier mod = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, d, ThroughputSource.Damage, User);
+
+                    CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+
                 },
                 cardVfx = (Data, Target) =>
                 {
@@ -504,8 +509,8 @@ namespace facingfate
             // 110203 – Whirling Heaven Ward (Self; deflect ranged once)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Spear_Abil_Whirling_Heaven_Ward",
-                cardName = "Whirling Heaven Ward",
+                cardID = "Spear_Abil_Whirling_Ward",
+                cardName = "Whirling Ward",
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
@@ -597,8 +602,8 @@ namespace facingfate
                 }
             });
 
-            /*
-            // 110205 – Sky-Rending Reversal (Self; stronger fixed counter)
+            
+            //110205 – Sky-Rending Reversal (Self; stronger fixed counter)
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Spear_Abil_Sky_Rending_Reversal",
@@ -617,7 +622,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                CardDescription = (User, d) =>
+                cardDescriptionAction = (User, d) =>
                 {
                     d.cardDescription = "On next hit this turn, counter for {Damage}.";
                 },
@@ -638,13 +643,12 @@ namespace facingfate
                          },
                         onRef_Action: (target, cd, value) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, value);
+                            CombatUtility.ApplyDamage(null, target, new VFXData("SlashImpact"), value);
                         }
                      );
                     CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
-            */
 
             // 110206 – Phalanx Guard (Self; defensive placeholder)
             CardDatabase.RegisterCard(new CardData()

@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections;
-using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using facingfate;
 using UnityEngine.AI;
 
@@ -63,6 +60,36 @@ public static class TargetingUtility
         if (isEnemyTarget && target.HasReference(GameplayRef.untargetableByEnemies).found) return false;
 
         if (isAllyTarget && target.HasReference(GameplayRef.untargetableByAllies).found) return false;
+
+        return true;
+    }
+
+    /// <summary>
+    /// Validates an entity as a valid drag/click target during card targeting.
+    /// Includes all base validity checks plus additional requirements: active state, range, and health.
+    /// </summary>
+    public static bool IsDraggableTargetValid(CardData cardData, EntityScript target, EntityScript overrideOwner = null)
+    {
+        // First check base targeting validity
+        if (!IsTargetValid(cardData, target, overrideOwner))
+            return false;
+
+        // Check if entity is alive/active
+        if (target.gameObject == null || !target.gameObject.activeInHierarchy)
+            return false;
+
+        // Check if entity is within card range
+        EntityScript owner = overrideOwner ?? cardData.Owner;
+        if (owner != null && cardData != null)
+        {
+            float distanceToEntity = Vector3.Distance(owner.transform.position, target.transform.position);
+            if (distanceToEntity > cardData.Range)
+                return false;
+        }
+
+        // Check if entity has valid stats (not already dead)
+        if (target.entityStats != null && target.entityStats.CurrentHealth <= 0)
+            return false;
 
         return true;
     }
@@ -189,45 +216,12 @@ public static class TargetingUtility
     }
     #endregion
 
-    #region Entity / Tile Conversion
+    #region Entity
     public static List<EntityScript> AllEntitiesCache()
     {
         List<EntityScript> allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0).ToList();
 
         return allEntities;
-    }
-    public static List<EntityScript> GetEntitiesFromTiles(List<Vector3Int> tiles)
-    {
-        List<EntityScript> allEntities = AllEntitiesCache();
-        List<EntityScript> results = new();
-
-        if (allEntities == null) return results;
-
-        foreach (var entity in allEntities)
-        {
-            if (entity == null) continue;
-            results.Add(entity);
-        }
-
-        return results;
-    }
-    public static EntityScript GetEntitiesFromTile(Vector3Int tile)
-    {
-        List<EntityScript> allEntities = AllEntitiesCache();
-        if (allEntities == null) return null;
-
-        return allEntities.Count > 0 ? allEntities[0] : null;
-    }
-    public static Vector3 GetHoveredPosition(PointerEventData eventData)
-    {
-        foreach (GameObject hoveredObject in eventData.hovered)
-        {
-            if (hoveredObject.TryGetComponent(out DraggableTarget dt) && dt.draggableTargetType == DraggableTargetType.CombatTile)
-            {
-                return hoveredObject.transform.position;
-            }
-        }
-        return Vector3.zero;
     }
 
     public static Vector3 GetHoveredPosition(Ray ray)
@@ -386,6 +380,7 @@ public static class TargetingModeFactory
             CardTargetingMode.LineFree => new LineFreeTargetingMode(),
             CardTargetingMode.Cone => new ConeTargetingMode(),
             CardTargetingMode.Select => new SelectionTargetingMode(),
+            CardTargetingMode.SelectionUnique => new SelectionTargetingMode(),
             CardTargetingMode.All => new AllTargetingMode(),
             CardTargetingMode.Single => new SingleTargetingMode(),
             _ => new SingleTargetingMode(),

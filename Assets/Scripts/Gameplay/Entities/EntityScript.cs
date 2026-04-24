@@ -37,6 +37,8 @@ namespace facingfate
         public virtual void StartUp()
         {
             EntityVisual = GetComponentInChildren<EntityVisualScript>();
+            EntityVisual.EntityScript = this;
+
             EntityOnMap = GetComponentInChildren<EntityOnMap>();
 
             entityStats = new();
@@ -184,12 +186,16 @@ namespace facingfate
 
         public virtual void StartTurn()
         {
-            entityStats.CurrentStamina = entityStats.MaxStamina;
+            EntityVisual.HighlightTurn();
 
             ActionQueueUtility.EnqueueAction(() =>
             {
                 entityStats.TickAllStats();
             });
+        }
+        public virtual void EndTurn()
+        {
+            EntityVisual.ClearHighlight ();
         }
 
         public virtual void DrawCards(int toDraw) { }

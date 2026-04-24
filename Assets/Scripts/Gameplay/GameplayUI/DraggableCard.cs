@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.VFX;
 using UnityEngine.InputSystem;
+using Unity.Mathematics;
 
 namespace facingfate
 {
@@ -19,16 +20,70 @@ namespace facingfate
         [Tooltip("Optional, empty = silent")] [SerializeField] private AK.Wwise.Event hoverSfx;
         [Tooltip("Optional, empty = silent")] [SerializeField] private AK.Wwise.Event dragStartSfx;
 
-        private readonly List<Vector3> selectedPositionsDuringDrag = new();
+        /// <summary>Stores selected targets during drag — either positions (Ground type) or entities (Entity type)</summary>
+        private struct TargetSelection
+        {
+            public Vector3 position;
+            public EntityScript entity;
+
+            public TargetSelection(Vector3 pos) { position = pos; entity = null; }
+            public TargetSelection(EntityScript ent) { entity = ent; position = ent != null ? ent.transform.position : Vector3.zero; }
+
+            public bool IsEntity => entity != null;
+            public Vector3 GetPosition() => entity != null ? entity.transform.position : position;
+        }
+
+        private readonly List<TargetSelection> selectedTargetsDuringDrag = new();
         private bool isDragging = false;
         private bool wasDragged = false;
         private bool isCancelled = false;
         private bool wasSelectedBeforeDrag = false;
         private GameObject dragVFX = null;
         private VisualEffect dragVFXEffect = null;
+        private bool wasRightMouseDown = false;
+        private List<EntityScript> lastHighlightedEntities = new();
 
-        public void OnPointerEnter(PointerEventData eventData) => WwiseAudioHelper.PlayGlobal(hoverSfx, gameObject);
-        public void OnPointerExit(PointerEventData eventData) { }
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            WwiseAudioHelper.PlayGlobal(hoverSfx, gameObject);
+
+            // If dragging, don't highlight on hover since we're already showing targeted entities
+            if (isDragging) return;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            // Clear any hover highlights
+            foreach (var entity in lastHighlightedEntities)
+            {
+                if (entity?.EntityVisual != null)
+                {
+                    entity.EntityVisual.ClearHighlight();
+                }
+            }
+            lastHighlightedEntities.Clear();
+        }
+
+        private void Update()
+        {
+            // Check for right-click during drag, independent of mouse movement
+            if (!isDragging) return;
+
+            bool isRightMouseDown = Mouse.current?.rightButton.isPressed == true;
+            bool rightClickPressed = isRightMouseDown && !wasRightMouseDown;
+            wasRightMouseDown = isRightMouseDown;
+
+            if (rightClickPressed)
+            {
+                // Get current mouse position from Input System
+                Vector2 mousePos = Mouse.current?.position.ReadValue() ?? Vector2.zero;
+                PointerEventData eventData = new PointerEventData(EventSystem.current)
+                {
+                    position = mousePos
+                };
+                HandleRightClickDuringDrag(eventData);
+            }
+        }
 
         public override void OnBeginDrag(PointerEventData eventData)
         {
@@ -53,7 +108,8 @@ namespace facingfate
 
             isDragging  = true;
             isCancelled = false;
-            selectedPositionsDuringDrag.Clear();
+            selectedTargetsDuringDrag.Clear();
+            wasRightMouseDown = false;
 
             // Highlight the card in-hand during targeting (slight upward offset via selectedOffsetY)
             wasSelectedBeforeDrag = HandManager.Instance?.GetSelectedCard() == gameObject;
@@ -86,38 +142,56 @@ namespace facingfate
                 dragVFX.transform.position = cursorPosition;
             }
 
+            CardData cardData = cardScript.cardData;
+
             // Visualize targeting effect preview during drag
-            if (cursorPosition != Vector3.zero && cursorPosition != InvalidPosition && cardScript?.cardData != null)
+            if (cursorPosition != Vector3.zero && cursorPosition != InvalidPosition && cardData != null)
             {
-                List<Vector3> previewPositions = selectedPositionsDuringDrag.Count > 0 ? selectedPositionsDuringDrag : new List<Vector3> { cursorPosition };
-                TargetingModeData previewData = TargetingUtility.GetAffected(cardScript, cursorPosition, cardScript.cardData.Owner, cardScript.cardData.targetingData.EffectUsesVision, previewPositions, false);
+                List<Vector3> previewPositions = selectedTargetsDuringDrag.Count > 0 
+                    ? selectedTargetsDuringDrag.Select(t => t.GetPosition()).ToList() 
+                    : new List<Vector3> { cursorPosition };
+
+                TargetingModeData previewData = TargetingUtility.GetAffected(cardScript, cursorPosition, cardData.Owner, cardData.targetingData.EffectUsesVision, previewPositions, false);
+
+                // Update entity highlights based on affected entities
+                UpdateEntityHighlights(previewData);
             }
+        }
 
-            bool isMultiSelect = IsMultiSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
-
-            if (Mouse.current?.rightButton.wasPressedThisFrame == true)
+        private void UpdateEntityHighlights(TargetingModeData targetingData)
+        {
+            // Clear previous highlights
+            foreach (var entity in lastHighlightedEntities)
             {
-                if (isMultiSelect)
+                if (entity?.EntityVisual != null)
                 {
-                    // Multi-select: right-click adds / removes a target position
-                    int maxTargets = cardScript.cardData.targetingData.cardTargetingMode == CardTargetingMode.Select
-                        ? cardScript.cardData.MaxTarget : 2;
-
-                    if (cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
-                    {
-                        if (HasValidTargetsAtPosition(cursorPosition, cardScript.cardData.targetingData.cardTargetingMode))
-                        {
-                            if (selectedPositionsDuringDrag.Contains(cursorPosition))
-                                selectedPositionsDuringDrag.Remove(cursorPosition);
-                            else if (selectedPositionsDuringDrag.Count < maxTargets)
-                                selectedPositionsDuringDrag.Add(cursorPosition);
-                        }
-                    }
+                    entity.EntityVisual.ClearHighlight();
                 }
-                else
+            }
+            lastHighlightedEntities.Clear();
+
+            // Highlight new affected entities
+            if (targetingData?.targetedEntities != null && cardScript?.cardData != null)
+            {
+                // Determine if this card uses selection-based targeting
+                bool isSelectionMode = IsSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
+
+                foreach (var entity in targetingData.targetedEntities)
                 {
-                    // All other modes: right-click cancels targeting
-                    CancelDrag();
+                    if (entity?.EntityVisual != null)
+                    {
+                        // Use HighlightSelection for selection-based targeting modes
+                        if (isSelectionMode)
+                        {
+                            entity.EntityVisual.HighlightSelection();
+                        }
+                        else
+                        {
+                            // Use HighlightInAreaOfEffect for area-based targeting modes
+                            entity.EntityVisual.HighlightInAreaOfEffect();
+                        }
+                        lastHighlightedEntities.Add(entity);
+                    }
                 }
             }
         }
@@ -133,9 +207,20 @@ namespace facingfate
             isCancelled        = true;
             isDragging         = false;
             ActiveDraggingCard = null;
+            wasRightMouseDown  = false;
 
             if (dragVFX != null) { Destroy(dragVFX); dragVFX = null; }
             if (lineRenderer != null) lineRenderer.enabled = false;
+
+            // Clear entity highlights
+            foreach (var entity in lastHighlightedEntities)
+            {
+                if (entity?.EntityVisual != null)
+                {
+                    entity.EntityVisual.ClearHighlight();
+                }
+            }
+            lastHighlightedEntities.Clear();
 
             canvasGroup.blocksRaycasts = true;
 
@@ -148,8 +233,19 @@ namespace facingfate
         {
             isDragging         = false;
             ActiveDraggingCard = null;
+            wasRightMouseDown  = false;
 
             if (dragVFX != null) { Destroy(dragVFX); dragVFX = null; }
+
+            // Clear entity highlights
+            foreach (var entity in lastHighlightedEntities)
+            {
+                if (entity?.EntityVisual != null)
+                {
+                    entity.EntityVisual.ClearHighlight();
+                }
+            }
+            lastHighlightedEntities.Clear();
 
             // Cancelled — cleanup was done in CancelDrag(), just reset the flag
             if (isCancelled)
@@ -162,7 +258,7 @@ namespace facingfate
             base.OnEndDrag(eventData); // restores blocksRaycasts + anchoredPosition
 
             // Determine if this card uses multi-selection or single-cast targeting
-            bool isMultiSelectMode = IsMultiSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
+            bool isMultiSelectMode = IsSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
 
             Vector3 aimWorldPos;
             List<Vector3> targetPositions;
@@ -170,21 +266,22 @@ namespace facingfate
             if (isMultiSelectMode)
             {
                 // Multi-selection mode: require explicit right-click selections
-                if (selectedPositionsDuringDrag.Count == 0)
+                if (selectedTargetsDuringDrag.Count == 0)
                 {
                     HandManager.Instance?.SelectCard(null);
                     return;
                 }
 
-                // Validate that at least one target position has valid targets
-                if (!HasValidTargetsAtPositions(selectedPositionsDuringDrag))
+                // Validate that at least one target has valid targets
+                List<Vector3> selectedPositions = selectedTargetsDuringDrag.Select(t => t.GetPosition()).ToList();
+                if (!HasValidTargetsAtPositions(selectedPositions))
                 {
                     HandManager.Instance?.SelectCard(null);
                     return;
                 }
 
-                aimWorldPos = selectedPositionsDuringDrag[selectedPositionsDuringDrag.Count - 1];
-                targetPositions = selectedPositionsDuringDrag;
+                aimWorldPos = selectedTargetsDuringDrag[selectedTargetsDuringDrag.Count - 1].GetPosition();
+                targetPositions = selectedPositions;
             }
             else
             {
@@ -214,9 +311,9 @@ namespace facingfate
             HandManager.Instance?.SelectCard(null);
         }
 
-        private bool IsMultiSelectionTargetingMode(CardTargetingMode mode)
+        private bool IsSelectionTargetingMode(CardTargetingMode mode)
         {
-            return mode == CardTargetingMode.Select || mode == CardTargetingMode.LineFree;
+            return mode == CardTargetingMode.Select || mode == CardTargetingMode.SelectionUnique || mode == CardTargetingMode.LineFree;
         }
 
         private bool HasValidTargetsAtPositions(List<Vector3> positions)
@@ -280,6 +377,8 @@ namespace facingfate
             return false;
         }
 
+
+
         public void OnPointerClick(PointerEventData eventData)
         {
             if (wasDragged) { wasDragged = false; return; }
@@ -328,6 +427,168 @@ namespace facingfate
                 return hit.point;
             }
             return InvalidPosition;
+        }
+
+        private bool TryGetEntityHitByRay(Ray ray, out EntityScript entity)
+        {
+            Debug.Log("Performing entity raycast for targeting...");
+            entity = null;
+            int entityLayer = LayerMask.GetMask("Entity");
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 1000f, entityLayer))
+            {
+                Debug.DrawLine(ray.origin, hit.point, Color.red, 0.5f);
+                Debug.Log($"Entity raycast hit: {hit.collider.name} at {hit.point}");
+
+                EntityScript hitEntity = hit.collider.GetComponent<EntityScript>();
+                if (hitEntity != null)
+                {
+                    entity = hitEntity;
+                    return true;
+                }
+            }
+            else
+            {
+                Debug.DrawRay(ray.origin, ray.direction * 1000f, Color.yellow, 0.5f);
+                Debug.Log("Entity raycast: No hit detected");
+            }
+
+            return false;
+        }
+
+        private void HandleRightClickDuringDrag(PointerEventData eventData)
+        {
+            Debug.Log($"HandleRightClickDuringDrag: Right-click at {eventData.position} while dragging");
+            if (!isDragging || cardScript?.cardData == null) return;
+
+            Ray ray = Camera.main.ScreenPointToRay(eventData.position);
+            Vector3 cursorPosition = GetFloorHitPosition(ray);
+
+            bool isSelect = IsSelectionTargetingMode(cardScript.cardData.targetingData.cardTargetingMode);
+            bool isSelectionUnique = cardScript.cardData.targetingData.cardTargetingMode == CardTargetingMode.SelectionUnique;
+
+            if (isSelect)
+            {
+                // Multi-select: right-click adds / removes a target
+                int maxTargets = cardScript.cardData.targetingData.cardTargetingMode == CardTargetingMode.Select ? cardScript.cardData.MaxTarget : (isSelectionUnique ? cardScript.cardData.MaxTarget : 2);
+
+                if (cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
+                {
+                    CardTargetType targetType = cardScript.cardData.targetingData.CardTargetType;
+
+                    if (targetType == CardTargetType.Ground)
+                    {
+                        // Ground targeting: check if ray hit the floor
+                        if (HasValidTargetsAtPosition(cursorPosition, cardScript.cardData.targetingData.cardTargetingMode))
+                        {
+                            TargetSelection groundTarget = new TargetSelection(cursorPosition);
+
+                            // Check if this position is already selected
+                            bool isDuplicate = selectedTargetsDuringDrag.Any(t => !t.IsEntity && Vector3.Distance(t.position, cursorPosition) < 0.1f);
+
+                            if (isDuplicate)
+                            {
+                                if (isSelectionUnique)
+                                {
+                                    // SelectionUnique: deselect the duplicate position
+                                    selectedTargetsDuringDrag.RemoveAll(t => !t.IsEntity && Vector3.Distance(t.position, cursorPosition) < 0.1f);
+                                    Debug.Log($"SelectionUnique: Deselected ground position at {cursorPosition}");
+                                }
+                                else
+                                {
+                                    // Select mode: deselect the position (toggle off)
+                                    selectedTargetsDuringDrag.RemoveAll(t => !t.IsEntity && Vector3.Distance(t.position, cursorPosition) < 0.1f);
+                                    Debug.Log($"Select: Deselected ground target at {cursorPosition}");
+                                }
+                            }
+                            else
+                            {
+                                // Position is not selected yet
+                                if (selectedTargetsDuringDrag.Count >= maxTargets)
+                                {
+                                    // At max capacity: remove first (oldest) selection
+                                    selectedTargetsDuringDrag.RemoveAt(0);
+                                    Debug.Log($"Max targets reached: removed first selected target");
+                                }
+
+                                selectedTargetsDuringDrag.Add(groundTarget);
+                                Debug.Log($"Selected ground target at {cursorPosition}");
+                            }
+                        }
+                    }
+                    else if (targetType == CardTargetType.Entity)
+                    {
+                        // Entity targeting: check if ray hit an entity
+                        if (TryGetEntityHitByRay(ray, out EntityScript hitEntity) && hitEntity != null)
+                        {
+                            // Validate the entity before allowing selection using TargetingUtility
+                            if (!TargetingUtility.IsDraggableTargetValid(cardScript.cardData, hitEntity, cardScript.cardData.Owner))
+                            {
+                                Debug.Log($"Entity {hitEntity.name} is not a valid target");
+                                return;
+                            }
+
+                            // Verify the entity is a valid target according to targeting rules
+                            TargetingModeData targetingData = TargetingUtility.GetAffected(
+                                cardScript,
+                                hitEntity.transform.position,
+                                cardScript.cardData.Owner,
+                                cardScript.cardData.targetingData.EffectUsesVision,
+                                new List<Vector3> { hitEntity.transform.position },
+                                true
+                            );
+
+                            if (targetingData?.targetedEntities != null && targetingData.targetedEntities.Contains(hitEntity))
+                            {
+                                TargetSelection entityTarget = new TargetSelection(hitEntity);
+
+                                // Check if this exact entity is already selected
+                                int existingIndex = selectedTargetsDuringDrag.FindIndex(t => t.IsEntity && t.entity == hitEntity);
+
+                                if (existingIndex >= 0)
+                                {
+                                    // Entity is already selected
+                                    if (isSelectionUnique)
+                                    {
+                                        // SelectionUnique: deselect the entity
+                                        selectedTargetsDuringDrag.RemoveAt(existingIndex);
+                                        Debug.Log($"SelectionUnique: Deselected entity {hitEntity.name}");
+                                    }
+                                    else
+                                    {
+                                        // Select mode: deselect the entity (toggle off)
+                                        selectedTargetsDuringDrag.RemoveAt(existingIndex);
+                                        Debug.Log($"Select: Deselected entity target: {hitEntity.name}");
+                                    }
+                                }
+                                else
+                                {
+                                    // Entity is not selected yet
+                                    if (selectedTargetsDuringDrag.Count >= maxTargets)
+                                    {
+                                        // At max capacity: remove first (oldest) selection
+                                        selectedTargetsDuringDrag.RemoveAt(0);
+                                        Debug.Log($"Max targets reached: removed first selected target");
+                                    }
+
+                                    // Add new selection
+                                    selectedTargetsDuringDrag.Add(entityTarget);
+                                    Debug.Log($"Selected entity target: {hitEntity.name}");
+                                }
+                            }
+                            else
+                            {
+                                Debug.Log($"Entity {hitEntity.name} is not in the targeting area or is not a valid target");
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // All other modes: right-click cancels targeting
+                CancelDrag();
+            }
         }
     }
 }

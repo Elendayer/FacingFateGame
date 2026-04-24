@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -10,20 +11,52 @@ namespace facingfate
 
         [Header("Movement Cost Preview")]
         [SerializeField] private int previewPathCost;
-        public TextMeshProUGUI staminaPreviewText;
+        public TextMeshPro staminaPreviewText;
 
         [Header("Entity Spacing")]
         [Tooltip("Minimum allowed distance to any other entity at the drop destination.")]
         [SerializeField] private float minEntityDistance = 1.2f;
 
-        private PathData _lastPathData;
+        private NavMeshPathData _lastPathData;
         private bool _hasDragTarget;
         private bool _destinationBlocked; // true = too close to another entity
+        private bool _isObstacleDisabledForTurn;
 
         private void Awake()
         {
             characterEntity = GetComponent<EntityScript>();
             characterOnMap = GetComponent<EntityOnMap>();
+        }
+
+        private void OnEnable()
+        {
+            GameEvents.OnTurnStart += OnTurnStart;
+            GameEvents.OnTurnEnd += OnTurnEnd;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnTurnStart -= OnTurnStart;
+            GameEvents.OnTurnEnd -= OnTurnEnd;
+        }
+
+        private void OnTurnStart()
+        {
+            // Check if this is the player's turn
+            if (TurnManager.Instance?.CurrentTurnEntity != characterEntity) return;
+
+            _isObstacleDisabledForTurn = true;
+            if (characterOnMap != null)
+                characterOnMap.DisableObstacleForDrag();
+        }
+
+        private void OnTurnEnd()
+        {
+            if (!_isObstacleDisabledForTurn) return;
+
+            _isObstacleDisabledForTurn = false;
+            if (characterOnMap != null)
+                characterOnMap.EnableObstacleAfterDrag();
         }
 
         public override void OnMouseDown()
@@ -36,6 +69,11 @@ namespace facingfate
             if (currentTurn == null || currentTurn != characterEntity) return;
 
             entityStats = characterEntity.entityStats;
+
+            // Ensure NavMeshObstacle is disabled while dragging
+            if (characterOnMap != null)
+                characterOnMap.DisableObstacleForDrag();
+
             base.OnMouseDown();
         }
 
@@ -50,6 +88,12 @@ namespace facingfate
             _hasDragTarget = false;
             _destinationBlocked = false;
             _lastPathData = null;
+
+            staminaPreviewText.enabled = false;
+
+            // Only re-enable NavMeshObstacle if the turn isn't controlling its state
+            if (!_isObstacleDisabledForTurn && characterOnMap != null)
+                characterOnMap.EnableObstacleAfterDrag();
 
             base.OnMouseUp();
         }
@@ -69,11 +113,14 @@ namespace facingfate
             // ── Minimum-distance check ────────────────────────────────────
             // Use the actual end of the found path (may differ from cursor
             // if walkClose stopped the path early near an obstacle).
-            Vector3 pathEnd = (_lastPathData.Path != null && _lastPathData.Path.Count > 0)
-                ? _lastPathData.Path[_lastPathData.Path.Count - 1]
+            Vector3 pathEnd = (_lastPathData.CachedNavMeshPath != null && _lastPathData.CachedNavMeshPath.corners.Length > 0)
+                ? _lastPathData.CachedNavMeshPath.corners[_lastPathData.CachedNavMeshPath.corners.Length - 1]
                 : cursorPosition;
 
             _destinationBlocked = IsTooCloseToEntity(pathEnd);
+
+            //Ensure preview is enabled while dragging
+            staminaPreviewText.enabled = true;
 
             // ── Arrow preview ─────────────────────────────────────────────
             if (lineRenderer != null)
@@ -82,31 +129,27 @@ namespace facingfate
             // ── Stamina text ──────────────────────────────────────────────
             if (staminaPreviewText != null)
             {
-                float stamina = characterEntity.entityStats.CurrentStamina;
+                Vector3 textpos = cursorPosition;
+                textpos.y = 0.5f; // slightly above ground to avoid z-fighting
+
+                staminaPreviewText.transform.position = textpos;
 
                 if (_destinationBlocked)
                 {
-                    staminaPreviewText.text = "Too close!";
-                    staminaPreviewText.color = Color.red;
-                }
-                else if (stamina >= previewPathCost)
-                {
-                    staminaPreviewText.text = $"{stamina:F0} → {stamina - previewPathCost:F0}";
-                    staminaPreviewText.color = Color.white;
+                    staminaPreviewText.text = "";
                 }
                 else
                 {
-                    staminaPreviewText.text = $"{stamina:F0} (Insufficient)";
-                    staminaPreviewText.color = Color.red;
+                    staminaPreviewText.text = $"{previewPathCost}";
                 }
             }
         }
 
         // ── Colour helpers ────────────────────────────────────────────────
 
-        protected override void UpdateLineRendererColor(Vector3 start, Vector3 end)
+        protected override void UpdateLineRendererColor(NavMeshPathData path)
         {
-            ApplyLineRendererColor();
+            base.UpdateLineRendererColor(path);
         }
 
         protected override void ApplyLineRendererColor()
@@ -130,9 +173,9 @@ namespace facingfate
 
         // ── Movement execution ────────────────────────────────────────────
 
-        private void MoveToPosition(PathData pathData)
+        private void MoveToPosition(NavMeshPathData pathData)
         {
-            if (pathData?.Path == null || pathData.Path.Count == 0) return;
+            if (pathData == null || pathData.CachedNavMeshPath == null) return;
 
             float stamina = characterEntity.entityStats.CurrentStamina;
             if (stamina < pathData.PathCost) return;
@@ -140,7 +183,15 @@ namespace facingfate
             characterEntity.entityStats.CurrentStamina -= pathData.PathCost;
 
             if (characterOnMap != null)
-                StartCoroutine(characterOnMap.StartMoveRoutineWithPath(pathData));
+                StartCoroutine(MoveWithStatsUpdate(pathData));
+        }
+
+        private IEnumerator MoveWithStatsUpdate(NavMeshPathData pathData)
+        {
+            yield return characterOnMap.StartMoveRoutineWithPath(pathData);
+
+            // Update stats after movement completes
+            characterEntity.entityStats.UpdateStats();
         }
 
         // ── Proximity helper ──────────────────────────────────────────────

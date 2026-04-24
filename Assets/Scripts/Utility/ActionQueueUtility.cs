@@ -114,10 +114,17 @@ namespace facingfate
 
         private static IEnumerator MoveCoroutine(
             EntityOnMap entityOnMap,
-            PathData pathData,
+            NavMeshPathData pathData,
             Action onComplete)
         {
             yield return entityOnMap.StartMoveRoutineWithPath(pathData);
+
+            // Update entity stats after movement completes
+            EntityScript entityScript = entityOnMap.GetComponent<EntityScript>();
+            if (entityScript != null)
+            {
+                entityScript.entityStats.UpdateStats();
+            }
 
             // Refresh UI after movement completes
             if (CombatUIController.Instance != null)
@@ -130,7 +137,7 @@ namespace facingfate
 
         public static void EnqueueMovement(
             EntityOnMap entityOnMap,
-            PathData pathData,
+            NavMeshPathData pathData,
             Action onComplete = null)
         {
             TimelineManager.GlobalActionQueue.Enqueue(() => MoveCoroutine(entityOnMap, pathData, onComplete));

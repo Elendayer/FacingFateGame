@@ -28,9 +28,38 @@ namespace facingfate
             canvasGroup.alpha = 0f;
         }
 
+        private void OnDisable()
+        {
+            // Clear highlight when panel is disabled
+            Unbind();
+        }
+
+        public void Unbind()
+        {
+            // Clear the highlight from the previously bound entity
+            if (boundEntity?.EntityVisual != null)
+            {
+                boundEntity.EntityVisual.ClearHighlight();
+            }
+            boundEntity = null;
+        }
+
         public void Bind(EntityScript entity)
         {
+            // Clear highlight from previously bound entity
+            if (boundEntity?.EntityVisual != null && boundEntity != entity)
+            {
+                boundEntity.EntityVisual.ClearHighlight();
+            }
+
             boundEntity = entity;
+
+            // Highlight the hovered entity with cyan color
+            if (boundEntity?.EntityVisual != null)
+            {
+                boundEntity.EntityVisual.HighlightHoverTarget();
+            }
+
             if (statusBar != null) statusBar.Bind(entity);
         }
 

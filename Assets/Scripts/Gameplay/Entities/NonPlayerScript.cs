@@ -170,9 +170,25 @@ namespace facingfate
         {
             Debug.Log($"[NpcAI] {name} moving to {action.PathData.End}");
 
+            // Deduct movement cost from stamina before executing movement
+            if (action.PathData != null && action.PathData.PathCost > 0)
+            {
+                if (entityStats.CurrentStamina < action.PathData.PathCost)
+                {
+                    Debug.LogWarning($"[NpcAI] {name} does not have enough stamina for movement. Required: {action.PathData.PathCost}, Available: {entityStats.CurrentStamina}");
+                    onActionComplete?.Invoke();
+                    return;
+                }
+
+                entityStats.CurrentStamina -= action.PathData.PathCost;
+            }
+
             ActionQueueUtility.EnqueueActionRoutine(this, () =>
                 EntityOnMap.StartMoveRoutineWithPath(action.PathData), () =>
             {
+                // Update stats after movement completes
+                entityStats.UpdateStats();
+
                 Debug.Log($"[NpcAI] {name} finished moving");
                 onActionComplete?.Invoke();
             });
@@ -184,6 +200,20 @@ namespace facingfate
         private void EnqueueCardAction(PlannedAction action, Action onActionComplete)
         {
             Debug.Log($"[NpcAI] {name} playing card {action.Name}");
+
+            // Deduct card cost from stamina before executing the card
+            if (action.Card?.cardData != null)
+            {
+                int cardCost = action.Card.cardData.Cost;
+                if (entityStats.CurrentStamina < cardCost)
+                {
+                    Debug.LogWarning($"[NpcAI] {name} does not have enough stamina for card. Required: {cardCost}, Available: {entityStats.CurrentStamina}");
+                    onActionComplete?.Invoke();
+                    return;
+                }
+
+                entityStats.CurrentStamina -= cardCost;
+            }
 
             // Enqueue card effects with callback to signal completion
             ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData, null, 0.25f, () =>

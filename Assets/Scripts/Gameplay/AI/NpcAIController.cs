@@ -64,14 +64,14 @@ namespace facingfate
             }
 
             // Step 2: For each targeting mode result, find movement paths to the casting position
-            var reachableMoves = new List<(PathData pathData, TargetingModeData targetingData)>();
+            var reachableMoves = new List<(NavMeshPathData pathData, TargetingModeData targetingData)>();
 
             // Track visited cast positions to avoid redundant pathfinding and double-scoring
             var seenCastPositions = new HashSet<Vector3> { virtualPosition };
 
             // Always include current position (no movement)
             reachableMoves.Add((
-                new PathData { PathCost = 0, Start = virtualPosition, End = virtualPosition },
+                new NavMeshPathData { PathCost = 0, Start = virtualPosition, End = virtualPosition },
                 targetingModeResults[0]  // Use first result's base targeting as fallback for current position
             ));
 
@@ -93,7 +93,7 @@ namespace facingfate
                         suggestedCastPos,
                         entityStats: npcScript.entityStats);
 
-                    if (pathData != null && pathData.Path != null && pathData.Path.Count > 0 && pathData.PathCost <= movementBudget)
+                    if (pathData != null && pathData.CachedNavMeshPath != null && pathData.CachedNavMeshPath.corners.Length > 0 && pathData.PathCost <= movementBudget)
                     {
                         reachableMoves.Add((pathData, targetingResult));
                     }
@@ -134,9 +134,9 @@ namespace facingfate
         /// <summary>
         /// Gets nearby positions to evaluate for card casting within movement budget.
         /// </summary>
-        private List<(PathData, Vector3)> GetNearbyPositionsForCard(Vector3 currentPos, int movementBudget, float cardRange)
+        private List<(NavMeshPathData, Vector3)> GetNearbyPositionsForCard(Vector3 currentPos, int movementBudget, float cardRange)
         {
-            var positions = new List<(PathData, Vector3)>();
+            var positions = new List<(NavMeshPathData, Vector3)>();
             int searchRadius = Mathf.Min(movementBudget, Mathf.RoundToInt(cardRange));
 
             for (float x = currentPos.x - searchRadius; x <= currentPos.x + searchRadius; x++)
@@ -149,7 +149,7 @@ namespace facingfate
 
                     // Try to find a path to this position
                     var pathData = MovementUtility.FindPath(currentPos, candidate, entityStats: npcScript.entityStats);
-                    if (pathData != null && pathData.Path != null && pathData.Path.Count > 0 && pathData.PathCost <= movementBudget)
+                    if (pathData != null && pathData.CachedNavMeshPath != null && pathData.CachedNavMeshPath.corners.Length > 0 && pathData.PathCost <= movementBudget)
                     {
                         positions.Add((pathData, candidate));
                     }
@@ -289,7 +289,7 @@ namespace facingfate
                 }
 
                 // Record movement action if any
-                if (bestAction.pathData != null && bestAction.pathData.Path != null && bestAction.pathData.Path.Count > 0 && bestAction.pathData.PathCost > 0)
+                if (bestAction.pathData != null && bestAction.pathData.CachedNavMeshPath != null && bestAction.pathData.CachedNavMeshPath.corners.Length > 0 && bestAction.pathData.PathCost > 0)
                 {
                     plan.Add(new PlannedAction
                     {
@@ -400,13 +400,13 @@ namespace facingfate
 
         private ScoredCard EvaluateMovementAndAim(
             CardScript card,
-            List<(PathData, TargetingModeData)> reachableMoves)
+            List<(NavMeshPathData, TargetingModeData)> reachableMoves)
         {
             ScoredCard best = new()
             {
                 card = card,
                 score = 0,
-                pathData = new PathData { PathCost = int.MaxValue },
+                pathData = new NavMeshPathData { PathCost = int.MaxValue },
             };
 
             foreach (var move in reachableMoves)
@@ -442,7 +442,7 @@ namespace facingfate
             return best;
         }
 
-        private List<EntityScript> FilterValidTargets(CardScript card, List<EntityScript> targets, PathData movePath)
+        private List<EntityScript> FilterValidTargets(CardScript card, List<EntityScript> targets, NavMeshPathData movePath)
         {
             if (targets == null || targets.Count == 0)
                 return new List<EntityScript>();
@@ -619,6 +619,9 @@ namespace facingfate
             ScoredCard bestChaseTarget = null;
             int bestScore = 0;
 
+            // Check if this NPC prefers ranged combat with no reposition available
+            bool preferRangedNoReposition = npcAIBias.RepositionCondition == RepositionCondition.preferRanged;
+
             // Evaluate multiple enemies to find the best chase target
             foreach (var enemy in enemies)
             {
@@ -634,29 +637,63 @@ namespace facingfate
                 if (pathData == null || pathData.PathCost > remainingStamina)
                     continue;
 
-                // Calculate chase score based on distance and movement efficiency
-                // Closer enemies are higher priority, but account for movement cost
-                // Score formula: (maxDistance - distToEnemy) / (pathCost + 1) * baseMultiplier
-                float maxDistance = remainingStamina * 1.5f;
-                float distScore = Mathf.Max(0, maxDistance - distToEnemy);
-                float efficiency = distScore / Mathf.Max(1, pathData.PathCost);
-                int score = Mathf.RoundToInt(efficiency * 10f);
-
-                // Bonus if chase is affordable and leaves stamina for actions
-                if (pathData.PathCost < remainingStamina * 0.5f)
-                    score += 5;
-
-                // Prefer closer enemies with reasonable path costs
-                if (score > bestScore)
+                // If preferring ranged combat, prioritize maintaining distance over closing in
+                if (preferRangedNoReposition)
                 {
-                    bestScore = score;
-                    bestChaseTarget = new ScoredCard
+                    // Keep range: prefer positions that maintain or increase distance
+                    float distanceAfterMove = Vector3.Distance(pathData.End, targetPosition);
+
+                    // Only consider moves that don't reduce distance below current, or moves that increase distance
+                    if (distanceAfterMove < distToEnemy && distToEnemy > 2f)
+                        continue; // Skip moves that would close distance to an already-ranged target
+
+                    // Score based on maintained distance and stamina efficiency
+                    float distanceBonus = distanceAfterMove * 2f; // Higher distance = higher score
+                    float staminaEfficiency = (remainingStamina - pathData.PathCost) / Mathf.Max(1, pathData.PathCost);
+                    int score = Mathf.RoundToInt((distanceBonus + staminaEfficiency * 5f) * 10f);
+
+                    // Bonus for having stamina left after movement for card plays
+                    if (pathData.PathCost < remainingStamina * 0.5f)
+                        score += 15;
+
+                    if (score > bestScore)
                     {
-                        pseudoName = "Chase",
-                        targetingModeData = new() { castingPosition = new Vector3Int((int)targetPosition.x, (int)targetPosition.y, (int)targetPosition.z) },
-                        pathData = pathData,
-                        score = score
-                    };
+                        bestScore = score;
+                        bestChaseTarget = new ScoredCard
+                        {
+                            pseudoName = "Chase",
+                            targetingModeData = new() { castingPosition = new Vector3Int((int)pathData.End.x, (int)pathData.End.y, (int)pathData.End.z) },
+                            pathData = pathData,
+                            score = score
+                        };
+                    }
+                }
+                else
+                {
+                    // Normal chase behavior: calculate score based on distance and movement efficiency
+                    // Closer enemies are higher priority, but account for movement cost
+                    // Score formula accounts for remaining stamina after movement
+                    float remainingStaminaAfterMove = remainingStamina - pathData.PathCost;
+                    float distScore = Mathf.Max(0, remainingStamina - distToEnemy);
+                    float efficiency = distScore / Mathf.Max(1, pathData.PathCost);
+                    int score = Mathf.RoundToInt(efficiency * 10f);
+
+                    // Bonus if chase is affordable and leaves stamina for actions
+                    if (pathData.PathCost < remainingStamina * 0.5f)
+                        score += 5;
+
+                    // Prefer closer enemies with reasonable path costs
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestChaseTarget = new ScoredCard
+                        {
+                            pseudoName = "Chase",
+                            targetingModeData = new() { castingPosition = new Vector3Int((int)targetPosition.x, (int)targetPosition.y, (int)targetPosition.z) },
+                            pathData = pathData,
+                            score = score
+                        };
+                    }
                 }
             }
 
@@ -685,14 +722,8 @@ namespace facingfate
             return new ScoredCard
             {
                 pseudoName = name,
-                targetingModeData = new() { castingPosition = new Vector3Int((int)position.x, (int)position.y, (int)position.z) },
-                pathData = new PathData
-                {
-                    Start = position,
-                    End = position,
-                    PathCost = 0,
-                    Path = new List<Vector3> { position }
-                },
+                targetingModeData = new() { castingPosition = new Vector3(position.x, position.y, position.z) },
+                pathData = MovementUtility.FindPath(position, position, npcScript.entityStats),
                 score = 0
             };
         }
@@ -716,7 +747,7 @@ namespace facingfate
 
                     // Pathfinding
                     var pathData = MovementUtility.FindPath(realPosition, candidate, entityStats: npcScript.entityStats);
-                    if (pathData == null || pathData.Path == null || pathData.Path.Count == 0)
+                    if (pathData == null || pathData.CachedNavMeshPath == null || pathData.CachedNavMeshPath.corners.Length == 0)
                         continue;
 
                     int moveCost = pathData.PathCost;
@@ -789,7 +820,7 @@ namespace facingfate
         public string pseudoName;
         public List<EntityScript> targets;
         public int score;
-        public PathData pathData;
+        public NavMeshPathData pathData;
         public TargetingModeData targetingModeData = new();
         public CardExecutionOption executionOption;
     }
@@ -810,7 +841,7 @@ namespace facingfate
         public ActionType Type;
         public CardScript Card;
         public TargetingModeData TargetingModeData = new();
-        public PathData PathData;
+        public NavMeshPathData PathData;
     }
 
     #endregion

@@ -91,6 +91,8 @@ namespace facingfate
         private void OnTurnStart()
         {
             if (combatEnded || TurnOrder.Count == 0) return;
+
+
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
             GameEvents.TriggerTurnEntityChanged(TurnOrder[CurrentTurnIndex]);
@@ -106,6 +108,9 @@ namespace facingfate
         private void OnTurnEnd()
         {
             if (combatEnded || TurnOrder.Count == 0 || CurrentTurnIndex >= TurnOrder.Count) return;
+
+            TurnOrder[CurrentTurnIndex].EndTurn();
+
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
 

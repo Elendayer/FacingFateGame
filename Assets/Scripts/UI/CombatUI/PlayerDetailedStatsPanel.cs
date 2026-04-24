@@ -198,8 +198,13 @@ namespace facingfate
                 "Range",       "Bonus flat range and % increase on all card range values."),
             new("Radius",      s => FormatMod(s.RadiusModifier_Flat.Value(),     s.RadiusModifier_Increase.Value()),
                 "Radius",      "Bonus flat radius and % increase on area-of-effect cards."),
-            new("Max Targets", s => FormatMod(s.MaxTargetModifier_Flat.Value(),  s.MaxTargetModifier_Increase.Value()),
-                "Max Targets", "Additional targets that can be hit by multi-target cards."),
+
+            // ── Card Effects ──────────────────────────────────────────────────
+            new("── Card Effects ──"),
+            new("Additional Repeats", s => $"{s.AdditonalRepeatsModifier.Value():0}",
+                "Additional Repeats", "Flat bonus to the number of times cards are repeated when played.", s => s.AdditonalRepeatsModifier),
+            new("Additional Max Targets", s => $"{s.AdditonalMaxTargets.Value():0}",
+                "Additional Max Targets", "Flat bonus to maximum targets for multi-target cards.", s => s.AdditonalMaxTargets),
         };
 
         // ── Lifecycle ──────────────────────────────────────────────────────────
@@ -598,6 +603,12 @@ namespace facingfate
                 { "Tenacity", new List<(string, Stat)>
                     { ("Flat", stats.Tenacity_Flat), ("Increase %", stats.Tenacity_Increase), ("Multiplier", stats.Tenacity_Multiplier) }
                 },
+                { "Additional Repeats", new List<(string, Stat)>
+                    { ("Flat", stats.AdditonalRepeatsModifier) }
+                },
+                { "Additional Max Targets", new List<(string, Stat)>
+                    { ("Flat", stats.AdditonalMaxTargets) }
+                },
             };
 
             // Handle generic "Attribute" category by extracting from all attributes
@@ -707,6 +718,9 @@ namespace facingfate
         {
             if (statLabel.Contains("Multiplier"))
                 return "Multiplier";
+            if (statLabel.Contains("Additional Repeats") || 
+                statLabel.Contains("Additional Max Targets"))
+                return "Flat";
             if (statLabel.Contains("Increase") || 
                 statLabel.Contains("Damage Dealt") || 
                 statLabel.Contains("Healing Dealt") ||

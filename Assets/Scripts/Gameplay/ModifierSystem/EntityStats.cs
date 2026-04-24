@@ -103,9 +103,7 @@ namespace facingfate
         public Stat DurationModifier_Increase = new();
         public Stat DurationModifier_Multiplier = new();
 
-        public Stat RepeatsModifier_Flat = new();
-        public Stat RepeatsModifier_Increase = new();
-        public Stat RepeatsModifier_Multiplier = new();
+        public Stat AdditonalRepeatsModifier = new();
 
         // Percent based effects.
 
@@ -129,9 +127,7 @@ namespace facingfate
         public Stat RadiusModifier_Increase = new();
         public Stat RadiusModifier_Multiplier = new();
 
-        public Stat MaxTargetModifier_Flat = new();
-        public Stat MaxTargetModifier_Increase = new();
-        public Stat MaxTargetModifier_Multiplier = new();
+        public Stat AdditonalMaxTargets = new();
 
         [Header("StatusConditions")]
         public bool IsStunned = false;
@@ -245,6 +241,12 @@ namespace facingfate
                 stat?.UpdateStat();
             }
 
+            // Refresh UI after stats are updated
+            if (CombatUIController.Instance != null)
+            {
+                CombatUIController.Instance.RefreshAll();
+            }
+
             Debug.Log($"Checking death for {Owner.name}", Owner);
             // Handle death condition - only process once per entity
             if (CurrentHealth <= 0 && !deathProcessed && Owner != null)
@@ -298,12 +300,6 @@ namespace facingfate
                     Debug.LogError($"Error during entity death handling for {Owner?.name}: {ex.Message}", Owner);
                 }
             });
-        }
-
-        private void CheckForOtherDeaths()
-        {
-            // This method is kept for potential future use
-            // Deaths are handled individually through UpdateStats() and events
         }
     }
 }
