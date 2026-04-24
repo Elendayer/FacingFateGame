@@ -22,6 +22,10 @@ namespace facingfate
         [SerializeField] private TutorialHighlightArrow highlightArrow;
         [SerializeField] private Button endTurnButton;
 
+        [Header("Player Reference")]
+        [Tooltip("Assign the player entity's Transform. Used for MovedToTarget proximity checks.")]
+        [SerializeField] private Transform playerTransform;
+
         [Header("Enemy Waves")]
         [Tooltip("Parent transform under which spawned enemies are placed (e.g. the combat entities container).")]
         [SerializeField] private Transform entitySpawnParent;
@@ -55,6 +59,22 @@ namespace facingfate
             GameEvents.OnTurnEnd           -= OnTurnEnd;
             GameEvents.OnCombatEnd         -= OnCombatEnd;
             GameEvents.OnGameplayReference -= OnGameplayReference;
+        }
+
+        // ── Unity update ──────────────────────────────────────────────────────────
+
+        private void Update()
+        {
+            if (!_isActive || _currentStepIndex >= steps.Length) return;
+            if (playerTransform == null) return;
+
+            var step = steps[_currentStepIndex];
+            if (step.condition != CompletionCondition.MovedToTarget) return;
+            if (step.movementTarget == null) return;
+
+            float dist = Vector3.Distance(playerTransform.position, step.movementTarget.position);
+            if (dist <= step.movementThreshold)
+                AdvanceStep();
         }
 
         // ── Tutorial flow ──────────────────────────────────────────────────────

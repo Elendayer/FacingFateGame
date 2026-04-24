@@ -36,6 +36,11 @@ namespace facingfate
             {
                 // Normal flow — load from NpcDatabase
                 npcData = NpcDatabase.GetNpcById(NpcID, this);
+                if (npcData == null)
+                {
+                    Debug.LogError($"[NonPlayerScript] NpcDatabase has no entry for NpcID '{NpcID}'. Check TutorialCombatManager enemyWaves npcId field.");
+                    return;
+                }
                 name = $"{entityAffiliation}_{npcData.name}";
                 deckCardIDs = npcData.cardIds;
             }

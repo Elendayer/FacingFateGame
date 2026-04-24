@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Localization;
+using UnityEngine.UI;
 
 namespace facingfate
 {
@@ -22,6 +23,14 @@ namespace facingfate
         public Transform worldTarget;
 
         public ArrowDirection direction = ArrowDirection.Left;
+
+        [Tooltip("Extra screen-space offset for this arrow only (pixels). " +
+                 "Use to push world-space arrows off the entity they are pointing at.")]
+        public Vector2 worldTargetOffset;
+
+        [Tooltip("Optional. When assigned, this arrow is only visible while the CanvasGroup's alpha > 0 " +
+                 "(e.g. point at a status panel that fades in/out — arrow follows its visibility).")]
+        public CanvasGroup visibilityDrivenBy;
     }
 
     public enum CompletionCondition
@@ -31,6 +40,7 @@ namespace facingfate
         AnyCardPlayed,    // Any card played (allowedCardIds unused)
         EndTurnPressed,   // End Turn button clicked
         EnemyDead,        // GameEvents.OnCombatEnd(true) fired
+        MovedToTarget,    // Player entity reaches movementTarget within movementThreshold world units
     }
 
     [System.Serializable]
@@ -62,6 +72,12 @@ namespace facingfate
         public string[] allowedCardIds = System.Array.Empty<string>();
         public bool lockEndTurn = true;
         public bool unlockAll;    // If true, all cards playable — use for EnemyDead / free-play steps
+
+        [Header("Movement (MovedToTarget only)")]
+        [Tooltip("World-space Transform the player must reach to complete this step. Required when condition = MovedToTarget.")]
+        public Transform movementTarget;
+        [Tooltip("World-space distance threshold: step completes when player is within this many units of movementTarget.")]
+        public float movementThreshold = 1.5f;
 
         [Header("Highlight")]
         // Each entry = one arrow+glow. Leave target null on a card entry — manager finds it dynamically.

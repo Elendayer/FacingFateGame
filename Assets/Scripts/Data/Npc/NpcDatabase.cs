@@ -42,6 +42,44 @@ namespace facingfate
 
         private static void RegisterNpcs()
         {
+            // ── Tutorial ──────────────────────────────────────────────────────────
+            // Weak melee dummy. Strike-heavy so the player learns basic attack flow.
+            // Sting appears ~every 2-3 turns — enough to trigger a visible Poison DoT
+            // without overwhelming a new player.
+            // Stats: low Strength (non-threatening hits) + low Tenacity (dies fast).
+            // Bias: Balanced — no identity weights, plays highest-scored card → predictable.
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Tutorial_Dummy",
+                name = "Training Dummy",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Sting",
+                    "Neutral_Tech_Sting",
+                    "Neutral_Tech_Sting",
+                    "Neutral_Tech_Sting",
+                },
+
+                baseStrength     = 8,
+                baseDexterity    = 10,
+                baseTenacity     = 8,
+                baseEndurance    = 10,
+                baseIntelligence = 6,
+                baseWisdom       = 6,
+            });
+
             RegisterNpc(new NpcData()
             {
                 id = "Npc_Wolf_Normal",

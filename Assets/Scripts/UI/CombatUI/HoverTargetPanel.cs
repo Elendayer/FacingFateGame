@@ -6,6 +6,7 @@ using DG.Tweening;
 namespace facingfate
 {
 
+    [RequireComponent(typeof(CanvasGroup))]
     public class HoverTargetPanel : MonoBehaviour
     {
         [Header("UI")]
@@ -24,9 +25,6 @@ namespace facingfate
         private void Awake()
         {
             canvasGroup = GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-                canvasGroup = gameObject.AddComponent<CanvasGroup>();
-
             canvasGroup.alpha = 0f;
         }
 

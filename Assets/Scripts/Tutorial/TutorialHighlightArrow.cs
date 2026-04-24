@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace facingfate
 {
@@ -20,9 +21,17 @@ namespace facingfate
         [Tooltip("Distance in pixels from target edge to arrow center.")]
         [SerializeField] private float arrowDistance = 60f;
 
+        private const float VisibilityThreshold = 0.05f;
+
         private readonly List<ArrowInstance> _pool = new();
 
         private void Awake() => HideAll();
+
+        private void Update()
+        {
+            foreach (var inst in _pool)
+                inst.UpdateVisibilityBinding();
+        }
 
         // ── Public API ─────────────────────────────────────────────────────────
 
@@ -39,11 +48,11 @@ namespace facingfate
 
                 if (entry.worldTarget != null)
                 {
-                    _pool[i].ShowWorld(entry.worldTarget, entry.direction, arrowDistance);
+                    _pool[i].ShowWorld(entry.worldTarget, entry.direction, arrowDistance, entry.worldTargetOffset, entry.visibilityDrivenBy);
                 }
                 else if (entry.target != null)
                 {
-                    _pool[i].Show(entry.target, entry.direction, arrowDistance);
+                    _pool[i].Show(entry.target, entry.direction, arrowDistance, entry.visibilityDrivenBy);
                 }
                 else
                 {
@@ -70,7 +79,7 @@ namespace facingfate
             {
                 var go = Instantiate(arrowPrefab, transform);
                 go.SetActive(false);
-                _pool.Add(new ArrowInstance(go));
+                _pool.Add(new ArrowInstance(go, VisibilityThreshold));
             }
         }
 
@@ -81,44 +90,92 @@ namespace facingfate
             private readonly GameObject _root;
             private readonly RectTransform _arrow;
             private readonly PointerPositionScript _tracker;
+            private readonly float _visThreshold;
 
-            public ArrowInstance(GameObject root)
+            private CanvasGroup _visibilityBinding;
+            private bool _wantsActive;   // true = would be shown if no binding blocks it
+
+            public ArrowInstance(GameObject root, float visThreshold)
             {
-                _root    = root;
-                _arrow   = root.transform.Find("Arrow")?.GetComponent<RectTransform>();
-                _tracker = _arrow?.GetComponent<PointerPositionScript>();
+                _root         = root;
+                _arrow        = root.transform.Find("Arrow")?.GetComponent<RectTransform>();
+                _tracker      = _arrow?.GetComponent<PointerPositionScript>();
+                _visThreshold = visThreshold;
             }
 
             /// <summary>Show arrow pointing at a UI RectTransform (static, one-shot position).</summary>
-            public void Show(RectTransform target, ArrowDirection dir, float dist)
+            public void Show(RectTransform target, ArrowDirection dir, float dist, CanvasGroup binding = null)
             {
+                _visibilityBinding = binding;
+                _wantsActive       = true;
+
                 if (_tracker != null) _tracker.enabled = false;
 
-                _root.SetActive(true);
-                if (_arrow == null) return;
+                // Always set position — even if binding hides the arrow now,
+                // UpdateVisibilityBinding re-enables root later and position must be correct.
+                if (_arrow != null)
+                {
+                    _arrow.position      = target.position + (Vector3)GetOffset(target, dir, dist);
+                    _arrow.localRotation = Quaternion.Euler(0f, 0f, GetRotation(dir));
+                }
 
-                _arrow.position      = target.position + (Vector3)GetOffset(target, dir, dist);
-                _arrow.localRotation = Quaternion.Euler(0f, 0f, GetRotation(dir));
-                _arrow.DOKill();
-                _arrow.DOScale(1.2f, 0.55f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                bool shouldShow = binding == null || binding.alpha > _visThreshold;
+                _root.SetActive(shouldShow);
+                if (shouldShow && _arrow != null)
+                {
+                    _arrow.DOKill();
+                    _arrow.DOScale(1.2f, 0.55f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                }
             }
 
             /// <summary>Show arrow tracking a world-space Transform every frame.</summary>
-            public void ShowWorld(Transform worldTarget, ArrowDirection dir, float dist)
+            public void ShowWorld(Transform worldTarget, ArrowDirection dir, float dist, Vector2 instanceOffset = default, CanvasGroup binding = null)
             {
-                _root.SetActive(true);
+                _visibilityBinding = binding;
+                _wantsActive       = true;
+
+                bool shouldShow = binding == null || binding.alpha > _visThreshold;
+                _root.SetActive(shouldShow);
                 if (_arrow == null || _tracker == null) return;
 
-                _tracker.SetTarget(worldTarget, dir, dist);
-                _tracker.enabled = true;
+                _tracker.SetTarget(worldTarget, dir, dist, instanceOffset);
+                _tracker.enabled = shouldShow;
 
                 _arrow.localRotation = Quaternion.Euler(0f, 0f, GetRotation(dir));
-                _arrow.DOKill();
-                _arrow.DOScale(1.2f, 0.55f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                if (shouldShow)
+                {
+                    _arrow.DOKill();
+                    _arrow.DOScale(1.2f, 0.55f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                }
+            }
+
+            /// <summary>Called every frame by TutorialHighlightArrow.Update() to sync binding visibility.</summary>
+            public void UpdateVisibilityBinding()
+            {
+                if (!_wantsActive || _visibilityBinding == null) return;
+
+                bool shouldShow = _visibilityBinding.alpha > _visThreshold;
+                if (_root.activeSelf == shouldShow) return;
+
+                if (shouldShow)
+                {
+                    _root.SetActive(true);
+                    if (_tracker != null) _tracker.enabled = true;
+                    _arrow?.DOKill();
+                    _arrow?.DOScale(1.2f, 0.55f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                }
+                else
+                {
+                    if (_tracker != null) _tracker.enabled = false;
+                    _arrow?.DOKill();
+                    _root.SetActive(false);
+                }
             }
 
             public void SetActive(bool active)
             {
+                _wantsActive       = active;
+                _visibilityBinding = null;
                 if (_tracker != null) _tracker.enabled = false;
                 _arrow?.DOKill();
                 _root.SetActive(active);

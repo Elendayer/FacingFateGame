@@ -310,7 +310,7 @@ namespace facingfate
         {
             return cardScript.cardData.targetingData.cardTargetingMode switch
             {
-                CardTargetingMode.Select => "vfx_targeting_sphere",
+                CardTargetingMode.Select => "vfx_targeting_single",
                 CardTargetingMode.Radius => "vfx_targeting_sphere",
                 CardTargetingMode.Single => "vfx_targeting_single",
                 CardTargetingMode.LineFree => "vfx_targeting_line",
