@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}" SchemaVersion="133">
 	<Switches>
-		<WorkUnit Name="Default Work Unit" ID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}" PersistMode="Standalone"/>
+		<WorkUnit Name="Default Work Unit" ID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}" PersistMode="Standalone">
+			<ChildrenList>
+				<SwitchGroup Name="SwitchGrp_CharType" ID="{B1353443-4754-4365-B0A2-E085FE5F3C45}"/>
+			</ChildrenList>
+		</WorkUnit>
 	</Switches>
 </WwiseDocument>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{1B0A0FF3-20CA-4252-9EFE-1DA3FC217F57}" SchemaVersion="133">
+	<Containers>
+		<WorkUnit Name="Entity System" ID="{1B0A0FF3-20CA-4252-9EFE-1DA3FC217F57}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="SFX_Human" ID="{DF588487-DF94-4155-BD93-866C5AC2BF10}" ShortID="237004450"/>
+				<Folder Name="SFX_Oni" ID="{B92DAC37-48A1-479D-842C-2D090A7A802B}" ShortID="1011010856"/>
+				<Folder Name="SFX_Animals" ID="{E1CD9F8B-A543-446B-8C72-4081815ABCA6}" ShortID="236647257"/>
+			</ChildrenList>
+		</WorkUnit>
+	</Containers>
+</WwiseDocument>

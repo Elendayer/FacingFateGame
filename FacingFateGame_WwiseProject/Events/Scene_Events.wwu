@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{AE04E30B-DDCA-438F-94FF-51EFD52C7497}" SchemaVersion="133" RootDocumentID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}" ParentDocumentID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}">
+	<Events>
+		<WorkUnit Name="Scene_Events" ID="{AE04E30B-DDCA-438F-94FF-51EFD52C7497}" OwnerID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}" PersistMode="Nested">
+			<ChildrenList>
+				<Folder Name="01_Start_Game" ID="{B2805108-3FB0-4357-AA57-D053E8E872E8}" ShortID="686743687">
+					<ChildrenList>
+						<Event Name="Start_Game" ID="{1DA10804-6936-4683-AA25-A1B3769B499F}">
+							<ChildrenList>
+								<Action Name="" ID="{807138EC-E1F3-430C-8AED-6BBE5BF64F2C}" ShortID="344794045">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Music_Title Screen" ID="{4DC70960-0829-41B9-925A-14E184CA6CA9}" WorkUnitID="{200E256C-B349-4231-A6C0-A35956D8C2AC}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="02_TitleScreen" ID="{3DD9A11A-1FD8-4118-B7EE-C847CD95A46B}" ShortID="71765373">
+					<ChildrenList>
+						<Event Name="Start_TitleScreen_01" ID="{57DD9060-6701-4B5D-97FF-EA049256610F}">
+							<ChildrenList>
+								<Action Name="" ID="{9AF8BCB7-CF07-4CD9-ADBB-B3BA91B71E41}" ShortID="941828353">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Music_Title Screen" ID="{4DC70960-0829-41B9-925A-14E184CA6CA9}" WorkUnitID="{200E256C-B349-4231-A6C0-A35956D8C2AC}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+								<Action Name="" ID="{B45BD0DA-6A6C-4DFD-9668-6BA1F8A77650}" ShortID="302918695">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="ATMO_TitleScreen" ID="{09F90104-0073-4CC5-93CB-2DF37576C16C}" WorkUnitID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="03_Scene_01" ID="{B332CC54-9393-4288-9E6F-450332890FF6}" ShortID="63283059">
+					<ChildrenList>
+						<Event Name="Start_Scene_01" ID="{7C552191-4011-41B2-9A44-554696E58E33}">
+							<ChildrenList>
+								<Action Name="" ID="{C031A55F-48CF-46B7-A5C3-7871F157A5B6}" ShortID="913051429">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Music_Scene_01" ID="{9D0FCD4E-3655-4257-83D3-72A4D746A5E9}" WorkUnitID="{200E256C-B349-4231-A6C0-A35956D8C2AC}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+								<Action Name="" ID="{F507CCA8-6C4F-4E56-98A3-69DD031EEAB0}" ShortID="985783873">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="ATMO_TrainGround" ID="{6BEF4718-9249-4401-848E-F8E22C7416CA}" WorkUnitID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="04_Overworld" ID="{F72F9FD7-A17C-40F1-BDD0-436E391F4F34}" ShortID="409921466">
+					<ChildrenList>
+						<Event Name="Start_Overworld" ID="{0C66874B-9FCE-44D5-94A8-B827F3CFFDC6}"/>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="10_End_Game" ID="{965E6755-F097-44E3-A289-2B8BEEC24B61}" ShortID="377142965"/>
+			</ChildrenList>
+		</WorkUnit>
+	</Events>
+</WwiseDocument>
