@@ -23,6 +23,10 @@ namespace facingfate
         public MeshFilter EntityModel;
         public EntityOnMap EntityOnMap;
 
+        [Header("Audio")]
+        [Tooltip("Optional, empty = silent")]
+        public EntityAudioProfile audioProfile;
+
 
 
         public List<IEntityModifier> GetActiveModifiers()

@@ -2890,6 +2890,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1683027438}
+  - {fileID: 1310427311}
   - {fileID: 2036090093}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4120,6 +4121,37 @@ CapsuleCollider:
   m_Height: 5
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1310427310
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1310427311}
+  m_Layer: 0
+  m_Name: EnemySpawn2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1310427311
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310427310}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 5.97, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 930082084}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1312907590
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7013,6 +7045,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 217148529}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[3].condition
       value: 0
       objectReference: {fileID: 0}
@@ -7022,6 +7058,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[7].condition
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.data[1].stepIndex
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.data[1].affiliation
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.data[0].entries.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.data[1].entries.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
@@ -7085,6 +7137,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1270132576}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.data[0].entries.Array.data[0].npcId
+      value: Striker
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.data[1].entries.Array.data[0].npcId
+      value: Striker
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[10].highlights.Array.data[0].target
       value: 
       objectReference: {fileID: 379677756}
@@ -7140,6 +7200,14 @@ PrefabInstance:
       propertyPath: steps.Array.data[6].highlights.Array.data[1].worldTarget
       value: 
       objectReference: {fileID: 2036090093}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.data[0].entries.Array.data[0].spawnPoint
+      value: 
+      objectReference: {fileID: 1683027438}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: enemyWaves.Array.data[1].entries.Array.data[0].spawnPoint
+      value: 
+      objectReference: {fileID: 1683027438}
     - target: {fileID: 4846104746952160614, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

@@ -13,6 +13,9 @@ namespace facingfate
         public string cardName = string.Empty;
         public EntityScript Owner = null;
 
+        [Header("Audio")]
+        public string playSfxEvent; // Optional, empty = silent. Wwise event name, e.g. "Play_Card_Fireball"
+
         [Header("Visuals")]
         public Sprite cardArtwork;
         public string cardDescription;
@@ -405,6 +408,7 @@ namespace facingfate
                 Owner = Owner,
                 cardArtwork = cardArtwork,
                 cardDescription = cardDescription,
+                playSfxEvent = playSfxEvent,
 
                 // Typisierung
                 cardType = cardType,
