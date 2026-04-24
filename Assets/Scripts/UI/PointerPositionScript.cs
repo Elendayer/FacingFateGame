@@ -23,17 +23,19 @@ namespace facingfate
             if (c != null) _rootCanvas = c.rootCanvas;
         }
 
-        [Tooltip("Additional screen-space offset to compensate for entity pivot vs visual center (pixels).")]
+        [Tooltip("Additional screen-space offset applied regardless of direction (pixels). Use to compensate for entity pivot vs visual center.")]
         public Vector2 targetScreenOffset;
 
         private ArrowDirection _direction;
         private float _arrowDistance = 60f;
+        private Vector2 _instanceOffset;   // per-entry offset set via SetTarget
 
-        public void SetTarget(Transform target, ArrowDirection direction, float arrowDistance)
+        public void SetTarget(Transform target, ArrowDirection direction, float arrowDistance, Vector2 instanceOffset = default)
         {
             _worldTarget    = target;
             _direction      = direction;
             _arrowDistance  = arrowDistance;
+            _instanceOffset = instanceOffset;
 
             if (_rootCanvas != null)
                 _uiCamera = _rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay
@@ -56,7 +58,7 @@ namespace facingfate
 
             // Directional offset: convert canvas units → screen pixels via scaleFactor
             float pixelDist = _arrowDistance * _rootCanvas.scaleFactor;
-            Vector2 offset  = GetOffset(_direction, pixelDist) + targetScreenOffset;
+            Vector2 offset  = GetOffset(_direction, pixelDist) + targetScreenOffset + _instanceOffset;
 
             if (_rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
             {
