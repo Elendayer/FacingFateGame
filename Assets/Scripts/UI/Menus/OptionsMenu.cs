@@ -46,7 +46,7 @@ namespace facingfate
             //_canvasGroup.alpha = 1f;
             optionsPanel.SetActive(false);
 
-            _dataManager = FindFirstObjectByType<OptionDataManager>();
+            _dataManager = OptionDataManager.Instance;
 
             SetupResolutionDropdown();
             SetupLanguageDropdown();
@@ -120,9 +120,9 @@ namespace facingfate
                 }
             }
 
-            //if (_dataManager != null) resolutionDropdown.value = _dataManager.resolutionIndex;
-
             resolutionDropdown.RefreshShownValue();
+            if (_dataManager != null)
+                resolutionDropdown.SetValueWithoutNotify(_dataManager.ResolutionIndex);
         }
 
         public void SetFullscreen(bool isFullscreen)

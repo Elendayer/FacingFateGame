@@ -1,0 +1,95 @@
+using DG.Tweening;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+
+namespace facingfate
+{
+    public class LevelSelectPanel : MonoBehaviour
+    {
+        [SerializeField] private RectTransform panelRect;
+        [SerializeField] private CanvasGroup panelCanvasGroup;
+        [SerializeField] private UIManager uiManager;
+
+        [Header("Scene Names")]
+        [SerializeField] private string tutorialScene = "Tutorial";
+        [SerializeField] private string presetEncounterScene = "Gameplay_Combat_Map";
+        [SerializeField] private string randomEncounterScene = "";
+
+        [Header("First Selected Button")]
+        [SerializeField] private GameObject firstSelectedButton;
+
+        [Header("Animation")]
+        [SerializeField] private float animDuration = 0.35f;
+        [SerializeField] private float slideOffsetY = 200f;
+
+        private Vector2 _shownPos;
+        private Vector2 _hiddenPos;
+        private GameObject _previousSelected;
+
+        private void Awake()
+        {
+            _shownPos = panelRect.anchoredPosition;
+            _hiddenPos = _shownPos - new Vector2(0f, slideOffsetY);
+
+            panelCanvasGroup.alpha = 0f;
+            panelCanvasGroup.interactable = false;
+            panelCanvasGroup.blocksRaycasts = false;
+            gameObject.SetActive(false);
+        }
+
+        public void Show()
+        {
+            if (EventSystem.current != null)
+                _previousSelected = EventSystem.current.currentSelectedGameObject;
+
+            gameObject.SetActive(true);
+            panelRect.anchoredPosition = _hiddenPos;
+            panelCanvasGroup.alpha = 0f;
+
+            var seq = DOTween.Sequence();
+            seq.Join(panelRect.DOAnchorPos(_shownPos, animDuration).SetEase(Ease.OutCubic));
+            seq.Join(panelCanvasGroup.DOFade(1f, animDuration * 0.7f).SetEase(Ease.OutQuart));
+            seq.OnComplete(() =>
+            {
+                panelCanvasGroup.interactable = true;
+                panelCanvasGroup.blocksRaycasts = true;
+                if (firstSelectedButton != null && EventSystem.current != null)
+                    EventSystem.current.SetSelectedGameObject(firstSelectedButton);
+            });
+        }
+
+        private void Update()
+        {
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+                Hide();
+        }
+
+        public void Hide()
+        {
+            panelCanvasGroup.interactable = false;
+            panelCanvasGroup.blocksRaycasts = false;
+
+            var seq = DOTween.Sequence();
+            seq.Join(panelRect.DOAnchorPos(_hiddenPos, animDuration * 0.75f).SetEase(Ease.InCubic));
+            seq.Join(panelCanvasGroup.DOFade(0f, animDuration * 0.5f).SetEase(Ease.InQuart));
+            seq.OnComplete(() =>
+            {
+                gameObject.SetActive(false);
+                if (_previousSelected != null && EventSystem.current != null)
+                    EventSystem.current.SetSelectedGameObject(_previousSelected);
+            });
+        }
+
+        public void LoadTutorial() => StartLoad(tutorialScene);
+        public void LoadPresetEncounter() => StartLoad(presetEncounterScene);
+        public void LoadRandomEncounter() => StartLoad(randomEncounterScene);
+
+        private void StartLoad(string sceneName)
+        {
+            panelCanvasGroup.interactable = false;
+            panelCanvasGroup.blocksRaycasts = false;
+            uiManager.ChangeScene(sceneName);
+        }
+    }
+}

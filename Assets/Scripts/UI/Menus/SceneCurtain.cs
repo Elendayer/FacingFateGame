@@ -35,16 +35,21 @@ namespace facingfate
             bottomPanel.DOAnchorPosY(topPanelPosY, animationDuration).SetUpdate(true).SetEase(Ease.InOutSine)
                 .OnComplete(() =>
                 {
-                    if (FindFirstObjectByType<SetShowTutorial>().showTutorial)
+                    var showTutorial = FindFirstObjectByType<SetShowTutorial>();
+                    if (showTutorial != null && showTutorial.showTutorial)
                     {
-                        tutorialSlideshow.SetActive(true);
+                        tutorialSlideshow?.SetActive(true);
                         return;
                     }
-                    else
-                    {
-                        SceneManager.LoadScene(targetSceneIndex);
-                    }
+                    SceneManager.LoadScene(targetSceneIndex);
                 });
+        }
+
+        public void StartTransitionToSceneByName(string sceneName)
+        {
+            topPanel.DOAnchorPosY(bottomPanelPosY, animationDuration).SetUpdate(true).SetEase(Ease.InOutSine);
+            bottomPanel.DOAnchorPosY(topPanelPosY, animationDuration).SetUpdate(true).SetEase(Ease.InOutSine)
+                .OnComplete(() => SceneManager.LoadScene(sceneName));
         }
 
 
@@ -54,33 +59,18 @@ namespace facingfate
             ChangeCurtainSingle(false, true);
         }
 
-        protected void ChangeCurtainSingle(bool player1, bool open)
+        protected void ChangeCurtainSingle(bool isTopPanel, bool open)
         {
-            if (player1)
-            {
-                topPanel.DOAnchorPosY(open ? topPanelPosY : bottomPanelPosY, animationDuration).SetUpdate(true)
-                    .SetEase(Ease.InOutSine).OnComplete(() =>
-                    {
-                        if (!open)
-                        {
-                            tutorialSlideshow.SetActive(true);
-                            //RuntimeManager.PlayOneShot(courtainOpenEvent, transform.position);
-                        }
-                    });
-            }
-            else
-            {
-                bottomPanel.DOAnchorPosY(open ? bottomPanelPosY : topPanelPosY, animationDuration).SetUpdate(true)
-                    .SetEase(Ease.InOutSine).OnComplete(() =>
-                    {
-                        if (!open)
-                        {
-                            tutorialSlideshow.SetActive(true);
-                            //RuntimeManager.PlayOneShot(courtainOpenEvent, transform.position);
-                        }
-                    });
-                ;
-            }
+            var panel = isTopPanel ? topPanel : bottomPanel;
+            float targetY = isTopPanel
+                ? (open ? topPanelPosY : bottomPanelPosY)
+                : (open ? bottomPanelPosY : topPanelPosY);
+
+            panel.DOAnchorPosY(targetY, animationDuration).SetUpdate(true).SetEase(Ease.InOutSine)
+                .OnComplete(() =>
+                {
+                    if (!open) tutorialSlideshow?.SetActive(true);
+                });
         }
 
         public void CloseCurtain()

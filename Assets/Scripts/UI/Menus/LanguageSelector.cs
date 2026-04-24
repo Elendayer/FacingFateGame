@@ -23,7 +23,7 @@ namespace dungeonduell
             yield return LocalizationSettings.InitializationOperation;
 
             // Restore previously saved language
-            string savedCode = PlayerPrefs.GetString("language", "");
+            string savedCode = PlayerPrefs.GetString("opt_language_code", "");
             if (!string.IsNullOrEmpty(savedCode))
             {
                 var savedLocale = LocalizationSettings.AvailableLocales.GetLocale(savedCode);
@@ -60,8 +60,11 @@ namespace dungeonduell
         private IEnumerator SetLocale(int index)
         {
             isLoading = true;
-            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[index];
-            PlayerPrefs.SetString("language", LocalizationSettings.SelectedLocale.Identifier.Code);
+            var locale = LocalizationSettings.AvailableLocales.Locales[index];
+            if (facingfate.OptionDataManager.Instance != null)
+                facingfate.OptionDataManager.Instance.SetLanguage(locale.Identifier.Code);
+            else
+                LocalizationSettings.SelectedLocale = locale;
             yield return null;
             isLoading = false;
         }

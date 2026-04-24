@@ -1,8 +1,6 @@
 using DG.Tweening;
-using facingfate;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 
 namespace facingfate
 {
@@ -12,7 +10,9 @@ namespace facingfate
         public GameObject creditsSelectedButton;
         public GameObject previousSelected;
 
-        [SerializeField] private facingfate.OptionsMenu optionsMenu;
+        [SerializeField] private OptionsMenu optionsMenu;
+        [SerializeField] private LevelSelectPanel levelSelectPanel;
+        [SerializeField] private CanvasGroup logoCanvasGroup;
         public CanvasGroup fadeCanvas;
 
         public float fadeDuration = 0.5f;
@@ -20,6 +20,12 @@ namespace facingfate
         private void Start()
         {
             ShowCanvasGroup();
+
+            if (logoCanvasGroup != null)
+            {
+                logoCanvasGroup.alpha = 0f;
+                logoCanvasGroup.DOFade(1f, 1.2f).SetDelay(0.3f).SetEase(Ease.OutQuart);
+            }
         }
 
         public void HideCanvasGroup()
@@ -38,32 +44,30 @@ namespace facingfate
             {
                 fadeCanvas.gameObject.SetActive(true);
                 fadeCanvas.alpha = 0;
-                fadeCanvas.DOFade(1, fadeDuration); // Sanftes Einblenden des UI
+                fadeCanvas.DOFade(1, fadeDuration);
             }
         }
 
-        // Wechselt die Szene mit Animation
+        public void OpenLevelSelect()
+        {
+            if (levelSelectPanel != null) levelSelectPanel.Show();
+        }
+
         public void ChangeScene(string sceneName)
         {
-            if (fadeCanvas != null)
-                fadeCanvas.DOFade(0, fadeDuration).OnComplete(() => SceneManager.LoadScene(sceneName));
-            else
-                SceneManager.LoadScene(sceneName);
+            SceneFader.Instance.FadeToScene(sceneName);
         }
 
-        // Kehrt zum Titelbildschirm zur�ck
         public void ReturnToTitleScreen()
         {
-            ChangeScene("TitleScreen");
+            ChangeScene("Titlescreen");
         }
 
-        // Beendet das Spiel
         public void QuitGame()
         {
             Application.Quit();
         }
 
-        // �ffnet oder schlie�t das Credits-Panel mit Animation
         public void ToggleCredits()
         {
             if (creditsPanel != null)
@@ -89,7 +93,6 @@ namespace facingfate
             }
         }
 
-        // öffnet oder schließt das Options-Panel mit Animation
         public void ToggleOptions()
         {
             if (optionsMenu == null || optionsMenu.optionsPanel == null) return;

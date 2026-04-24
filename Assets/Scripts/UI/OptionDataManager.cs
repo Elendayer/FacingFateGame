@@ -201,6 +201,8 @@ namespace facingfate
             masterSlider01 = PlayerPrefs.GetFloat(PREF_MASTER, masterSlider01);
             musicSlider01 = PlayerPrefs.GetFloat(PREF_MUSIC, musicSlider01);
             sfxSlider01 = PlayerPrefs.GetFloat(PREF_SFX, sfxSlider01);
+            atmoSlider01 = PlayerPrefs.GetFloat(PREF_ATMO, atmoSlider01);
+            dialogueSlider01 = PlayerPrefs.GetFloat(PREF_DIALOGUE, dialogueSlider01);
             isMuted = PlayerPrefs.GetInt(PREF_MUTED, isMuted ? 1 : 0) == 1;
             isFullscreen = PlayerPrefs.GetInt(PREF_FULLSCREEN, isFullscreen ? 1 : 0) == 1;
             resolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION, resolutionIndex);
@@ -209,6 +211,8 @@ namespace facingfate
             masterSlider01 = Mathf.Clamp01(masterSlider01);
             musicSlider01 = Mathf.Clamp01(musicSlider01);
             sfxSlider01 = Mathf.Clamp01(sfxSlider01);
+            atmoSlider01 = Mathf.Clamp01(atmoSlider01);
+            dialogueSlider01 = Mathf.Clamp01(dialogueSlider01);
         }
     }
 }

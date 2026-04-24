@@ -23,24 +23,24 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1177212727296
-    m_Localized: 'Dennis - Project Manager
+    m_Localized: 'Dennis - Projekt Manager
 
 
       Niklas - Lead Programmer
 
 
       Rapha
-      - Art
+      - UI
 
 
-      Leander - Art
+      Leander - Enviroment
 
 
-      Fabian -  Art
+      Fabian -  Kartendesign
 
 
-      Paul - Sounddesigner
-      & Composer
+      Paul
+      - Sounddesigner & Composer
 
 '
     m_Metadata:

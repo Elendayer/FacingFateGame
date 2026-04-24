@@ -43,7 +43,7 @@ namespace facingfate
         [SerializeField] private float buttonStagger        = 0.1f;
         [SerializeField] private float panelSlideOffset     = 80f;     // px below start
         [SerializeField] private float overlayTargetAlpha   = 0.65f;
-        [SerializeField] private string mainMenuSceneName   = "TitleScreen";
+        [SerializeField] private string mainMenuSceneName   = "Titlescreen";
 
         private void Awake()
         {
@@ -123,18 +123,12 @@ namespace facingfate
 
         private void OnPlayAgain()
         {
-            DOTween.KillAll();
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneFader.Instance.FadeToScene(SceneManager.GetActiveScene().name);
         }
-
 
         private void OnMainMenu()
         {
-            DOTween.KillAll();
-
-            // No need to restart for main menu - just load the scene
-            // Persistent managers will remain but won't interfere with the title screen
-            SceneManager.LoadScene(mainMenuSceneName);
+            SceneFader.Instance.FadeToScene(mainMenuSceneName);
         }
     }
 }

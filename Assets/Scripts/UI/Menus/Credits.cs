@@ -1,28 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
-namespace dungeonduell
+namespace facingfate
 {
     public class Credits : MonoBehaviour
     {
-        public RectTransform floatingText;
-        public float speed;
-        private bool up = true;
+        [SerializeField] private RectTransform creditsContent;
+        [SerializeField] private float scrollDuration = 12f;
+        [SerializeField] private float startY = -600f;
+        [SerializeField] private float endY = 600f;
+        [SerializeField] private bool looping = false;
 
-        // L�sst den Text automatsich ablaufen
-        void Update()
+        private Tween _scrollTween;
+
+        private void OnEnable()
         {
-            if (floatingText.anchoredPosition.y <= -270)
-            {
-                up = true;
-            }
-            else if (floatingText.anchoredPosition.y >= 11)
-            {
-                up = false;
-            }
-            float speedScroll = speed * Time.deltaTime;
-            floatingText.anchoredPosition += new Vector2(0f, up ? speedScroll : -speedScroll);
+            StartScroll();
+        }
+
+        private void OnDisable()
+        {
+            _scrollTween?.Kill();
+        }
+
+        private void StartScroll()
+        {
+            creditsContent.anchoredPosition = new Vector2(creditsContent.anchoredPosition.x, startY);
+            _scrollTween = creditsContent
+                .DOAnchorPosY(endY, scrollDuration)
+                .SetEase(Ease.Linear)
+                .SetLoops(looping ? -1 : 1, LoopType.Restart);
         }
     }
 }

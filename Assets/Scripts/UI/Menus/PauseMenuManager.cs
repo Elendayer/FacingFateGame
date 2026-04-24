@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using DG.Tweening;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
@@ -296,7 +295,7 @@ namespace facingfate
 
             Time.timeScale = 1f;
             //DdCodeEventHandler.Trigger_GameReset();
-            SceneManager.LoadScene("Titlescreen");
+            SceneFader.Instance.FadeToScene("Titlescreen");
         }
     }
 }

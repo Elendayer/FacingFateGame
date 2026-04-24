@@ -98,6 +98,18 @@ MonoBehaviour:
     m_Localized: Legend
     m_Metadata:
       m_Items: []
+  - m_Id: 38092409813905408
+    m_Localized: Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 38092504080887808
+    m_Localized: Encounter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 38096015401201664
+    m_Localized: Random Encounter
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

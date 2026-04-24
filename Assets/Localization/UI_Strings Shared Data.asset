@@ -95,6 +95,18 @@ MonoBehaviour:
     m_Key: Legend
     m_Metadata:
       m_Items: []
+  - m_Id: 38092409813905408
+    m_Key: Tutorial_Button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 38092504080887808
+    m_Key: NormalEncounter_Button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 38096015401201664
+    m_Key: RandomEncounter_Button
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
