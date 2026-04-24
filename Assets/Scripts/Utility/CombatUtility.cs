@@ -170,41 +170,36 @@ using facingfate;
             HandlePostCombatTrigger(refs, cardData.Owner, EffectOwner, cardData);
         }
 
-        #region Spawning
-<<<<<<< HEAD
-        public static void SpawnEntity(CardData cardData, Vector3 spawnPosition, string npcID, EntityAffiliation affiliation, bool hasTurn)
-=======
-        /// <summary>
-        /// Spawns an entity without a card context (e.g. tutorial enemy waves).
-        /// </summary>
-        public static NonPlayerScript SpawnEntity(Vector3 spawnPosition, string npcID, EntityAffiliation affiliation, bool hasTurn = true)
+    #region Spawning
+    public static NonPlayerScript SpawnEntity(Vector3 spawnPosition, string npcID, EntityAffiliation affiliation, bool hasTurn = true)
+    {
+        GameObject spawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, position: spawnPosition, rotation: Quaternion.identity);
+        spawnObj.GetComponent<EntityOnMap>().TeleportTo(spawnPosition);
+
+        NonPlayerScript entity = spawnObj.GetComponent<NonPlayerScript>();
+        entity.NpcID = npcID;       // must be set before StartUp — NonPlayerScript.StartUp() reads NpcID to load from DB
+        entity.entityAffiliation = affiliation;
+        entity.StartUp();
+
+        if (hasTurn)
         {
-            GameObject spawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, position:spawnPosition, rotation:Quaternion.identity);
-            spawnObj.GetComponent<EntityOnMap>().TeleportTo(spawnPosition);
-
-            NonPlayerScript entity = spawnObj.GetComponent<NonPlayerScript>();
-            entity.NpcID             = npcID;       // must be set before StartUp — NonPlayerScript.StartUp() reads NpcID to load from DB
-            entity.entityAffiliation = affiliation;
-            entity.StartUp();
-
-            if (hasTurn)
-                TurnManager.Instance.AddTurn(entity);
-
-            return entity;
+            TurnManager.Instance.AddTurn(entity);
         }
 
+        return entity;
+    }
+
         public static void SpawnEntity(CardData cardData, Vector3 spawnPosition, string npcID, EntityAffiliation affiliation, bool hasTurn = true)
->>>>>>> origin/develop
         {
             List<GameplayRef> refs = new();
             refs.Add(GameplayRef.onSummon);
 
-            GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab);
-            EntityOnMap entityOnMap = SpawnObj.GetComponent<EntityOnMap>();
+        GameObject spawnObj = GameObject.Instantiate(AssetManager.Instance.entityPrefab, position: spawnPosition, rotation: Quaternion.identity);
+        EntityOnMap entityOnMap = spawnObj.GetComponent<EntityOnMap>();
 
             entityOnMap.TeleportTo(spawnPosition);
 
-            NonPlayerScript spawnedEntity = SpawnObj.GetComponent<NonPlayerScript>();
+            NonPlayerScript spawnedEntity = spawnObj.GetComponent<NonPlayerScript>();
             spawnedEntity.NpcID             = npcID;      // must be set before StartUp
             spawnedEntity.entityAffiliation = affiliation;
             spawnedEntity.StartUp();

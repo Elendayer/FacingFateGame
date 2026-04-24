@@ -33,8 +33,6 @@ namespace facingfate
         public override void OnBeginDrag(PointerEventData eventData)
         {
             wasDragged = true;
-<<<<<<< HEAD
-
             cardScript = GetComponent<CardScript>();
 
             // Check if the player has enough stamina to play this card
@@ -45,9 +43,8 @@ namespace facingfate
                 return;
             }
 
-=======
             WwiseAudioHelper.PlayGlobal(dragStartSfx, gameObject);
->>>>>>> origin/develop
+
             base.OnBeginDrag(eventData);
 
             // Suppress base LineRenderer — DraggableCard uses VFX for targeting
