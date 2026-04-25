@@ -108,6 +108,11 @@ namespace facingfate
             return true;
         }
 
+        public void ResetCombatForNewWave()
+        {
+            combatEnded = false;
+        }
+
         private void EndCombat(bool playerWon)
         {
             combatEnded = true;

@@ -8,6 +8,7 @@ namespace facingfate
     {
         public EntityScript Owner;
         private bool deathProcessed = false;
+        private bool isInitialized = false;
 
         [Header("Base Stats")]
         [SerializeField]
@@ -169,6 +170,7 @@ namespace facingfate
 
             CurrentHealth = GetMaxHealthValue();
             CurrentStamina = GetMaxStaminaValue();
+            isInitialized = true;
 
             // Attribute-based damage bonuses using ConditionalModifierInfo - simple string-based condition lookup
             DamageOutModifier_Increase.AddModifier(new StatModifier("Strength", DamageOutModifier_Increase, value: () => CurrentStrength, condition: "Melee"));
@@ -249,7 +251,7 @@ namespace facingfate
 
             Debug.Log($"Checking death for {Owner.name}", Owner);
             // Handle death condition - only process once per entity
-            if (CurrentHealth <= 0 && !deathProcessed && Owner != null)
+            if (CurrentHealth <= 0 && !deathProcessed && Owner != null && isInitialized)
             {
                 Debug.Log($"Death for {Owner.name}", Owner);
 

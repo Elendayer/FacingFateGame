@@ -80,12 +80,21 @@ namespace facingfate
             GameEvents.TriggerTurnStart();
         }
 
+        public bool CombatEnded => combatEnded;
+
         private void SetTurnOrder()
         {
-            // Find all PlayerCharacter entities
             TurnOrder = FindObjectsByType<EntityScript>(0)
+                .Where(e => e.enabled && e.entityStats != null && e.entityStats.CurrentHealth > 0)
                 .OrderByDescending(e => e.entityStats.CurrentDexterity)
                 .ToList();
+        }
+
+        public void ResetCombatForNewWave()
+        {
+            combatEnded = false;
+            SetTurnOrder();
+            CurrentTurnIndex = 0;
         }
 
         private void OnTurnStart()

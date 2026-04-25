@@ -155,7 +155,8 @@ namespace facingfate
         {
             if (!_isActive || _currentStepIndex >= steps.Length) return;
             if (playerWon && steps[_currentStepIndex].condition == CompletionCondition.EnemyDead)
-                AdvanceStep();
+                // Delay so TurnManager.OnCombatEnd finishes clearing TurnOrder before we spawn the next wave.
+                ActionQueueUtility.EnqueueAction(AdvanceStep);
         }
 
         private void OnGameplayReference(ToSendTriggerReference r)
@@ -186,6 +187,8 @@ namespace facingfate
         private void SpawnWaveForStep(int stepIndex)
         {
             if (enemyWaves == null) return;
+
+            bool anySpawned = false;
             foreach (var wave in enemyWaves)
             {
                 if (wave.stepIndex != stepIndex) continue;
@@ -198,8 +201,20 @@ namespace facingfate
                         continue;
                     }
                     var spawned = CombatUtility.SpawnEntity(entry.spawnPoint.position, entry.npcId, wave.affiliation);
+                    anySpawned = true;
                     Debug.Log($"[TutorialCombatManager] Spawned {spawned.name} at step {stepIndex}");
                 }
+            }
+
+            // When a new wave spawns after the previous combat ended, the TurnManager and
+            // EncounterManager have both set combatEnded = true and cleared TurnOrder.
+            // Reset them so the new enemies can take turns and deaths are detected again.
+            if (anySpawned && TurnManager.Instance != null && TurnManager.Instance.CombatEnded)
+            {
+                TurnManager.Instance.ResetCombatForNewWave();
+                EncounterManager.Instance?.ResetCombatForNewWave();
+                ActionQueueUtility.EnqueueAction(() => GameEvents.TriggerTurnStart(), 0.1f);
+                Debug.Log($"[TutorialCombatManager] Combat state reset for new wave at step {stepIndex}.");
             }
         }
 
