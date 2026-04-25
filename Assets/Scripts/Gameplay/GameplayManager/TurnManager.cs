@@ -84,9 +84,11 @@ namespace facingfate
 
         private void SetTurnOrder()
         {
+            // Filter by e.enabled: HandleEntityDeath disables the EntityScript component on death,
+            // safely excluding dead entities without relying on entityStats being initialized yet.
             TurnOrder = FindObjectsByType<EntityScript>(0)
-                .Where(e => e.enabled && e.entityStats != null && e.entityStats.CurrentHealth > 0)
-                .OrderByDescending(e => e.entityStats.CurrentDexterity)
+                .Where(e => e.enabled)
+                .OrderByDescending(e => e.entityStats?.CurrentDexterity ?? 0)
                 .ToList();
         }
 

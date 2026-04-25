@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace facingfate
@@ -47,30 +46,32 @@ namespace facingfate
         {
             if (refData.OnTriggerReference == null) return;
 
+            EntityScript affected = FirstAffected(refData);
+
             foreach (var r in refData.OnTriggerReference)
             {
                 switch (r)
                 {
                     case GameplayRef.onHitLanded:
-                        PlayEntitySfx(refData.UserEntity, p => p.attackSfx);
+                        PlayEntitySfx(refData.UserEntity, refData.UserEntity?.attackSfx);
                         break;
                     case GameplayRef.onDamageRecieved:
-                        PlayEntitySfx(FirstAffected(refData), p => p.damageSfx);
+                        PlayEntitySfx(affected, affected?.damageSfx);
                         break;
                     case GameplayRef.onBlocking:
-                        PlayEntitySfx(FirstAffected(refData), p => p.blockSfx);
+                        PlayEntitySfx(affected, affected?.blockSfx);
                         break;
                     case GameplayRef.onHealRecieved:
-                        PlayEntitySfx(FirstAffected(refData), p => p.healSfx);
+                        PlayEntitySfx(affected, affected?.healSfx);
                         break;
                     case GameplayRef.onDeath:
-                        PlayEntitySfx(FirstAffected(refData), p => p.deathSfx);
+                        PlayEntitySfx(affected, affected?.deathSfx);
                         break;
                     case GameplayRef.onModifierApplied:
-                        PlayEntitySfx(FirstAffected(refData), p => p.statusAppliedSfx);
+                        PlayEntitySfx(affected, affected?.statusAppliedSfx);
                         break;
                     case GameplayRef.onModifierExpired:
-                        PlayEntitySfx(FirstAffected(refData), p => p.modifierExpiredSfx);
+                        PlayEntitySfx(affected, affected?.modifierExpiredSfx);
                         break;
                     case GameplayRef.onCardDrawn:
                         WwiseAudioHelper.PlayGlobal(drawCardSfx, gameObject);
@@ -86,10 +87,10 @@ namespace facingfate
             }
         }
 
-        private void PlayEntitySfx(EntityScript entity, Func<EntityAudioProfile, AK.Wwise.Event> selector)
+        private static void PlayEntitySfx(EntityScript entity, AK.Wwise.Event sfx)
         {
-            if (entity == null || entity.audioProfile == null) return;
-            WwiseAudioHelper.Play(selector(entity.audioProfile), entity.gameObject);
+            if (entity == null) return;
+            WwiseAudioHelper.Play(sfx, entity.gameObject);
         }
 
         private static EntityScript FirstAffected(ToSendTriggerReference refData) =>

@@ -57,6 +57,10 @@ namespace facingfate
 
         private void OnCombatEnd(bool playerWon)
         {
+            // Tutorial wave transitions fire CombatEnd between waves — don't destroy cards.
+            if (TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
+                return;
+
             // Destroy all card objects in hand
             foreach (GameObject card in cardsInHand)
             {

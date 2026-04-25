@@ -88,6 +88,11 @@ MonoBehaviour:
       appear as icons below the HP bar. \nHover over an icon to read the effect."
     m_Metadata:
       m_Items: []
+  - m_Id: 1120323220582400
+    m_Localized: "You finished the Tutorial. \nYou can choose real combat in the
+      Main Menu."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

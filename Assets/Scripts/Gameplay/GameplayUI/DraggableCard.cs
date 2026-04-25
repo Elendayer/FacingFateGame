@@ -18,7 +18,10 @@ namespace facingfate
 
         [Header("Wwise UI SFX")]
         [Tooltip("Optional, empty = silent")] [SerializeField] private AK.Wwise.Event hoverSfx;
-        [Tooltip("Optional, empty = silent")] [SerializeField] private AK.Wwise.Event dragStartSfx;
+
+        // Shared across all card instances — prevents rapid-fire when hovering over multiple cards
+        private static float _lastHoverSfxTime = -1f;
+        private const float HoverSfxCooldown = 0.1f;
 
         /// <summary>Stores selected targets during drag — either positions (Ground type) or entities (Entity type)</summary>
         private struct TargetSelection
@@ -45,7 +48,11 @@ namespace facingfate
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            WwiseAudioHelper.PlayGlobal(hoverSfx, gameObject);
+            if (Time.unscaledTime - _lastHoverSfxTime >= HoverSfxCooldown)
+            {
+                WwiseAudioHelper.PlayGlobal(hoverSfx, gameObject);
+                _lastHoverSfxTime = Time.unscaledTime;
+            }
 
             // If dragging, don't highlight on hover since we're already showing targeted entities
             if (isDragging) return;
@@ -97,8 +104,6 @@ namespace facingfate
                 wasDragged = false;
                 return;
             }
-
-            WwiseAudioHelper.PlayGlobal(dragStartSfx, gameObject);
 
             base.OnBeginDrag(eventData);
 

@@ -24,8 +24,13 @@ namespace facingfate
         public EntityOnMap EntityOnMap;
 
         [Header("Audio")]
-        [Tooltip("Optional, empty = silent")]
-        public EntityAudioProfile audioProfile;
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event attackSfx;
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event damageSfx;
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event blockSfx;
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event healSfx;
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event deathSfx;
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event statusAppliedSfx;
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event modifierExpiredSfx;
 
 
 
@@ -187,6 +192,7 @@ namespace facingfate
         public virtual void StartTurn()
         {
             EntityVisual.HighlightTurn();
+            entityStats.CurrentStamina = entityStats.MaxStamina;
 
             ActionQueueUtility.EnqueueAction(() =>
             {

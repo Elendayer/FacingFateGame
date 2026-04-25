@@ -311,6 +311,10 @@ namespace facingfate
 
         private void HandleCombatEnd(bool playerWon)
         {
+            // Tutorial wave transitions fire CombatEnd between waves — keep UI state intact.
+            if (TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
+                return;
+
             hoveredEntity = null;
             currentActiveEntity = null;
 

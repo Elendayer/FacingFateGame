@@ -33,14 +33,10 @@ MonoBehaviour:
       - UI
 
 
-      Leander - Enviroment
-
-
       Fabian -  Kartendesign
 
 
-      Paul
-      - Sounddesigner & Composer
+      Paul - Sounddesigner & Composer
 
 '
     m_Metadata:
@@ -52,9 +48,7 @@ MonoBehaviour:
   - m_Id: 2137901281280
     m_Localized: 'Made using WWise
 
-
       Made using Spine by Esoteric Software
-
 
       Made
       using Dialogue System for Unity by PixelCrusher'

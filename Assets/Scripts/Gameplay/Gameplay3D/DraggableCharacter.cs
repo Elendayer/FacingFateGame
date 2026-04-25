@@ -68,6 +68,13 @@ namespace facingfate
             EntityScript currentTurn = TurnManager.Instance?.CurrentTurnEntity;
             if (currentTurn == null || currentTurn != characterEntity) return;
 
+            // Tutorial: block movement unless current step explicitly allows it.
+            if (TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
+            {
+                var tutStep = TutorialCombatManager.Instance.CurrentStep;
+                if (tutStep == null || tutStep.condition != CompletionCondition.MovedToTarget) return;
+            }
+
             entityStats = characterEntity.entityStats;
 
             // Ensure NavMeshObstacle is disabled while dragging
@@ -80,6 +87,24 @@ namespace facingfate
         public override void OnMouseUp()
         {
             if (!isDragging) return;
+
+            // Tutorial: restrict destination to movementTarget area only.
+            if (_hasDragTarget && !_destinationBlocked
+                && TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
+            {
+                var tutStep = TutorialCombatManager.Instance.CurrentStep;
+                if (tutStep != null
+                    && tutStep.condition == CompletionCondition.MovedToTarget
+                    && tutStep.movementTarget != null)
+                {
+                    float dist = Vector3.Distance(_lastPathData.End, tutStep.movementTarget.position);
+                    if (dist > tutStep.movementThreshold)
+                    {
+                        _hasDragTarget = false; // destination too far from target — block move
+                        Debug.Log("[DraggableCharacter] Tutorial: destination outside movementTarget area — blocked.");
+                    }
+                }
+            }
 
             // Only move if we have a valid, unblocked destination.
             if (_hasDragTarget && !_destinationBlocked)

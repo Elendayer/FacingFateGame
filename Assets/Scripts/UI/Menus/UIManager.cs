@@ -50,7 +50,9 @@ namespace facingfate
 
         public void OpenLevelSelect()
         {
-            if (levelSelectPanel != null) levelSelectPanel.Show();
+            if (levelSelectPanel == null) return;
+            if (levelSelectPanel.IsShown) levelSelectPanel.Hide();
+            else levelSelectPanel.Show();
         }
 
         public void ChangeScene(string sceneName)
@@ -70,25 +72,28 @@ namespace facingfate
 
         public void ToggleCredits()
         {
-            if (creditsPanel != null)
+            if (creditsPanel == null) return;
+
+            if (creditsPanel.activeSelf)
             {
-                var isActive = creditsPanel.activeSelf;
+                creditsPanel.transform.DOKill();
+                creditsPanel.transform.DOScale(0f, fadeDuration).OnComplete(() =>
+                {
+                    creditsPanel.SetActive(false);
+                    creditsPanel.transform.localScale = Vector3.one;
+                    EventSystem.current?.SetSelectedGameObject(null);
+                    if (previousSelected != null) EventSystem.current?.SetSelectedGameObject(previousSelected);
+                });
+            }
+            else
+            {
+                if (EventSystem.current != null) previousSelected = EventSystem.current.currentSelectedGameObject;
                 creditsPanel.SetActive(true);
                 creditsPanel.transform.localScale = Vector3.zero;
-                creditsPanel.transform.DOScale(isActive ? 0 : 1, fadeDuration).OnComplete(() =>
+                creditsPanel.transform.DOScale(1f, fadeDuration).OnComplete(() =>
                 {
-                    if (isActive)
-                    {
-                        creditsPanel.SetActive(false);
-                        EventSystem.current.SetSelectedGameObject(null);
-                        if (previousSelected != null) EventSystem.current.SetSelectedGameObject(previousSelected);
-                    }
-                    else
-                    {
-                        if (creditsSelectedButton != null && EventSystem.current != null)
+                    if (creditsSelectedButton != null && EventSystem.current != null)
                         EventSystem.current.SetSelectedGameObject(creditsSelectedButton);
-                    }
-                        
                 });
             }
         }
@@ -102,9 +107,5 @@ namespace facingfate
             else optionsMenu.CloseOptionsRoll();
         }
 
-        private void OnEnable()
-        {
-            ShowCanvasGroup();
-        }
     }
 }

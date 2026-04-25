@@ -49,6 +49,8 @@ namespace facingfate
         public string npcId;
         [Tooltip("Empty GameObject placed at the desired spawn position in the scene.")]
         public Transform spawnPoint;
+        [Tooltip("If > 0, overrides CurrentHealth after spawn. Use to start enemy at low HP without touching NPC stats.")]
+        public float healthOverride;
     }
 
     [System.Serializable]

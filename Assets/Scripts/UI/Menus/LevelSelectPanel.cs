@@ -9,6 +9,7 @@ namespace facingfate
     {
         [SerializeField] private RectTransform panelRect;
         [SerializeField] private CanvasGroup panelCanvasGroup;
+        [SerializeField] private CanvasGroup backdrop;
         [SerializeField] private UIManager uiManager;
 
         [Header("Scene Names")]
@@ -26,6 +27,9 @@ namespace facingfate
         private Vector2 _shownPos;
         private Vector2 _hiddenPos;
         private GameObject _previousSelected;
+        private bool _isShown = false;
+
+        public bool IsShown => _isShown;
 
         private void Awake()
         {
@@ -35,17 +39,22 @@ namespace facingfate
             panelCanvasGroup.alpha = 0f;
             panelCanvasGroup.interactable = false;
             panelCanvasGroup.blocksRaycasts = false;
-            gameObject.SetActive(false);
+
+            if (backdrop != null) { backdrop.alpha = 0f; backdrop.blocksRaycasts = false; }
         }
 
         public void Show()
         {
+            if (_isShown) return;
+            _isShown = true;
+
             if (EventSystem.current != null)
                 _previousSelected = EventSystem.current.currentSelectedGameObject;
 
-            gameObject.SetActive(true);
             panelRect.anchoredPosition = _hiddenPos;
             panelCanvasGroup.alpha = 0f;
+
+            if (backdrop != null) { backdrop.blocksRaycasts = true; backdrop.DOFade(0.4f, animDuration).SetEase(Ease.OutQuart); }
 
             var seq = DOTween.Sequence();
             seq.Join(panelRect.DOAnchorPos(_shownPos, animDuration).SetEase(Ease.OutCubic));
@@ -61,21 +70,24 @@ namespace facingfate
 
         private void Update()
         {
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            if (_isShown && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
                 Hide();
         }
 
         public void Hide()
         {
+            if (!_isShown) return;
+            _isShown = false;
+
             panelCanvasGroup.interactable = false;
             panelCanvasGroup.blocksRaycasts = false;
+            if (backdrop != null) { backdrop.blocksRaycasts = false; backdrop.DOFade(0f, animDuration * 0.5f); }
 
             var seq = DOTween.Sequence();
             seq.Join(panelRect.DOAnchorPos(_hiddenPos, animDuration * 0.75f).SetEase(Ease.InCubic));
             seq.Join(panelCanvasGroup.DOFade(0f, animDuration * 0.5f).SetEase(Ease.InQuart));
             seq.OnComplete(() =>
             {
-                gameObject.SetActive(false);
                 if (_previousSelected != null && EventSystem.current != null)
                     EventSystem.current.SetSelectedGameObject(_previousSelected);
             });

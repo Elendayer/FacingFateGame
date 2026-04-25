@@ -86,6 +86,10 @@ namespace facingfate
             ActivateStep(0);
         }
 
+        // Exposed so DraggableCharacter can read the current step for movement locking.
+        public TutorialStepData CurrentStep =>
+            (_isActive && _currentStepIndex < steps.Length) ? steps[_currentStepIndex] : null;
+
         private void ActivateStep(int index)
         {
             if (index >= steps.Length) return;
@@ -93,6 +97,17 @@ namespace facingfate
             var step = steps[index];
 
             SpawnWaveForStep(index);
+
+            // Fallback: SpawnWaveForStep only resets combat state when a wave spawns.
+            // If the next step has no wave (e.g. MovedToTarget after EnemyDead), combatEnded
+            // stays true — EncounterManager won't detect future deaths and player turn flags break.
+            // Reset state only (no TriggerTurnStart — player turn is already mid-flight).
+            if (TurnManager.Instance != null && TurnManager.Instance.CombatEnded)
+            {
+                TurnManager.Instance.ResetCombatForNewWave();
+                EncounterManager.Instance?.ResetCombatForNewWave();
+                Debug.Log($"[TutorialCombatManager] No wave for step {index} — combat state reset, player turn continues.");
+            }
 
             LockHandForStep(step);
 
@@ -201,8 +216,11 @@ namespace facingfate
                         continue;
                     }
                     var spawned = CombatUtility.SpawnEntity(entry.spawnPoint.position, entry.npcId, wave.affiliation);
+                    if (entry.healthOverride > 0f)
+                        spawned.entityStats.CurrentHealth = entry.healthOverride;
                     anySpawned = true;
-                    Debug.Log($"[TutorialCombatManager] Spawned {spawned.name} at step {stepIndex}");
+                    Debug.Log($"[TutorialCombatManager] Spawned {spawned.name} at step {stepIndex}" +
+                              (entry.healthOverride > 0f ? $" (health overridden to {entry.healthOverride})" : ""));
                 }
             }
 

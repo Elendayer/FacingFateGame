@@ -80,6 +80,10 @@ namespace facingfate
 
         private void OnCombatEnd(bool playerWon)
         {
+            // Tutorial wave transitions fire CombatEnd between waves — don't clear deck.
+            if (TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
+                return;
+
             // Clear all decks and discards at combat end
             cardStack.Clear();
             discardStack.Clear();

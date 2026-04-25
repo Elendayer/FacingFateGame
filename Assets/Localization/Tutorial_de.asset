@@ -90,6 +90,11 @@ MonoBehaviour:
       um sie zu spielen.
     m_Metadata:
       m_Items: []
+  - m_Id: 1120323220582400
+    m_Localized: "Du hast das Tutorial abgeschlossen! \nDu kannst andere Szenarien
+      im Hauptmen\xFC ausw\xE4hlen."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

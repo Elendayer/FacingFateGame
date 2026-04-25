@@ -74,7 +74,7 @@ namespace facingfate
 
                 baseStrength     = 8,
                 baseDexterity    = 10,
-                baseTenacity     = 8,
+                baseTenacity     = 1,
                 baseEndurance    = 10,
                 baseIntelligence = 6,
                 baseWisdom       = 6,
