@@ -3173,9 +3173,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
   m_StringReference:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 1120323220582400
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -5891,7 +5891,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9022865208844725928, guid: 61ec945f219ede340a372b0bd1aed5da, type: 3}
       propertyPath: m_Alpha
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9202726496087870737, guid: 61ec945f219ede340a372b0bd1aed5da, type: 3}
       propertyPath: m_Enabled
@@ -7557,6 +7557,14 @@ PrefabInstance:
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: enemyWaves.Array.data[1].affiliation
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: steps.Array.data[4].highlights.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: steps.Array.data[7].highlights.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[12].highlights.Array.size
