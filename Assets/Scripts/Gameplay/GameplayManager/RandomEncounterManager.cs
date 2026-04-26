@@ -3,45 +3,45 @@ using UnityEngine;
 
 namespace facingfate
 {
+    [System.Serializable]
+    public class NpcPoolEntry
+    {
+        public string npcId;
+        public int powerValue;
+    }
+
     /// <summary>
-    /// Spawns a random encounter in the Demo scene.
-    /// Always 4 player entities, 3–7 enemy entities.
-    /// Each entity gets a randomly generated deck based on the assigned DeckBuildConfigs.
-    /// Call SpawnEntities() from StartupManager BEFORE the entity StartUp loop.
+    /// Spawns a random encounter using a power-budget system.
+    /// Players are pre-placed in the scene as PlayerScript prefabs — this manager
+    /// only spawns enemies. Draws NPCs from npcPool until the random budget is spent.
     ///
     /// Unity Setup:
-    ///   - Add this component to a GameObject in the Demo scene.
-    ///   - Assign 4 PlayerSpawnPoints and 7 EnemySpawnPoints (empty GameObjects as position markers).
-    ///   - Create DeckBuildConfig assets via Assets > Create > FacingFate > Deck Build Config.
-    ///   - Assign PlayerDeckConfig and EnemyDeckConfig in the Inspector.
+    ///   1. Copy Gameplay_Combat_Map.unity → RandomEncounter_Map.unity
+    ///   2. Remove TrainingEncounterManager from that scene, add this component instead.
+    ///   3. Assign at least 6 EnemySpawnPoints (empty GameObjects as markers).
+    ///   4. Fill npcPool with NPC IDs from NpcDatabase + their power values.
+    ///   5. Fill cardPool with allowed card string IDs for enemy decks.
     /// </summary>
     public class RandomEncounterManager : MonoBehaviour
     {
         public static RandomEncounterManager Instance { get; private set; }
 
-        [Header("Encounter Config")]
-        [SerializeField] private int minEnemies = 3;
-        [SerializeField] private int maxEnemies = 7;
+        [Header("Power Budget")]
+        [SerializeField] private int targetPowerMin = 10;
+        [SerializeField] private int targetPowerMax = 18;
 
-        [Header("Available Classes")]
-        [SerializeField] private List<CardClass> availablePlayerClasses = new()
-        {
-            CardClass.Spearman, CardClass.Assassin, CardClass.Mystic, CardClass.Physician
-        };
-        [SerializeField] private List<CardClass> availableEnemyClasses = new()
-        {
-            CardClass.Spearman, CardClass.Assassin, CardClass.Mystic, CardClass.Physician
-        };
+        [Header("NPC Pool")]
+        [Tooltip("NPCs available to spawn. Each entry: NPC ID from NpcDatabase + power cost.")]
+        [SerializeField] private List<NpcPoolEntry> npcPool = new();
 
-        [Header("Deck Configs")]
-        [SerializeField] private DeckBuildConfig playerDeckConfig;
-        [SerializeField] private DeckBuildConfig enemyDeckConfig;
+        [Header("Enemy Deck")]
+        [Tooltip("Card IDs the random deck is drawn from (with replacement).")]
+        [SerializeField] private List<string> cardPool = new();
+        [SerializeField] private int minDeckSize = 8;
+        [SerializeField] private int maxDeckSize = 12;
 
         [Header("Spawn Points")]
-        [Tooltip("Exactly 4 spawn points for player entities")]
-        [SerializeField] private List<Transform> playerSpawnPoints = new();
-
-        [Tooltip("At least 7 spawn points for enemy entities")]
+        [Tooltip("At least 6 empty GameObjects marking spawn positions.")]
         [SerializeField] private List<Transform> enemySpawnPoints = new();
 
         private void Awake()
@@ -55,86 +55,94 @@ namespace facingfate
         }
 
         /// <summary>
-        /// Instantiates and pre-configures all entities.
         /// Called by StartupManager before the entity StartUp loop.
         /// </summary>
         public void SpawnEntities()
         {
-            SpawnPlayers();
-            SpawnEnemies();
-        }
-
-        private void SpawnPlayers()
-        {
-            if (playerSpawnPoints.Count < 4)
+            if (npcPool == null || npcPool.Count == 0)
             {
-                Debug.LogError("[RandomEncounterManager] Need at least 4 PlayerSpawnPoints.");
+                Debug.LogError("[RandomEncounterManager] npcPool is empty — assign NPC entries in Inspector.");
+                return;
+            }
+            if (cardPool == null || cardPool.Count == 0)
+            {
+                Debug.LogError("[RandomEncounterManager] cardPool is empty — assign card IDs in Inspector.");
+                return;
+            }
+            if (enemySpawnPoints == null || enemySpawnPoints.Count == 0)
+            {
+                Debug.LogError("[RandomEncounterManager] No enemy spawn points assigned.");
                 return;
             }
 
-            for (int i = 0; i < 4; i++)
-            {
-                CardClass cls = GetRandomClass(availablePlayerClasses);
-                List<string> cardIds = RandomDeckBuilder.Build(cls, playerDeckConfig);
-                SpawnEntity(playerSpawnPoints[i].position, EntityAffiliation.Player, cls, cardIds, $"Player_{cls}");
-            }
+            SpawnEnemies();
         }
 
         private void SpawnEnemies()
         {
-            int count = Random.Range(minEnemies, maxEnemies + 1);
+            int budget = Random.Range(targetPowerMin, targetPowerMax + 1);
+            int spent = 0;
 
-            if (enemySpawnPoints.Count < count)
+            List<int> availableSpawnIndices = new List<int>();
+            for (int i = 0; i < enemySpawnPoints.Count; i++)
+                availableSpawnIndices.Add(i);
+
+            while (spent < budget && availableSpawnIndices.Count > 0)
             {
-                Debug.LogWarning($"[RandomEncounterManager] Only {enemySpawnPoints.Count} enemy spawn points, clamping to that.");
-                count = enemySpawnPoints.Count;
+                NpcPoolEntry candidate = npcPool[Random.Range(0, npcPool.Count)];
+
+                if (candidate.powerValue > budget - spent)
+                    break;
+
+                int pick = Random.Range(0, availableSpawnIndices.Count);
+                int spawnIndex = availableSpawnIndices[pick];
+                availableSpawnIndices.RemoveAt(pick);
+
+                SpawnEnemy(candidate.npcId, enemySpawnPoints[spawnIndex].position);
+                spent += candidate.powerValue;
             }
 
-            for (int i = 0; i < count; i++)
-            {
-                CardClass cls = GetRandomClass(availableEnemyClasses);
-                List<string> cardIds = RandomDeckBuilder.Build(cls, enemyDeckConfig);
-                SpawnEntity(enemySpawnPoints[i].position, EntityAffiliation.Enemy, cls, cardIds, $"Enemy_{cls}");
-            }
+            Debug.Log($"[RandomEncounterManager] Done. Budget: {budget}, Spent: {spent}");
         }
 
-        private void SpawnEntity(Vector3 position, EntityAffiliation affiliation, CardClass cardClass, List<string> cardIds, string displayName)
+        private void SpawnEnemy(string npcId, Vector3 position)
         {
             GameObject obj = Instantiate(AssetManager.Instance.entityPrefab);
             obj.transform.position = position;
+            obj.name = npcId;
 
             NonPlayerScript entity = obj.GetComponent<NonPlayerScript>();
-
             if (entity == null)
             {
-                Debug.LogError("[RandomEncounterManager] entityPrefab has no NonPlayerScript component.");
+                Debug.LogError("[RandomEncounterManager] entityPrefab missing NonPlayerScript.");
                 Destroy(obj);
                 return;
             }
 
-            // Mark as pre-configured so NonPlayerScript.StartUp skips NpcDatabase lookup
-            entity.usePresetConfig = true;
-            entity.entityAffiliation = affiliation;
-            entity.deckCardIDs = cardIds;
-            entity.npcData = new NpcData
+            NpcData data = NpcDatabase.GetNpcById(npcId, entity);
+            if (data == null)
             {
-                id = displayName,
-                name = $"{cardClass}",
-                aiBias = AiBiasDatabase.GetBiasById("StupidFuck"),
-                cardIds = cardIds
-            };
+                Debug.LogError($"[RandomEncounterManager] NPC not found in NpcDatabase: '{npcId}'");
+                Destroy(obj);
+                return;
+            }
 
-            obj.name = displayName;
+            List<string> deck = BuildRandomDeck();
+            data.cardIds = deck;
+
+            entity.usePresetConfig = true;
+            entity.entityAffiliation = EntityAffiliation.Enemy;
+            entity.npcData = data;
+            entity.deckCardIDs = deck;
         }
 
-        private CardClass GetRandomClass(List<CardClass> pool)
+        private List<string> BuildRandomDeck()
         {
-            if (pool == null || pool.Count == 0)
-            {
-                Debug.LogWarning("[RandomEncounterManager] Class pool empty, defaulting to Spearman.");
-                return CardClass.Spearman;
-            }
-            return pool[Random.Range(0, pool.Count)];
+            int size = Random.Range(minDeckSize, maxDeckSize + 1);
+            List<string> deck = new List<string>(size);
+            for (int i = 0; i < size; i++)
+                deck.Add(cardPool[Random.Range(0, cardPool.Count)]);
+            return deck;
         }
     }
 }
