@@ -68,11 +68,14 @@ namespace facingfate
             EntityScript currentTurn = TurnManager.Instance?.CurrentTurnEntity;
             if (currentTurn == null || currentTurn != characterEntity) return;
 
-            // Tutorial: block movement unless current step explicitly allows it.
+            // Tutorial: block movement if the current step has lockMovement enabled
+            // (except when condition = MovedToTarget, which always needs movement).
             if (TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
             {
                 var tutStep = TutorialCombatManager.Instance.CurrentStep;
-                if (tutStep == null || tutStep.condition != CompletionCondition.MovedToTarget) return;
+                bool isMovedToTarget = tutStep != null && tutStep.condition == CompletionCondition.MovedToTarget;
+                bool shouldLock = tutStep == null || (tutStep.lockMovement && !isMovedToTarget);
+                if (shouldLock) return;
             }
 
             entityStats = characterEntity.entityStats;

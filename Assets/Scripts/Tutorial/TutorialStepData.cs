@@ -73,7 +73,8 @@ namespace facingfate
         public CompletionCondition condition;
         public string[] allowedCardIds = System.Array.Empty<string>();
         public bool lockEndTurn = true;
-        public bool unlockAll;    // If true, all cards playable — use for EnemyDead / free-play steps
+        public bool unlockAll;       // If true, all cards playable — use for EnemyDead / free-play steps
+        public bool lockMovement;    // If true, player cannot move (unless condition = MovedToTarget)
 
         [Header("Movement (MovedToTarget only)")]
         [Tooltip("World-space Transform the player must reach to complete this step. Required when condition = MovedToTarget.")]

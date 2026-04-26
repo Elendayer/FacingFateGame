@@ -317,6 +317,250 @@ namespace facingfate
                 //"Phy_Item_Mythical_Herb",
             }
             });
+
+            // ── Random Encounter Pool ─────────────────────────────────────────────
+            // Inspector power values: Brawler=3, Scout=3, Spear=4, Alchemist=4, Rogue=5, Hexer=5, Oni=6
+
+            // Cheap melee grunt. Pure neutral cards, no class techs.
+            // High Str, slow Dex — hits hard but telegraphed.
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Street_Brawler",
+                name = "Street Brawler",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Charge",
+                    "Neutral_Tech_Charge",
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Shove",
+                    "Neutral_Tech_Shove",
+                    "Neutral_Abil_Recover",
+                    "Neutral_Abil_Warcry",
+                },
+
+                baseStrength     = 16,
+                baseDexterity    = 9,
+                baseTenacity     = 11,
+                baseEndurance    = 13,
+                baseIntelligence = 7,
+                baseWisdom       = 7,
+            });
+
+            // Light archer — arrows + multishot + focus. No wolf summon.
+            // Fragile, fast, punishes players who don't close the gap.
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Forest_Scout",
+                name = "Forest Scout",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+                cardIds = new List<string>()
+                {
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Arrow_Shot",
+                    "Assassin_Tech_Multi_Shot",
+                    "Assassin_Tech_Multi_Shot",
+                    "Assassin_Tech_Bouncing_Shot",
+                    "Neutral_Abil_Focus",
+                    "Neutral_Abil_Focus",
+                    "Assassin_Abil_Eye_of_the_Nighthawk",
+                    "Neutral_Tech_Step_Back",
+                    "Neutral_Tech_Step_Back",
+                },
+
+                baseStrength     = 8,
+                baseDexterity    = 17,
+                baseTenacity     = 8,
+                baseEndurance    = 10,
+                baseIntelligence = 9,
+                baseWisdom       = 10,
+            });
+
+            // Spear archetype — sweeps + earthshatter + defensive abils.
+            // Balanced stats, reliable damage + some mitigation.
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Spear_Fighter",
+                name = "Spear Fighter",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Abil_Recover",
+                    "Neutral_Abil_Recover",
+                    "Spear_Tech_Dragon_Tail_Sweep",
+                    "Spear_Tech_Dragon_Tail_Sweep",
+                    "Spear_Tech_Salamander_Tail_Sweep",
+                    "Spear_Tech_Earthshatter_Pole",
+                    "Spear_Tech_Earthshatter_Pole",
+                    "Spear_Abil_Unyielding_Spear_Stance",
+                    "Spear_Abil_Iron_Wall_Reversal",
+                    "Spear_Abil_Whirling_Ward",
+                },
+
+                baseStrength     = 14,
+                baseDexterity    = 12,
+                baseTenacity     = 12,
+                baseEndurance    = 12,
+                baseIntelligence = 8,
+                baseWisdom       = 9,
+            });
+
+            // Physician archetype — poison items + needle + light self-heal.
+            // Low Str, high Int/Wis, relies on DoT and items.
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Physician_Alchemist",
+                name = "Poison Alchemist",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Strike",
+                    "Neutral_Tech_Step_Back",
+                    "Neutral_Tech_Step_Back",
+                    "Neutral_Abil_Recover",
+                    "Physician_Item_Brew_of_a_Hundred_Herbs",
+                    "Physician_Item_Brew_of_a_Hundred_Herbs",
+                    "Physician_Item_Crimson_Rejuvenation_Brew",
+                    "Physician_Item_Crimson_Rejuvenation_Brew",
+                    "Physician_Item_Mandrake_Poison_Cloud",
+                    "Physician_Abil_Poison_Barbs",
+                    "Physician_Abil_Poison_Barbs",
+                    "Physician_Tech_Needle_of_the_Flowing_River",
+                    "Physician_Tech_Needle_of_the_Flowing_River",
+                    "Physician_Abil_Doctors_Footwork",
+                },
+
+                baseStrength     = 8,
+                baseDexterity    = 10,
+                baseTenacity     = 10,
+                baseEndurance    = 12,
+                baseIntelligence = 14,
+                baseWisdom       = 12,
+            });
+
+            // Assassin archetype — phantom step, shadowfang, venom setup.
+            // High Dex, mobile, applies venom then burst.
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Assassin_Rogue",
+                name = "Shadow Rogue",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Double_Cut",
+                    "Neutral_Tech_Double_Cut",
+                    "Neutral_Abil_Recover",
+                    "Assassin_Abil_Phantom_Step",
+                    "Assassin_Abil_Phantom_Step",
+                    "Assassin_Tech_Shadowfang_Strike",
+                    "Assassin_Tech_Shadowfang_Strike",
+                    "Assassin_Tech_Dance_of_a_Hundred_Cuts",
+                    "Assassin_Tech_Dance_of_a_Hundred_Cuts",
+                    "Assassin_Abil_Apply_Scorching_Blood_Venom",
+                    "Assassin_Abil_Apply_Black_Lotus_Venom",
+                    "Assassin_Tech_Bouncing_Shot",
+                },
+
+                baseStrength     = 10,
+                baseDexterity    = 18,
+                baseTenacity     = 9,
+                baseEndurance    = 10,
+                baseIntelligence = 11,
+                baseWisdom       = 9,
+            });
+
+            // Mystic archetype — hexes + mind shock + spectral barrier.
+            // Very low Str, max Wis, fragile but disrupts with debuffs.
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Mystic_Hexer",
+                name = "Hex Caster",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Quick_Jab",
+                    "Neutral_Tech_Step_Back",
+                    "Neutral_Abil_Recover",
+                    "Neutral_Abil_Recover",
+                    "Mystic_Spell_Spectral_Barrier",
+                    "Mystic_Spell_Spectral_Barrier",
+                    "Mystic_Tech_Mind_Shock",
+                    "Mystic_Tech_Mind_Shock",
+                    "Mystic_Tech_Mind_Shock",
+                    "Mystic_Spell_Bloody_Hex",
+                    "Mystic_Spell_Venom_Hex",
+                    "Mystic_Spell_Crimson_Hex",
+                    "Mystic_Spell_Sleepwalking",
+                    "Mystic_Spell_Pure_Flames",
+                },
+
+                baseStrength     = 7,
+                baseDexterity    = 9,
+                baseTenacity     = 9,
+                baseEndurance    = 10,
+                baseIntelligence = 11,
+                baseWisdom       = 16,
+            });
+
+            // Oni archetype — heavy brute, charge + gnaw + earthshatter.
+            // Max Str/Ten, very low Dex/Int — slow but tanky with hard-hitting cards.
+            RegisterNpc(new NpcData()
+            {
+                id = "Npc_Oni_Brute",
+                name = "Oni Brute",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+                cardIds = new List<string>()
+                {
+                    "Neutral_Tech_Charge",
+                    "Neutral_Tech_Charge",
+                    "Neutral_Tech_Charge",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Heavy_Blow",
+                    "Neutral_Tech_Gnaw",
+                    "Neutral_Tech_Gnaw",
+                    "Neutral_Abil_Growl",
+                    "Neutral_Abil_Howl",
+                    "Spear_Tech_Earthshatter_Pole",
+                    "Spear_Tech_Earthshatter_Pole",
+                    "Spear_Tech_Sky_Reaching_Leap",
+                    "Neutral_Tech_Sunder",
+                    "Neutral_Abil_Warcry",
+                },
+
+                baseStrength     = 17,
+                baseDexterity    = 8,
+                baseTenacity     = 15,
+                baseEndurance    = 16,
+                baseIntelligence = 6,
+                baseWisdom       = 6,
+            });
         }
     }
 

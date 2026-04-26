@@ -2123,7 +2123,7 @@ MonoBehaviour:
   uiManager: {fileID: 2118469197}
   tutorialScene: Tutorial
   presetEncounterScene: Gameplay_Combat_Map
-  randomEncounterScene: 
+  randomEncounterScene: Random_Encounter_Scene
   firstSelectedButton: {fileID: 217494944}
   animDuration: 0.35
   slideOffsetY: 200
@@ -2565,7 +2565,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &764663075
 Transform:
   m_ObjectHideFlags: 0
@@ -6120,7 +6120,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1816276448
 MonoBehaviour:
   m_ObjectHideFlags: 0

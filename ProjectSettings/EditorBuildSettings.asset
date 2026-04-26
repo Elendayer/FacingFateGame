@@ -14,6 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Gameplay_Combat_Map.unity
     guid: 6ee3b9e4c93d47b42a57d7b19adfe56a
+  - enabled: 1
+    path: Assets/Scenes/Random_Encounter_Scene.unity
+    guid: e833eb70511ec4949b65d889367acb5e
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 89bf8668e1302c94887a9aee6956f754, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
