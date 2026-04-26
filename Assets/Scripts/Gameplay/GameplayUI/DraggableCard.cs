@@ -397,18 +397,24 @@ namespace facingfate
         {
             if (cardScript == null) return;
 
-            string vfxName = GetVFXNameForTargetingMode();
+            string vfxName = GetVFXNameForTargetingMode(); 
+
+            VFXData vfxData = new VFXData(vfxName)
+            {
+                vfxName = vfxName,
+                attachToMesh = false,
+                activationCount = 1,
+                area = cardScript.cardData.Area,
+                radius = cardScript.cardData.Radius,
+                start = cardScript.cardData.Owner != null ? cardScript.cardData.Owner.transform.position : Vector3.zero,
+                end = cardScript.cardData.Owner != null ? cardScript.cardData.Owner.transform.position : Vector3.zero
+            };
+
             if (string.IsNullOrEmpty(vfxName)) return;
 
-            (GameObject obj, VisualEffect effect) vfx = AssetManager.Instance.CreateVFX(vfxName);
+            (GameObject obj, VisualEffect effect) vfx = AssetManager.Instance.CreateVFX(vfxName, vfxData);
             if (vfx.obj == null) return;
-
-            vfx.effect.SetFloat("Range", cardScript.cardData.Range);
-            vfx.effect.SetFloat("Radius", cardScript.cardData.Radius);
-            vfx.effect.SetFloat("Area", cardScript.cardData.Area);
-            vfx.effect.SetVector3("Start", cardScript.cardData.Owner.transform.position);
-            vfx.effect.SetVector3("End", cardScript.cardData.Owner.transform.position);
-
+   
             dragVFX = vfx.obj;
             dragVFXEffect = vfx.effect;
         }

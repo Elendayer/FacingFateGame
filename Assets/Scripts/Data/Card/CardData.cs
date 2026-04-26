@@ -709,8 +709,8 @@ namespace facingfate
     [System.Serializable]
     public class CardTargetingData
     {
-        public bool TargetingUsesVision;
-        public bool EffectUsesVision;
+        public bool TargetingUsesVision = false;
+        public bool EffectUsesVision = false;
         public CardTargetType CardTargetType;
         public CardTargetAffiliation CardTargetAffiliation;
         public CardTargetingMode cardTargetingMode;

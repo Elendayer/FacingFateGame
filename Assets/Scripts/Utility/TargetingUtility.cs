@@ -340,7 +340,7 @@ public static class TargetingUtility
 
         if (usesVision && entities.Count > 0)
         {
-            entities = entities.FindAll(e => HasPhysicsLineOfSight(castWorldPos, e.transform.position));
+            entities = entities.FindAll(e => HasPhysicsLineOfSight(aimWorldPos, e.transform.position));
         }
 
         if (isVetted)
@@ -376,370 +376,124 @@ public static class TargetingUtility
 
         return targetingModeData;
     }
-    #endregion
-}
 
-public interface ITargetingMode
-{
-    List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner);
-}
-
-public class TargetingModeData
-{
-    public Vector3 castingPosition { get; set; }
-    public List<EntityScript> targetedEntities { get; set; } = new();
-    public List<Vector3> targetedPositions { get; set; } = new();
-}
-
-public static class TargetingModeFactory
-{
-    public static ITargetingMode Create(CardScript card)
+    /// <summary>
+    /// Applies vision filtering to the targeting data, removing entities that are not visible.
+    /// </summary>
+    public static void ApplyVisionFilterToTargeting(TargetingModeData targetingData, CardData cardData)
     {
-        return card.cardData.targetingData.cardTargetingMode switch
-        {
-            CardTargetingMode.Radius => new RadiusTargetingMode(),
-            CardTargetingMode.Ring => new RingTargetingMode(),
-            CardTargetingMode.LineSelf => new LineSelfTargetingMode(),
-            CardTargetingMode.LineFree => new LineFreeTargetingMode(),
-            CardTargetingMode.Cone => new ConeTargetingMode(),
-            CardTargetingMode.Select => new SelectionTargetingMode(),
-            CardTargetingMode.SelectionUnique => new SelectionTargetingMode(),
-            CardTargetingMode.All => new AllTargetingMode(),
-            CardTargetingMode.Single => new SingleTargetingMode(),
-            _ => new SingleTargetingMode(),
-        };
+        if (targetingData?.targetedEntities == null || cardData == null)
+            return;
+
+        if (!cardData.targetingData.TargetingUsesVision)
+            return;
+
+        var casterPos = targetingData.castingPosition;
+        targetingData.targetedEntities = targetingData.targetedEntities
+            .FindAll(e => HasPhysicsLineOfSight(casterPos, e.transform.position))
+            .ToList();
     }
-}
 
-public abstract class BaseTargetingMode : ITargetingMode
-{
-    public abstract List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner);
-
-    protected Vector3 GetWorldPositionFromEntity(EntityScript entity)
+    /// <summary>
+    /// Validates if a targeting position is reachable with the given movement budget.
+    /// </summary>
+    public static bool ValidateReachability(TargetingModeData targetingData, Vector3 currentPosition, float movementBudget, EntityStats entityStats)
     {
-        var entityOnMap = entity.GetComponent<EntityOnMap>();
-        return entityOnMap != null ? entityOnMap.transform.position : entity.transform.position;
+        if (targetingData == null)
+            return false;
+
+        var pathData = MovementUtility.FindPath(currentPosition, targetingData.castingPosition, entityStats: entityStats);
+
+        if (pathData == null || pathData.PathCost > movementBudget)
+        {
+            targetingData.IsReachable = false;
+            return false;
+        }
+
+        targetingData.IsReachable = true;
+        return true;
     }
-}
 
-/* -----------------------------------------------------------
- * SINGLE TARGET
- * -----------------------------------------------------------*/
-public class SingleTargetingMode : BaseTargetingMode
+    /// <summary>
+    /// Validates and filters targeting data, applying vision filtering and reachability checks.
+    /// </summary>
+    public static void ValidateTargetingData(TargetingModeData targetingData, CardData cardData, Vector3 currentPosition, float movementBudget, EntityStats entityStats)
     {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
+        if (targetingData == null)
+            return;
+
+        // Apply vision filtering if the card uses vision
+        ApplyVisionFilterToTargeting(targetingData, cardData);
+
+        // Check reachability
+        ValidateReachability(targetingData, currentPosition, movementBudget, entityStats);
+    }
+
+    /// <summary>
+    /// Finds a position on the navmesh that is within card range of a target entity.
+    /// For entities not on navmesh (off-turn entities), finds the closest walkable position within range.
+    /// Returns null if no valid position within range can be found.
+    /// </summary>
+    public static Vector3? FindRangeAwarePositionForTarget(Vector3 targetPos, Vector3 ownerPos, float cardRange)
+    {
+        float currentDist = Vector3.Distance(ownerPos, targetPos);
+
+        // Already in range, return the target position
+        if (currentDist <= cardRange)
         {
-            var targets = TargetingUtility.GetValidTargets(card.cardData, owner);
-            var results = new List<TargetingModeData>();
-            var ownerWorldPos = GetWorldPositionFromEntity(owner);
-            var cardRange = card.cardData.Range;
-
-            foreach (var t in targets)
-            {
-                var targetWorldPos = GetWorldPositionFromEntity(t);
-                var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
-
-                // Only include target if within range
-                if (distToTarget <= cardRange)
-                {
-                    results.Add(new TargetingModeData
-                    {
-                        castingPosition = ownerWorldPos,
-                        targetedPositions = new List<Vector3> { targetWorldPos },
-                        targetedEntities = new List<EntityScript> { t }
-                    });
-                }
-            }
-            return results;
+            return targetPos;
         }
-}
 
-/* -----------------------------------------------------------
- * RADIUS
- * -----------------------------------------------------------*/
-public class RadiusTargetingMode : BaseTargetingMode
-    {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
+        // Out of range - need to find a position on navmesh within range
+        // Search at multiple angles approaching the target
+        for (float angle = 0; angle < 360; angle += 30)
         {
-            var targets = TargetingUtility.GetValidTargets(card.cardData, owner);
-            var results = new List<TargetingModeData>();
-            var ownerWorldPos = GetWorldPositionFromEntity(owner);
-            var cardRange = card.cardData.Range;
-
-            // For each valid target, create a radius effect centered on that target
-            foreach (var t in targets)
+            float rad = angle * Mathf.Deg2Rad;
+            // Try positions approaching the target at various distances within range
+            for (float distFromTarget = 0.5f; distFromTarget < cardRange; distFromTarget += 0.5f)
             {
-                var targetWorldPos = GetWorldPositionFromEntity(t);
-                var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
+                Vector3 candidate = targetPos - (new Vector3(Mathf.Cos(rad), 0, Mathf.Sin(rad)) * distFromTarget);
 
-                // Skip targets outside range
-                if (distToTarget > cardRange)
-                    continue;
-
-                var hitEntities = TargetingUtility.GetEntitiesInPhysicsSphere(targetWorldPos, card.cardData.Radius, card.cardData);
-
-                if (hitEntities.Count > 0)
+                if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, 2f, NavMesh.AllAreas))
                 {
-                    results.Add(new TargetingModeData
+                    float distFromOwner = Vector3.Distance(ownerPos, hit.position);
+                    if (distFromOwner <= cardRange)
                     {
-                        castingPosition = ownerWorldPos,
-                        targetedPositions = hitEntities.Select(e => e.transform.position).ToList(),
-                        targetedEntities = hitEntities
-                    });
-                }
-            }
-
-            // Sort by most targets hit
-            results = results.OrderByDescending(r => r.targetedEntities.Count).ToList();
-
-            return results;
-        }
-}
-
-/* -----------------------------------------------------------
- * RING
- * -----------------------------------------------------------*/
-public class RingTargetingMode : BaseTargetingMode
-    {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
-        {
-            var targets = TargetingUtility.GetValidTargets(card.cardData, owner);
-            var results = new List<TargetingModeData>();
-            var ownerWorldPos = GetWorldPositionFromEntity(owner);
-            var cardRange = card.cardData.Range;
-
-            // For each valid target, create a ring effect centered on that target
-            foreach (var t in targets)
-            {
-                var targetWorldPos = GetWorldPositionFromEntity(t);
-                var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
-
-                // Skip targets outside range
-                if (distToTarget > cardRange)
-                    continue;
-
-                var hitEntities = TargetingUtility.GetEntitiesInPhysicsSphere(targetWorldPos, card.cardData.Radius, card.cardData);
-
-                if (hitEntities.Count > 0)
-                {
-                    results.Add(new TargetingModeData
-                    {
-                        castingPosition = ownerWorldPos,
-                        targetedPositions = hitEntities.Select(e => e.transform.position).ToList(),
-                        targetedEntities = hitEntities
-                    });
-                }
-            }
-
-            // Sort by most targets hit
-            results = results.OrderByDescending(r => r.targetedEntities.Count).ToList();
-
-            return results;
-        }
-}
-
-/* -----------------------------------------------------------
- * LINE SELF
- * -----------------------------------------------------------*/
-public class LineSelfTargetingMode : BaseTargetingMode
-    {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
-        {
-            var targets = TargetingUtility.GetValidTargets(card.cardData, owner);
-            var results = new List<TargetingModeData>();
-            var ownerWorldPos = GetWorldPositionFromEntity(owner);
-            var cardRange = card.cardData.Range;
-
-            // For each valid target, generate a line from owner toward that target
-            foreach (var target in targets)
-            {
-                var targetWorldPos = GetWorldPositionFromEntity(target);
-                var direction = (targetWorldPos - ownerWorldPos).normalized;
-                var distance = Vector3.Distance(ownerWorldPos, targetWorldPos);
-
-                // Skip targets outside range
-                if (distance > cardRange)
-                    continue;
-
-                var hitEntities = TargetingUtility.GetEntitiesInPhysicsLine(ownerWorldPos, direction, cardRange, card.cardData.Area, card.cardData);
-
-                if (hitEntities.Count > 0)
-                {
-                    results.Add(new TargetingModeData
-                    {
-                        castingPosition = ownerWorldPos,
-                        targetedPositions = hitEntities.Select(e => e.transform.position).ToList(),
-                        targetedEntities = hitEntities
-                    });
-                }
-            }
-
-            // Sort by most targets hit, then by distance of closest target
-            results = results
-                .OrderByDescending(r => r.targetedEntities.Count)
-                .ThenBy(r => r.targetedEntities.Min(e => Vector3.Distance(ownerWorldPos, e.transform.position)))
-                .ToList();
-
-            return results;
-        }
-}
-
-/* -----------------------------------------------------------
- * LINE FREE
- * -----------------------------------------------------------*/
-public class LineFreeTargetingMode : BaseTargetingMode
-    {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
-        {
-            var targets = TargetingUtility.GetValidTargets(card.cardData, owner);
-            var results = new List<TargetingModeData>();
-            var ownerWorldPos = GetWorldPositionFromEntity(owner);
-            var cardRange = card.cardData.Range;
-
-            // Generate lines between pairs of valid targets
-            for (int i = 0; i < targets.Count; i++)
-            {
-                for (int j = i + 1; j < targets.Count; j++)
-                {
-                    var startTarget = targets[i];
-                    var endTarget = targets[j];
-                    var startWorldPos = GetWorldPositionFromEntity(startTarget);
-                    var endWorldPos = GetWorldPositionFromEntity(endTarget);
-
-                    // Both targets must be within range of the owner
-                    if (Vector3.Distance(ownerWorldPos, startWorldPos) > cardRange || Vector3.Distance(ownerWorldPos, endWorldPos) > cardRange)
-                        continue;
-
-                    var direction = (endWorldPos - startWorldPos).normalized;
-                    var distance = Vector3.Distance(startWorldPos, endWorldPos);
-
-                    var hitEntities = TargetingUtility.GetEntitiesInPhysicsLine(startWorldPos, direction, distance, card.cardData.Area, card.cardData);
-
-                    if (hitEntities.Count > 0)
-                    {
-                        results.Add(new TargetingModeData
-                        {
-                            castingPosition = ownerWorldPos,
-                            targetedPositions = hitEntities.Select(e => e.transform.position).ToList(),
-                            targetedEntities = hitEntities
-                        });
+                        return hit.position;
                     }
                 }
             }
-
-            // Sort by most targets hit
-            results = results.OrderByDescending(r => r.targetedEntities.Count).ToList();
-
-            return results;
         }
-}
 
-/* -----------------------------------------------------------
- * CONE
- * -----------------------------------------------------------*/
-public class ConeTargetingMode : BaseTargetingMode
-    {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
-        {
-            var targets = TargetingUtility.GetValidTargets(card.cardData, owner);
-            var results = new List<TargetingModeData>();
-            var ownerWorldPos = GetWorldPositionFromEntity(owner);
-            var cardRange = card.cardData.Range;
-
-            // For each valid target, generate a cone aimed at that target
-            foreach (var t in targets)
-            {
-                var targetWorldPos = GetWorldPositionFromEntity(t);
-                var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
-
-                // Skip targets outside range
-                if (distToTarget > cardRange)
-                    continue;
-
-                var direction = (targetWorldPos - ownerWorldPos).normalized;
-                var hitEntities = TargetingUtility.GetEntitiesInPhysicsCone(ownerWorldPos, direction, cardRange, card.cardData.Area, card.cardData);
-
-                if (hitEntities.Count > 0)
-                {
-                    results.Add(new TargetingModeData
-                    {
-                        castingPosition = ownerWorldPos,
-                        targetedPositions = hitEntities.Select(e => e.transform.position).ToList(),
-                        targetedEntities = hitEntities
-                    });
-                }
-            }
-
-            // Sort by most targets hit, then by distance of closest target
-            results = results
-                .OrderByDescending(r => r.targetedEntities.Count)
-                .ThenBy(r => r.targetedEntities.Min(e => Vector3.Distance(ownerWorldPos, e.transform.position)))
-                .ToList();
-
-            return results;
-        }
-}
-
-/* -----------------------------------------------------------
- * SELECTION
- * -----------------------------------------------------------*/
-public class SelectionTargetingMode : BaseTargetingMode
-    {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
-        {
-            var targets = TargetingUtility.GetValidTargets(card.cardData, owner);
-            var results = new List<TargetingModeData>();
-            var ownerWorldPos = GetWorldPositionFromEntity(owner);
-            var cardRange = card.cardData.Range;
-
-            foreach (var t in targets)
-            {
-                var targetWorldPos = GetWorldPositionFromEntity(t);
-                var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
-
-                // Skip targets outside range
-                if (distToTarget > cardRange)
-                    continue;
-
-                var hitEntities = TargetingUtility.GetEntitiesInPhysicsSphere(targetWorldPos, card.cardData.Radius, card.cardData);
-
-                results.Add(new TargetingModeData
-                {
-                    castingPosition = ownerWorldPos,
-                    targetedPositions = hitEntities.Select(e => e.transform.position).ToList(),
-                    targetedEntities = hitEntities
-                });
-            }
-
-            // Sort by most targets hit
-            results = results.OrderByDescending(r => r.targetedEntities.Count).ToList();
-
-            return results;
-        }
-}
-
-/* -----------------------------------------------------------
- * ALL
- * -----------------------------------------------------------*/
-public class AllTargetingMode : BaseTargetingMode
-    {
-        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
-        {
-            var allEntities = TargetingUtility.AllEntitiesCache();
-            var validEntities = allEntities
-                .Where(e => e != null && TargetingUtility.IsTargetValid(card.cardData, e, owner))
-            .Take(card.cardData.MaxTarget)
-            .ToList();
-
-        var ownerWorldPos = GetWorldPositionFromEntity(owner);
-
-        TargetingModeData result = new TargetingModeData
-        {
-            castingPosition = ownerWorldPos,
-            targetedPositions = validEntities.Select(e => e.transform.position).ToList(),
-            targetedEntities = validEntities,
-        };
-
-        return new List<TargetingModeData>() { result };
+        return null;
     }
+
+    /// <summary>
+    /// Finds a valid navmesh position within range and calculates the path to reach it.
+    /// Handles off-navmesh entities by finding the nearest walkable position within range.
+    /// Returns the path data and the position to cast from, or null if unreachable.
+    /// </summary>
+    public static (NavMeshPathData pathData, Vector3 castPosition)? FindPathIntoRange(
+        Vector3 fromPosition,
+        Vector3 targetPosition,
+        float cardRange,
+        EntityStats entityStats,
+        float movementBudget)
+    {
+        // Try to find a position within range
+        var rangePosition = FindRangeAwarePositionForTarget(targetPosition, fromPosition, cardRange);
+
+        if (!rangePosition.HasValue)
+            return null;
+
+        // Find path to that position
+        var pathData = MovementUtility.FindPath(fromPosition, rangePosition.Value, entityStats);
+
+        if (pathData == null || pathData.PathCost > movementBudget)
+            return null;
+
+        return (pathData, rangePosition.Value);
+    }
+
+    #endregion
 }

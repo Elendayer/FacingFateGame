@@ -89,7 +89,7 @@ namespace facingfate
 
         public void CreateVFXAtSinglePosition(VFXData vfxData, Vector3 position)
         {
-            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
+            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
 
             Debug.Log($"Creating {vfx.effect.name} at {vfx.obj.transform.position}");
             if (vfx.obj == null || vfx.effect == null)
@@ -106,7 +106,7 @@ namespace facingfate
         {
             foreach (Vector3 pos in positions)
             {
-                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
+                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
 
                 if (vfx.obj == null || vfx.effect == null)
                 {
@@ -124,7 +124,7 @@ namespace facingfate
         {
             foreach (GameObject host in hosts)
             {
-                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
+                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
 
                 if (vfx.obj == null || vfx.effect == null)
                 {
@@ -142,7 +142,7 @@ namespace facingfate
         {
             foreach (EntityScript host in hosts)
             {
-                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
+                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
 
                 if (vfx.obj == null || vfx.effect == null)
                 {
@@ -159,7 +159,7 @@ namespace facingfate
 
         public void CreateVFXAttachedToEntityMesh(VFXData vfxData, GameObject host)
         {
-            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
+            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
 
             if (vfx.obj == null || vfx.effect == null)
             {
@@ -176,13 +176,11 @@ namespace facingfate
                     Debug.LogWarning("Entity model mesh is not assigned.");
                     return;
                 }
-
-                ApplyVFXData(vfx.effect, vfxData);
             }
         }
         public void CreateVFXAttachedToEntityMesh(VFXData vfxData, EntityScript host)
         {
-            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
+            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
 
             if (vfx.obj == null || vfx.effect == null)
             {
@@ -201,11 +199,9 @@ namespace facingfate
                     return;
                 }
                 Mesh entityMesh = host.EntityModel.mesh;
-
-                ApplyVFXData(vfx.effect, vfxData);
             }
         }
-        public (GameObject, VisualEffect) CreateVFX(string name)
+        public (GameObject, VisualEffect) CreateVFX(string name, VFXData vfxData)
         {
             VisualEffectAsset vfxAsset = AssetManager.Instance.GetEffectAsset(name);
 
