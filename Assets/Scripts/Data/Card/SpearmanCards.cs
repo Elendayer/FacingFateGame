@@ -79,7 +79,7 @@ namespace facingfate
                 },
                 cardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { width = Data.Area, start = Data.Owner.transform.position, end = Target.targetedPositions[0] });
+                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { area = Data.Area, start = Data.Owner.transform.position}, Target.targetedPositions[0]);
                 }
             });
 
@@ -166,30 +166,29 @@ namespace facingfate
                 cost_u = 20,
                 damage_u = 30,
 
-                range_u = 2f,
-                area_u = 30f,
+                range_u = 1.2f,
+                area_u = 1f,
 
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Cone,
+                    cardTargetingMode = CardTargetingMode.Radius,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage, Inflict 5 Burn.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = 1});
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") );
 
                     EntityModifier mod = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, d, ThroughputSource.Damage, User);
-
                     CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
 
                 },
                 cardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm"), Target.targetedPositions);
+                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Firestorm_Ring") {radius = Data.Radius, area = Data.Area}, Target.targetedPositions[0]);
                 }
             });
 
@@ -400,7 +399,7 @@ namespace facingfate
                 },
                 cardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") {positions = Target.targetedPositions });
+                    //AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") {positions = Target.targetedPositions });
                     AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
                 }
             });

@@ -45,6 +45,12 @@ namespace facingfate
         private VisualEffect dragVFXEffect = null;
         private bool wasRightMouseDown = false;
         private List<EntityScript> lastHighlightedEntities = new();
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (wasDragged) { wasDragged = false; return; }
+            if (eventData.button != PointerEventData.InputButton.Left) return;
+            HandManager.Instance?.SelectCard(gameObject);
+        }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -69,6 +75,7 @@ namespace facingfate
                 }
             }
             lastHighlightedEntities.Clear();
+            HandManager.Instance?.HoverCard(null);
         }
 
         private void Update()
@@ -384,12 +391,7 @@ namespace facingfate
 
 
 
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (wasDragged) { wasDragged = false; return; }
-            if (eventData.button != PointerEventData.InputButton.Left) return;
-            HandManager.Instance?.SelectCard(gameObject);
-        }
+
 
         private void CreateDragVFX()
         {
@@ -402,7 +404,8 @@ namespace facingfate
             if (vfx.obj == null) return;
 
             vfx.effect.SetFloat("Range", cardScript.cardData.Range);
-            vfx.effect.SetFloat("Width", cardScript.cardData.Radius);
+            vfx.effect.SetFloat("Radius", cardScript.cardData.Radius);
+            vfx.effect.SetFloat("Area", cardScript.cardData.Area);
             vfx.effect.SetVector3("Start", cardScript.cardData.Owner.transform.position);
             vfx.effect.SetVector3("End", cardScript.cardData.Owner.transform.position);
 
@@ -416,6 +419,7 @@ namespace facingfate
             {
                 CardTargetingMode.Select => "vfx_targeting_single",
                 CardTargetingMode.Radius => "vfx_targeting_sphere",
+                CardTargetingMode.Ring => "vfx_targeting_ring",
                 CardTargetingMode.Single => "vfx_targeting_single",
                 CardTargetingMode.LineFree => "vfx_targeting_line",
                 CardTargetingMode.LineSelf => "vfx_targeting_line",

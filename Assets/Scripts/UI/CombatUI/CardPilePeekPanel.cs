@@ -278,6 +278,24 @@ namespace facingfate
                 e.SetCard(cs);
                 entries.Add(e);
             }
+
+            // Force layout rebuild to apply grid spacing and layout constraints
+            RectTransform contentRect = listContent as RectTransform;
+            if (contentRect != null)
+            {
+                // Mark GridLayoutGroup as dirty if it exists on the content
+                GridLayoutGroup grid = contentRect.GetComponent<GridLayoutGroup>();
+                if (grid != null)
+                    LayoutRebuilder.MarkLayoutForRebuild(contentRect);
+
+                // Rebuild the content's layout
+                LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+
+                // Also rebuild the parent to ensure grid spacing is applied
+                RectTransform parentRect = contentRect.parent as RectTransform;
+                if (parentRect != null)
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
+            }
         }
 
         // ── Static helpers ─────────────────────────────────────────────────────

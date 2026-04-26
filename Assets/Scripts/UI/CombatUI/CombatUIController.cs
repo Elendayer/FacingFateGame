@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace facingfate
 {
@@ -19,7 +20,6 @@ namespace facingfate
 
         [Header("UI Panels")]
         [SerializeField] private PlayerStatsPanel playerStatsPanel;     // left
-        [SerializeField] private EndTurnPanel endTurnPanel;             // end turn
         [SerializeField] private HoverTargetPanel hoverTargetPanel;     // top right
 
         [Header("Refresh Behavior")]
@@ -272,8 +272,6 @@ namespace facingfate
                     playerStatsPanel.Bind(currentActiveEntity);
                     playerStatsPanel.Refresh();
                 }
-
-                endTurnPanel?.RefreshInteractable(currentActiveEntity);
             }
 
             // Piles (deck/discard preview)

@@ -50,8 +50,8 @@ MonoBehaviour:
   m_UIInfos: {fileID: 114350483966674977}
   m_CustomAttributes: []
   m_ParameterInfo:
-  - name: Width
-    path: Width
+  - name: Radius
+    path: Radius
     tooltip: 
     space: -1
     spaceable: 0
@@ -167,8 +167,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: 1832
     y: 853
-    width: 1299
-    height: 2434
+    width: 1298
+    height: 2413
 --- !u!114 &114350483966675019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,7 +190,7 @@ MonoBehaviour:
   m_InputSlots: []
   m_OutputSlots:
   - {fileID: 114350483966675020}
-  m_ExposedName: Width
+  m_ExposedName: Radius
   m_Exposed: 1
   m_Order: 0
   m_Category: 
@@ -1293,7 +1293,7 @@ MonoBehaviour:
   particlePerStripCount: 2
   needsComputeBounds: 0
   boundsMode: 0
-  m_Space: 1
+  m_Space: 0
 --- !u!114 &114350483966675951
 MonoBehaviour:
   m_ObjectHideFlags: 0

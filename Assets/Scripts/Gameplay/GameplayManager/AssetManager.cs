@@ -61,9 +61,13 @@ namespace facingfate
 
         private void ApplyVFXData(VisualEffect effect, VFXData overrides)
         {
-            if (effect.HasFloat("Width"))
+            if (effect.HasFloat("Area"))
             {
-                effect.SetFloat("Width", overrides.width);
+                effect.SetFloat("Area", overrides.area);
+            }
+            if (effect.HasFloat("Radius"))
+            {
+                effect.SetFloat("Radius", overrides.radius);
             }
             if (effect.HasInt("Count"))
             {
@@ -83,7 +87,7 @@ namespace facingfate
             }
         }
 
-        public void CreateVFXAtSinglePosition(VFXData vfxData)
+        public void CreateVFXAtSinglePosition(VFXData vfxData, Vector3 position)
         {
             (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName);
 
@@ -93,6 +97,8 @@ namespace facingfate
                 Debug.LogError("Failed to create VFX.");
                 return;
             }
+
+            vfx.obj.transform.position = position;
 
             ApplyVFXData(vfx.effect, vfxData);
         }
@@ -229,7 +235,9 @@ namespace facingfate
         public bool attachToMesh = false;
 
         public int activationCount = 0;
-        public float width;
+
+        public float area;
+        public float radius;
 
         public EntityScript entity;
         public GameObject host;

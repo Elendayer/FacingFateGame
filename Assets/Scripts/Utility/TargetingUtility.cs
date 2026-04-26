@@ -121,7 +121,30 @@ public static class TargetingUtility
                 results.Add(entity);
             }
         }
+        return results;
+    }
 
+    public static List<EntityScript> GetEntitiesInPhysicsRing(Vector3 worldPos, float innerRadius, float outerRadius, CardData cardData = null)
+    {
+        Collider[] colliders = Physics.OverlapSphere(worldPos, outerRadius);
+        List<EntityScript> results = new();
+
+        foreach (var collider in colliders)
+        {
+            var entity = collider.GetComponent<EntityScript>();
+            if (entity == null) continue;
+
+            float dist = Vector3.Distance(worldPos, entity.transform.position);
+
+            // Include targets within the ring (between inner and outer radius)
+            if (dist < innerRadius || dist > outerRadius)
+                continue;
+
+            if (cardData != null && !IsTargetValid(cardData, entity))
+                continue;
+
+            results.Add(entity);
+        }
         return results;
     }
 
@@ -300,7 +323,7 @@ public static class TargetingUtility
                 break;
             case CardTargetingMode.Ring:
                 {
-                    entities = GetEntitiesInPhysicsSphere(aimWorldPos, cardData.Radius, cardData);
+                    entities = GetEntitiesInPhysicsRing(aimWorldPos, cardData.Radius, cardData.Area, cardData);
                 }
                 break;
             case CardTargetingMode.Radius:

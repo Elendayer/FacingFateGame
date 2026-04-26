@@ -11,20 +11,22 @@ namespace facingfate
 
         public Transform handAnchor;
         public GameObject cardPrefab;
+        [Header("Hand Layout Settings")]
         [SerializeField] private float cardSpacing = 100f;
-        [SerializeField] private float cardFanAngle = -5f;
+        [SerializeField] private float cardFanAngle = 4f;
         [SerializeField] private float hoverOffsetY = 30f;
-        [SerializeField] private float fanRadius = 800f;
-        [SerializeField] private float animDuration = 0.2f;
+        [SerializeField] private float selectedOffsetY = 30f;
+        [SerializeField] private float fanRadius = -2800;
         [SerializeField] private float handHoverRadius = 300f;
 
-        public float maxHandsize = 8;
+        [Header("Animation Settings")]
+        [SerializeField] private float animDuration = 0.2f;
 
+        [Header("Hand")]
+        public float maxHandsize = 10;
         public List<GameObject> cardsInHand = new List<GameObject>();
-        private GameObject lastHoveredCard;
-
-        [SerializeField] private float selectedOffsetY = 60f;
-        private GameObject selectedCard;
+        [SerializeField] private GameObject hoveredCard;
+        [SerializeField] private GameObject selectedCard;
         public GameObject GetSelectedCard() => selectedCard;
 
         private bool listenersAdded = false;
@@ -76,50 +78,18 @@ namespace facingfate
         {
             if (cardsInHand.Count == 0) return;
 
-            // Handle right click for preview
-            if (Mouse.current?.rightButton.wasPressedThisFrame == true)
-            {
-                GameObject hovered = GetHoveredCard();
-                if (hovered != null)
-                {
-                    CardScript cardScript = hovered.GetComponent<CardScript>();
-                    if (cardScript != null)
-                    {
-                        CardPreviewPanel.Instance?.Show(cardScript);
-                    }
-                }
-                return;
-            }
-
-            GameObject hoveredCard = GetHoveredCard();
-
             // Update layout whenever a card is hovered
-            if (hoveredCard != null)
+            if (hoveredCard == null) return;
+            
+            UpdateHandLayout(hoveredCard);
+
+            if (selectedCard != null)
             {
-                UpdateHandLayout(hoveredCard);
+                CardPreviewPanel.Instance?.Show(selectedCard.GetComponent<CardScript>());
             }
-            else if (hoveredCard != lastHoveredCard)
+            else if(hoveredCard != null) 
             {
-                // Only update layout when transitioning away from a hovered card
-                Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-                Vector3 position = TargetingUtility.GetHoveredPosition(ray);
-                bool overEntity = position != Vector3.zero;
-
-                if (!overEntity && IsMouseNearHand()) return;
-
-                UpdateHandLayout(null);
-            }
-
-            lastHoveredCard = hoveredCard;
-
-            // Update preview - show hovered card if available
-            if (hoveredCard != null)
-            {
-                CardScript hoveredScript = hoveredCard.GetComponent<CardScript>();
-                if (hoveredScript != null)
-                {
-                    CardPreviewPanel.Instance?.Show(hoveredScript);
-                }
+                CardPreviewPanel.Instance?.Show(hoveredCard.GetComponent<CardScript>());
             }
             else
             {
@@ -139,20 +109,16 @@ namespace facingfate
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
 
-            // Von oben nach unten (zuletzt hinzugefügte Karte zuerst)
+            // Check from most recent card first (top to bottom)
             for (int i = cardsInHand.Count - 1; i >= 0; i--)
             {
                 GameObject card = cardsInHand[i];
-                if (card == null) continue;
+                if (card == null || !card.TryGetComponent<RectTransform>(out var rt))
+                    continue;
 
-                RectTransform rt = card.GetComponent<RectTransform>();
-                if (rt == null) continue;
-
-                // Weltkoordinaten der 4 Ecken holen
                 Vector3[] corners = new Vector3[4];
                 rt.GetWorldCorners(corners);
 
-                // Polygon-Test statt AABB – funktioniert bei rotierten Rects
                 if (IsPointInQuad(mousePos, corners))
                     return card;
             }
@@ -207,6 +173,7 @@ namespace facingfate
             if (!cardsInHand.Contains(cardObject)) return;
 
             cardsInHand.Remove(cardObject);
+            
             DeckManager.Instance.Player_DiscardCardFromHand(cardObject);
         }
 
@@ -259,49 +226,40 @@ namespace facingfate
                 if (card != null && cardsInHand.Contains(card))
                 {
                     DiscardCard(card);
-                    cardsInHand.Remove(card);
                 }
             }
         }
 
         public void SelectCard(GameObject card)
         {
-            if (card == null)
+            // Deselect current card if clicking null or same card (toggle)
+            if (card == null || selectedCard == card)
             {
                 if (selectedCard != null)
                 {
                     selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
                     selectedCard = null;
                 }
+                UpdateHandLayout(hoveredCard);
                 return;
             }
-            // Toggle
-            if (selectedCard == card)
+
+            // Deselect previous card
+            if (selectedCard != null)
             {
                 selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
-                selectedCard = null;
-            }
-            else
-            {
-                // Vorherige Auswahl aufheben
-                if (selectedCard != null)
-                {
-                    selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
-                }
-
-                selectedCard = card;
-                selectedCard.GetComponent<CardOutline>()?.SetSelected(true);
-
-                // Range anzeigen
-                CardScript cs = card.GetComponent<CardScript>();
-                if (cs?.cardData?.Owner != null)
-                {
-                    var ownerCell = cs.transform.position;
-                }
             }
 
-            UpdateHandLayout(lastHoveredCard);
+            // Select new card
+            selectedCard = card;
+            selectedCard.GetComponent<CardOutline>()?.SetSelected(true);
+
+            UpdateHandLayout(hoveredCard);
         }
-
+        public void HoverCard(GameObject card)
+        {
+            hoveredCard = card;
+            UpdateHandLayout(hoveredCard);
+        }
     }
 }

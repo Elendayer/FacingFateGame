@@ -33,7 +33,7 @@ namespace facingfate
             // Step 0: quick validation
             if (card == null || card.cardData == null)
             {
-                //Debug.Log("[NpcAI][EvaluateCard] Invalid card or missing cardData - aborting evaluation.");
+                Debug.LogWarning("[NpcAI][EvaluateCard] Invalid card or missing cardData - aborting evaluation.");
                 onComplete?.Invoke(null);
                 yield break;
             }
@@ -44,24 +44,49 @@ namespace facingfate
             int cardCost = card.cardData.Cost;
             float cardRange = card.cardData.Range;
 
-            // Early-out: no point evaluating a card we cannot afford
+            // Check if card can be cast from current position (without movement)
+            // Only reject if card costs more than total stamina available
             if (cardCost > stamina)
             {
+                Debug.LogWarning($"[NpcAI][EvaluateCard] Card '{cardName}' costs {cardCost} stamina but only {stamina} available (cannot afford even from current position).");
                 onComplete?.Invoke(null);
                 yield break;
             }
 
             float tStart = Time.realtimeSinceStartup;
 
-            // Step 1: Use TargetingModeFactory to get the card's targeting mode and generate optimal targeting data
-            var targetingMode = TargetingModeFactory.Create(card);
-            var targetingModeResults = targetingMode.GetTargetingData(card, npcScript);
+            // Step 1: Get targeting data from the virtual position (not the NPC's real position)
+            var targetingDataAtVirtualPos = TargetingUtility.GetAffected(
+                card,
+                virtualPosition,
+                npcScript,
+                false,  // Don't use vision from GetAffected - we'll apply vision correction below
+                null,
+                true);
 
-            if (targetingModeResults == null || targetingModeResults.Count == 0)
+            if (targetingDataAtVirtualPos?.targetedEntities == null || targetingDataAtVirtualPos.targetedEntities.Count == 0)
             {
+                Debug.LogWarning($"[NpcAI][EvaluateCard] Card '{cardName}' has no valid targeting results from virtual position (no enemies in range or visible).");
                 onComplete?.Invoke(null);
                 yield break;
             }
+
+            // If the card uses vision, filter entities based on line of sight FROM the virtual casting position, not the NPC's real position
+            if (card.cardData.targetingData.EffectUsesVision && targetingDataAtVirtualPos.targetedEntities.Count > 0)
+            {
+                targetingDataAtVirtualPos.targetedEntities = targetingDataAtVirtualPos.targetedEntities
+                    .FindAll(e => TargetingUtility.HasPhysicsLineOfSight(virtualPosition, e.transform.position));
+
+                if (targetingDataAtVirtualPos.targetedEntities.Count == 0)
+                {
+                    Debug.LogWarning($"[NpcAI][EvaluateCard] Card '{cardName}' has valid targets but none are visible from virtual position.");
+                    onComplete?.Invoke(null);
+                    yield break;
+                }
+            }
+
+            // Convert the single result into a list for compatibility with the rest of the evaluation logic
+            var targetingModeResults = new List<TargetingModeData> { targetingDataAtVirtualPos };
 
             // Step 2: For each targeting mode result, find movement paths to the casting position
             var reachableMoves = new List<(NavMeshPathData pathData, TargetingModeData targetingData)>();
@@ -78,7 +103,7 @@ namespace facingfate
             // Explore movement to other targeting positions if we have stamina and range allows
             if (cardRange > 0 && stamina > cardCost)
             {
-                int movementBudget = Mathf.RoundToInt(stamina - cardCost);
+                float movementBudget = stamina - cardCost;
 
                 // Try to path to each targeting result's suggested casting position
                 foreach (var targetingResult in targetingModeResults)
@@ -112,9 +137,16 @@ namespace facingfate
                         card,
                         castPos,
                         npcScript,
-                        card.cardData.targetingData.EffectUsesVision,
+                        false,  // Don't use vision from GetAffected - we'll apply vision correction below
                         null,
                         true);
+
+                    // If the card uses vision, filter entities based on line of sight FROM the nearby casting position
+                    if (card.cardData.targetingData.EffectUsesVision && nearbyTargetingData?.targetedEntities != null && nearbyTargetingData.targetedEntities.Count > 0)
+                    {
+                        nearbyTargetingData.targetedEntities = nearbyTargetingData.targetedEntities
+                            .FindAll(e => TargetingUtility.HasPhysicsLineOfSight(castPos, e.transform.position));
+                    }
 
                     if (nearbyTargetingData?.targetedEntities != null && nearbyTargetingData.targetedEntities.Count > 0)
                     {
@@ -126,18 +158,35 @@ namespace facingfate
             // Step 3: Evaluate all reachable moves and find best
             var evaluation = EvaluateMovementAndAim(card, reachableMoves);
 
-            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' evaluation complete in {Time.realtimeSinceStartup - tStart:0.000}s (score: {evaluation?.score})");
-            onComplete?.Invoke(evaluation);
+            if (evaluation == null)
+            {
+                Debug.LogError($"[NpcAI][EvaluateCard] EvaluateMovementAndAim returned null for card '{cardName}' - this should never happen!");
+                onComplete?.Invoke(null);
+            }
+            else if (evaluation.score == 0)
+            {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' evaluation complete in {Time.realtimeSinceStartup - tStart:0.000}s - no viable moves found (score: 0).");
+                onComplete?.Invoke(evaluation);
+            }
+            else
+            {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' evaluation complete in {Time.realtimeSinceStartup - tStart:0.000}s (score: {evaluation.score})");
+                onComplete?.Invoke(evaluation);
+            }
             yield break;
         }
 
         /// <summary>
         /// Gets nearby positions to evaluate for card casting within movement budget.
+        /// Searches within the movement budget range to find positions where the card can hit more targets.
         /// </summary>
-        private List<(NavMeshPathData, Vector3)> GetNearbyPositionsForCard(Vector3 currentPos, int movementBudget, float cardRange)
+        private List<(NavMeshPathData, Vector3)> GetNearbyPositionsForCard(Vector3 currentPos, float movementBudget, float cardRange)
         {
             var positions = new List<(NavMeshPathData, Vector3)>();
-            int searchRadius = Mathf.Min(movementBudget, Mathf.RoundToInt(cardRange));
+
+            // Search radius should be based on movement budget, not limited by card range
+            // The card's range will be naturally limited by its effect in TargetingUtility.GetAffected
+            int searchRadius = Mathf.FloorToInt(movementBudget);
 
             for (float x = currentPos.x - searchRadius; x <= currentPos.x + searchRadius; x++)
             {
@@ -221,18 +270,45 @@ namespace facingfate
 
                     // Wait for all evaluations to complete
                     while (remaining > 0)
+                    {
                         yield return null;
+                    }
+
+                    Debug.Log($"[NpcAI] Completed evaluation of {handCount} hand cards, with {results.Length} results.");
 
                     var handCandidates = new List<ScoredCard>();
+                    int nullCount = 0;
+                    int zeroScoreCount = 0;
+
                     for (int i = 0; i < handCount; i++)
                     {
                         var r = results[i];
-                        if (r != null && r.score > 0)
+                        if (r == null)
+                        {
+                            nullCount++;
+                            // Null results are expected - card wasn't viable (no stamina, no targets, etc.)
+                        }
+                        else if (r.score > 0)
+                        {
+                            Debug.Log($"[NpcAI] Card '{hand[i].cardData.cardName}' evaluated with score {r.score} and {r.targets?.Count ?? 0} targets.");
                             handCandidates.Add(r);
+                        }
+                        else
+                        {
+                            zeroScoreCount++;
+                            Debug.Log($"[NpcAI] Card '{hand[i].cardData.cardName}' evaluated with zero score (no viable movement/targeting combinations).");
+                        }
                     }
 
                     if (handCandidates.Count > 0)
+                    {
                         actionCandidates.AddRange(handCandidates);
+                        Debug.Log($"[NpcAI] Evaluated {handCount} cards: {handCandidates.Count} viable, {zeroScoreCount} zero-score, {nullCount} null/rejected.");
+                    }
+                    else
+                    {
+                        Debug.Log($"[NpcAI] Evaluated {handCount} cards: {handCandidates.Count} viable, {zeroScoreCount} zero-score, {nullCount} null/rejected.");
+                    }
                 }
 
                 // Only offer reposition if we haven't repositioned this turn
@@ -333,7 +409,7 @@ namespace facingfate
             for (int i = 0; i < plan.Count; i++)
             {
                 var action = plan[i];
-                Debug.Log($"[NpcAI]   Action {i + 1}: {action.Type} - {action.Name}");
+                Debug.Log($"[NpcAI] Action {i + 1}: {action.Type} - {action.Name}");
             }
 
             yield break;
@@ -397,6 +473,33 @@ namespace facingfate
         #endregion
 
         #region Hand Evaluation
+
+        /// <summary>
+        /// Provides diagnostic information about card evaluation results.
+        /// Used to understand why cards are being skipped or have zero scores.
+        /// </summary>
+        private string GetCardEvaluationDiagnostic(CardScript card, float stamina, Vector3 position, ScoredCard result)
+        {
+            if (card == null || card.cardData == null)
+                return $"Card '{(card?.name ?? "null")}': INVALID (null card or cardData)";
+
+            var cardName = card.cardData.cardName;
+            var cardCost = card.cardData.Cost;
+            var cardRange = card.cardData.Range;
+
+            if (result == null)
+            {
+                if (cardCost > stamina)
+                    return $"Card '{cardName}': REJECTED (costs {cardCost}, only {stamina} stamina available)";
+                else
+                    return $"Card '{cardName}': REJECTED (no valid targets or targeting mode failed)";
+            }
+
+            if (result.score == 0)
+                return $"Card '{cardName}': ZERO_SCORE (no viable movement/targeting combinations with positive value)";
+
+            return $"Card '{cardName}': VIABLE (score: {result.score}, targets: {result.targets?.Count ?? 0})";
+        }
 
         private ScoredCard EvaluateMovementAndAim(
             CardScript card,
@@ -546,11 +649,7 @@ namespace facingfate
             if (card.cardData.MaxTarget > 0)
                 targets = targets.Take(card.cardData.MaxTarget).ToList();
 
-            int throughput =
-                card.cardData.CardAiBias?.ThroughputOverride(
-                    npcAIBias,
-                    card.cardData,
-                    targets) ?? 0;
+            int throughput = card.cardData.CardAiBias?.ThroughputOverride(npcAIBias, card.cardData, targets) ?? 0;
 
             int cost = Mathf.Max(1, card.cardData.Cost + moveCost);
 
