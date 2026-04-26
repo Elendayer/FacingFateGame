@@ -450,35 +450,73 @@ public static class TargetingUtility
         }
 
         // Out of range - need to find a position on navmesh within range
-        // Search at multiple angles approaching the target, trying closest distances first
+        // Strategy: Use a reference point exactly at cardRange distance from target, positioned on the line between owner and target
+        // Then search around this reference point and along the approach line
         int positionsTestedCount = 0;
         const float TOLERANCE = 0.1f; // Allow slight tolerance for NavMesh snapping and floating point precision
+        const float SEARCH_STEP = 0.25f; // Distance between search points
 
-        for (float distFromTarget = 0.1f; distFromTarget <= cardRange; distFromTarget += 0.1f)
+        Vector3 directionToTarget = (targetPos - ownerPos).normalized;
+
+        // Calculate reference point: exactly cardRange away from target, on the line toward owner
+        Vector3 referencePoint = targetPos - (directionToTarget * cardRange);
+
+        // [FindPathIntoRange] Debug: Reference point
+        Debug.Log($"[FindPathIntoRange] Using reference point at: {referencePoint}, (cardRange {cardRange}m from target along owner direction)");
+
+        // First, try the reference point itself
+        if (NavMesh.SamplePosition(referencePoint, out NavMeshHit hit, 2f, NavMesh.AllAreas))
         {
-            for (float angle = 0; angle < 360; angle += 30)
+            float distToTarget = Vector3.Distance(hit.position, targetPos);
+            positionsTestedCount++;
+
+            Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
+
+            if (distToTarget <= cardRange + TOLERANCE)
+            {
+                Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Reference point is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
+                return hit.position;
+            }
+        }
+
+        // Search around the reference point in expanding circles and along approach line
+        // Search inward toward the target (to closer positions from reference point)
+        for (float offsetDist = SEARCH_STEP; offsetDist <= cardRange; offsetDist += SEARCH_STEP)
+        {
+            // Try along the approach line (between reference point and target, moving toward target)
+            Vector3 candidate = referencePoint + (directionToTarget * offsetDist);
+            positionsTestedCount++;
+
+            if (NavMesh.SamplePosition(candidate, out hit, 2f, NavMesh.AllAreas))
+            {
+                float distToTarget = Vector3.Distance(hit.position, targetPos);
+
+                Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
+
+                if (distToTarget <= cardRange + TOLERANCE)
+                {
+                    Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
+                    return hit.position;
+                }
+            }
+
+            // Try in a circle around this position along the approach
+            for (float angle = 0; angle < 360; angle += 45)
             {
                 float rad = angle * Mathf.Deg2Rad;
-                Vector3 candidate = targetPos - (new Vector3(Mathf.Cos(rad), 0, Mathf.Sin(rad)) * distFromTarget);
+                candidate = referencePoint + (directionToTarget * offsetDist) + (new Vector3(Mathf.Cos(rad), 0, Mathf.Sin(rad)) * offsetDist);
                 positionsTestedCount++;
 
-                if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+                if (NavMesh.SamplePosition(candidate, out hit, 2f, NavMesh.AllAreas))
                 {
                     float distToTarget = Vector3.Distance(hit.position, targetPos);
 
-                    // [FindPathIntoRange] Debug: Found valid position
                     Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
 
-                    // Only require that the position is within card range of the target (with small tolerance for NavMesh snapping)
-                    // The pathfinding layer will validate if we can actually reach this position
                     if (distToTarget <= cardRange + TOLERANCE)
                     {
                         Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
                         return hit.position;
-                    }
-                    else
-                    {
-                        Debug.Log($"[FindPathIntoRange] ✗ Rejected - Distance {distToTarget:F2} exceeds range+tolerance {cardRange + TOLERANCE:F2}");
                     }
                 }
             }

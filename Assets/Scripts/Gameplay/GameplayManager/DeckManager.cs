@@ -178,13 +178,15 @@ namespace facingfate
                 {
                     child.transform.SetParent(dockDeck.transform);
                     TransformUtility.ZeroLocalRectTransform(child.transform as RectTransform);
-                    cardStack.Push(child.gameObject);
                 }
 
-                Player_ShuffleDeck();
+                ShuffleCardList(cardObjs);
 
-                // Save the shuffled deck order for this entity
-                SaveDeckOrder(entity);
+                Stack<GameObject> initialDeck = new Stack<GameObject>();
+                for (int i = cardObjs.Count - 1; i >= 0; i--)
+                    initialDeck.Push(cardObjs[i]);
+
+                DeckOrderManagement[entity] = new DeckOrderData(initialDeck, new Stack<GameObject>());
             }
 
             // For non-player entities

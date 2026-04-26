@@ -195,7 +195,7 @@ namespace facingfate
 
                 cost_u = 30,
                 damage_u = 75,
-                range_u = 5f,
+                range_u = 8f,
 
                 targetingData = new()
                 {
