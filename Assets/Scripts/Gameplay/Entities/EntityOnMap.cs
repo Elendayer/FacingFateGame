@@ -44,7 +44,7 @@ namespace facingfate
             // Capsule matches the agent's own footprint
             navMeshObstacle.shape = NavMeshObstacleShape.Capsule;
             navMeshObstacle.center = Vector3.zero;
-            navMeshObstacle.radius = navMeshAgent != null ? navMeshAgent.radius : 0.4f;
+            navMeshObstacle.radius = navMeshAgent != null ? navMeshAgent.radius : 0.15f;
             navMeshObstacle.height = 2f;
             navMeshObstacle.carving = true;
 

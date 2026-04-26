@@ -16,6 +16,8 @@ namespace facingfate
 
         private static void RegisterTechniques()
         {
+
+
             // 100101 – Strike – normal attack
             CardDatabase.RegisterCard(new CardData()
             {
@@ -55,7 +57,7 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-                cost_u = 25,
+                cost_u = 20,
 
                 duration_u = 2,
 
@@ -131,7 +133,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 45,
+                damage_u = 50,
                 repeats_u = 2,
 
                 targetingData = new()
@@ -157,8 +159,8 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee },
 
-                cost_u = 15,
-                damage_u = 25,
+                cost_u = 20,
+                damage_u = 10,
 
                 targetingData = new()
                 {
@@ -171,7 +173,7 @@ namespace facingfate
                 cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") , d.Damage);
-                    MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.transform.position, 1);
+                    MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.transform.position, 1f);
                 }
             });
 
@@ -185,7 +187,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 40,
-                damage_u = 80,
+                damage_u = 60,
 
                 range_u = 6f,
 
@@ -243,7 +245,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 10,
-                damage_u = 25,
+                damage_u = 50,
 
                 targetingData = new()
                 {
@@ -268,9 +270,9 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Blood, CardIdentity.Physical },
 
-                cost_u = 30,
-                damage_u = 25,
-                secondaryDamage_u = 7,
+                cost_u = 50,
+                damage_u = 50,
+                repeats_u = 2,
                 duration_u = 6,
 
                 targetingData = new()
@@ -280,16 +282,16 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and apply Bleed ({SecondaryDamage}/turn) for {Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Bite multiple times and apply Bleed over time.",
                 cardEffectAction = (User, Target, d) =>
                 {
-                    // direct hit
+                    // direct hit (per repeat)
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("SlashImpact"), d.Damage);
 
                     var bleed = new EntityModifier(
                         modifierName: "Bleed",
                         owner: Target,
-                        baseValue: d.SecondaryDamage,
+                        baseValue: d.Damage,
                         toTriggerRefs: new() { GameplayRef.onBleed },
                         duration: d.Duration,
                         onRef_Trigger: new RelevantTriggerCheck
@@ -315,7 +317,7 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { },
 
-                cost_u = 15,
+                cost_u = 20,
                 range_u = 3f,
 
                 targetingData = new()
@@ -341,7 +343,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 40,
-                damage_u = 40,
+                damage_u = 100,
 
                 targetingData = new()
                 {
@@ -350,7 +352,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Cone,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to all enemies in a cone.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage",
                 cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
@@ -424,7 +426,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 30,
-                healing_u = 80,
+                healing_u = 50,
 
                 targetingData = new()
                 {
@@ -473,8 +475,8 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 25,
-                power_u = 25,
+                cost_u = 30,
+                power_u = 30,
                 duration_u = 3,
 
                 targetingData = new()
@@ -549,8 +551,8 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 22,
-                power_u = 8,
+                cost_u = 20,
+                power_u = 5,
                 duration_u = 2,
 
                 range_u = 0f,
@@ -563,7 +565,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage by {Power} for {Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage {Power}.",
                 cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyStatBuff(d, Target,

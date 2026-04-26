@@ -438,33 +438,54 @@ public static class TargetingUtility
     {
         float currentDist = Vector3.Distance(ownerPos, targetPos);
 
+        // [FindPathIntoRange] Debug: Entry
+        Debug.Log($"[FindPathIntoRange] FindRangeAwarePositionForTarget called - OwnerPos: {ownerPos}, TargetPos: {targetPos}, CardRange: {cardRange}, CurrentDist: {currentDist:F2}");
+
         // Already in range, return the target position
         if (currentDist <= cardRange)
         {
+            // [FindPathIntoRange] Debug: Already in range
+            Debug.Log($"[FindPathIntoRange] Target already in range! Current distance {currentDist:F2} <= card range {cardRange}");
             return targetPos;
         }
 
         // Out of range - need to find a position on navmesh within range
-        // Search at multiple angles approaching the target
-        for (float angle = 0; angle < 360; angle += 30)
+        // Search at multiple angles approaching the target, trying closest distances first
+        int positionsTestedCount = 0;
+        const float TOLERANCE = 0.1f; // Allow slight tolerance for NavMesh snapping and floating point precision
+
+        for (float distFromTarget = 0.1f; distFromTarget <= cardRange; distFromTarget += 0.1f)
         {
-            float rad = angle * Mathf.Deg2Rad;
-            // Try positions approaching the target at various distances within range
-            for (float distFromTarget = 0.5f; distFromTarget < cardRange; distFromTarget += 0.5f)
+            for (float angle = 0; angle < 360; angle += 30)
             {
+                float rad = angle * Mathf.Deg2Rad;
                 Vector3 candidate = targetPos - (new Vector3(Mathf.Cos(rad), 0, Mathf.Sin(rad)) * distFromTarget);
+                positionsTestedCount++;
 
                 if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, 2f, NavMesh.AllAreas))
                 {
-                    float distFromOwner = Vector3.Distance(ownerPos, hit.position);
-                    if (distFromOwner <= cardRange)
+                    float distToTarget = Vector3.Distance(hit.position, targetPos);
+
+                    // [FindPathIntoRange] Debug: Found valid position
+                    Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
+
+                    // Only require that the position is within card range of the target (with small tolerance for NavMesh snapping)
+                    // The pathfinding layer will validate if we can actually reach this position
+                    if (distToTarget <= cardRange + TOLERANCE)
                     {
+                        Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
                         return hit.position;
+                    }
+                    else
+                    {
+                        Debug.Log($"[FindPathIntoRange] ✗ Rejected - Distance {distToTarget:F2} exceeds range+tolerance {cardRange + TOLERANCE:F2}");
                     }
                 }
             }
         }
 
+        // [FindPathIntoRange] Debug: Search exhausted
+        Debug.Log($"[FindPathIntoRange] ✗ FAILED - Tested {positionsTestedCount} positions but none were valid navmesh positions within {cardRange}m (+ {TOLERANCE}m tolerance) of target");
         return null;
     }
 
@@ -480,18 +501,44 @@ public static class TargetingUtility
         EntityStats entityStats,
         float movementBudget)
     {
+        // [FindPathIntoRange] Debug: Log entry
+        Debug.Log($"[FindPathIntoRange] Attempting to find path into range. From: {fromPosition}, Target: {targetPosition}, CardRange: {cardRange}, Budget: {movementBudget}");
+
         // Try to find a position within range
         var rangePosition = FindRangeAwarePositionForTarget(targetPosition, fromPosition, cardRange);
 
         if (!rangePosition.HasValue)
+        {
+            // [FindPathIntoRange] Debug: Position search failed
+            Debug.Log($"[FindPathIntoRange] FAILED - FindRangeAwarePositionForTarget returned null. No valid navmesh position found within {cardRange}m of target");
             return null;
+        }
+
+        // [FindPathIntoRange] Debug: Position found
+        Debug.Log($"[FindPathIntoRange] Found valid position on navmesh: {rangePosition.Value}, distance from target: {Vector3.Distance(rangePosition.Value, targetPosition):F2}");
 
         // Find path to that position
         var pathData = MovementUtility.FindPath(fromPosition, rangePosition.Value, entityStats);
 
-        if (pathData == null || pathData.PathCost > movementBudget)
+        if (pathData == null)
+        {
+            // [FindPathIntoRange] Debug: Pathfinding failed
+            Debug.Log($"[FindPathIntoRange] FAILED - FindPath returned null. Unable to calculate path from {fromPosition} to {rangePosition.Value}");
             return null;
+        }
 
+        // [FindPathIntoRange] Debug: Path found, check cost
+        Debug.Log($"[FindPathIntoRange] Path found! Cost: {pathData.PathCost:F1}, Budget: {movementBudget}, Cost: {pathData.PathCost:F2}");
+
+        if (pathData.PathCost > movementBudget)
+        {
+            // [FindPathIntoRange] Debug: Path cost exceeds budget
+            Debug.Log($"[FindPathIntoRange] REJECTED - Path cost {pathData.PathCost:F1} exceeds movement budget {movementBudget}");
+            return null;
+        }
+
+        // [FindPathIntoRange] Debug: Success
+        Debug.Log($"[FindPathIntoRange] SUCCESS - Path to casting position found with cost {pathData.PathCost:F1}");
         return (pathData, rangePosition.Value);
     }
 

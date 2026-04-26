@@ -426,16 +426,20 @@ namespace facingfate
 
         /// <summary>
         /// Gets the furthest reachable position from a reference point.
+        /// Prioritizes positions in the direction away from the reference point.
         /// </summary>
-        public static NavMeshPathData GetFurtherPosition(Vector3 from, float distance, EntityScript entity)
+        public static NavMeshPathData GetFurtherPosition(Vector3 referencePos, float distance, EntityScript entity)
         {
             List<Vector3> targets = new List<Vector3>();
 
-            for (float x = entity.transform.position.x - distance; x <= entity.transform.position.x + distance; x++)
+            var entityOriginalPos = entity.transform.position;
+            var directionAwayFromReference = (entityOriginalPos - referencePos).normalized;
+
+            for (float x = entityOriginalPos.x - distance; x <= entityOriginalPos.x + distance; x++)
             {
-                for (float z = entity.transform.position.z - distance; z <= entity.transform.position.z + distance; z++)
+                for (float z = entityOriginalPos.z - distance; z <= entityOriginalPos.z + distance; z++)
                 {
-                    Vector3 candidate = new Vector3(x, entity.transform.position.y, z);
+                    Vector3 candidate = new Vector3(x, entityOriginalPos.y, z);
                     if (Vector3.Distance(candidate, entity.transform.position) <= distance && IsPositionOnNavMesh(candidate))
                     {
                         targets.Add(GetNavMeshPosition(candidate));
@@ -447,7 +451,12 @@ namespace facingfate
                 return new NavMeshPathData();
 
             Vector3 furthest = targets
-                .OrderByDescending(pos => Vector3.Distance(pos, from))
+                .OrderByDescending(pos =>
+                {
+                    float distFromReference = Vector3.Distance(pos, referencePos);
+                    float directionAlignment = Vector3.Dot((pos - entityOriginalPos).normalized, directionAwayFromReference);
+                    return (distFromReference * 2f) + (directionAlignment * distance);
+                })
                 .First();
 
             NavMeshPathData path = FindPath(entity.transform.position, furthest, entity.entityStats);

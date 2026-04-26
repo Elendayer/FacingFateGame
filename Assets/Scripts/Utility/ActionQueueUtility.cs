@@ -81,13 +81,13 @@ namespace facingfate
             CardData cardData,
             TargetingModeData targetingData)
         {
-            foreach (EntityScript target in targetingData.targetedEntities)
-            {
-                cardData.cardEffectAction?.Invoke(source, target, cardData);
-            }
             foreach (Vector3 tile in targetingData.targetedPositions)
             {
                 cardData.cardEffectGroundAction?.Invoke(source, tile, cardData);
+            }
+            foreach (EntityScript target in targetingData.targetedEntities)
+            {
+                cardData.cardEffectAction?.Invoke(source, target, cardData);
             }
         }
         private static void ApplyCardFX(

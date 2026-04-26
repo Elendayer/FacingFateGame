@@ -254,11 +254,9 @@ namespace facingfate
             var targets = TargetingUtility.GetValidTargets(card.cardData, owner);
             var results = new List<TargetingModeData>();
             var ownerWorldPos = GetWorldPositionFromEntity(owner);
-            var cardRange = card.cardData.Range;
-            var usesVision = card.cardData.targetingData.TargetingUsesVision;
-            var radius = card.cardData.Radius;
 
-            Debug.Log($"[RingTargetingMode] Starting evaluation - Valid targets: {targets.Count}, Card range: {cardRange}, Radius: {radius}, Uses vision: {usesVision}");
+            CardData cardData = card.cardData;
+ 
 
             // For each valid target, create a ring effect centered on that target
             foreach (var t in targets)
@@ -267,26 +265,22 @@ namespace facingfate
                 var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
 
                 // Skip targets outside range
-                if (distToTarget > cardRange)
+                if (distToTarget > cardData.Range)
                 {
-                    Debug.Log($"[RingTargetingMode] Target '{t.name}' skipped: OUT OF RANGE (distance: {distToTarget:F2})");
                     continue;
                 }
 
-                var hitEntities = TargetingUtility.GetEntitiesInPhysicsSphere(targetWorldPos, radius, card.cardData);
-                Debug.Log($"[RingTargetingMode] Target '{t.name}' at distance {distToTarget:F2}: found {hitEntities.Count} entities in ring");
+                var hitEntities = TargetingUtility.GetEntitiesInPhysicsRing(targetWorldPos, cardData.Radius, cardData.Area,  cardData);
 
                 // Filter by vision if enabled
-                if (usesVision && hitEntities.Count > 0)
+                if (cardData.targetingData.TargetingUsesVision && hitEntities.Count > 0)
                 {
                     int beforeVision = hitEntities.Count;
                     hitEntities = hitEntities.FindAll(e => TargetingUtility.HasPhysicsLineOfSight(ownerWorldPos, GetWorldPositionFromEntity(e)));
-                    Debug.Log($"[RingTargetingMode] Vision filter applied: {beforeVision} -> {hitEntities.Count} entities");
                 }
 
                 if (hitEntities.Count > 0)
                 {
-                    Debug.Log($"[RingTargetingMode] Targeting option created with {hitEntities.Count} entities");
                     results.Add(new TargetingModeData
                     {
                         castingPosition = ownerWorldPos,
@@ -294,10 +288,6 @@ namespace facingfate
                         targetedEntities = hitEntities,
                         IsReachable = true
                     });
-                }
-                else
-                {
-                    Debug.Log($"[RingTargetingMode] Target '{t.name}' rejected: No entities in ring after filtering");
                 }
             }
 

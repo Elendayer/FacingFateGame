@@ -79,7 +79,7 @@ namespace facingfate
                 },
                 cardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { area = Data.Area, start = Data.Owner.transform.position}, Target.targetedPositions[0]);
+                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { area = Data.Area, start = Data.Owner.transform.position, end = Target.targetedPositions[0]}, Target.targetedPositions[0]);
                 }
             });
 
@@ -299,7 +299,7 @@ namespace facingfate
                 },
                 cardVfx = (Data, Target) =>
                 {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm"), Target.targetedPositions);
+                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm") { radius = Data.Radius}, Target.targetedPositions);
                 }
 
             });

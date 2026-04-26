@@ -15,7 +15,7 @@ namespace facingfate
 
         [Header("Entity Spacing")]
         [Tooltip("Minimum allowed distance to any other entity at the drop destination.")]
-        [SerializeField] private float minEntityDistance = 1.2f;
+        [SerializeField] private float minEntityDistance = 0.7f;
 
         private NavMeshPathData _lastPathData;
         private bool _hasDragTarget;

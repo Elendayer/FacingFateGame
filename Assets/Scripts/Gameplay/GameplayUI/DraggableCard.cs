@@ -149,11 +149,11 @@ namespace facingfate
 
             Ray ray = Camera.main.ScreenPointToRay(eventData.position);
             Vector3 cursorPosition = GetFloorHitPosition(ray);
-
-            if (dragVFX != null && cursorPosition != Vector3.zero && cursorPosition != InvalidPosition)
+            
+            dragVFX.transform.position = cursorPosition;
+            if (dragVFXEffect.HasVector3("End"))
             {
                 dragVFXEffect.SetVector3("End", cursorPosition);
-                dragVFX.transform.position = cursorPosition;
             }
 
             CardData cardData = cardScript.cardData;
@@ -406,10 +406,11 @@ namespace facingfate
                 vfxName = vfxName,
                 attachToMesh = false,
                 activationCount = 1,
+                range = cardScript.cardData.Range,
                 area = cardScript.cardData.Area,
                 radius = cardScript.cardData.Radius,
-                start = cardScript.cardData.Owner != null ? cardScript.cardData.Owner.transform.position : Vector3.zero,
-                end = cardScript.cardData.Owner != null ? cardScript.cardData.Owner.transform.position : Vector3.zero
+                start = cardScript.cardData.Owner.transform.position,
+                end = Vector3.zero
             };
 
             if (string.IsNullOrEmpty(vfxName)) return;
@@ -427,7 +428,7 @@ namespace facingfate
             {
                 CardTargetingMode.Select => "vfx_targeting_single",
                 CardTargetingMode.Radius => "vfx_targeting_sphere",
-                CardTargetingMode.Ring => "vfx_targeting_ring",
+                CardTargetingMode.Ring =>   "vfx_targeting_ring",
                 CardTargetingMode.Single => "vfx_targeting_single",
                 CardTargetingMode.LineFree => "vfx_targeting_line",
                 CardTargetingMode.LineSelf => "vfx_targeting_line",

@@ -61,6 +61,10 @@ namespace facingfate
 
         private void ApplyVFXData(VisualEffect effect, VFXData overrides)
         {
+            if (effect.HasFloat ("Range"))
+            {
+                effect.SetFloat("Range", overrides.range);
+            }
             if (effect.HasFloat("Area"))
             {
                 effect.SetFloat("Area", overrides.area);
@@ -216,6 +220,8 @@ namespace facingfate
                 vfxObject.AddComponent<DestroyVFXAfterEffect>();
                 vfxObject.name = name;
 
+                ApplyVFXData(vfx, vfxData);
+
                 return (vfxObject, vfx);
             }
             else
@@ -232,6 +238,7 @@ namespace facingfate
 
         public int activationCount = 0;
 
+        public float range;
         public float area;
         public float radius;
 

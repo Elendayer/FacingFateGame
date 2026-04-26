@@ -62,49 +62,127 @@ namespace facingfate
                     new NavMeshPathData { PathCost = 0, Start = virtualPosition, End = virtualPosition },
                     targetingAtCurrent
                 ));
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - Found {targetingAtCurrent.targetedEntities.Count} targets at virtual position");
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 1 SUCCESS - Found {targetingAtCurrent.targetedEntities.Count} targets at virtual position");
+            }
+            else
+            {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 1 FAILED - No targets at current position (distance too far for range {cardRange:F2})");
             }
 
             // Phase 2: If card has range and we have movement budget, explore better positions
             if (cardRange > 0 && movementBudget > 0)
             {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - Entering Phase 2 & 3 (Range: {cardRange:F2}, MoveBudget: {movementBudget:F0})");
+
                 // Try nearby positions for better coverage
                 var nearbyPositions = GetNearbyPositionsForCard(virtualPosition, movementBudget, cardRange);
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 - Found {nearbyPositions.Count} nearby positions to explore");
+
                 foreach (var (pathData, castPos) in nearbyPositions)
                 {
                     var targetingAtNearby = GetTargetingFromPosition(card, castPos);
                     if (targetingAtNearby?.targetedEntities != null && targetingAtNearby.targetedEntities.Count > 0)
                     {
                         reachableMoves.Add((pathData, targetingAtNearby));
+                        Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 - Found {targetingAtNearby.targetedEntities.Count} targets at nearby position");
+                    }
+                }
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 Complete - reachableMoves count: {reachableMoves.Count}");
+
+                // Phase 3: Try moving into range of enemies (search independently)
+                // This handles cases where targets are out of current range but can be reached via movement
+                var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+                var potentialEnemies = new List<EntityScript>();
+
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Starting independent enemy search (found {allEntities.Length} total entities)");
+
+                foreach (var entity in allEntities)
+                {
+                    // Skip self and allies
+                    if (entity == npcScript || entity.entityAffiliation == npcScript.entityAffiliation)
+                        continue;
+
+                    // Check if target is valid for this card
+                    if (IsValidTargetAffiliation(entity, card.cardData) && TargetingUtility.IsTargetValid(card.cardData, entity))
+                    {
+                        potentialEnemies.Add(entity);
                     }
                 }
 
-                // Try moving into range of targets found at current position
-                if (targetingAtCurrent?.targetedEntities != null && targetingAtCurrent.targetedEntities.Count > 0)
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Found {potentialEnemies.Count} valid potential enemies to path to");
+
+                int pathsFound = 0;
+                int pathsFailed = 0;
+
+                foreach (var targetEntity in potentialEnemies)
                 {
-                    foreach (var targetEntity in targetingAtCurrent.targetedEntities)
+                    var targetPos = targetEntity.GetComponent<EntityOnMap>()?.transform.position ?? targetEntity.transform.position;
+                    var distToTarget = Vector3.Distance(virtualPosition, targetPos);
+
+                    // If target is within card range, we already evaluated it in Phase 1/2
+                    // Only try to path to targets that are beyond current range
+                    if (distToTarget > cardRange)
                     {
-                        var targetPos = targetEntity.GetComponent<EntityOnMap>()?.transform.position ?? targetEntity.transform.position;
-                        var distToTarget = Vector3.Distance(virtualPosition, targetPos);
+                        Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Attempting path to '{targetEntity.name}' at distance {distToTarget:F2} (range: {cardRange:F2})");
 
-                        // If target is out of range, try to get closer
-                        if (distToTarget > cardRange)
+                        var rangeResult = TargetingUtility.FindPathIntoRange(virtualPosition, targetPos, cardRange, npcScript.entityStats, movementBudget);
+
+
+                        if (rangeResult.HasValue)
                         {
-                            var rangeResult = TargetingUtility.FindPathIntoRange(
-                                virtualPosition, targetPos, cardRange, npcScript.entityStats, movementBudget);
+                            var castPos = rangeResult.Value.castPosition;
 
-                            if (rangeResult.HasValue)
+                            // Validate that the specific target entity is still reachable and in range from the cast position
+                            float distFromCastPos = Vector3.Distance(castPos, targetPos);
+                            const float RANGE_TOLERANCE = 0.1f; // Allow tolerance for floating-point precision and NavMesh snapping
+                            if (distFromCastPos <= cardRange + RANGE_TOLERANCE)
                             {
-                                var castPos = rangeResult.Value.castPosition;
+                                // For Single target cards, verify the target is valid from this position
+                                // GetTargetingFromPosition might find a different target, so we need to check explicitly
                                 var targetingAtRange = GetTargetingFromPosition(card, castPos);
-                                if (targetingAtRange?.targetedEntities != null && targetingAtRange.targetedEntities.Count > 0)
+
+                                // Check if our intended target is in the resulting targets
+                                bool targetFoundInResults = targetingAtRange?.targetedEntities != null && targetingAtRange.targetedEntities.Contains(targetEntity);
+
+                                if (targetFoundInResults)
                                 {
                                     reachableMoves.Add((rangeResult.Value.pathData, targetingAtRange));
+                                    pathsFound++;
+                                    Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 SUCCESS - Path found to '{targetEntity.name}', {targetingAtRange.targetedEntities.Count} targets at cast position");
+                                }
+                                else if (targetingAtRange?.targetedEntities != null && targetingAtRange.targetedEntities.Count > 0)
+                                {
+                                    // Found other targets even if not the intended one - still valid
+                                    reachableMoves.Add((rangeResult.Value.pathData, targetingAtRange));
+                                    pathsFound++;
+                                    Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 SUCCESS - Path found, targeting different entity. Found {targetingAtRange.targetedEntities.Count} targets at cast position");
+                                }
+                                else
+                                {
+                                    Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Path to '{targetEntity.name}' found but target not reachable from cast position (distance from cast: {distFromCastPos:F2})");
                                 }
                             }
+                            else
+                            {
+                                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - FindPathIntoRange returned position outside range of target (distance: {distFromCastPos:F2} > {cardRange + RANGE_TOLERANCE:F2} [range + tolerance])");
+                            }
+                        }
+                        else
+                        {
+                            pathsFailed++;
+                            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - No path found to '{targetEntity.name}' (distance: {distToTarget:F2}, budget: {movementBudget})");
                         }
                     }
+                    else
+                    {
+                        Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Target '{targetEntity.name}' already in range ({distToTarget:F2} <= {cardRange:F2}), skipping");
+                    }
                 }
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 Complete - Paths found: {pathsFound}, Paths failed: {pathsFailed}, Total reachableMoves: {reachableMoves.Count}");
+            }
+            else if (cardRange <= 0 || movementBudget <= 0)
+            {
+                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - SKIPPING Phase 2&3 (Range: {cardRange:F2}, MoveBudget: {movementBudget})");
             }
 
             // If no valid positions found, return zero score
@@ -189,10 +267,12 @@ namespace facingfate
                     if (singleTarget != null)
                     {
                         float distToTarget = Vector3.Distance(castPos, singleTarget.transform.position);
-                        // Only add target if it's within card range
-                        if (distToTarget <= cardData.Range)
+                        // Only add target if it's within card range (with tolerance for floating-point precision)
+                        const float RANGE_TOLERANCE = 0.1f;
+                        if (distToTarget <= cardData.Range + RANGE_TOLERANCE)
                         {
-                            entities = TargetingUtility.GetEntitiesInPhysicsSphere(singleTarget.transform.position, 0.1f, cardData);
+                            // Directly add the target we found, rather than using OverlapSphere which might miss it
+                            entities = new List<EntityScript> { singleTarget };
                         }
                     }
                     break;
@@ -232,17 +312,23 @@ namespace facingfate
             float nearestDist = float.MaxValue;
 
             var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+
             foreach (var entity in allEntities)
             {
                 // Skip self and allies
                 if (entity == npcScript || entity.entityAffiliation == npcScript.entityAffiliation)
+                {
                     continue;
+                }
 
                 // Skip neutrals
                 if (entity.entityAffiliation == EntityAffiliation.Neutral)
+                {
                     continue;
+                }
 
                 var dist = Vector3.Distance(fromPosition, entity.transform.position);
+
                 if (dist < nearestDist)
                 {
                     nearestDist = dist;
@@ -651,11 +737,16 @@ namespace facingfate
         private List<EntityScript> FilterValidTargets(CardScript card, List<EntityScript> targets, NavMeshPathData movePath)
         {
             if (targets == null || targets.Count == 0)
+            {
+                Debug.Log($"[FilterValidTargets] '{card?.cardData?.cardName}' - Input targets NULL or empty");
                 return new List<EntityScript>();
+            }
 
             var validTargets = new List<EntityScript>();
             var cardData = card.cardData;
             var castingPosition = movePath?.End ?? mover.transform.position;
+
+            Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Input: {targets.Count} targets, Casting from: {castingPosition}");
 
             // Pre-compute visible tiles as HashSet for O(1) lookup
             HashSet<Vector3> visibleTiles = null;
@@ -672,26 +763,41 @@ namespace facingfate
                     visibleTiles = new HashSet<Vector3>(VisionUtility.GetVisibleTiles(castingPosition, tilesToCheck));
             }
 
+            int rejectedCount = 0;
+
             foreach (var target in targets)
             {
                 if (target == null)
+                {
+                    rejectedCount++;
                     continue;
+                }
 
                 // Check affiliation match
                 if (!IsValidTargetAffiliation(target, cardData))
+                {
+                    Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Rejected '{target.name}': Invalid affiliation");
+                    rejectedCount++;
                     continue;
+                }
 
                 // Check vision requirements if applicable
                 if (visibleTiles != null)
                 {
                     var targetEntityOnMap = target.GetComponent<EntityOnMap>();
                     if (targetEntityOnMap == null || !visibleTiles.Contains(targetEntityOnMap.transform.position))
+                    {
+                        Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Rejected '{target.name}': No line of sight");
+                        rejectedCount++;
                         continue;
+                    }
                 }
 
                 validTargets.Add(target);
+                Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - ACCEPTED '{target.name}'");
             }
 
+            Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Final: {validTargets.Count} valid targets (rejected: {rejectedCount})");
             return validTargets;
         }
 
@@ -746,23 +852,33 @@ namespace facingfate
 
         private int EvaluateCardScore(CardScript card, List<EntityScript> targets, int moveCost)
         {
-        Debug.Log($"[CardScore] Evaluating card score for {card?.cardData?.cardName ?? "null card"}, MoveCost: {moveCost}, Initial Targets: {targets?.Count ?? 0}");
             if (card?.cardData == null)
                 return 0;
-            Debug.Log($"[CardScore] Evaluating card score for {card.cardData.cardName}");
 
             if (card.cardData.MaxTarget > 0)
                 targets = targets.Take(card.cardData.MaxTarget).ToList();
 
-            Debug.Log($"[CardScore] Evaluating card score for {card.cardData.cardName} with {targets.Count} targets");
-
-
+            // Get throughput - CardAiBias is optional, defaults to 0 if null
             int throughput = card.cardData.CardAiBias?.ThroughputOverride(npcAIBias, card.cardData, targets) ?? 0;
-            Debug.Log($"[CardScore] Evaluating card score: {card.cardData.cardName}, Throughput: {throughput}, MoveCost: {moveCost}");
+
+            // If CardAiBias is null, use a default throughput based on card damage
+            if (throughput == 0 && card.cardData.CardAiBias == null)
+            {
+                // Fallback: base throughput on damage * number of targets
+                throughput = card.cardData.Damage * targets.Count;
+                Debug.Log($"[CardScore] '{card.cardData.cardName}' - NO CardAiBias, using fallback throughput: {throughput} (damage: {card.cardData.Damage}, targets: {targets.Count})");
+            }
+            else if (throughput == 0)
+            {
+                Debug.Log($"[CardScore] '{card.cardData.cardName}' - CardAiBias returned 0 throughput!");
+            }
 
             int cost = Mathf.Max(1, card.cardData.Cost + moveCost);
+            int score = (throughput * 100) / cost;
 
-            return (throughput * 100) / cost;
+            Debug.Log($"[CardScore] '{card.cardData.cardName}' - Targets: {targets.Count}, Throughput: {throughput}, Cost: {cost}, Score: {score}");
+
+            return score;
         }
 
         #endregion
