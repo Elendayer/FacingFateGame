@@ -274,60 +274,15 @@ namespace facingfate
         }
 
         /// <summary>
-        /// Copies the step's highlights array, resolving any entry with null target + matching
-        /// allowedCardIds to the actual card RectTransform currently in hand.
+        /// Returns the step's highlights array as-is. Only world-space (worldTarget) and
+        /// Inspector-assigned (target) entries produce arrows — card-in-hand arrows removed.
         /// </summary>
         private TutorialHighlightEntry[] ResolveHighlights(TutorialStepData step)
         {
             if (step.highlights == null || step.highlights.Length == 0)
-            {
-                // Auto-highlight first allowed card if no explicit entries defined
-                if (!step.unlockAll && step.allowedCardIds.Length > 0)
-                {
-                    var cardRect = FindCardInHand(step.allowedCardIds[0]);
-                    if (cardRect != null)
-                        return new[] { new TutorialHighlightEntry { target = cardRect, direction = ArrowDirection.Down } };
-                }
                 return System.Array.Empty<TutorialHighlightEntry>();
-            }
 
-            var resolved = new TutorialHighlightEntry[step.highlights.Length];
-            int cardIdIndex = 0;
-
-            for (int i = 0; i < step.highlights.Length; i++)
-            {
-                var src = step.highlights[i];
-                if (src.target != null)
-                {
-                    resolved[i] = src;
-                    continue;
-                }
-
-                // Null target — try to resolve to a card in hand
-                if (cardIdIndex < step.allowedCardIds.Length)
-                {
-                    var cardRect = FindCardInHand(step.allowedCardIds[cardIdIndex++]);
-                    resolved[i] = new TutorialHighlightEntry { target = cardRect, direction = src.direction };
-                }
-                else
-                {
-                    resolved[i] = src; // remains null → arrow hidden for this entry
-                }
-            }
-
-            return resolved;
-        }
-
-        private RectTransform FindCardInHand(string cardId)
-        {
-            foreach (var cardGO in HandManager.Instance.cardsInHand)
-            {
-                if (cardGO == null) continue;
-                var cs = cardGO.GetComponent<CardScript>();
-                if (cs != null && cs.cardData.cardID == cardId)
-                    return cardGO.GetComponent<RectTransform>();
-            }
-            return null;
+            return step.highlights;
         }
     }
 }

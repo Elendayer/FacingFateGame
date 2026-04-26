@@ -30,8 +30,8 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 3,
-                damage_u = 10,
+                cost_u = 15,
+                damage_u = 20,
                 range_u = 2f,
                 area_u = 2f,
 
@@ -59,7 +59,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 20,
-                damage_u = 5,
+                damage_u = 4,
                 repeats_u = 4,
 
                 targetingData = new()
@@ -128,8 +128,8 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Poison, CardIdentity.Fire, CardIdentity.Blood },
 
                 cost_u = 50,
-                damage_u = 2,
-                duration_u = 2,
+                damage_u = 18,
+                duration_u = 3,
                 range_u = 4f,
 
                 targetingData = new()
@@ -168,7 +168,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 45,
-                damage_u = 200,
+                damage_u = 155,
 
                 targetingData = new()
                 {
@@ -184,7 +184,7 @@ namespace facingfate
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"));
                 },
             });
-            // 100111 – Arrowshot – ranged hit
+            // 100111 ï¿½ Arrowshot ï¿½ ranged hit
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Assassin_Tech_Arrow_Shot",
@@ -194,7 +194,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 100,
+                damage_u = 75,
                 range_u = 5f,
 
                 targetingData = new()
@@ -215,7 +215,7 @@ namespace facingfate
                 }
             });
 
-            //  – Multishot – multi-target
+            //  ï¿½ Multishot ï¿½ multi-target
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Assassin_Tech_Multi_Shot",
@@ -225,7 +225,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Ranged },
 
                 cost_u = 25,
-                damage_u = 30,
+                damage_u = 15,
 
                 range_u = 5f,
 
@@ -252,7 +252,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 20,
+                damage_u = 40,
                 range_u = 5f,
                 maxtarget_u = 3,
 
@@ -288,8 +288,8 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 4,
-                damage_u = 5,
+                cost_u = 18,
+                damage_u = 10,
                 range_u = 5f,
                 area_u = 2f,
 
@@ -317,8 +317,8 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 3,
-                damage_u = 4,
+                cost_u = 20,
+                damage_u = 25,
                 range_u = 4f,
 
                 targetingData = new()
@@ -416,7 +416,8 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
                 cost_u = 50,
-                damage_u = 50,
+                damage_u = 30,
+                secondaryDamage_u = 5,
                 duration_u = 6,
                 range_u = 3f,
 
@@ -427,13 +428,29 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Cone,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and inflict a Bleed dealing {Damage_10} for {Duration} turns)",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and inflict Bleed ({SecondaryDamage}/turn) for {Duration} turns.",
                 cardEffectAction = (User, Target, d) =>
                 {
                     // Direktschaden
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
 
-                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Bleed", CloneMode.OverrideFromData, d, ThroughputSource.Damage, User), ModifierMergeStrategy.RefreshDurationAndMerge,10);
+                    var bleed = new EntityModifier(
+                        modifierName: "Bleed",
+                        owner: Target,
+                        baseValue: d.SecondaryDamage,
+                        toTriggerRefs: new() { GameplayRef.onBleed },
+                        duration: d.Duration,
+                        onRef_Trigger: new RelevantTriggerCheck
+                        {
+                            OnTriggerReference = new() { GameplayRef.onTurnStart },
+                            CheckType = CheckEntityType.User,
+                            CheckEntity = Target,
+                        },
+                        onRef_Action: (target, cd, value) =>
+                        {
+                            CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBleed, new VFXData("BleedEffect"));
+                        });
+                    CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
 
@@ -446,9 +463,9 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 2,
-                damage_u = 6,
-                duration_u = 1, // Stun fÃ¼r 1 Zug
+                cost_u = 25,
+                damage_u = 30,
+                duration_u = 1,
                 range_u = 5f,
 
                 targetingData = new()
@@ -458,7 +475,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Deal {d.Damage} damage and Stun the target for {d.Duration} turn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and Stun the target for {Duration} turn.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -480,7 +497,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
                 cost_u = 40,
-                damage_u = 20,
+                damage_u = 8,
                 duration_u = 3,
 
                 range_u = 10f,
@@ -529,7 +546,7 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Shadow },
 
-                cost_u = 40,
+                cost_u = 30,
 
                 range_u = 5f,
 
@@ -540,7 +557,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) =>d.cardDescription = $"Moves to an Enemy.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Teleport behind target enemy.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -557,9 +574,9 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison, CardIdentity.Venom },
 
-                cost_u = 0,
+                cost_u = 5,
                 charges_u = 3,
-                damage_u = 2,
+                damage_u = 5,
                 duration_u = 3,
 
                 targetingData = new()
@@ -586,7 +603,7 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Venom },
 
-                cost_u = 5,
+                cost_u = 8,
                 duration_u = 3,
                 charges_u = 2,
                 damage_u = 10,
@@ -636,7 +653,7 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Venom },
 
-                cost_u = 15,
+                cost_u = 20,
                 charges_u = 1,
 
                 targetingData = new()
@@ -724,7 +741,7 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Shadow },
 
-                cost_u = 0,
+                cost_u = 12,
 
                 targetingData = new()
                 {
@@ -733,7 +750,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, data) => data.cardDescription = "Your next damage dealt is doubled",
+                cardDescriptionAction = (User, data) => data.cardDescription = "Your next Technique deals double damage.",
                 cardEffectAction = (User, Target, data) =>
                 {
                     CombatUtility.ApplyStatBuff(data, Target, new StatModifier

@@ -55,7 +55,7 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-                cost_u = 20,
+                cost_u = 25,
 
                 duration_u = 2,
 
@@ -131,7 +131,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 50,
+                damage_u = 45,
                 repeats_u = 2,
 
                 targetingData = new()
@@ -157,8 +157,8 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee },
 
-                cost_u = 20,
-                damage_u = 10,
+                cost_u = 15,
+                damage_u = 25,
 
                 targetingData = new()
                 {
@@ -185,7 +185,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 40,
-                damage_u = 60,
+                damage_u = 80,
 
                 range_u = 6f,
 
@@ -243,7 +243,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 10,
-                damage_u = 50,
+                damage_u = 25,
 
                 targetingData = new()
                 {
@@ -268,9 +268,9 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Blood, CardIdentity.Physical },
 
-                cost_u = 50,
-                damage_u = 50,
-                repeats_u = 2,
+                cost_u = 30,
+                damage_u = 25,
+                secondaryDamage_u = 7,
                 duration_u = 6,
 
                 targetingData = new()
@@ -280,16 +280,16 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Bite multiple times and apply Bleed over time.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and apply Bleed ({SecondaryDamage}/turn) for {Duration} turns.",
                 cardEffectAction = (User, Target, d) =>
                 {
-                    // direct hit (per repeat)
+                    // direct hit
                     CombatUtility.ApplyDamage(d, Target, new VFXData ("SlashImpact"), d.Damage);
 
                     var bleed = new EntityModifier(
                         modifierName: "Bleed",
                         owner: Target,
-                        baseValue: d.Damage,
+                        baseValue: d.SecondaryDamage,
                         toTriggerRefs: new() { GameplayRef.onBleed },
                         duration: d.Duration,
                         onRef_Trigger: new RelevantTriggerCheck
@@ -315,7 +315,7 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { },
 
-                cost_u = 20,
+                cost_u = 15,
                 range_u = 3f,
 
                 targetingData = new()
@@ -341,7 +341,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 40,
-                damage_u = 100,
+                damage_u = 40,
 
                 targetingData = new()
                 {
@@ -350,7 +350,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Cone,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to all enemies in a cone.",
                 cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
@@ -424,7 +424,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 30,
-                healing_u = 50,
+                healing_u = 80,
 
                 targetingData = new()
                 {
@@ -473,8 +473,8 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 30,
-                power_u = 30,
+                cost_u = 25,
+                power_u = 25,
                 duration_u = 3,
 
                 targetingData = new()
@@ -549,8 +549,8 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 20,
-                power_u = 5,
+                cost_u = 22,
+                power_u = 8,
                 duration_u = 2,
 
                 range_u = 0f,
@@ -563,7 +563,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage {Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage by {Power} for {Duration} turns.",
                 cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyStatBuff(d, Target,

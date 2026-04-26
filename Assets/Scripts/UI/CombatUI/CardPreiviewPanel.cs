@@ -90,7 +90,9 @@ namespace facingfate
             previewRoot.transform.DOScale(1f, scaleDuration)
                 .SetEase(Ease.OutBack).SetUpdate(true);
 
-            canvasGroup.blocksRaycasts = HandManager.Instance?.GetSelectedCard() != null;
+            // Only block raycasts during active drag so tooltip triggers behind the panel
+            // remain reachable when the player is just hovering or has a card selected.
+            canvasGroup.blocksRaycasts = DraggableCard.ActiveDraggingCard != null;
         }
 
         public void Hide()

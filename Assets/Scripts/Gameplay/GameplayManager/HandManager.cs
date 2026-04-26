@@ -259,6 +259,8 @@ namespace facingfate
         public void HoverCard(GameObject card)
         {
             hoveredCard = card;
+            if (hoveredCard == null)
+                CardPreviewPanel.Instance?.Hide();
             UpdateHandLayout(hoveredCard);
         }
     }

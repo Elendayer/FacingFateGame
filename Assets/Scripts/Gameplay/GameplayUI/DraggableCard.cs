@@ -62,6 +62,8 @@ namespace facingfate
 
             // If dragging, don't highlight on hover since we're already showing targeted entities
             if (isDragging) return;
+
+            HandManager.Instance?.HoverCard(gameObject);
         }
 
         public void OnPointerExit(PointerEventData eventData)

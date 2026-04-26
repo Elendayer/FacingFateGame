@@ -1,3 +1,5 @@
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace facingfate
 {
@@ -26,8 +28,8 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 20,
-                healing_u = 20,
-                duration_u = 3,   // for 3 turns
+                healing_u = 15,
+                duration_u = 3,
                 range_u = 3f,
 
                 targetingData = new()
@@ -42,7 +44,7 @@ namespace facingfate
                     triggerConditionTargets = (entitiy) => entitiy.HasCondition(GameplayCondition.isDamaged)
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Apply a regeneration of {d.Power} for {d.Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Apply Regeneration ({Healing}/turn) for {Duration} turns.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -102,8 +104,8 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 100,
-                healing_u = 100,
+                cost_u = 45,
+                healing_u = 40,
                 range_u = 2f,
 
                 targetingData = new()
@@ -130,7 +132,7 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.Poison },
 
-                cost_u = 40,
+                cost_u = 30,
                 power_u = 2,
 
                 targetingData = new()
@@ -140,7 +142,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Worsen target's Poison (TBD: add stacks / increase tick).",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Worsen target's Poison stacks.",
                 cardEffectAction = (User, Target, d) => { /* TODO: modify poison modifier on target */ }
             });
 
@@ -181,7 +183,7 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 3,
+                cost_u = 5,
 
                 targetingData = new()
                 {
@@ -207,7 +209,7 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.Poison },
 
-                cost_u = 4,
+                cost_u = 8,
                 range_u = 2f,
 
 
@@ -235,8 +237,8 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.Poison },
 
-                cost_u = 5,
-                power_u = 2,
+                cost_u = 8,
+                power_u = 5,
                 duration_u = 2,
 
                 targetingData = new()
@@ -264,8 +266,8 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 2,
-                duration_u = 1,  // bis Rundenende
+                cost_u = 5,
+                duration_u = 1,
 
                 targetingData = new()
                 {
@@ -287,6 +289,95 @@ namespace facingfate
                     CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
                 }
             });
+
+            // 140205 – Combat Alchemy – random Brew/Elixir/Pill added to hand and deck (Self)
+            // Brew 60% · Elixir 30% · Pill 10%
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Physician_Abil_Combat_Alchemy",
+                cardName = "Combat Alchemy",
+                cardType = CardType.Ability,
+                cardClass = CardClass.Physician,
+                cardIdentities = new() { CardIdentity.None },
+
+                cost_u = 20,
+                range_u = 2f,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Entity,
+                    CardTargetAffiliation = CardTargetAffiliation.Self,
+                    cardTargetingMode = CardTargetingMode.Single,
+                },
+
+                cardDescriptionAction = (User, d) =>
+                    d.cardDescription = "Brew 60% · Elixir 30% · Pill 10% — add a random concoction to your hand and deck.",
+
+                cardEffectAction = (User, Target, d) =>
+                {
+                    // Pools by tier (Mandrake Poison Cloud and Crystal Cleansing Balm excluded — ground actions)
+                    var brews = new System.Collections.Generic.List<string>
+                    {
+                        "Physician_Item_Brew_of_a_Hundred_Herbs",
+                        "Physician_Item_Brew_of_Unbroken_Will",
+                        "Physician_Item_Soaring_Dragon_Brew",
+                        "Physician_Item_Crimson_Rejuvenation_Brew",
+                    };
+                    var elixirs = new System.Collections.Generic.List<string>
+                    {
+                        "Physician_Item_Elixir_of_a_Hundred_Herbs",
+                        "Physician_Item_Elixir_of_Unbroken_Will",
+                        "Physician_Item_Soaring_Dragon_Elixir",
+                        "Physician_Item_Crimson_Rejuvenation_Elixir",
+                    };
+                    var pills = new System.Collections.Generic.List<string>
+                    {
+                        "Physician_Item_Pill_of_a_Hundred_Herbs",
+                        "Physician_Item_Pill_of_Unbroken_Will",
+                        "Physician_Item_Soaring_Dragon_Pill",
+                        "Physician_Item_Crimson_Rejuvenation_Pill",
+                    };
+
+                    float roll = UnityEngine.Random.value;
+                    System.Collections.Generic.List<string> pool =
+                        roll < 0.60f ? brews  :
+                        roll < 0.90f ? elixirs :
+                                       pills;
+
+                    string selectedID = pool[UnityEngine.Random.Range(0, pool.Count)];
+                    CardData handCardData = CardDatabase.GetCardById(selectedID, User);
+
+                    if (handCardData == null)
+                    {
+                        UnityEngine.Debug.LogWarning($"[Combat Alchemy] Card not found: {selectedID}");
+                        return;
+                    }
+
+                    UnityEngine.Debug.Log($"[Combat Alchemy] Generated: {handCardData.cardName}");
+
+                    // Instantiate into hand for immediate use
+                    GameObject handGO = UnityEngine.Object.Instantiate(
+                        DeckManager.Instance.cardPrefab,
+                        DeckManager.Instance.deckParent);
+                    handGO.name = handCardData.cardName;
+                    CardScript handCS = handGO.GetComponent<CardScript>();
+                    handCS.cardData = handCardData;
+                    HandManager.Instance.AddCard(handGO);
+                    handCS.SetRevealed();
+
+                    // Instantiate a second copy into the deck (persists for future draws)
+                    CardData deckCardData = CardDatabase.GetCardById(selectedID, User);
+                    GameObject deckGO = UnityEngine.Object.Instantiate(
+                        DeckManager.Instance.cardPrefab,
+                        DeckManager.Instance.deckParent);
+                    deckGO.name = deckCardData.cardName;
+                    CardScript deckCS = deckGO.GetComponent<CardScript>();
+                    deckCS.cardData = deckCardData;
+                    deckCS.SetHidden();
+                    TransformUtility.ZeroLocalRectTransform(deckGO.transform as RectTransform);
+                    DeckManager.Instance.cardStack.Push(deckGO);
+                }
+            });
         }
 
         private static void RegisterSpells()
@@ -300,8 +391,8 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 5,
-                power_u = 20,
+                cost_u = 10,
+                power_u = 15,
                 duration_u = 2,
                 range_u = 3f,
                 area_u = 2f,
@@ -338,7 +429,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 30,
-                healing_u = 80,
+                healing_u = 25,
                 range_u = 3f,
                 area_u = 2f,
 
@@ -368,8 +459,8 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
-                healing_u = 100,
+                cost_u = 15,
+                healing_u = 40,
                 range_u = 2f,
 
                 targetingData = new()
@@ -396,9 +487,9 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
+                cost_u = 20,
                 duration_u = 3,
-                power_u = 100, // +MaxHealth
+                power_u = 75,
                 range_u = 2f,
 
                 targetingData = new()
@@ -431,9 +522,9 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
+                cost_u = 25,
                 duration_u = 0,
-                power_u = 100,
+                power_u = 50,
                 range_u = 2f,
 
                 targetingData = new()
@@ -443,7 +534,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Permanently increase Max Health by {d.Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Permanently increase Max Health by {Power}.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -466,8 +557,8 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 1,
-                power_u = 150,
+                cost_u = 5,
+                power_u = 30,
                 range_u = 2f,
 
                 targetingData = new()
@@ -495,9 +586,8 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 20,
-                
                 duration_u = 3,
-                power_u = 50,
+                power_u = 25,
 
 
                 range_u = 2f,
@@ -532,11 +622,11 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
+                cost_u = 20,
 
                 duration_u = 1,
 
-                power_u = 60,
+                power_u = 20,
 
                 range_u = 2f,
 
@@ -572,7 +662,7 @@ namespace facingfate
 
                 cost_u = 10,
                 duration_u = 1,
-                power_u = 100,
+                power_u = 50,
                 range_u = 2f,
 
                 targetingData = new()
@@ -582,7 +672,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Ally gains +{d.Power} armour for this turn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Ally gains +{Power} Armour for this turn.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -605,9 +695,9 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
+                cost_u = 18,
                 duration_u = 3,
-                power_u = 100,
+                power_u = 50,
                 range_u = 2f,
 
                 targetingData = new()
@@ -617,7 +707,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Ally gains +{d.Power} Armour for {d.Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Ally gains +{Power} Armour for {Duration} turns.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -640,9 +730,9 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
+                cost_u = 22,
                 duration_u = 0,
-                power_u = 100,
+                power_u = 35,
                 range_u = 2f,
 
                 targetingData = new()
@@ -652,7 +742,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Permanently increase Armour by {d.Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Permanently increase Armour by {Power}.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -677,7 +767,7 @@ namespace facingfate
 
                 cost_u = 10,
                 duration_u = 1,
-                power_u = 100,
+                power_u = 30,
                 range_u = 2f,
 
                 targetingData = new()
@@ -687,7 +777,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Ally gains +{d.Power} damage for this turn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Ally gains +{Power} damage for this turn.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -712,9 +802,9 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
+                cost_u = 18,
                 duration_u = 3,
-                power_u = 100,
+                power_u = 30,
                 range_u = 2f,
 
                 targetingData = new()
@@ -724,7 +814,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Ally gains +{d.Power} damage for {d.Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Ally gains +{Power} damage for {Duration} turns.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -747,9 +837,9 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
-                cost_u = 10,
+                cost_u = 22,
                 duration_u = 0,
-                power_u = 100,
+                power_u = 20,
                 range_u = 2f,
 
                 targetingData = new()
@@ -759,7 +849,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Permanently increase damage by {d.Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Permanently increase damage by {Power}.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -812,8 +902,8 @@ namespace facingfate
 
                 cost_u = 30,
 
-                damage_u = 2,
-                duration_u = 3,
+                damage_u = 5,
+                duration_u = 4,
 
                 range_u = 4f,
                 radius_u = 3f,

@@ -24,8 +24,8 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 20,
-                damage_u = 20,
+                cost_u = 25,
+                damage_u = 12,
                 repeats_u = 2,
 
                 range_u = 6f,
@@ -41,7 +41,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Radius,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage {Repeats} times",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage {Repeats} times to all enemies in the area.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -59,7 +59,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Melee },
 
                 cost_u = 25,
-                damage_u = 50,
+                damage_u = 40,
 
                 range_u = 5f,
                 area_u = 1f,
@@ -93,7 +93,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 45,
+                damage_u = 70,
 
                 range_u = 4f,
                 power_u = 3,
@@ -164,7 +164,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 20,
-                damage_u = 30,
+                damage_u = 12,
 
                 range_u = 1.2f,
                 area_u = 1f,
@@ -173,10 +173,10 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage, Inflict 5 Burn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to enemies in a ring. Inflict 5 Burn.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -201,8 +201,8 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 20,
-                damage_u = 5,
+                cost_u = 22,
+                damage_u = 14,
 
                 //Slow Movement Cost increase
                 power_u = 1,
@@ -215,10 +215,10 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Cone,
+                    cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage in a ring and increase movement cost of enemies hit.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -247,7 +247,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 25,
+                damage_u = 22,
 
                 range_u = 4f,
                 area_u = 40f,
@@ -255,12 +255,12 @@ namespace facingfate
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.Entity,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Cone,
+                    cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to all enemies in a ring.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -278,8 +278,8 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 10,
-                damage_u = 60,
+                cost_u = 20,
+                damage_u = 12,
 
                 range_u = 3f,
                 radius_u = 2f,
@@ -359,7 +359,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 36,
-                damage_u = 60,
+                damage_u = 20,
 
                 duration_u = 2,
 
@@ -459,7 +459,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 20,
-                damage_u = 50,
+                damage_u = 60,
 
                 duration_u = 1,
                 charges_u = 1,
@@ -514,7 +514,7 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 20,
+                cost_u = 12,
                 duration_u = 1,
 
                 targetingData = new()
@@ -529,7 +529,7 @@ namespace facingfate
                     PowerOverrideValue = 80,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"On next ranged technique recieved this round reduce the damage to 0",
+                cardDescriptionAction = (User, d) => d.cardDescription = $"On next ranged technique received this round, reduce the damage to 0.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -566,8 +566,8 @@ namespace facingfate
                 range_u = 2f,
 
                 cost_u = 20,
-                power_u = 50,
-                duration_u = 1,
+                power_u = 30,
+                duration_u = 2,
 
                 targetingData = new()
                 {
@@ -576,7 +576,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Taunt target and gain {Power} Armour for {Duration} turn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Taunt target and gain {Power} Armour for {Duration} turns.",
 
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -611,8 +611,8 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
-                cost_u = 8,
-                damage_u = 10,
+                cost_u = 12,
+                damage_u = 30,
 
                 targetingData = new()
                 {
@@ -623,7 +623,7 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) =>
                 {
-                    d.cardDescription = "On next hit this turn, counter for {Damage}.";
+                    d.cardDescription = "On next hit received this turn, counter for {Damage}.";
                 },
 
                 cardEffectAction = (User, Target, d) =>
@@ -659,8 +659,8 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 40,
-                power_u = 10,
-                damage_u = 10,
+                power_u = 15,
+                damage_u = 15,
                 duration_u = 3,
 
                 radius_u = 2f,
