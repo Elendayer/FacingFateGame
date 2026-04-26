@@ -15,7 +15,7 @@ namespace facingfate
         [Header("Scene Names")]
         [SerializeField] private string tutorialScene = "Tutorial";
         [SerializeField] private string presetEncounterScene = "Gameplay_Combat_Map";
-        [SerializeField] private string randomEncounterScene = "";
+        [SerializeField] private string randomEncounterScene = "RandomEncounter_Map";
 
         [Header("First Selected Button")]
         [SerializeField] private GameObject firstSelectedButton;

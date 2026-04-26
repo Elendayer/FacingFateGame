@@ -89,10 +89,11 @@ namespace facingfate
 
             while (spent < budget && availableSpawnIndices.Count > 0)
             {
-                NpcPoolEntry candidate = npcPool[Random.Range(0, npcPool.Count)];
-
-                if (candidate.powerValue > budget - spent)
+                List<NpcPoolEntry> affordable = npcPool.FindAll(e => e != null && !string.IsNullOrEmpty(e.npcId) && e.powerValue <= budget - spent);
+                if (affordable.Count == 0)
                     break;
+
+                NpcPoolEntry candidate = affordable[Random.Range(0, affordable.Count)];
 
                 int pick = Random.Range(0, availableSpawnIndices.Count);
                 int spawnIndex = availableSpawnIndices[pick];
@@ -101,6 +102,9 @@ namespace facingfate
                 SpawnEnemy(candidate.npcId, enemySpawnPoints[spawnIndex].position);
                 spent += candidate.powerValue;
             }
+
+            if (spent == 0)
+                Debug.LogWarning("[RandomEncounterManager] No enemies spawned — check pool power values vs. budget range.");
 
             Debug.Log($"[RandomEncounterManager] Done. Budget: {budget}, Spent: {spent}");
         }
@@ -128,7 +132,7 @@ namespace facingfate
             }
 
             List<string> deck = BuildRandomDeck();
-            data.cardIds = deck;
+            data.cardIds = new List<string>(deck);
 
             entity.usePresetConfig = true;
             entity.entityAffiliation = EntityAffiliation.Enemy;
