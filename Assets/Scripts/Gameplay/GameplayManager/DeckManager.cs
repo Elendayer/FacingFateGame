@@ -1,10 +1,9 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Mathematics;
 
 namespace facingfate
 {
@@ -26,17 +25,17 @@ namespace facingfate
         }
 
         /// <summary>
-        /// Stores the saved order of deck and discard cards for each entity.
+        /// Stores the deck and discard stacks for each entity.
         /// </summary>
         private struct DeckOrderData
         {
-            public List<GameObject> DeckOrder { get; set; }
-            public List<GameObject> DiscardOrder { get; set; }
+            public Stack<GameObject> DeckOrder { get; set; }
+            public Stack<GameObject> DiscardOrder { get; set; }
 
-            public DeckOrderData(List<GameObject> deckOrder, List<GameObject> discardOrder)
+            public DeckOrderData(Stack<GameObject> deckOrder, Stack<GameObject> discardOrder)
             {
-                DeckOrder = deckOrder ?? new List<GameObject>();
-                DiscardOrder = discardOrder ?? new List<GameObject>();
+                DeckOrder = deckOrder ?? new Stack<GameObject>();
+                DiscardOrder = discardOrder ?? new Stack<GameObject>();
             }
         }
 
@@ -54,9 +53,11 @@ namespace facingfate
         private Dictionary<EntityScript, EntityDeckStorage> DeckManagement = new Dictionary<EntityScript, EntityDeckStorage>();
         private Dictionary<EntityScript, DeckOrderData> DeckOrderManagement = new Dictionary<EntityScript, DeckOrderData>();
 
+        // Reference to the current player's deck stacks (updated when moving deck in/out)
         public Stack<GameObject> cardStack = new Stack<GameObject>();
         public Stack<GameObject> discardStack = new Stack<GameObject>();
 
+        private EntityScript currentPlayerEntity = null;
         private bool listenersAdded = false;
 
         void Start()
@@ -377,33 +378,36 @@ namespace facingfate
             Debug.Log($"[DeckManager] Shuffled {cards.Count} discarded cards back into the deck.");
         }
 
-        public void Player_MoveOutDeck(EntityScript entity)
+        private IEnumerator Player_MoveOutDeck_Coroutine(EntityScript entity)
         {
             if (entity == null || !DeckManagement.ContainsKey(entity))
-                return;
+                yield break;
 
             var deckStorage = DeckManagement[entity];
             Transform dockDeck = deckStorage.Deck;
             Transform dockDiscard = deckStorage.Discard;
 
             if (dockDeck == null || dockDiscard == null)
-                return;
+                yield break;
 
             // Save the current deck order before moving cards out
             SaveDeckOrder(entity);
 
             // Move deck cards
             var deckCards = new List<GameObject>(cardStack);
-            MoveCardsToTransform(deckCards, dockDeck);
+            yield return StartCoroutine(MoveCardsToTransform_Coroutine(deckCards, dockDeck));
             cardStack.Clear();
 
             // Move discard cards
             var discardCards = new List<GameObject>(discardStack);
-            MoveCardsToTransform(discardCards, dockDiscard);
+            yield return StartCoroutine(MoveCardsToTransform_Coroutine(discardCards, dockDiscard));
             discardStack.Clear();
+
+            // Wait for UI layout to update
+            yield return new WaitForEndOfFrame();
         }
 
-        private void MoveCardsToTransform(List<GameObject> cards, Transform target)
+        private IEnumerator MoveCardsToTransform_Coroutine(List<GameObject> cards, Transform target)
         {
             foreach (GameObject card in cards)
             {
@@ -413,126 +417,150 @@ namespace facingfate
                     if (!card.activeInHierarchy)
                         card.SetActive(true);
 
-                                 card.transform.SetParent(target);
-                                TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
-                            }
-                        }
-                    }
+                    card.transform.SetParent(target);
+                    TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
+                }
+                yield return null;
+            }
+        }
 
-                    /// <summary>
-                    /// Saves the current deck and discard order for an entity.
-                    /// This preserves the exact sequence of cards so it can be restored later.
-                    /// </summary>
-                    private void SaveDeckOrder(EntityScript entity)
-                    {
-                        if (entity == null)
-                            return;
+        /// <summary>
+        /// Saves the current deck and discard order for an entity as stacks.
+        /// This preserves the exact sequence of cards so it can be restored later.
+        /// </summary>
+        private void SaveDeckOrder(EntityScript entity)
+        {
+            if (entity == null)
+                return;
 
-                        // Convert stack to list to preserve order
-                        List<GameObject> deckOrder = new List<GameObject>(cardStack);
-                        List<GameObject> discardOrder = new List<GameObject>(discardStack);
+            // Create new stacks by copying current ones
+            // Stack(IEnumerable) reverses the order, so we reverse twice to maintain proper order
+            Stack<GameObject> deckOrder = new Stack<GameObject>();
+            Stack<GameObject> discardOrder = new Stack<GameObject>();
 
-                        DeckOrderManagement[entity] = new DeckOrderData(deckOrder, discardOrder);
-                        Debug.Log($"[DeckManager] Saved deck order for {entity.name}: {deckOrder.Count} deck cards, {discardOrder.Count} discard cards");
-                    }
+            // Copy cardStack
+            var deckList = new List<GameObject>(cardStack);
+            deckList.Reverse();
+            foreach (var card in deckList)
+                deckOrder.Push(card);
 
-                    /// <summary>
-                    /// Restores the saved deck and discard order for an entity.
-                    /// The GameObject positions are based on the saved list order, not transform hierarchy.
-                    /// </summary>
-                    private void RestoreDeckOrder(EntityScript entity, Transform dockDeck, Transform dockDiscard)
-                    {
-                        if (entity == null || !DeckOrderManagement.ContainsKey(entity))
-                        {
-                            Debug.LogWarning($"[DeckManager] No saved deck order found for {entity?.name}. Using fallback retrieval.");
-                            RestoreDeckOrderFallback(entity, dockDeck, dockDiscard);
-                            return;
-                        }
+            // Copy discardStack
+            var discardList = new List<GameObject>(discardStack);
+            discardList.Reverse();
+            foreach (var card in discardList)
+                discardOrder.Push(card);
 
-                        var deckOrderData = DeckOrderManagement[entity];
+            DeckOrderManagement[entity] = new DeckOrderData(deckOrder, discardOrder);
+            Debug.Log($"[DeckManager] Saved deck order for {entity.name}: {deckOrder.Count} deck cards, {discardOrder.Count} discard cards");
+        }
 
-                        // Restore deck cards in saved order
-                        foreach (GameObject card in deckOrderData.DeckOrder)
-                        {
-                            if (card != null && card.activeInHierarchy)
-                            {
-                                RectTransform ct = card.GetComponent<RectTransform>();
-                                ct.SetParent(deckParent);
-                                TransformUtility.ZeroLocalRectTransform(ct);
-                                cardStack.Push(card);
-                            }
-                        }
+        /// <summary>
+        /// Restores the saved deck and discard order for an entity.
+        /// The stacks maintain the exact order of cards for proper drawing.
+        /// </summary>
+        private void RestoreDeckOrder(EntityScript entity, Transform dockDeck, Transform dockDiscard)
+        {
+            if (entity == null || !DeckOrderManagement.ContainsKey(entity))
+            {
+                Debug.LogWarning($"[DeckManager] No saved deck order found for {entity?.name}. Using fallback retrieval.");
+                RestoreDeckOrderFallback(entity, dockDeck, dockDiscard);
+                return;
+            }
 
-                        // Restore discard cards in saved order
-                        foreach (GameObject card in deckOrderData.DiscardOrder)
-                        {
-                            if (card != null && card.activeInHierarchy)
-                            {
-                                RectTransform ct = card.GetComponent<RectTransform>();
-                                ct.SetParent(discardParent);
-                                TransformUtility.ZeroLocalRectTransform(ct);
-                                discardStack.Push(card);
-                            }
-                        }
+            var deckOrderData = DeckOrderManagement[entity];
 
-                        Debug.Log($"[DeckManager] Restored deck order for {entity.name}: {deckOrderData.DeckOrder.Count} deck cards, {deckOrderData.DiscardOrder.Count} discard cards");
-                    }
+            // Clear current stacks
+            cardStack.Clear();
+            discardStack.Clear();
 
-                    /// <summary>
-                    /// Fallback method to restore deck order if saved data is unavailable.
-                    /// Retrieves cards from transform hierarchy using GetComponentsInChildren.
-                    /// </summary>
-                    private void RestoreDeckOrderFallback(EntityScript entity, Transform dockDeck, Transform dockDiscard)
-                    {
-                        // Get all cards from the Deck child
-                        List<CardScript> deckCards = dockDeck.GetComponentsInChildren<CardScript>()
-                            .Where(c => c.cardData != null && c.cardData.Owner == entity)
-                            .ToList();
+            // Restore deck cards from the saved stack by copying
+            var deckList = new List<GameObject>(deckOrderData.DeckOrder);
+            foreach (GameObject card in deckList)
+            {
+                if (card != null && card.activeInHierarchy)
+                {
+                    RectTransform ct = card.GetComponent<RectTransform>();
+                    ct.SetParent(dockDeck);
+                    TransformUtility.ZeroLocalRectTransform(ct);
+                    cardStack.Push(card);
+                }
+            }
 
-                        // Get all cards from the Discard child
-                        List<CardScript> discardCards = dockDiscard.GetComponentsInChildren<CardScript>()
-                            .Where(c => c.cardData != null && c.cardData.Owner == entity)
-                            .ToList();
+            // Restore discard cards from the saved stack by copying
+            var discardList = new List<GameObject>(deckOrderData.DiscardOrder);
+            foreach (GameObject card in discardList)
+            {
+                if (card != null && card.activeInHierarchy)
+                {
+                    RectTransform ct = card.GetComponent<RectTransform>();
+                    ct.SetParent(dockDiscard);
+                    TransformUtility.ZeroLocalRectTransform(ct);
+                    discardStack.Push(card);
+                }
+            }
 
-                        // Move Deck cards to cardStack
-                        foreach (CardScript c in deckCards)
-                        {
-                            if (c.gameObject == null) continue;
+            Debug.Log($"[DeckManager] Restored deck order for {entity.name}: {cardStack.Count} deck cards, {discardStack.Count} discard cards");
+        }
 
-                            c.cardData.Owner = entity;
-                            RectTransform ct = c.GetComponent<RectTransform>();
+        /// <summary>
+        /// Fallback method to restore deck order if saved data is unavailable.
+        /// Retrieves cards from transform hierarchy using GetComponentsInChildren.
+        /// </summary>
+        private void RestoreDeckOrderFallback(EntityScript entity, Transform dockDeck, Transform dockDiscard)
+        {
+            // Get all cards from the Deck child
+            List<CardScript> deckCards = dockDeck.GetComponentsInChildren<CardScript>()
+                .Where(c => c.cardData != null && c.cardData.Owner == entity)
+                .ToList();
 
-                            // Ensure card is active
-                            if (!c.gameObject.activeInHierarchy)
-                                c.gameObject.SetActive(true);
+            // Get all cards from the Discard child
+            List<CardScript> discardCards = dockDiscard.GetComponentsInChildren<CardScript>()
+                .Where(c => c.cardData != null && c.cardData.Owner == entity)
+                .ToList();
 
-                            ct.SetParent(deckParent);
-                            TransformUtility.ZeroLocalRectTransform(ct);
-                            cardStack.Push(ct.gameObject);
-                        }
+            // Clear current stacks
+            cardStack.Clear();
+            discardStack.Clear();
 
-                        // Move Discard cards to discardStack
-                        foreach (CardScript c in discardCards)
-                        {
-                            if (c.gameObject == null) continue;
+            // Move Deck cards to cardStack (push in order for proper stack)
+            foreach (CardScript c in deckCards)
+            {
+                if (c.gameObject == null) continue;
 
-                            c.cardData.Owner = entity;
-                            RectTransform ct = c.GetComponent<RectTransform>();
+                c.cardData.Owner = entity;
+                RectTransform ct = c.GetComponent<RectTransform>();
 
-                            // Ensure card is active
-                            if (!c.gameObject.activeInHierarchy)
-                                c.gameObject.SetActive(true);
+                // Ensure card is active
+                if (!c.gameObject.activeInHierarchy)
+                    c.gameObject.SetActive(true);
 
-                            ct.SetParent(discardParent);
-                            TransformUtility.ZeroLocalRectTransform(ct);
-                            discardStack.Push(ct.gameObject);
-                        }
-                    }
+                ct.SetParent(dockDeck);
+                TransformUtility.ZeroLocalRectTransform(ct);
+                cardStack.Push(ct.gameObject);
+            }
 
-        public void Player_MoveInDeck(EntityScript entity)
+            // Move Discard cards to discardStack (push in order for proper stack)
+            foreach (CardScript c in discardCards)
+            {
+                if (c.gameObject == null) continue;
+
+                c.cardData.Owner = entity;
+                RectTransform ct = c.GetComponent<RectTransform>();
+
+                // Ensure card is active
+                if (!c.gameObject.activeInHierarchy)
+                    c.gameObject.SetActive(true);
+
+                ct.SetParent(dockDiscard);
+                TransformUtility.ZeroLocalRectTransform(ct);
+                discardStack.Push(ct.gameObject);
+            }
+        }
+
+        private IEnumerator Player_MoveInDeck_Coroutine(EntityScript entity)
         {
             if (entity == null || !DeckManagement.ContainsKey(entity))
-                return;
+                yield break;
 
             cardStack.Clear();
             discardStack.Clear();
@@ -542,50 +570,67 @@ namespace facingfate
             Transform dockDiscard = deckStorage.Discard;
 
             if (dockDeck == null || dockDiscard == null)
-                return;
+                yield break;
 
             Debug.Log($"[DeckManager] Moving cards into deck of {entity.name}");
 
             // Restore deck and discard order from saved data
             RestoreDeckOrder(entity, dockDeck, dockDiscard);
+
+            // Wait for UI layout to update
+            yield return new WaitForEndOfFrame();
         }
 
-        public void StartTurn(EntityScript entity)
+        public Coroutine StartTurn(EntityScript entity)
         {
             if (entity == null || !(entity is PlayerScript))
-                return;
+                return null;
 
-            Player_MoveInDeck(entity);
+            return StartCoroutine(StartTurn_Coroutine(entity));
+        }
 
-            // Draw opening hand
+        private IEnumerator StartTurn_Coroutine(EntityScript entity)
+        {
+            // Move deck in with proper timing
+            yield return Player_MoveInDeck_Coroutine(entity);
 
+            // Draw opening hand after deck is properly loaded
             int initialDrawCount = Mathf.Max(1, Mathf.FloorToInt(entity.entityStats.CurrentWisdom / 2f));
 
             for (int i = 0; i < initialDrawCount; i++)
             {
                 Player_DrawTopCard();
+                yield return new WaitForEndOfFrame();
             }
         }
-        public void EndTurn(EntityScript entity)
+        public Coroutine EndTurn(EntityScript entity)
         {
             if (entity == null)
-                return;
+                return null;
 
             // Only process player turn end
             if (!(entity is PlayerScript))
-                return;
+                return null;
 
             // Verify it's actually the player's turn
             if (TurnManager.Instance.CurrentTurnEntity != entity)
-                return;
+                return null;
 
+            return StartCoroutine(EndTurn_Coroutine(entity));
+        }
+
+        private IEnumerator EndTurn_Coroutine(EntityScript entity)
+        {
             // Move any remaining cards in hand to discard
             HandManager.Instance.DiscardAllInHand();
+
+            // Wait for discard animation/layout
+            yield return new WaitForEndOfFrame();
 
             // Move out the deck for storage
             // NOTE: Discard pile is NOT reshuffled here - it will only be reshuffled
             // when a player tries to draw and the deck is empty (see HandUtility.Draw())
-            Player_MoveOutDeck(entity);
+            yield return Player_MoveOutDeck_Coroutine(entity);
         }
         #endregion
     }

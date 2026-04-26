@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -103,7 +104,6 @@ namespace facingfate
         {
             if (combatEnded || TurnOrder.Count == 0) return;
 
-
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
             GameEvents.TriggerTurnEntityChanged(TurnOrder[CurrentTurnIndex]);
@@ -111,9 +111,22 @@ namespace facingfate
             if (TurnOrder[CurrentTurnIndex].GetComponent<PlayerScript>() != null)
                 GameEvents.TriggerActivePlayerChanged(TurnOrder[CurrentTurnIndex]);
 
-            // Start the Turn for the Current Entity
-            DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
-            TurnOrder[CurrentTurnIndex].StartTurn();
+            // Start the Turn for the Current Entity - use coroutine for player, direct call for others
+            var startTurnCoroutine = DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
+            if (startTurnCoroutine != null)
+            {
+                StartCoroutine(WaitForTurnStartThenContinue(TurnOrder[CurrentTurnIndex], startTurnCoroutine));
+            }
+            else
+            {
+                TurnOrder[CurrentTurnIndex].StartTurn();
+            }
+        }
+
+        private IEnumerator WaitForTurnStartThenContinue(EntityScript entity, Coroutine deckCoroutine)
+        {
+            yield return deckCoroutine;
+            entity.StartTurn();
         }
 
         private void OnTurnEnd()
@@ -126,8 +139,25 @@ namespace facingfate
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
 
             // End the Turn for the current Entity
-            DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
+            var endTurnCoroutine = DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
+            if (endTurnCoroutine != null)
+            {
+                StartCoroutine(WaitForTurnEndThenContinue(endTurnCoroutine));
+            }
+            else
+            {
+                ProgressToNextTurn();
+            }
+        }
 
+        private IEnumerator WaitForTurnEndThenContinue(Coroutine deckCoroutine)
+        {
+            yield return deckCoroutine;
+            ProgressToNextTurn();
+        }
+
+        private void ProgressToNextTurn()
+        {
             //Increment Turn Order
             CurrentTurnIndex++;
             if (CurrentTurnIndex >= TurnOrder.Count)
