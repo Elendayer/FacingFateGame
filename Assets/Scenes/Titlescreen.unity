@@ -6716,7 +6716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4414970617586815438, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
       propertyPath: m_SortingLayer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4414970617586815438, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
       propertyPath: m_SortingOrder
@@ -6734,6 +6734,10 @@ PrefabInstance:
       propertyPath: m_RenderingLayerMask
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: 4414970617586815438, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
       propertyPath: prewarm
       value: 1
@@ -6747,7 +6751,15 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
+      propertyPath: UVModule.enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
       propertyPath: UVModule.timeMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
+      propertyPath: ColorModule.enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
@@ -6797,6 +6809,18 @@ PrefabInstance:
     - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
       propertyPath: UVModule.frameOverTime.minMaxState
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 0.84883225
+      objectReference: {fileID: 0}
+    - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 0.49371064
+      objectReference: {fileID: 0}
+    - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5394191413390374784, guid: ec66fba4027b2e04b914ce8c06503c30, type: 3}
       propertyPath: ColorModule.gradient.maxGradient.atime1

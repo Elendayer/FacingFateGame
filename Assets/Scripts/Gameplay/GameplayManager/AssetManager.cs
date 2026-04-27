@@ -11,6 +11,8 @@ namespace facingfate
         public Sprite HexThin;
         public Sprite HexThick;
 
+        public GameObject CorspePrefab;
+
         [System.Serializable]
         public struct AssetEntry
         {
@@ -103,8 +105,6 @@ namespace facingfate
             }
 
             vfx.obj.transform.position = position;
-
-            ApplyVFXData(vfx.effect, vfxData);
         }
         public void CreateVFXAtIndividualPositions(VFXData vfxData, List<Vector3> positions)
         {
@@ -119,8 +119,6 @@ namespace facingfate
                 }
 
                 vfx.obj.transform.position = pos;
-
-                ApplyVFXData(vfx.effect, vfxData);
             }
         }
 
@@ -138,8 +136,6 @@ namespace facingfate
 
                 vfx.obj.transform.SetParent(host.transform);
                 vfx.obj.transform.localPosition = Vector3.zero;
-
-                ApplyVFXData(vfx.effect, vfxData);
             }
         }
         public void CreateVFXAttachedToGameObjects(VFXData vfxData, List<EntityScript> hosts)
@@ -156,8 +152,6 @@ namespace facingfate
 
                 vfx.obj.transform.SetParent(host.transform);
                 vfx.obj.transform.localPosition = Vector3.zero;
-
-                ApplyVFXData(vfx.effect, vfxData);
             }
         }
 

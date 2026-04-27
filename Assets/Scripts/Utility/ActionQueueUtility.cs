@@ -7,6 +7,12 @@ namespace facingfate
 {
     public static class ActionQueueUtility
     {
+        //Remove all Actions by an EntityScript
+        public static void ClearActionsBySource(EntityScript source)
+        {
+            TimelineManager.GlobalActionQueue.ClearActionsBySource(source);
+        }
+
         public static void EnqueueCardExecution(
             EntityScript source,
             CardData cardData,
@@ -17,7 +23,7 @@ namespace facingfate
             )
         {
             // Wrap all steps in a coroutine to allow async completion
-            TimelineManager.GlobalActionQueue.Enqueue(() => CardExecutionCoroutine(source, cardData, targetingData, cardObj, repeatDelay, onComplete));
+            TimelineManager.GlobalActionQueue.Enqueue(() => CardExecutionCoroutine(source, cardData, targetingData, cardObj, repeatDelay, onComplete), 0f, source);
         }
 
         private static IEnumerator CardExecutionCoroutine(
@@ -140,7 +146,8 @@ namespace facingfate
             NavMeshPathData pathData,
             Action onComplete = null)
         {
-            TimelineManager.GlobalActionQueue.Enqueue(() => MoveCoroutine(entityOnMap, pathData, onComplete));
+            EntityScript source = entityOnMap.GetComponent<EntityScript>();
+            TimelineManager.GlobalActionQueue.Enqueue(() => MoveCoroutine(entityOnMap, pathData, onComplete), 0f, source);
         }
 
         private static IEnumerator ActionCoroutine(
@@ -155,7 +162,8 @@ namespace facingfate
         Func<IEnumerator> action,
         Action onComplete = null)
         {
-            TimelineManager.GlobalActionQueue.Enqueue(() => ActionCoroutine(action, onComplete));
+            EntityScript entitySource = source as EntityScript;
+            TimelineManager.GlobalActionQueue.Enqueue(() => ActionCoroutine(action, onComplete), 0f, entitySource);
         }
 
         // Simple action enqueue
@@ -168,6 +176,50 @@ namespace facingfate
                 value.Invoke();
             },
             delay);
+        }
+
+        /// <summary>
+        /// Simple action enqueue with source entity tracking
+        /// </summary>
+        public static void EnqueueAction(
+            Action value,
+            float delay,
+            EntityScript source)
+        {
+            TimelineManager.GlobalActionQueue.Enqueue(() =>
+            {
+                value.Invoke();
+            },
+            delay,
+            source);
+        }
+
+        /// <summary>
+        /// Enqueue a priority action (executed before non-priority actions). Useful for reactions like counters.
+        /// </summary>
+        public static void EnqueuePriorityAction(
+            Action value,
+            float delay = 0f,
+            EntityScript source = null)
+        {
+            TimelineManager.GlobalActionQueue.EnqueuePriority(() =>
+            {
+                value.Invoke();
+            },
+            delay,
+            source);
+        }
+
+        /// <summary>
+        /// Enqueue a priority action routine (executed before non-priority actions). Useful for reactions like counters.
+        /// </summary>
+        public static void EnqueuePriorityActionRoutine(
+            MonoBehaviour source,
+            Func<IEnumerator> action,
+            Action onComplete = null)
+        {
+            EntityScript entitySource = source as EntityScript;
+            TimelineManager.GlobalActionQueue.EnqueuePriority(() => ActionCoroutine(action, onComplete), 0f, entitySource);
         }
     }
 }

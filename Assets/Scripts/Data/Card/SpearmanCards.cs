@@ -314,8 +314,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 10,
-                power_u = 10,
-
+                
                 duration_u = 1,
 
                 targetingData = new()
@@ -330,7 +329,7 @@ namespace facingfate
                     PowerOverrideValue = 80,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Increses attack damage by {Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Increses attack damage by {20}%.",
     
                 cardEffectAction = (User, Target, d) =>
                 {
@@ -589,10 +588,26 @@ namespace facingfate
                         value: d.Power,
                         duration: d.Duration
                         ),
-                        ModifierMergeStrategy.RefreshDurationAndMerge);
+                        ModifierMergeStrategy.AddUnique);
 
                     // Apply Taunt
-                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Taunted", CloneMode.Defaults, d, ThroughputSource.Power, User), ModifierMergeStrategy.Override);
+
+                    var taunt  = new EntityModifier
+                    (
+                        modifierName: "Taunt",
+                        owner: User,
+                        duration: d.Duration,
+                        onApply_Action: (target, cd, value) =>
+                        {
+                            target.entityStats.tauntTarget = d.Owner;
+                        },
+                        onRemove_Action: (target, cd, value) =>
+                        {
+                            target.entityStats.tauntTarget = null;
+                        }
+                    );
+
+                    CombatUtility.ApplyEntityModifier(d, Target, taunt, ModifierMergeStrategy.Override);
                 },
                 cardVfx = (Data, Target) =>
                 {
@@ -678,11 +693,11 @@ namespace facingfate
                 {
                     CombatUtility.ApplyStatBuff(d, Target,
                         new StatModifier(
-                        name: "ArmourFlat",
+                        name: "Armour",
                         stat: Target.entityStats.Armour_Flat,
                         value: d.Power,
                         duration: d.Duration),
-                        ModifierMergeStrategy.RefreshDurationAndMerge);
+                        ModifierMergeStrategy.AddUnique);
 
                     CombatUtility.ApplyEntityModifier(d, Target,
                         new EntityModifier(
@@ -784,7 +799,7 @@ namespace facingfate
                         value: d.Power,
                         duration: d.Duration);
 
-                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.AddUnique);
 
                     // To-Do Increase Aggro
                 },

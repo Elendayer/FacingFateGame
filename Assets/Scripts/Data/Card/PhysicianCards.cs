@@ -1003,7 +1003,6 @@ namespace facingfate
                 CardAiBias = new CardAiBias
                 {
                     DamageOverrideValue = 40
-
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Create a cloud of poison, inflicing Poison dealing {Damage} for {Duration} turns.",
@@ -1042,7 +1041,13 @@ namespace facingfate
                         removeOnEnd: false,
                         modifier: mod,
                         onEnter: (modifier, target) => { },
-                        onExit: (modifier, target) => { }));
+                        onExit: (modifier, target) => { }),
+                        vfxData: new VFXData("PoisonCloud")
+                        {
+                            radius = d.Radius,
+                        }
+                    );
+
                 }
             });
         }

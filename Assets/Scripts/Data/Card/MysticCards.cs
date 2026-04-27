@@ -281,7 +281,7 @@ namespace facingfate
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Entity,
-                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                    CardTargetAffiliation = CardTargetAffiliation.AllyEnemy,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
                 cardDescriptionAction = (User, d) => d.cardDescription = "Switch positions with target.",

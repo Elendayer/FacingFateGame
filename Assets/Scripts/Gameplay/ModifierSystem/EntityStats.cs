@@ -1,4 +1,5 @@
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace facingfate
@@ -31,7 +32,7 @@ namespace facingfate
         public Stat BlockGain_Flat = new();
         public Stat BlockGain_Increase = new();
         public Stat BlockGain_Multiplier = new();
-        
+
         public float CurrentArmour => Armour_Flat.Value() * (1f + (Armour_Increase.Value() / 100f)) * GetMultiplierProduct(Armour_Multiplier);
 
         public Stat Armour_Flat = new();
@@ -269,39 +270,70 @@ namespace facingfate
                     if (Owner == null)
                         return;
 
-                    // Remove turn safely
+                    // 1. Mark entity as dead to prevent further interactions
+                    Owner.isDead = true;
+
+                    // 2. Clear all queued actions associated with this entity
+                    ActionQueueUtility.ClearActionsBySource(Owner);
+
+                    // 3. Remove turn safely
                     if (TurnManager.Instance != null)
                     {
                         TurnManager.Instance.RemoveTurn(Owner);
                     }
 
-                    // Disable entity on map component
-                    var entityOnMap = Owner.GetComponent<EntityOnMap>();
-                    if (entityOnMap != null)
-                    {
-                        entityOnMap.enabled = false;
-                    }
-
-                    // Disable the owner GameObject
-                    Owner.enabled = false;
-
-                    // Trigger death event - this will notify EncounterManager to check win/lose
-                    GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onDeath }, Owner, new() { Owner }));
-
-                    // Remove all modifiers
+                    // 4. Remove all modifiers
                     Owner.RemoveAllModifiers();
-
-                    // Reset rotation
-                    if (Owner.EntityModel != null)
-                    {
-                        Owner.EntityModel.transform.rotation = new();
-                    }
                 }
                 catch (System.Exception ex)
                 {
                     Debug.LogError($"Error during entity death handling for {Owner?.name}: {ex.Message}", Owner);
                 }
             });
+
+            // 5. Trigger death event - this will notify EncounterManager to check win/lose
+            // This must happen AFTER marking as dead but BEFORE removing the entity so that triggers can still reference it
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                try
+                {
+                    if (Owner != null)
+                    {
+                        GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onDeath }, Owner, new() { Owner }));
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"Error triggering death event for {Owner?.name}: {ex.Message}", Owner);
+                }
+            }, 0.2f);
+
+            // 6. Create corpse and remove entity
+            ActionQueueUtility.EnqueueAction(() =>
+            {
+                try
+                {
+                    if (Owner == null)
+                        return;
+
+                    GameObject corspe = GameObject.Instantiate(AssetManager.Instance.CorspePrefab, Owner.transform.position, quaternion.identity);
+                    corspe.transform.rotation = new quaternion(90, 0, 0, 0);
+                    corspe.transform.localScale = Owner.EntityModel.transform.localScale;
+                    MeshRenderer mr = corspe.GetComponent<MeshRenderer>();
+                    MeshFilter mf = corspe.GetComponent<MeshFilter>();
+
+                    mf.mesh = Owner.EntityModel.mesh;
+                    mr.materials = Owner.EntityRenderer.materials;
+
+                    // Disable the entity (don't destroy immediately to avoid serialization issues)
+                    Owner.gameObject.SetActive(false);
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"Error creating corpse for {Owner?.name}: {ex.Message}", Owner);
+                }
+            }, 
+            0.3f);       
         }
     }
 }

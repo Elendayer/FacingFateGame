@@ -456,7 +456,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3417937873002479015
 RectTransform:
   m_ObjectHideFlags: 0
@@ -589,8 +589,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Reduce Armour by 50%. Deal 30 Damage.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f9528e9e22df6e04c9a23fe845d00f84, type: 2}
-  m_sharedMaterial: {fileID: 575644227078918131, guid: f9528e9e22df6e04c9a23fe845d00f84, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3eb9d4a40d75b37428b89e716638d736, type: 2}
+  m_sharedMaterial: {fileID: 575644227078918131, guid: 3eb9d4a40d75b37428b89e716638d736, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1320,10 +1320,6 @@ MonoBehaviour:
     idInternal: 0
     valueGuidInternal: 
     WwiseObjectReference: {fileID: 0}
-  dragStartSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
 --- !u!120 &5920910117801388206
 LineRenderer:
   serializedVersion: 3
@@ -1622,8 +1618,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Enemy, 5.1m Range, 2.5 Meter Sphere
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f9528e9e22df6e04c9a23fe845d00f84, type: 2}
-  m_sharedMaterial: {fileID: 575644227078918131, guid: f9528e9e22df6e04c9a23fe845d00f84, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1647,7 +1643,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 6.25
+  m_fontSize: 7.1
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1709,7 +1705,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2102559444090881396
 RectTransform:
   m_ObjectHideFlags: 0

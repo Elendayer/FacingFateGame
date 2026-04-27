@@ -10,7 +10,7 @@ namespace facingfate
         public Collider groundEffectCollider;
 
         [Header("Ground Effect (Single)")]
-        public GroundEffectDataBase EffectData;
+        public GroundEffectData EffectData;
 
         private readonly HashSet<EntityScript> affectedEntities = new();
 
@@ -174,14 +174,13 @@ namespace facingfate
     // Base Ground Effect Data
     // =============================
     [System.Serializable]
-    public abstract class GroundEffectDataBase
+    public abstract class GroundEffectData
     {
         public CardData CardData;
         public RelevantTriggerCheck RelevantTrigger;
         public int Duration;
         public bool RemoveOnExit = true;
         public bool RemoveOnEnd = true;
-
     }
 
 
@@ -189,7 +188,7 @@ namespace facingfate
     // GroundEffects Enter / Exit Data
     // =============================
     [System.Serializable]
-    public class GroundEffect_Enter_EntityData : GroundEffectDataBase
+    public class GroundEffect_Enter_EntityData : GroundEffectData
     {
         public EntityModifier Modifier;
         public Action<EntityModifier, EntityScript> OnEnter;
@@ -209,7 +208,7 @@ namespace facingfate
     }
 
     [System.Serializable]
-    public class GroundEffect_Enter_StatData : GroundEffectDataBase
+    public class GroundEffect_Enter_StatData : GroundEffectData
     {
         public StatModifier Modifier;
         public Action<StatModifier, EntityScript> OnEnter;
@@ -228,7 +227,7 @@ namespace facingfate
         }
     }
 
-    public class GroundEffect_Enter_Effect : GroundEffectDataBase
+    public class GroundEffect_Enter_Effect : GroundEffectData
     {
         public StatModifier Modifier;
         public Action< EntityScript> OnEnter;
@@ -248,7 +247,7 @@ namespace facingfate
     // GroundEffects Reference Triggered
     // =============================
     [System.Serializable]
-    public class GroundEffect_Ref_EntityData : GroundEffectDataBase
+    public class GroundEffect_Ref_EntityData : GroundEffectData
     {
         public EntityModifier Modifier;
         public Action<EntityModifier, EntityScript> OnEnter;
@@ -268,7 +267,7 @@ namespace facingfate
     }
 
     [System.Serializable]
-    public class GroundEffect_Ref_StatData : GroundEffectDataBase
+    public class GroundEffect_Ref_StatData : GroundEffectData
     {
         public StatModifier Modifier;
         public Action<StatModifier, EntityScript> OnEnter;
@@ -287,7 +286,7 @@ namespace facingfate
         }
     }
 
-    public class GroundEffect_Ref_Effect : GroundEffectDataBase
+    public class GroundEffect_Ref_Effect : GroundEffectData
     {
         public StatModifier Modifier;
         public Action<EntityScript> OnRef;

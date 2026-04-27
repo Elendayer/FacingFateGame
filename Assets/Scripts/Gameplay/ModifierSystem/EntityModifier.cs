@@ -341,7 +341,8 @@ namespace facingfate
     {
         Damage,
         Heal,
-        Power
+        Power,
+        None,
     }
     public enum CloneMode
     {

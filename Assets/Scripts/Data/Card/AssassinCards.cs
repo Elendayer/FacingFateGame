@@ -32,8 +32,8 @@ namespace facingfate
 
                 cost_u = 15,
                 damage_u = 20,
-                range_u = 2f,
-                area_u = 2f,
+                range_u = 4f,
+                area_u = 0.5f,
 
                 targetingData = new()
                 {
@@ -181,7 +181,7 @@ namespace facingfate
 
                 cardEffectAction = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"));
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 },
             });
             // 100111 � Arrowshot � ranged hit
@@ -267,13 +267,13 @@ namespace facingfate
 
                 cardEffectAction = (User, Target, d) =>
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact"));
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
                 },
                 cardVfx = (Data, Target) =>
                 {
                     foreach (var entity in Target.targetedEntities)
                     {
-                        AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("ArrowShot") { start = Data.Owner.transform.position }, Target.targetedEntities );
+                        AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("ArrowShot") { start = Data.Owner.transform.position }, Target.targetedEntities);
                     }
                 }
             });
@@ -517,8 +517,6 @@ namespace facingfate
                     CombatUtility.SpawnGroundEffect(d, Target, new GroundEffect_Ref_Effect
                         (
                         cardData: d,
-
-
                         relevantTrigger: new RelevantTriggerCheck
                         {
                             OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -526,11 +524,11 @@ namespace facingfate
                             CheckEntity = User,
                         },
                         duration: d.Duration,
-                        onRef: (target) =>
-                        {
-                            CombatUtility.ApplyDamage(null, target, new VFXData ("Impact"), d.Damage);
-                        }
-                       ));
+                        onRef: (target) => CombatUtility.ApplyDamage(null, target, new VFXData("Impact"), d.Damage)
+                        ),
+                        vfxData: null
+                        );
+
                 }
             });
         }

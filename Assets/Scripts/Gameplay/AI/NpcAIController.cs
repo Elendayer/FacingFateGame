@@ -810,14 +810,11 @@ namespace facingfate
 
             return targetingAffiliation switch
             {
-                CardTargetAffiliation.Self => target == npcScript,
-                CardTargetAffiliation.Ally => target.entityAffiliation == npcScript.entityAffiliation && target != npcScript,
-                CardTargetAffiliation.AllyNeutral => (target.entityAffiliation == npcScript.entityAffiliation || target.entityAffiliation == EntityAffiliation.Neutral) && target != npcScript,
-                CardTargetAffiliation.Enemy => target.entityAffiliation != npcScript.entityAffiliation && target.entityAffiliation != EntityAffiliation.Neutral,
-                CardTargetAffiliation.EnemyNeutral => target.entityAffiliation != npcScript.entityAffiliation,
-                CardTargetAffiliation.AllyEnemy => target != npcScript,
+                CardTargetAffiliation.Self =>           target == npcScript,
+                CardTargetAffiliation.Ally =>           target.entityAffiliation == npcScript.entityAffiliation,
+                CardTargetAffiliation.Enemy =>          target.entityAffiliation != npcScript.entityAffiliation,
                 CardTargetAffiliation.All => true,
-                CardTargetAffiliation.None => true,
+                CardTargetAffiliation.None => false,
                 _ => true
             };
         }

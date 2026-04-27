@@ -21,6 +21,7 @@ namespace facingfate
         [Header("Entity Gameplay References")]
         public EntityVisualScript EntityVisual;
         public MeshFilter EntityModel;
+        public MeshRenderer EntityRenderer;
         public EntityOnMap EntityOnMap;
 
         [Header("Audio")]
@@ -31,6 +32,9 @@ namespace facingfate
         [Tooltip("Optional, empty = silent")] public AK.Wwise.Event deathSfx;
         [Tooltip("Optional, empty = silent")] public AK.Wwise.Event statusAppliedSfx;
         [Tooltip("Optional, empty = silent")] public AK.Wwise.Event modifierExpiredSfx;
+
+        [HideInInspector]
+        public bool isDead = false;
 
 
 
