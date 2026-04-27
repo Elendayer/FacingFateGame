@@ -3,7 +3,22 @@
 	<Switches>
 		<WorkUnit Name="Default Work Unit" ID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}" PersistMode="Standalone">
 			<ChildrenList>
-				<SwitchGroup Name="SwitchGrp_CharType" ID="{B1353443-4754-4365-B0A2-E085FE5F3C45}"/>
+				<SwitchGroup Name="SwitchGrp_CharType" ID="{B1353443-4754-4365-B0A2-E085FE5F3C45}">
+					<ChildrenList>
+						<Switch Name="Human" ID="{54A5F36C-D8FA-4C6C-8CC9-D048098E6E55}"/>
+						<Switch Name="Animal" ID="{2D4451B9-2F01-4C11-BD2E-97B219391B06}"/>
+						<Switch Name="Oni" ID="{A8D2254E-AF33-40E6-ACD9-2F4FB06CF0BA}"/>
+					</ChildrenList>
+				</SwitchGroup>
+				<SwitchGroup Name="SurfaceType" ID="{6252829A-5136-45AF-8C50-90249382F45A}">
+					<ChildrenList>
+						<Switch Name="general" ID="{FBD2FF92-A4CB-4361-A78F-11D12907DFA3}"/>
+						<Switch Name="wood" ID="{A26FAA25-6313-45F9-81F4-51398A2F7FFD}"/>
+						<Switch Name="stone" ID="{1E1391DC-13C6-4764-A301-32A6370E6FF3}"/>
+						<Switch Name="water" ID="{E6EFC1F7-8A8B-4565-8806-107D58ED6CC7}"/>
+						<Switch Name="gras" ID="{278013AA-00BE-4387-9B04-253558ED7B33}"/>
+					</ChildrenList>
+				</SwitchGroup>
 			</ChildrenList>
 		</WorkUnit>
 	</Switches>
