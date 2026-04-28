@@ -103,3 +103,8 @@ Assets/TextMesh Pro Examples & Extras/
 # Speziell: "Third Party Support" unitypackages (z.B. Pixel Crushers)
 [Aa]ssets/**/Third Party Support/*.unitypackage*
 UserSettings/
+
+###############################################################################
+# Claude Code
+###############################################################################
+.claude/worktrees/
