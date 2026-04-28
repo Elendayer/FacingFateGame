@@ -152,6 +152,10 @@ namespace facingfate
 
         private void OnCombatEnd(bool playerWon)
         {
+            // Tutorial wave transitions fire CombatEnd between waves — keep camera active.
+            if (TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
+                return;
+
             combatActive = false;
             autoPanTween?.Kill();
             autoPanTween = null;

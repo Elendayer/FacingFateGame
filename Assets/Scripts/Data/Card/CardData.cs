@@ -549,6 +549,7 @@ namespace facingfate
 
             // Deduct the card cost from the owner's stamina
             cardData.Owner.entityStats.CurrentStamina -= cardData.Cost;
+            HandUI.RefreshHandLocks(cardData.Owner);
 
             // Enqueue the card execution in the action queue
             ActionQueueUtility.EnqueueCardExecution(cardData.Owner, cardData, targetingModeData, cardObj);

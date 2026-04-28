@@ -314,7 +314,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Physical },
 
                 cost_u = 10,
-                
+                power_u = 20,
                 duration_u = 1,
 
                 targetingData = new()
@@ -329,7 +329,7 @@ namespace facingfate
                     PowerOverrideValue = 80,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Increses attack damage by {20}%.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Increases attack damage by {Power}%.",
     
                 cardEffectAction = (User, Target, d) =>
                 {

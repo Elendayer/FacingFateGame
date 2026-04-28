@@ -123,12 +123,12 @@ namespace facingfate
 
         private void OnPlayAgain()
         {
-            SceneFader.Instance.FadeToScene(SceneManager.GetActiveScene().name);
+            SceneFader.Load(SceneManager.GetActiveScene().name);
         }
 
         private void OnMainMenu()
         {
-            SceneFader.Instance.FadeToScene(mainMenuSceneName);
+            SceneFader.Load(mainMenuSceneName);
         }
     }
 }

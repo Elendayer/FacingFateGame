@@ -195,7 +195,7 @@ namespace facingfate
             // ── Range & Area ──────────────────────────────────────────────────
             new("── Range & Area ──"),
             new("Range",       s => FormatMod(s.RangeModifier_Flat.Value(),      s.RangeModifier_Increase.Value()),
-                "Range",       "Bonus flat range and % increase on all card range values."),
+                "Range",       "Bonus flat range and % increase on all card range values.", s => s.RangeModifier_Flat),
             new("Radius",      s => FormatMod(s.RadiusModifier_Flat.Value(),     s.RadiusModifier_Increase.Value()),
                 "Radius",      "Bonus flat radius and % increase on area-of-effect cards."),
 
@@ -231,8 +231,26 @@ namespace facingfate
         {
         }
 
-        private void OnEnable()  => GameEvents.OnTurnStart += Refresh;
-        private void OnDisable() => GameEvents.OnTurnStart -= Refresh;
+        private void OnEnable()
+        {
+            GameEvents.OnTurnStart += Refresh;
+            GameEvents.OnGameplayReference += OnGameplayRef;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnTurnStart -= Refresh;
+            GameEvents.OnGameplayReference -= OnGameplayRef;
+        }
+
+        private void OnGameplayRef(ToSendTriggerReference r)
+        {
+            if (panelRoot == null || !panelRoot.activeSelf) return;
+            if (r.OnTriggerReference == null) return;
+            if (r.OnTriggerReference.Contains(GameplayRef.onBuffRecieved) ||
+                r.OnTriggerReference.Contains(GameplayRef.onDebuffRecieved))
+                RebuildRows();
+        }
 
         // ── Public API — wire to OnClick in Unity Inspector ────────────────────
 
@@ -456,11 +474,12 @@ namespace facingfate
                                 foreach (var group in conditionGroups)
                                 {
                                     var firstMod = group.First();
-                                    float totalValue = group.Sum(m => m.BaseValue);
+                                    var capturedMods = group.ToList();
+                                    string capturedModType = modifierType;
 
                                     if (statRowPrefab == null) continue;
 
-                                    Func<EntityStats, string> getter = s => FormatModifierValueFlat(totalValue, modifierType);
+                                    Func<EntityStats, string> getter = s => FormatModifierValueFlat(capturedMods.Sum(m => m.BaseValue), capturedModType);
                                     string modValue = getter(stats);
                                     GameObject modRowObj = Instantiate(statRowPrefab, rowContainer);
                                     StatRowEntryUI modRow = modRowObj.GetComponent<StatRowEntryUI>();
@@ -468,7 +487,7 @@ namespace facingfate
                                     {
                                         string displayLabel = $"    {firstMod.Condition.DisplayName}";
                                         modRow.Setup(displayLabel, modValue, firstMod.Condition.DisplayName, firstMod.Condition.Description);
-                                        liveConditionalRows.Add((modRow, new ConditionalModifierDef(firstMod.ModifierName, getter, firstMod.Condition, modifierType)));
+                                        liveConditionalRows.Add((modRow, new ConditionalModifierDef(firstMod.ModifierName, getter, firstMod.Condition, capturedModType)));
                                     }
                                 }
                             }
@@ -530,11 +549,12 @@ namespace facingfate
                         foreach (var group in conditionGroups)
                         {
                             var firstMod = group.First();
-                            float totalValue = group.Sum(m => m.BaseValue);
+                            var capturedMods = group.ToList();
+                            string capturedModType = modifierType;
 
                             if (statRowPrefab == null) continue;
 
-                            Func<EntityStats, string> getter = s => FormatModifierValueFlat(totalValue, modifierType);
+                            Func<EntityStats, string> getter = s => FormatModifierValueFlat(capturedMods.Sum(m => m.BaseValue), capturedModType);
                             string modValue = getter(stats);
                             GameObject modRowObj = Instantiate(statRowPrefab, rowContainer);
                             StatRowEntryUI modRow = modRowObj.GetComponent<StatRowEntryUI>();
@@ -542,7 +562,7 @@ namespace facingfate
                             {
                                 string displayLabel = $"    {firstMod.Condition.DisplayName}";
                                 modRow.Setup(displayLabel, modValue, firstMod.Condition.DisplayName, firstMod.Condition.Description);
-                                liveConditionalRows.Add((modRow, new ConditionalModifierDef(firstMod.ModifierName, getter, firstMod.Condition, modifierType)));
+                                liveConditionalRows.Add((modRow, new ConditionalModifierDef(firstMod.ModifierName, getter, firstMod.Condition, capturedModType)));
                             }
                         }
                     }

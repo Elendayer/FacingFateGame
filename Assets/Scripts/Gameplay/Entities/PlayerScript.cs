@@ -30,6 +30,9 @@ namespace facingfate
 
                 return;
             }
+
+            // Refresh hand locks after stamina reset so existing cards dim/undim correctly.
+            HandUI.RefreshHandLocks(this);
         }
 
 

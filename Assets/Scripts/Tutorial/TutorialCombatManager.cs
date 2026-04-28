@@ -104,8 +104,7 @@ namespace facingfate
             // Reset state only (no TriggerTurnStart — player turn is already mid-flight).
             if (TurnManager.Instance != null && TurnManager.Instance.CombatEnded)
             {
-                TurnManager.Instance.ResetCombatForNewWave();
-                EncounterManager.Instance?.ResetCombatForNewWave();
+                ResetCombatKeepPlayerTurn();
                 Debug.Log($"[TutorialCombatManager] No wave for step {index} — combat state reset, player turn continues.");
             }
 
@@ -227,36 +226,69 @@ namespace facingfate
             // When a new wave spawns after the previous combat ended, the TurnManager and
             // EncounterManager have both set combatEnded = true and cleared TurnOrder.
             // Reset them so the new enemies can take turns and deaths are detected again.
+            // ResetCombatKeepPlayerTurn ensures player remains the active turn entity.
             if (anySpawned && TurnManager.Instance != null && TurnManager.Instance.CombatEnded)
             {
-                TurnManager.Instance.ResetCombatForNewWave();
-                EncounterManager.Instance?.ResetCombatForNewWave();
+                ResetCombatKeepPlayerTurn();
                 ActionQueueUtility.EnqueueAction(() => GameEvents.TriggerTurnStart(), 0.1f);
                 Debug.Log($"[TutorialCombatManager] Combat state reset for new wave at step {stepIndex}.");
             }
         }
 
+        /// <summary>
+        /// Resets TurnManager + EncounterManager for a new wave, then restores
+        /// CurrentTurnIndex to the player so their turn continues uninterrupted.
+        /// ResetCombatForNewWave rebuilds TurnOrder sorted by Dexterity and sets
+        /// index to 0 — the highest-Dex entity (often an enemy) would go first without this fix.
+        /// </summary>
+        private void ResetCombatKeepPlayerTurn()
+        {
+            TurnManager.Instance.ResetCombatForNewWave();
+            EncounterManager.Instance?.ResetCombatForNewWave();
+
+            var tm = TurnManager.Instance;
+            if (tm.TurnOrder.Count > 0)
+            {
+                int playerIdx = tm.TurnOrder.FindIndex(e => e.GetComponent<PlayerScript>() != null);
+                if (playerIdx >= 0)
+                    tm.CurrentTurnIndex = playerIdx;
+            }
+        }
+
         // ── ActionLock helpers ─────────────────────────────────────────────────
+
+        /// <summary>Called by HandManager.AddCard so every card drawn mid-tutorial is locked immediately.</summary>
+        public void ApplyLockToCard(GameObject cardGO)
+        {
+            if (!_isActive || _currentStepIndex >= steps.Length) return;
+            ApplyLock(steps[_currentStepIndex], cardGO);
+        }
 
         private void LockHandForStep(TutorialStepData step)
         {
             if (HandManager.Instance == null) return;
-
             var cards = new List<GameObject>(HandManager.Instance.cardsInHand);
             foreach (var cardGO in cards)
-            {
-                if (cardGO == null) continue;
-                var cs = cardGO.GetComponent<CardScript>();
-                if (cs == null) continue;
+                ApplyLock(step, cardGO);
 
-                bool allowed = step.unlockAll
-                    || System.Array.IndexOf(step.allowedCardIds, cs.cardData.cardID) >= 0;
+            // Apply stamina dim on top of tutorial locks so unaffordable-but-allowed cards are also dimmed.
+            EntityScript player = TurnManager.Instance?.CurrentTurnEntity;
+            HandUI.RefreshHandLocks(player);
+        }
 
-                cs.SetupLock(!allowed);
+        private static void ApplyLock(TutorialStepData step, GameObject cardGO)
+        {
+            if (cardGO == null) return;
+            var cs = cardGO.GetComponent<CardScript>();
+            if (cs == null) return;
 
-                var cg = cardGO.GetComponent<CanvasGroup>();
-                if (cg != null) cg.alpha = allowed ? 1f : 0.4f;
-            }
+            bool allowed = step.unlockAll
+                || System.Array.IndexOf(step.allowedCardIds, cs.cardData.cardID) >= 0;
+
+            cs.SetupLock(!allowed);
+
+            var cg = cardGO.GetComponent<CanvasGroup>();
+            if (cg != null) cg.alpha = allowed ? 1f : 0.4f;
         }
 
         private void UnlockAll()

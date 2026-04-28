@@ -57,7 +57,7 @@ namespace facingfate
 
         public void ChangeScene(string sceneName)
         {
-            SceneFader.Instance.FadeToScene(sceneName);
+            SceneFader.Load(sceneName);
         }
 
         public void ReturnToTitleScreen()

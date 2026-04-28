@@ -42,5 +42,17 @@ namespace facingfate
             overlay.DOFade(1f, fadeDuration).SetEase(Ease.InQuart)
                 .OnComplete(() => SceneManager.LoadScene(sceneName));
         }
+
+        /// <summary>
+        /// Safe scene load: fades if SceneFader exists, otherwise loads directly.
+        /// Use this instead of Instance.FadeToScene() so direct scene testing works.
+        /// </summary>
+        public static void Load(string sceneName)
+        {
+            if (Instance != null)
+                Instance.FadeToScene(sceneName);
+            else
+                SceneManager.LoadScene(sceneName);
+        }
     }
 }

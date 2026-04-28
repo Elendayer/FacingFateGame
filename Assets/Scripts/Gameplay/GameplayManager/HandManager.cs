@@ -156,6 +156,14 @@ namespace facingfate
             newCard.transform.position = Vector3.zero;
             cardsInHand.Add(newCard);
             UpdateHandLayout();
+
+            // Apply tutorial lock immediately — LockHandNextFrame only catches cards
+            // already in hand after 1 frame; cards drawn later would miss the lock.
+            TutorialCombatManager.Instance?.ApplyLockToCard(newCard);
+
+            // Apply stamina lock after tutorial lock so both conditions combine correctly.
+            EntityScript currentEntity = TurnManager.Instance?.CurrentTurnEntity;
+            HandUI.ApplyStaminaLockToCard(newCard, currentEntity);
         }
 
         public void RemoveCard(GameObject cardObject)
@@ -173,7 +181,8 @@ namespace facingfate
             if (!cardsInHand.Contains(cardObject)) return;
 
             cardsInHand.Remove(cardObject);
-            
+            UpdateHandLayout();
+
             DeckManager.Instance.Player_DiscardCardFromHand(cardObject);
         }
 

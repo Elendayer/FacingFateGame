@@ -209,6 +209,7 @@ namespace facingfate
             if (stamina < pathData.PathCost) return;
 
             characterEntity.entityStats.CurrentStamina -= pathData.PathCost;
+            HandUI.RefreshHandLocks(characterEntity);
 
             if (characterOnMap != null)
                 StartCoroutine(MoveWithStatsUpdate(pathData));

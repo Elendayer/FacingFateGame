@@ -295,7 +295,7 @@ namespace facingfate
 
             Time.timeScale = 1f;
             //DdCodeEventHandler.Trigger_GameReset();
-            SceneFader.Instance.FadeToScene("Titlescreen");
+            SceneFader.Load("Titlescreen");
         }
     }
 }
