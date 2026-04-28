@@ -326,6 +326,12 @@ public static class TargetingUtility
                     entities = GetEntitiesInPhysicsRing(aimWorldPos, cardData.Radius, cardData.Area, cardData);
                 }
                 break;
+            case CardTargetingMode.RingSelf:
+                {
+                    // Ring centered at the caster's position, not the aim position
+                    entities = GetEntitiesInPhysicsRing(castWorldPos, cardData.Radius, cardData.Area, cardData);
+                }
+                break;
             case CardTargetingMode.Radius:
                 {
                     entities = GetEntitiesInPhysicsSphere(aimWorldPos, cardData.Radius, cardData);

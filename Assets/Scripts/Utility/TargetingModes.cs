@@ -40,6 +40,9 @@ namespace facingfate
                 case CardTargetingMode.Ring:
                     mode = new RingTargetingMode();
                     break;
+                case CardTargetingMode.RingSelf:
+                    mode = new RingSelfTargetingMode();
+                    break;
                 case CardTargetingMode.LineSelf:
                     mode = new LineSelfTargetingMode();
                     break;
@@ -256,7 +259,7 @@ namespace facingfate
             var ownerWorldPos = GetWorldPositionFromEntity(owner);
 
             CardData cardData = card.cardData;
- 
+
 
             // For each valid target, create a ring effect centered on that target
             foreach (var t in targets)
@@ -295,6 +298,50 @@ namespace facingfate
             results = results.OrderByDescending(r => r.targetedEntities.Count).ToList();
 
             Debug.Log($"[RingTargetingMode] Final results: {results.Count} valid targeting options");
+            return results;
+        }
+    }
+
+    /// <summary>
+    /// Ring self targeting mode - creates a ring effect (hollow circle) centered on the caster.
+    /// Unlike Ring mode, this can only be cast at the caster's position.
+    /// </summary>
+    public class RingSelfTargetingMode : BaseTargetingMode
+    {
+        public override List<TargetingModeData> GetTargetingData(CardScript card, EntityScript owner)
+        {
+            var results = new List<TargetingModeData>();
+            var ownerWorldPos = GetWorldPositionFromEntity(owner);
+
+            CardData cardData = card.cardData;
+
+            Debug.Log($"[RingSelfTargetingMode] Starting evaluation at caster position: {ownerWorldPos}, Card range: {cardData.Range}, Radius: {cardData.Radius}, Area: {cardData.Area}");
+
+            // Get all entities in the ring centered on the caster
+            var hitEntities = TargetingUtility.GetEntitiesInPhysicsRing(ownerWorldPos, cardData.Radius, cardData.Area, cardData);
+
+            // Filter by vision if enabled
+            if (cardData.targetingData.TargetingUsesVision && hitEntities.Count > 0)
+            {
+                int beforeVision = hitEntities.Count;
+                hitEntities = hitEntities.FindAll(e => TargetingUtility.HasPhysicsLineOfSight(ownerWorldPos, GetWorldPositionFromEntity(e)));
+                Debug.Log($"[RingSelfTargetingMode] Vision filter: {beforeVision} entities -> {hitEntities.Count} after vision check");
+            }
+
+            Debug.Log($"[RingSelfTargetingMode] Found {hitEntities.Count} entities in ring");
+
+            if (hitEntities.Count > 0)
+            {
+                results.Add(new TargetingModeData
+                {
+                    castingPosition = ownerWorldPos,
+                    targetedPositions = hitEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
+                    targetedEntities = hitEntities,
+                    IsReachable = true
+                });
+            }
+
+            Debug.Log($"[RingSelfTargetingMode] Final results: {results.Count} valid targeting options");
             return results;
         }
     }

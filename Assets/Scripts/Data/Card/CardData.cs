@@ -738,12 +738,14 @@ namespace facingfate
         Single,
         Radius,
         Ring,
+        RingSelf,
         LineFree,
         LineSelf,
         Cone,
         Select,
         SelectionUnique,
         All,
+
     }
 
 

@@ -7088,6 +7088,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Juan - The Mystic
       objectReference: {fileID: 0}
+    - target: {fileID: 3848091005685883373, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4617815525795551458, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -5.109999
@@ -7131,13 +7135,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6650985624110678995, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 1158258723066714806, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
 --- !u!1001 &3887411966672393101
 PrefabInstance:
@@ -7251,6 +7249,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tony - The Physician
       objectReference: {fileID: 0}
+    - target: {fileID: 4737051542883700935, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7314,6 +7316,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7204977300209404337, guid: 3d8c6ec03efee694da94d565e5070e8a, type: 3}
+      propertyPath: effectAssets.Array.size
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7204977300209404337, guid: 3d8c6ec03efee694da94d565e5070e8a, type: 3}
+      propertyPath: effectAssets.Array.data[18].name
+      value: vfx_targeting_cone
+      objectReference: {fileID: 0}
+    - target: {fileID: 7204977300209404337, guid: 3d8c6ec03efee694da94d565e5070e8a, type: 3}
+      propertyPath: effectAssets.Array.data[19].name
+      value: vfx_targeting_default
+      objectReference: {fileID: 0}
+    - target: {fileID: 7204977300209404337, guid: 3d8c6ec03efee694da94d565e5070e8a, type: 3}
+      propertyPath: effectAssets.Array.data[18].visualEffectAsset
+      value: 
+      objectReference: {fileID: 8926484042661614526, guid: 8365e70ec03fef44ba59daec82491a9d, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7371,16 +7389,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Carlos - The Spearman
       objectReference: {fileID: 0}
+    - target: {fileID: 6670376024510000568, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3871910308446719878, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 8783202255543768803, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
 --- !u!1001 &7588226680606677023
 PrefabInstance:
@@ -7393,6 +7409,10 @@ PrefabInstance:
     - target: {fileID: 4293204113833952188, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
       propertyPath: m_Name
       value: Marcus - The Assassin
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293204113833952188, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5685348977118689971, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7437,13 +7457,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5962379064625930626, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 2225158821334644967, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
 --- !u!1001 &8208553877142159955
 PrefabInstance:

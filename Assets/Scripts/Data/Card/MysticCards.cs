@@ -255,7 +255,7 @@ namespace facingfate
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Ground,
-                    CardTargetAffiliation = CardTargetAffiliation.All,
+                    CardTargetAffiliation = CardTargetAffiliation.None,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 

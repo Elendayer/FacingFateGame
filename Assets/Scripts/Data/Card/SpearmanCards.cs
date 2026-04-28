@@ -173,7 +173,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Ring,
+                    cardTargetingMode = CardTargetingMode.RingSelf,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to enemies in a ring. Inflict 5 Burn.",

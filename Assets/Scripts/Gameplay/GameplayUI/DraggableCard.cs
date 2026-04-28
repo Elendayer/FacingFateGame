@@ -391,10 +391,6 @@ namespace facingfate
             return false;
         }
 
-
-
-
-
         private void CreateDragVFX()
         {
             if (cardScript == null) return;
@@ -429,6 +425,8 @@ namespace facingfate
                 CardTargetingMode.Select => "vfx_targeting_single",
                 CardTargetingMode.Radius => "vfx_targeting_sphere",
                 CardTargetingMode.Ring => "vfx_targeting_ring",
+                CardTargetingMode.RingSelf => "vfx_targeting_ring",
+                CardTargetingMode.Cone => "vfx_targeting_cone",
                 CardTargetingMode.Single => "vfx_targeting_single",
                 CardTargetingMode.LineFree => "vfx_targeting_line",
                 CardTargetingMode.LineSelf => "vfx_targeting_line",

@@ -9,7 +9,10 @@ public class EndTurnBinder : MonoBehaviour
     {
         GetComponent<Button>().onClick.AddListener(() =>
         {
-            GameEvents.TriggerTurnEnd();
+            if (TurnManager.Instance.CurrentTurnEntity is PlayerScript) 
+            {
+                ActionQueueUtility.EnqueueAction(() => GameEvents.TriggerTurnEnd());
+            }
         });
     }
 }

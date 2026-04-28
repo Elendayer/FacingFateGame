@@ -110,6 +110,35 @@ namespace facingfate
 
             List<string> parts = new();
 
+            //  Affiliation if applicable
+            if (t.CardTargetAffiliation != CardTargetAffiliation.Self)
+            {
+                if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
+                {
+                    parts.Add("Allies");
+                }
+                else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
+                {
+                    parts.Add("Enemies");
+                }
+                else
+                {
+                    parts.Add("All");
+                }
+
+                // if targeting uses Vision
+                if (t.TargetingUsesVision)
+                {
+                    parts.Add("in Sight,");
+                }
+            }
+            else
+            {
+                parts.Add("Self");
+            }
+
+            parts.Add($"{cardData.Range}m, ");
+
             switch (t.cardTargetingMode)
             {
                 case CardTargetingMode.Single:
@@ -117,27 +146,32 @@ namespace facingfate
                     break;
 
                 case CardTargetingMode.Ring:
-                    parts.Add($"Ring, {cardData.Radius}m * {cardData.Area}m");
+                    parts.Add($"Ring, {cardData.Radius}m by {cardData.Area}m");
                     break;
-
+                case CardTargetingMode.RingSelf:
+                    parts.Add($"Ring Self, {cardData.Radius}m by {cardData.Area}m");
+                    break;
                 case CardTargetingMode.Radius:
                     parts.Add($"Radius, {cardData.Radius}m");
                     break;
 
                 case CardTargetingMode.LineFree:
-                    parts.Add($"Line Draw,{cardData.Area}m");
+                    parts.Add($"Line Draw,{cardData.Area}m ");
                     break;
 
                 case CardTargetingMode.LineSelf:
-                    parts.Add($"Line, {cardData.Range}m");
+                    parts.Add($"Line, {cardData.Area}m");
                     break;
 
                 case CardTargetingMode.Cone:
-                    parts.Add($"Cone, {cardData.Range}m");
+                    parts.Add($"Cone");
                     break;
 
                 case CardTargetingMode.Select:
-                    parts.Add($"Select, {cardData.MaxTarget}");
+                    parts.Add($"Select, {cardData.MaxTarget} Targets");
+                    break;
+                    case CardTargetingMode.SelectionUnique:
+                        parts.Add($"Select Unique, {cardData.MaxTarget} Targets");
                     break;
 
                 case CardTargetingMode.All:
@@ -153,39 +187,6 @@ namespace facingfate
             else
             {
                 parts.Add(",");
-            }
-
-            //  Affiliation if applicable
-            if (t.CardTargetAffiliation != CardTargetAffiliation.Self)
-            {
-                if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
-                {
-                    parts.Add("Allies");
-                }
-                else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
-                {
-                    parts.Add("Enemies");
-                }
-                else
-                {
-                    parts.Add("ALL");
-                }
-
-                // if targeting uses Vision
-                if (t.TargetingUsesVision)
-                {
-                    parts.Add("in Sight,");
-                }
-            }
-            else
-            {
-                parts.Add("Self");
-            }
-
-            // Range (only if mode uses range)
-            if (t.cardTargetingMode is not CardTargetingMode.All)
-            {
-                parts.Add($"{cardData.Range}m");
             }
 
             // Final join
