@@ -66,6 +66,9 @@ namespace facingfate
             NpcDatabase.RegisterAll();
             yield return null;
 
+            PlayerDatabase.RegisterAll();
+            yield return null;
+
             // Initialize managers
             DeckManager.Instance.StartUp();
             yield return null;

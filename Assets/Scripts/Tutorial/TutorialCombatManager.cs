@@ -270,10 +270,13 @@ namespace facingfate
             var cards = new List<GameObject>(HandManager.Instance.cardsInHand);
             foreach (var cardGO in cards)
                 ApplyLock(step, cardGO);
-
-            // Apply stamina dim on top of tutorial locks so unaffordable-but-allowed cards are also dimmed.
-            EntityScript player = TurnManager.Instance?.CurrentTurnEntity;
-            HandUI.RefreshHandLocks(player);
+            // NOTE: do NOT call HandUI.RefreshHandLocks here.
+            // LockHandForStep fires before entity.StartTurn() resets stamina — calling
+            // RefreshHandLocks with stale (0) stamina would lock all cards even allowed ones.
+            // Stamina-based dimming is handled by:
+            //   • HandManager.AddCard  → ApplyStaminaLockToCard (per-card, correct timing)
+            //   • PlayerScript.StartTurn → RefreshHandLocks (full hand, after stamina reset)
+            //   • CardData.PlayCard     → RefreshHandLocks (after each spend)
         }
 
         private static void ApplyLock(TutorialStepData step, GameObject cardGO)

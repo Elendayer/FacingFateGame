@@ -322,12 +322,15 @@ namespace facingfate
 
         private void HandleTurnStart()
         {
-            MarkDirty(DirtyFlags.Piles);
+            // Active: ensures stamina display refreshes when a new turn begins.
+            // Brief 1-frame stale read is acceptable; card-draw GameplayReference events
+            // trigger a second Active refresh with fully correct values.
+            MarkDirty(DirtyFlags.Active | DirtyFlags.Piles);
         }
 
         private void HandleTurnEnd()
         {
-            MarkDirty(DirtyFlags.Piles);
+            MarkDirty(DirtyFlags.Active | DirtyFlags.Piles);
         }
 
         private void HandleGameplayReference(ToSendTriggerReference _)

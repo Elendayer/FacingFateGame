@@ -4,6 +4,9 @@ namespace facingfate
 {
     public class PlayerScript : EntityScript
     {
+        [Header("Character")]
+        public CardClass playerClass = CardClass.Spearman;
+
         private void Awake()
         {
             base.entityAffiliation = EntityAffiliation.Player;

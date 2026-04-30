@@ -347,6 +347,10 @@ namespace facingfate
             cardFront.SetActive(true);
             GetComponent<DraggableCard>().enabled = true;
             ApplyCardDataVisuals();
+            // Re-apply tutorial lock: DraggableCard.enabled = true above overrides any lock
+            // set by ApplyLockToCard in HandManager.AddCard. Calling this here ensures the
+            // lock is correct regardless of card draw timing relative to LockHandNextFrame.
+            TutorialCombatManager.Instance?.ApplyLockToCard(gameObject);
         }
     }
 }

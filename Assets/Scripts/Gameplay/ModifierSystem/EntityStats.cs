@@ -157,12 +157,16 @@ namespace facingfate
             }
             else
             {
-                Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: 10f));
-                Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: 10f));
-                Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: 10f));
-                Intelligence_Flat.AddModifier(new StatModifier("BaseValue", Intelligence_Flat, value: 10f));
-                Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: 10f));
-                Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: 10f));
+                PlayerData pd = (Owner is PlayerScript ps)
+                    ? PlayerDatabase.Get(ps.playerClass) ?? new PlayerData()
+                    : new PlayerData();
+
+                Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: pd.baseStrength));
+                Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: pd.baseDexterity));
+                Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: pd.baseWisdom));
+                Intelligence_Flat.AddModifier(new StatModifier("BaseValue", Intelligence_Flat, value: pd.baseIntelligence));
+                Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: pd.baseEndurance));
+                Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: pd.baseTenacity));
 
                 MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f));
                 MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f));
