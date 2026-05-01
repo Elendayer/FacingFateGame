@@ -137,7 +137,7 @@ namespace facingfate
                 parts.Add("Self");
             }
 
-            parts.Add($"{cardData.Range}m, ");
+            parts.Add($"{cardData.Range}m,");
 
             switch (t.cardTargetingMode)
             {
@@ -156,7 +156,7 @@ namespace facingfate
                     break;
 
                 case CardTargetingMode.LineFree:
-                    parts.Add($"Line Draw,{cardData.Area}m ");
+                    parts.Add($"Line Draw,{cardData.Area}m");
                     break;
 
                 case CardTargetingMode.LineSelf:
@@ -190,7 +190,7 @@ namespace facingfate
             }
 
             // Final join
-            return string.Join(" ", parts);
+            return string.Join("", parts);
         }
 
         public interface IStatResolver
