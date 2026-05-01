@@ -52,7 +52,7 @@ namespace facingfate
             // 120102 – Dance of a Hundred Cuts (Ring, repeats)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Assassin_Tech_Dance_of_a_Hundred_Cuts",
+                cardID = "Assassin_Tech_Dance_of_Hundred_Cuts",
                 cardName = "Dance of a Hundred Cuts",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
@@ -278,6 +278,38 @@ namespace facingfate
                 }
             });
 
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Assassin_Tech_Serpents_Coil_Shot",
+                cardName = "Serpent's Coil Shot",
+                cardType = CardType.Technique,
+                cardClass = CardClass.Assassin,
+                cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
+
+                cost_u = 35,
+
+                damage_u = 20,
+                duration_u = 1,
+
+                range_u = 5f,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Entity,
+                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                    cardTargetingMode = CardTargetingMode.Single,
+                },
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage. Root for {Duration} turns.",
+                cardEffectAction = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
+                    CombatUtility.ApplyEntityModifier(d, Target, EffectDatabase.GetEffectByName("Root", CloneMode.Defaults, d, ThroughputSource.Damage, Target), ModifierMergeStrategy.RefreshDurationAndMerge);
+                },
+                 cardVfx = (Data, Target) =>
+                {
+                }
+            });
 
             // 120107 – Midnight Rain (Small AOE)
             CardDatabase.RegisterCard(new CardData()

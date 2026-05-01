@@ -340,7 +340,7 @@ namespace facingfate
 
                     float roll = UnityEngine.Random.value;
                     System.Collections.Generic.List<string> pool =
-                        roll < 0.60f ? brews  :
+                        roll < 0.60f ? brews :
                         roll < 0.90f ? elixirs :
                                        pills;
 
@@ -379,91 +379,10 @@ namespace facingfate
                 }
             });
 
-            // 140206 – Spiderweb Bomb – ranged AoE root + damage
-            CardDatabase.RegisterCard(new CardData()
-            {
-                cardID = "Physician_Abil_Spiderweb_Bomb",
-                cardName = "Spiderweb Bomb",
-                cardType = CardType.Ability,
-                cardClass = CardClass.Physician,
-                cardIdentities = new() { CardIdentity.Alchemical, CardIdentity.Physical },
+          
 
-                cost_u = 25,
-                damage_u = 12,
-                power_u = 1,
-                duration_u = 2,
-                range_u = 5f,
-                area_u = 2f,
-
-                targetingData = new()
-                {
-                    CardTargetType = CardTargetType.Ground,
-                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
-                },
-
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and Root enemies for {Duration} turns.",
-                cardEffectAction = (User, Target, d) =>
-                {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
-                    CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier(
-                        modifierName: "Rooted",
-                        owner: Target,
-                        baseValue: d.Power,
-                        duration: d.Duration,
-                        onApply_Action: (target, cd, value) => { target.entityStats.IsRooted = true; },
-                        onRemove_Action: (target, cd, value) => { target.entityStats.IsRooted = false; }
-                    ), ModifierMergeStrategy.RefreshDurationAndMerge);
-                }
-            });
-
-            // 140207 – Alchemic Fire – ranged AoE fire damage + Burn DoT
-            CardDatabase.RegisterCard(new CardData()
-            {
-                cardID = "Physician_Abil_Alchemic_Fire",
-                cardName = "Alchemic Fire",
-                cardType = CardType.Ability,
-                cardClass = CardClass.Physician,
-                cardIdentities = new() { CardIdentity.Fire },
-
-                cost_u = 30,
-                damage_u = 20,
-                secondaryDamage_u = 6,
-                duration_u = 3,
-                range_u = 5f,
-                area_u = 2f,
-
-                targetingData = new()
-                {
-                    CardTargetType = CardTargetType.Ground,
-                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
-                },
-
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and Burn for {SecondaryDamage}/turn over {Duration} turns.",
-                cardEffectAction = (User, Target, d) =>
-                {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
-                    var burn = new EntityModifier(
-                        modifierName: "Burn",
-                        owner: Target,
-                        baseValue: d.SecondaryDamage,
-                        toTriggerRefs: new() { GameplayRef.onBurn },
-                        duration: d.Duration,
-                        onRef_Trigger: new RelevantTriggerCheck
-                        {
-                            OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            CheckType = CheckEntityType.User,
-                            CheckEntity = Target
-                        },
-                        onRef_Action: (target, cd, value) =>
-                        {
-                            CombatUtility.ApplyDamage(null, target, new VFXData("BurnEffect", true), value);
-                        });
-                    CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
-                }
-            });
         }
+      
 
         private static void RegisterSpells()
         {
@@ -534,9 +453,93 @@ namespace facingfate
             });
         }
         private static void RegisterItems()
-        {
-            // 140601 – Brew of a Hundred Herbs – Heal an Ally
+        {  
+
             CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Physician_Item_Spiderweb_Bomb",
+                cardName = "Spiderweb Bomb",
+                cardType = CardType.Ability,
+                cardClass = CardClass.Physician,
+                cardIdentities = new() { CardIdentity.Alchemical, CardIdentity.Physical },
+
+                cost_u = 25,
+                damage_u = 12,
+                power_u = 1,
+                duration_u = 2,
+                range_u = 5f,
+                area_u = 2f,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Ground,
+                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                    cardTargetingMode = CardTargetingMode.Radius,
+                },
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and Root enemies for {Duration} turns.",
+                cardEffectAction = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
+                    CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier(
+                        modifierName: "Rooted",
+                        owner: Target,
+                        baseValue: d.Power,
+                        duration: d.Duration,
+                        onApply_Action: (target, cd, value) => { target.entityStats.IsRooted = true; },
+                        onRemove_Action: (target, cd, value) => { target.entityStats.IsRooted = false; }
+                    ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                }
+            });
+
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Physician_Item_Alchemic_Fire",
+                cardName = "Alchemic Fire",
+                cardType = CardType.Item,
+                cardClass = CardClass.Physician,
+                cardIdentities = new() { CardIdentity.Fire },
+
+                cost_u = 30,
+                damage_u = 20,
+                secondaryDamage_u = 6,
+                duration_u = 3,
+                range_u = 5f,
+                area_u = 2f,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Ground,
+                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                    cardTargetingMode = CardTargetingMode.Radius,
+                },
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and Burn for {SecondaryDamage}/turn over {Duration} turns.",
+                cardEffectAction = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
+                    var burn = new EntityModifier(
+                        modifierName: "Burn",
+                        owner: Target,
+                        baseValue: d.SecondaryDamage,
+                        toTriggerRefs: new() { GameplayRef.onBurn },
+                        duration: d.Duration,
+                        onRef_Trigger: new RelevantTriggerCheck
+                        {
+                            OnTriggerReference = new() { GameplayRef.onTurnStart },
+                            CheckType = CheckEntityType.User,
+                            CheckEntity = Target
+                        },
+                        onRef_Action: (target, cd, value) =>
+                        {
+                            CombatUtility.ApplyDamage(null, target, new VFXData("BurnEffect", true), value);
+                        });
+                    CombatUtility.ApplyEntityModifier(d, Target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
+                }
+            });
+        
+        // 140601 – Brew of a Hundred Herbs – Heal an Ally
+        CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Physician_Item_Brew_of_a_Hundred_Herbs",
                 cardName = "Brew of a Hundred Herbs",

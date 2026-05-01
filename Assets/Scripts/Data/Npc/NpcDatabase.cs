@@ -168,8 +168,8 @@ namespace facingfate
                     "Neutral_Abil_Focus",
                     "Assassin_Abil_Eye_of_the_Nighthawk",
                     "Assassin_Abil_Eye_of_the_Nighthawk",
-                    "Neutral_Spell_Summmon_Wolf",
-                    "Neutral_Spell_Summmon_Wolf",
+                    "Neutral_Spell_Summon_Wolf",
+                    "Neutral_Spell_Summon_Wolf",
                 },
 
                 baseDexterity = 20,

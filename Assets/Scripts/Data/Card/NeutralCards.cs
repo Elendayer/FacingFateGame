@@ -16,7 +16,31 @@ namespace facingfate
 
         private static void RegisterTechniques()
         {
+             CardDatabase.RegisterCard(new CardData()
+             {
+                 cardID= "Neutral_Tech_Punch",
+                 cardName ="Punch",
+                 cardType= CardType.Technique,
+                 cardClass = CardClass.Neutral,
+                    cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
+                    cost_u = 5,
+                    damage_u = 8,
+
+ 
+                        targetingData = new()
+                        {
+                            CardTargetType = CardTargetType.Entity,
+                            CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                            cardTargetingMode = CardTargetingMode.Single,
+                        },
+
+                        cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} Damage",
+                        cardEffectAction = (User, Target, d) =>
+                        {
+                            CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
+                        },
+                    });
 
             // 100101 – Strike – normal attack
             CardDatabase.RegisterCard(new CardData()
@@ -254,10 +278,34 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Deal {d.Damage} damage.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
                 cardEffectAction = (User, Target, d) =>
                 {
                     CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
+                }
+            });
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Neutral_Tech_Claw",
+                cardName = "Claw",
+                cardType = CardType.Technique,
+                cardClass = CardClass.Neutral,
+                cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
+
+                cost_u = 5,
+                damage_u = 20,
+
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Entity,
+                    CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                    cardTargetingMode = CardTargetingMode.Single,
+                },
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
+                cardEffectAction = (User, Target, d) =>
+                {
+                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact"), d.Damage);
                 }
             });
 
@@ -466,6 +514,39 @@ namespace facingfate
                     User.DrawCards(1);
                 }
             });
+
+            // Rethink Discard then draw
+            CardDatabase.RegisterCard(new CardData()
+            {
+                cardID = "Neutral_Abil_Rethink",
+                cardName = "Rethink",
+                cardType = CardType.Ability,
+                cardClass = CardClass.Neutral,
+                cardIdentities = new() { CardIdentity.Soul },
+                cost_u = 20,
+                targetingData = new()
+                {
+                    CardTargetType = CardTargetType.Entity,
+                    CardTargetAffiliation = CardTargetAffiliation.Self,
+                    cardTargetingMode = CardTargetingMode.Single,
+                },
+                cardDescriptionAction = (User, d) => d.cardDescription = "Discard your hand and draw that many cards.",
+                cardEffectAction = (User, Target, d) =>
+                {
+                    if (d.Owner is PlayerScript player)
+                    {
+                        DeckManager.Instance.Player_DiscardRandomCardFromHand();
+                        DeckManager.Instance.Player_DrawTopCard();
+                    }
+                    else if (d.Owner is NonPlayerScript npc)
+                    {
+                        npc.DiscardCards(1);
+                        npc.DrawCards(1);
+                    }
+
+                }
+            });
+
             // 100201 – Focus – empower next attack (Self)
             CardDatabase.RegisterCard(new CardData()
             {
