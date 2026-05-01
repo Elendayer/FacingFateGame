@@ -122,38 +122,35 @@ namespace facingfate
             }
         }
 
-        public void CreateVFXAttachedToGameObjects(VFXData vfxData, List<GameObject> hosts)
+        public void CreateVFXAttachedToGameObject(VFXData vfxData, GameObject host)
         {
-            foreach (GameObject host in hosts)
+
+            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
+
+            if (vfx.obj == null || vfx.effect == null)
             {
-                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
-
-                if (vfx.obj == null || vfx.effect == null)
-                {
-                    Debug.LogError("Failed to create VFX.");
-                    return;
-                }
-
-                vfx.obj.transform.SetParent(host.transform);
-                vfx.obj.transform.localPosition = Vector3.zero;
+                Debug.LogError("Failed to create VFX.");
+                return;
             }
+
+            vfx.obj.transform.SetParent(host.transform);
+            vfx.obj.transform.localPosition = Vector3.zero;
         }
-        public void CreateVFXAttachedToGameObjects(VFXData vfxData, List<EntityScript> hosts)
+        public void CreateVFXAttachedToGameObjects(VFXData vfxData, EntityScript host)
         {
-            foreach (EntityScript host in hosts)
+
+            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
+
+            if (vfx.obj == null || vfx.effect == null)
             {
-                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
-
-                if (vfx.obj == null || vfx.effect == null)
-                {
-                    Debug.LogError("Failed to create VFX.");
-                    return;
-                }
-
-                vfx.obj.transform.SetParent(host.transform);
-                vfx.obj.transform.localPosition = Vector3.zero;
+                Debug.LogError("Failed to create VFX.");
+                return;
             }
+
+            vfx.obj.transform.SetParent(host.transform);
+            vfx.obj.transform.localPosition = Vector3.zero;
         }
+        
 
         public void CreateVFXAttachedToEntityMesh(VFXData vfxData, GameObject host)
         {

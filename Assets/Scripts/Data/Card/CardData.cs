@@ -394,27 +394,14 @@ namespace facingfate
 
 
         public Action<EntityScript, CardData> cardDescriptionAction =
-            (user, data) => 
-            { 
+            (user, data) =>
+            {
                 Debug.Log($"Not defined Description of {data.cardName}");
             };
 
-        public Action<EntityScript, EntityScript, CardData> cardEffectAction =
-            (user, target, data) =>
-            {
-                Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
-            };
+        [Header("Card Action Sequence")]
+        public List<CardAction> cardActionSequence = new();
 
-        public Action<EntityScript, Vector3, CardData> cardEffectGroundAction =
-            (user, target, data) => 
-            {
-                // Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
-            };
-        public Action<CardData,TargetingModeData> cardVfx =
-            (cardData, targetData) =>
-            {
-                AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("LightningStrike"), targetData.targetedEntities );           
-            };
 
         [Header("AI")]
         public CardAiBias CardAiBias = new();
@@ -528,9 +515,9 @@ namespace facingfate
 
                 // Delegates (zeigen auf dieselben Methoden – gewünscht)
                 cardDescriptionAction = cardDescriptionAction,
-                cardEffectAction = cardEffectAction,
-                cardEffectGroundAction = cardEffectGroundAction,
-                cardVfx = cardVfx,
+
+                // Card Action Sequence
+                cardActionSequence = cardActionSequence != null ? new List<CardAction>(cardActionSequence) : new List<CardAction>(),
 
                 // AI
                 CardAiBias = CardAiBias,

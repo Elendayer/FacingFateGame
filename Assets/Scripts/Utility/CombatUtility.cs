@@ -234,7 +234,7 @@ public static class CombatUtility
 
         if (vfxData != null)
         {
-            AssetManager.Instance.CreateVFXAttachedToGameObjects(vfxData, new List<GameObject>() { SpawnObj });
+            AssetManager.Instance.CreateVFXAttachedToGameObject(vfxData,  SpawnObj );
         }
         HandlePostCombatTrigger(refs, cardData.Owner, null, cardData);
     }
@@ -253,7 +253,7 @@ public static class CombatUtility
         }
         else
         {
-            AssetManager.Instance.CreateVFXAttachedToGameObjects(vfxData, new List<EntityScript>() { target });
+            AssetManager.Instance.CreateVFXAttachedToGameObjects(vfxData, target );
         }
     }
 
