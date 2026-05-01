@@ -159,6 +159,13 @@ icon: null,
 				}));
 
 			RegisterEffect(new EntityModifier(
+				modifierName: "Disengaged",
+				owner: null,
+				description: "Won't trigger Opportunity Attacks this turn.",
+				duration: 1
+			));
+
+			RegisterEffect(new EntityModifier(
 				modifierName: "Taunted",
                 description: "Forces the afflicted entity to target the taunting unit.",
 icon: null,

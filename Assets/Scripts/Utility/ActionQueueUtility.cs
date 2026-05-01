@@ -123,12 +123,15 @@ namespace facingfate
             NavMeshPathData pathData,
             Action onComplete)
         {
+            Vector3 startPos = entityOnMap.transform.position;
+
             yield return entityOnMap.StartMoveRoutineWithPath(pathData);
 
             // Update entity stats after movement completes
             EntityScript entityScript = entityOnMap.GetComponent<EntityScript>();
             if (entityScript != null)
             {
+                OpportunityAttackSystem.CheckAndFireOA(entityScript, startPos, entityOnMap.transform.position);
                 entityScript.entityStats.UpdateStats();
             }
 

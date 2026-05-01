@@ -254,6 +254,8 @@ namespace facingfate
                 cardDescriptionAction = (User, d) => d.cardDescription = "Disengage by 2.5 meters.",
                 cardEffectAction = (User, Target, d) =>
                 {
+                    EntityModifier disengaged = EffectDatabase.GetEffectByName("Disengaged", CloneMode.Defaults, d, ThroughputSource.Damage, User);
+                    CombatUtility.ApplyEntityModifier(d, User, disengaged, ModifierMergeStrategy.Override);
                     MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.transform.position, 2.5f);
                     // TODO: User 1 Feld rückwärts bewegen
                 }
