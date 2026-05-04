@@ -84,7 +84,7 @@
 								<Action Name="" ID="{92A5BC8B-9675-4CF0-AD1F-FAE3A0E358BE}" ShortID="716513407">
 									<ReferenceList>
 										<Reference Name="Target">
-											<ObjectRef Name="SFX_UI_credits_close" ID="{8A8F2EA3-F5E0-41D0-BEB5-E33162CFF407}" WorkUnitID="{EABB8CD1-D178-433C-A4BA-C47FE45CFE00}"/>
+											<ObjectRef Name="SFX_UI_credits_close" ID="{B3A05C71-CD21-4E25-8A25-9473146A88EC}" WorkUnitID="{EABB8CD1-D178-433C-A4BA-C47FE45CFE00}"/>
 										</Reference>
 									</ReferenceList>
 								</Action>
@@ -181,7 +181,12 @@
 						</Event>
 					</ChildrenList>
 				</Folder>
-				<Folder Name="SFX_Events_Cards" ID="{F9478746-5496-4891-A8ED-103E3CEAD490}" ShortID="482077994"/>
+				<Folder Name="SFX_Events_Cards" ID="{F9478746-5496-4891-A8ED-103E3CEAD490}" ShortID="482077994">
+					<ChildrenList>
+						<Event Name="Play_Card_Action" ID="{5386A28E-E31B-431C-BFE7-F7A71C9FF49E}"/>
+						<Event Name="Play_Card_Impact" ID="{B6E2D894-0C41-49E4-8445-54226A26A04E}"/>
+					</ChildrenList>
+				</Folder>
 			</ChildrenList>
 		</WorkUnit>
 	</Events>

@@ -13,12 +13,15 @@
 					</ChildrenList>
 				</StateGroup>
 				<StateGroup Name="LVL_State" ID="{F6650A3C-D783-4405-BA8C-1BBB09930234}">
+					<PropertyList>
+						<Property Name="DefaultTransitionTime" Type="Real64" Value="4.5"/>
+					</PropertyList>
 					<ChildrenList>
 						<State Name="None" ID="{ADBF181A-5842-4024-A943-67EAA076E44C}"/>
-						<State Name="Menu_State" ID="{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"/>
-						<State Name="Level_01_State" ID="{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"/>
-						<State Name="Level_02_State" ID="{E795A0CD-17A2-463C-AFE4-F35086D4CD25}"/>
-						<State Name="Level_03_State" ID="{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"/>
+						<State Name="Random_Combat" ID="{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"/>
+						<State Name="Title_Screen" ID="{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"/>
+						<State Name="Tutorial" ID="{E795A0CD-17A2-463C-AFE4-F35086D4CD25}"/>
+						<State Name="Combat" ID="{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"/>
 					</ChildrenList>
 				</StateGroup>
 				<StateGroup Name="Player_State" ID="{24E528FE-3BB3-4801-8749-972FE54BC921}">

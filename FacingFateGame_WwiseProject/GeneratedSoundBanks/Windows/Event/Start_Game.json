@@ -8,13 +8,22 @@
    {
     "Id": "1114964412",
     "Type": "Event",
-    "GUID": "{CD32789C-DF13-4FB2-A770-E2156EB996D9}",
+    "GUID": "{1DA10804-6936-4683-AA25-A1B3769B499F}",
     "Language": "SFX",
-    "Hash": "{7F840096-F75C-993B-E3B4-EC541D38DADD}",
+    "Hash": "{CD6804AB-6F48-DBA9-AE24-B9A7EF831C66}",
     "ObjectPath": "Start_Game",
     "ShortName": "Start_Game",
     "Path": "Event/Start_Game.bnk",
     "Media": [
+     {
+      "Id": "34910363",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Stille_30sec.wav",
+      "Path": "Media/34910363.wem",
+      "CachePath": "A8/{A885CF9C-145E-41E2-03B8-75376BD6AC11}.wem"
+     },
      {
       "Id": "191038975",
       "Language": "SFX",
@@ -32,27 +41,324 @@
       "ShortName": "Facing-Fate_Skizze6.wav",
       "Path": "Media/248337119.wem",
       "CachePath": "FA/{FADCCF8D-83AD-2382-D72F-2D28DC348929}.wem"
+     },
+     {
+      "Id": "384199141",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Atmo_cave_deebnoise.wav",
+      "Path": "Media/384199141.wem",
+      "CachePath": "41/{414DFCA0-4BBA-0910-D6F2-8E90BF2E8E26}.wem"
+     },
+     {
+      "Id": "387203994",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Tutorial_Atmo.wav",
+      "Path": "Media/387203994.wem",
+      "CachePath": "83/{8333F216-FADE-38C5-713F-A788FE5C24FD}.wem"
+     },
+     {
+      "Id": "443425856",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Stille_5sec.wav",
+      "Path": "Media/443425856.wem",
+      "CachePath": "AB/{AB9B58FE-1B06-455C-266B-3E5CCB69E0D2}.wem"
+     },
+     {
+      "Id": "680960967",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Facing-Fate_Skizze3.wav",
+      "Path": "Media/680960967.wem",
+      "CachePath": "14/{1431240E-EDDB-7F76-7669-70794C8D8CA2}.wem"
+     },
+     {
+      "Id": "681706893",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Stille_10sec.wav",
+      "Path": "Media/681706893.wem",
+      "CachePath": "EF/{EF3CFFE1-3AE0-164D-1531-0AABB3351A23}.wem"
+     },
+     {
+      "Id": "1064355943",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Facing-Fate_Skizze4.wav",
+      "Path": "Media/1064355943.wem",
+      "CachePath": "C3/{C3BF9B28-B464-D326-B1AF-077C38E4C675}.wem"
      }
     ],
     "Events": [
      {
       "Id": "1114964412",
       "Name": "Start_Game",
-      "ObjectPath": "\\Events\\Default Work Unit\\00_Start_Game\\Start_Game",
-      "GUID": "{CD32789C-DF13-4FB2-A770-E2156EB996D9}",
+      "ObjectPath": "\\Events\\Default Work Unit\\Scene_Events\\01_Start_Game\\Start_Game",
+      "GUID": "{1DA10804-6936-4683-AA25-A1B3769B499F}",
       "DurationType": "Infinite",
       "MediaRefs": [
        {
-        "Id": "191038975"
+        "Id": "384199141"
        },
        {
-        "Id": "248337119"
+        "Id": "387203994"
+       }
+      ],
+      "SwitchContainers": [
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4071417932",
+         "Id": "1031372527",
+         "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
+        },
+        "Children": [
+         {
+          "SwitchValue": {
+           "GroupType": "State",
+           "GroupId": "4066245315",
+           "Id": "2764240573",
+           "GUID": "{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"
+          },
+          "MediaRefs": [
+           {
+            "Id": "34910363"
+           },
+           {
+            "Id": "248337119"
+           },
+           {
+            "Id": "443425856"
+           },
+           {
+            "Id": "680960967"
+           },
+           {
+            "Id": "681706893"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4071417932",
+         "Id": "1031372527",
+         "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
+        },
+        "Children": [
+         {
+          "SwitchValue": {
+           "GroupType": "State",
+           "GroupId": "4066245315",
+           "Id": "917864931",
+           "GUID": "{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"
+          },
+          "MediaRefs": [
+           {
+            "Id": "34910363"
+           },
+           {
+            "Id": "248337119"
+           },
+           {
+            "Id": "443425856"
+           },
+           {
+            "Id": "680960967"
+           },
+           {
+            "Id": "681706893"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4071417932",
+         "Id": "1031372527",
+         "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
+        },
+        "Children": [
+         {
+          "SwitchValue": {
+           "GroupType": "State",
+           "GroupId": "4066245315",
+           "Id": "3853285476",
+           "GUID": "{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"
+          },
+          "MediaRefs": [
+           {
+            "Id": "34910363"
+           },
+           {
+            "Id": "191038975"
+           },
+           {
+            "Id": "443425856"
+           },
+           {
+            "Id": "681706893"
+           },
+           {
+            "Id": "1064355943"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4071417932",
+         "Id": "1265365118",
+         "GUID": "{E3F91561-DD3F-4CD7-8F79-FF3799D29D8D}"
+        },
+        "Children": [
+         {
+          "SwitchValue": {
+           "GroupType": "State",
+           "GroupId": "4066245315",
+           "Id": "2764240573",
+           "GUID": "{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"
+          },
+          "MediaRefs": [
+           {
+            "Id": "34910363"
+           },
+           {
+            "Id": "248337119"
+           },
+           {
+            "Id": "443425856"
+           },
+           {
+            "Id": "680960967"
+           },
+           {
+            "Id": "681706893"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4071417932",
+         "Id": "1265365118",
+         "GUID": "{E3F91561-DD3F-4CD7-8F79-FF3799D29D8D}"
+        },
+        "Children": [
+         {
+          "SwitchValue": {
+           "GroupType": "State",
+           "GroupId": "4066245315",
+           "Id": "917864931",
+           "GUID": "{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"
+          },
+          "MediaRefs": [
+           {
+            "Id": "34910363"
+           },
+           {
+            "Id": "248337119"
+           },
+           {
+            "Id": "443425856"
+           },
+           {
+            "Id": "680960967"
+           },
+           {
+            "Id": "681706893"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "StateGroups": [
+     {
+      "Id": "4066245315",
+      "Name": "LVL_State",
+      "ObjectPath": "\\States\\Default Work Unit\\LVL_State",
+      "GUID": "{F6650A3C-D783-4405-BA8C-1BBB09930234}",
+      "States": [
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\None",
+        "GUID": "{ADBF181A-5842-4024-A943-67EAA076E44C}"
+       },
+       {
+        "Id": "917864931",
+        "Name": "Random_Combat",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\Random_Combat",
+        "GUID": "{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"
+       },
+       {
+        "Id": "2764240573",
+        "Name": "Combat",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\Combat",
+        "GUID": "{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"
+       },
+       {
+        "Id": "3762955427",
+        "Name": "Tutorial",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\Tutorial",
+        "GUID": "{E795A0CD-17A2-463C-AFE4-F35086D4CD25}"
+       },
+       {
+        "Id": "3853285476",
+        "Name": "Title_Screen",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\Title_Screen",
+        "GUID": "{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"
+       }
+      ]
+     },
+     {
+      "Id": "4071417932",
+      "Name": "Player_State",
+      "ObjectPath": "\\States\\Default Work Unit\\Player_State",
+      "GUID": "{24E528FE-3BB3-4801-8749-972FE54BC921}",
+      "States": [
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\None",
+        "GUID": "{4334D4A2-4C75-422F-95B8-DBC6A8546EC3}"
+       },
+       {
+        "Id": "1031372527",
+        "Name": "PlayerAlive_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\PlayerAlive_State",
+        "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
+       },
+       {
+        "Id": "1265365118",
+        "Name": "PlayerDead_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\PlayerDead_State",
+        "GUID": "{E3F91561-DD3F-4CD7-8F79-FF3799D29D8D}"
        }
       ]
      }
     ]
    }
   ],
-  "FileHash": "{E9CCEFEF-B750-1D2D-DDCD-7807AB9B1465}"
+  "FileHash": "{C38E497D-6937-018B-F70A-E9A15C344616}"
  }
 }

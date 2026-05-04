@@ -1,6 +1,35 @@
+State Group	ID	Name			Wwise Object Path	Notes
+	766723505	Game_State			\Default Work Unit\Game_State	
+	2789492242	Room_State			\Default Work Unit\Room_State	
+	3826569560	Music_State			\Default Work Unit\Music_State	
+	4066245315	LVL_State			\Default Work Unit\LVL_State	
+	4071417932	Player_State			\Default Work Unit\Player_State	
+
+State	ID	Name	State Group			Notes
+	748895195	None	Game_State			
+	2678566748	InGame_State	Game_State			
+	3427763467	InMenu_State	Game_State			
+	748895195	None	Room_State			
+	1807907088	Outside_State	Room_State			
+	2599116615	Inside_State	Room_State			
+	118618844	HighMusic_State	Music_State			
+	395520184	LowMusic_State	Music_State			
+	748895195	None	Music_State			
+	1105946073	BossMusic_State	Music_State			
+	3246761572	MidMusic_State	Music_State			
+	748895195	None	LVL_State			
+	917864931	Random_Combat	LVL_State			
+	2764240573	Combat	LVL_State			
+	3762955427	Tutorial	LVL_State			
+	3853285476	Title_Screen	LVL_State			
+	748895195	None	Player_State			
+	1031372527	PlayerAlive_State	Player_State			
+	1265365118	PlayerDead_State	Player_State			
+
 Game Parameter	ID	Name			Wwise Object Path	Notes
 	460070935	RTPC_master_Vol			\Default Work Unit\Volume Slider\RTPC_master_Vol	
 	1766928022	RTPC_atmo_Vol			\Default Work Unit\Volume Slider\RTPC_atmo_Vol	
+	2120441819	RTPC_menu_focus			\Default Work Unit\Options Menu\RTPC_menu_focus	
 	3061620274	RTPC_music_Vol			\Default Work Unit\Volume Slider\RTPC_music_Vol	
 	3502123226	RTPC_sfx_Vol			\Default Work Unit\Volume Slider\RTPC_sfx_Vol	
 	3553633719	RTPC_dialogue_Vol			\Default Work Unit\Volume Slider\RTPC_dialogue_Vol	
@@ -18,7 +47,10 @@ Audio Bus	ID	Name			Wwise Object Path	Notes
 	3895923845	BUS_sfx			\Default Work Unit\Main Audio Bus\BUS_sfx	
 
 Auxiliary Bus	ID	Name			Wwise Object Path	Notes
-	1039155902	AUX_hall_Big			\Default Work Unit\Main Audio Bus\AUX_hall_Big	
+	865777238	AUX_OpMenu_Hall			\Default Work Unit\Main Audio Bus\AUX_OpMenu_Hall	
+
+Effect plug-ins	ID	Name	Type				Notes
+	3216246379	Space_Dreaming	Wwise RoomVerb			
 
 Audio Devices	ID	Name	Type				Notes
 	2317455096	No_Output	No Output			
