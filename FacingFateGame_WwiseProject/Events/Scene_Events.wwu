@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{AE04E30B-DDCA-438F-94FF-51EFD52C7497}" SchemaVersion="133" RootDocumentID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}" ParentDocumentID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}">
+	<Events>
+		<WorkUnit Name="Scene_Events" ID="{AE04E30B-DDCA-438F-94FF-51EFD52C7497}" OwnerID="{484C31EF-4C06-486A-90B7-70283B4C0AF8}" PersistMode="Nested">
+			<ChildrenList>
+				<Folder Name="01_Start_Game" ID="{B2805108-3FB0-4357-AA57-D053E8E872E8}" ShortID="686743687">
+					<ChildrenList>
+						<Event Name="Start_Game" ID="{1DA10804-6936-4683-AA25-A1B3769B499F}">
+							<ChildrenList>
+								<Action Name="" ID="{9D9D4C84-9ED5-4B0F-8354-319AA1F36739}" ShortID="224690543">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="ATMO_Demo" ID="{D76D34B3-8382-4AE5-BB06-846B1F97A75A}" WorkUnitID="{48DB7388-DE22-4065-B9E9-E3A66C4AA0A5}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+								<Action Name="" ID="{1C398AA9-21BD-4D1F-A7DF-52A0982D8563}" ShortID="1019178186">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="MUSIC_Demo" ID="{AFD24E39-A5E3-4943-A44B-8844FA00E046}" WorkUnitID="{4DAFA85E-5C3E-4BD4-9372-58A748D53293}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="10_End_Game" ID="{965E6755-F097-44E3-A289-2B8BEEC24B61}" ShortID="377142965">
+					<ChildrenList>
+						<Event Name="Stop_Game" ID="{FD9A2B9D-7CD3-4BE1-97D4-BA5D131FC559}">
+							<ChildrenList>
+								<Action Name="" ID="{F5D269F3-F34F-48F4-94A1-8239291424A8}" ShortID="150142727">
+									<PropertyList>
+										<Property Name="ActionType" Type="int16" Value="3"/>
+									</PropertyList>
+									<ReferenceList/>
+								</Action>
+							</ChildrenList>
+						</Event>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
+	</Events>
+</WwiseDocument>

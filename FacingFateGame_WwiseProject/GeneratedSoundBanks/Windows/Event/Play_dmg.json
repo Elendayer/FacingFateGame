@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "3025804934",
+    "Type": "Event",
+    "GUID": "{5AA3C06E-9B08-4C44-8C25-50079669C8A8}",
+    "Language": "SFX",
+    "Hash": "{73177D9C-44C6-6C07-70CE-946880777C02}",
+    "ObjectPath": "Play_dmg",
+    "ShortName": "Play_dmg",
+    "Path": "Event/Play_dmg.bnk",
+    "Events": [
+     {
+      "Id": "3025804934",
+      "Name": "Play_dmg",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Events_Charakter\\Play_dmg",
+      "GUID": "{5AA3C06E-9B08-4C44-8C25-50079669C8A8}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{B4D80D72-683E-25B0-FBFD-D59497016C92}"
+ }
+}

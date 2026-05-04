@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{8306E655-C6E7-48AF-9477-FFFAC23FFCB5}",
     "Language": "SFX",
-    "Hash": "{B4B858B0-8C2A-ABB4-BEED-629ED4EFAB4A}",
+    "Hash": "{D3C1D7C7-656F-01BD-2EA4-7CF259728424}",
     "ObjectPath": "Play_SFX_UI_back_to_title_screen",
     "ShortName": "Play_SFX_UI_back_to_title_screen",
     "Path": "Event/Play_SFX_UI_back_to_title_screen.bnk",
@@ -22,14 +22,14 @@
       "Location": "Loose",
       "ShortName": "WS_Back-to-title-screen.wav",
       "Path": "Media/988404399.wem",
-      "CachePath": "D2/{D20A6E46-A0CB-CEDF-9CA5-15945700ACB4}.wem"
+      "CachePath": "FA/{FAD9DF78-2BD0-3912-C8CC-E28AF628A56F}.wem"
      }
     ],
     "Events": [
      {
       "Id": "3206396784",
       "Name": "Play_SFX_UI_back_to_title_screen",
-      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Options_Basic-UI\\Play_SFX_UI_back_to_title_screen",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Evenst_UI\\Play_SFX_UI_back_to_title_screen",
       "GUID": "{8306E655-C6E7-48AF-9477-FFFAC23FFCB5}",
       "DurationType": "OneShot",
       "DurationMin": "4",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{BA5B7AA7-B454-7E95-D57D-85528EC79EA2}"
+  "FileHash": "{C041BD53-DC6F-918C-2EEC-0B49F355A2F9}"
  }
 }
