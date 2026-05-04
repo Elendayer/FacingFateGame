@@ -107,6 +107,10 @@ MonoBehaviour:
     m_Key: RandomEncounter_Button
     m_Metadata:
       m_Items: []
+  - m_Id: 41669709465694208
+    m_Key: Tutorial_Continue
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -110,6 +110,10 @@ MonoBehaviour:
     m_Localized: "Zuf\xE4lliger Encounter"
     m_Metadata:
       m_Items: []
+  - m_Id: 41669709465694208
+    m_Localized: Weiter
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
