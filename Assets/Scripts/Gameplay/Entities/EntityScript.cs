@@ -20,8 +20,6 @@ namespace facingfate
 
         [Header("Entity Gameplay References")]
         public EntityVisualScript EntityVisual;
-        public MeshFilter EntityModel;
-        public MeshRenderer EntityRenderer;
         public EntityOnMap EntityOnMap;
 
         [Header("Audio")]
@@ -66,9 +64,10 @@ namespace facingfate
         private readonly List<IEntityModifier> entityModifiers = new();
         public List<string> modifierNames;
 
-        public void AddModifier(IEntityModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
+        public void AddModifier(IEntityModifier modifier)
         {
             var existing = entityModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
+            var strategy = modifier.ModifierMergeStrategy;
 
             switch (strategy)
             {

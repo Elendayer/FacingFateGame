@@ -55,9 +55,9 @@ MonoBehaviour:
   uiBounds:
     serializedVersion: 2
     x: -547
-    y: -1667
-    width: 2126
-    height: 2516
+    y: -1666
+    width: 2124
+    height: 2503
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -388,7 +388,7 @@ MonoBehaviour:
   particlePerStripCount: 32
   needsComputeBounds: 0
   boundsMode: 0
-  m_Space: 1
+  m_Space: 0
 --- !u!114 &8926484042661615297
 MonoBehaviour:
   m_ObjectHideFlags: 0

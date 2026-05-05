@@ -17,7 +17,11 @@ namespace facingfate
     public enum TargetingMode
     {
         Entities,
-        Ground
+        Ground,
+        Aim,
+        Caster,
+        Coroutine,
+
     }
 
     /// <summary>
@@ -69,6 +73,14 @@ namespace facingfate
             delayBeforeExecution = delayBefore;
             delayBetweenTargets = delayBetween;
             actionDelegate = action;
+        }
+        public CardAction(ExecutionMode mode, TargetingMode targeting, float delayBefore, float delayBetween, Func<EntityScript, TargetingModeData, CardData, IEnumerator> coroutine)
+        {
+            executionMode = mode;
+            targetingMode = TargetingMode.Coroutine;
+            delayBeforeExecution = delayBefore;
+            delayBetweenTargets = delayBetween;
+            actionDelegate = coroutine;
         }
     }
 
@@ -127,6 +139,38 @@ namespace facingfate
         /// </summary>
         private IEnumerator ExecuteAction(CardAction action)
         {
+            if (action.targetingMode == TargetingMode.Coroutine)
+            {
+                var coroutine = action.actionDelegate as Func<EntityScript, TargetingModeData, CardData, IEnumerator>;
+                if (coroutine == null)
+                    yield break;
+
+                yield return TimelineManager.GlobalActionQueue.StartCoroutine(coroutine(caster, targetingData, cardData));
+                yield break;
+            }
+
+            if (action.targetingMode == TargetingMode.Aim)
+            {
+                var aimAction = action.actionDelegate as Action<EntityScript, Vector3, CardData>;
+                if (aimAction == null)
+                    yield break;
+
+                aimAction.Invoke(caster, targetingData.aimPosition, cardData);
+                yield return null;
+                yield break;
+            }
+
+            if (action.targetingMode == TargetingMode.Caster)
+            {
+                var casterAction = action.actionDelegate as Action<EntityScript, EntityScript, CardData>;
+                if (casterAction == null)
+                    yield break;
+
+                casterAction.Invoke(caster, caster, cardData);
+                yield return null;
+                yield break;
+            }
+
             // Determine if this is an entity or ground targeting action
             bool isGroundTargeting = action.targetingMode == TargetingMode.Ground;
 

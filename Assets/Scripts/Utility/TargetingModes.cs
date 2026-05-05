@@ -14,6 +14,8 @@ namespace facingfate
     public class TargetingModeData
     {
         public Vector3 castingPosition { get; set; }
+        public Vector3 aimPosition { get; set; }
+
         public List<EntityScript> targetedEntities { get; set; } = new();
         public List<Vector3> targetedPositions { get; set; } = new();
         public bool IsReachable { get; set; } = true;
@@ -34,7 +36,7 @@ namespace facingfate
             ITargetingMode mode = null;
             switch (card.cardData.targetingData.cardTargetingMode)
             {
-                case CardTargetingMode.Radius:
+                case CardTargetingMode.Sphere:
                     mode = new RadiusTargetingMode();
                     break;
                 case CardTargetingMode.Ring:
@@ -86,6 +88,17 @@ namespace facingfate
         {
             var entityOnMap = entity.GetComponent<EntityOnMap>();
             return entityOnMap != null ? entityOnMap.transform.position : entity.transform.position;
+        }
+
+        /// <summary>
+        /// Returns true if the target is out of range. Self-affiliation targets (owner == target)
+        /// always pass the range check regardless of card range.
+        /// </summary>
+        protected bool IsOutOfRange(EntityScript target, EntityScript owner, Vector3 ownerWorldPos, Vector3 targetWorldPos, float cardRange, CardData cardData)
+        {
+            if (cardData.targetingData.CardTargetAffiliation == CardTargetAffiliation.Self)
+                return false;
+            return Vector3.Distance(ownerWorldPos, targetWorldPos) > cardRange;
         }
 
         /// <summary>
@@ -152,8 +165,8 @@ namespace facingfate
                 var targetWorldPos = GetWorldPositionFromEntity(t);
                 var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
 
-                // Only include target if within range
-                if (distToTarget > cardRange)
+                // Only include target if within range (Self targets always pass)
+                if (IsOutOfRange(t, owner, ownerWorldPos, targetWorldPos, cardRange, card.cardData))
                 {
                     Debug.Log($"[SingleTargetingMode] Target '{t.name}' rejected: OUT OF RANGE (distance: {distToTarget:F2}, card range: {cardRange:F2})");
                     continue;
@@ -171,6 +184,7 @@ namespace facingfate
                 results.Add(new TargetingModeData
                 {
                     castingPosition = ownerWorldPos,
+                    aimPosition = targetWorldPos,
                     targetedPositions = new List<Vector3> { targetWorldPos },
                     targetedEntities = new List<EntityScript> { t },
                     IsReachable = true
@@ -204,8 +218,8 @@ namespace facingfate
                 var targetWorldPos = GetWorldPositionFromEntity(t);
                 var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
 
-                // Skip targets outside range
-                if (distToTarget > cardRange)
+                // Skip targets outside range (Self targets always pass)
+                if (IsOutOfRange(t, owner, ownerWorldPos, targetWorldPos, cardRange, card.cardData))
                 {
                     Debug.Log($"[RadiusTargetingMode] Target '{t.name}' skipped: OUT OF RANGE (distance: {distToTarget:F2})");
                     continue;
@@ -228,6 +242,7 @@ namespace facingfate
                     results.Add(new TargetingModeData
                     {
                         castingPosition = ownerWorldPos,
+                        aimPosition = targetWorldPos,
                         targetedPositions = hitEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
                         targetedEntities = hitEntities,
                         IsReachable = true
@@ -267,13 +282,13 @@ namespace facingfate
                 var targetWorldPos = GetWorldPositionFromEntity(t);
                 var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
 
-                // Skip targets outside range
-                if (distToTarget > cardData.Range)
+                // Skip targets outside range (Self targets always pass)
+                if (IsOutOfRange(t, owner, ownerWorldPos, targetWorldPos, cardData.Range, cardData))
                 {
                     continue;
                 }
 
-                var hitEntities = TargetingUtility.GetEntitiesInPhysicsRing(targetWorldPos, cardData.Radius, cardData.Area,  cardData);
+                var hitEntities = TargetingUtility.GetEntitiesInPhysicsRing(targetWorldPos, cardData.Radius, cardData.Radius + cardData.Area, cardData);
 
                 // Filter by vision if enabled
                 if (cardData.targetingData.TargetingUsesVision && hitEntities.Count > 0)
@@ -287,6 +302,7 @@ namespace facingfate
                     results.Add(new TargetingModeData
                     {
                         castingPosition = ownerWorldPos,
+                        aimPosition = targetWorldPos,
                         targetedPositions = hitEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
                         targetedEntities = hitEntities,
                         IsReachable = true
@@ -318,7 +334,7 @@ namespace facingfate
             Debug.Log($"[RingSelfTargetingMode] Starting evaluation at caster position: {ownerWorldPos}, Card range: {cardData.Range}, Radius: {cardData.Radius}, Area: {cardData.Area}");
 
             // Get all entities in the ring centered on the caster
-            var hitEntities = TargetingUtility.GetEntitiesInPhysicsRing(ownerWorldPos, cardData.Radius, cardData.Area, cardData);
+            var hitEntities = TargetingUtility.GetEntitiesInPhysicsRing(ownerWorldPos, cardData.Radius, cardData.Radius + cardData.Area, cardData);
 
             // Filter by vision if enabled
             if (cardData.targetingData.TargetingUsesVision && hitEntities.Count > 0)
@@ -335,6 +351,7 @@ namespace facingfate
                 results.Add(new TargetingModeData
                 {
                     castingPosition = ownerWorldPos,
+                    aimPosition = ownerWorldPos,
                     targetedPositions = hitEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
                     targetedEntities = hitEntities,
                     IsReachable = true
@@ -369,8 +386,8 @@ namespace facingfate
                 var direction = (targetWorldPos - ownerWorldPos).normalized;
                 var distance = Vector3.Distance(ownerWorldPos, targetWorldPos);
 
-                // Skip targets outside range
-                if (distance > cardRange)
+                // Skip targets outside range (Self targets always pass)
+                if (IsOutOfRange(target, owner, ownerWorldPos, targetWorldPos, cardRange, card.cardData))
                 {
                     Debug.Log($"[LineSelfTargetingMode] Target '{target.name}' skipped: OUT OF RANGE (distance: {distance:F2})");
                     continue;
@@ -393,6 +410,7 @@ namespace facingfate
                     results.Add(new TargetingModeData
                     {
                         castingPosition = ownerWorldPos,
+                        aimPosition = targetWorldPos,
                         targetedPositions = hitEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
                         targetedEntities = hitEntities,
                         IsReachable = true
@@ -441,11 +459,12 @@ namespace facingfate
                     var startWorldPos = GetWorldPositionFromEntity(startTarget);
                     var endWorldPos = GetWorldPositionFromEntity(endTarget);
 
-                    // Both targets must be within range of the owner
+                    // Both targets must be within range of the owner (Self targets always pass)
                     float distStart = Vector3.Distance(ownerWorldPos, startWorldPos);
                     float distEnd = Vector3.Distance(ownerWorldPos, endWorldPos);
 
-                    if (distStart > cardRange || distEnd > cardRange)
+                    if (IsOutOfRange(startTarget, owner, ownerWorldPos, startWorldPos, cardRange, card.cardData) ||
+                        IsOutOfRange(endTarget, owner, ownerWorldPos, endWorldPos, cardRange, card.cardData))
                     {
                         Debug.Log($"[LineFreeTargetingMode] Line '{startTarget.name}'-'{endTarget.name}' skipped: OUT OF RANGE (distances: {distStart:F2}, {distEnd:F2})");
                         continue;
@@ -471,6 +490,7 @@ namespace facingfate
                         results.Add(new TargetingModeData
                         {
                             castingPosition = ownerWorldPos,
+                            aimPosition = startWorldPos,
                             targetedPositions = hitEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
                             targetedEntities = hitEntities,
                             IsReachable = true
@@ -513,8 +533,8 @@ namespace facingfate
                 var targetWorldPos = GetWorldPositionFromEntity(t);
                 var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
 
-                // Skip targets outside range
-                if (distToTarget > cardRange)
+                // Skip targets outside range (Self targets always pass)
+                if (IsOutOfRange(t, owner, ownerWorldPos, targetWorldPos, cardRange, card.cardData))
                 {
                     Debug.Log($"[ConeTargetingMode] Target '{t.name}' skipped: OUT OF RANGE (distance: {distToTarget:F2})");
                     continue;
@@ -538,6 +558,7 @@ namespace facingfate
                     results.Add(new TargetingModeData
                     {
                         castingPosition = ownerWorldPos,
+                        aimPosition = targetWorldPos,
                         targetedPositions = hitEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
                         targetedEntities = hitEntities,
                         IsReachable = true
@@ -581,8 +602,8 @@ namespace facingfate
                 var targetWorldPos = GetWorldPositionFromEntity(t);
                 var distToTarget = Vector3.Distance(ownerWorldPos, targetWorldPos);
 
-                // Skip targets outside range
-                if (distToTarget > cardRange)
+                // Skip targets outside range (Self targets always pass)
+                if (IsOutOfRange(t, owner, ownerWorldPos, targetWorldPos, cardRange, card.cardData))
                 {
                     Debug.Log($"[SelectionTargetingMode] Target '{t.name}' skipped: OUT OF RANGE (distance: {distToTarget:F2})");
                     continue;
@@ -610,6 +631,7 @@ namespace facingfate
                 results.Add(new TargetingModeData
                 {
                     castingPosition = ownerWorldPos,
+                    aimPosition = targetWorldPos,
                     targetedPositions = hitEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
                     targetedEntities = hitEntities,
                     IsReachable = true
@@ -662,6 +684,7 @@ namespace facingfate
             TargetingModeData result = new TargetingModeData
             {
                 castingPosition = ownerPos,
+                aimPosition = ownerPos,
                 targetedPositions = validEntities.Select(e => GetWorldPositionFromEntity(e)).ToList(),
                 targetedEntities = validEntities,
                 IsReachable = true

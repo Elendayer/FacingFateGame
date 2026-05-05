@@ -263,7 +263,7 @@ namespace facingfate
 
         [Header("Area of Effect")]
         public Func<CardData, float> rangeFunc;
-        public float range_u = 0.7f;
+        public float range_u = 1f;
         public Stat range_s_Flat = new();
         public Stat range_s_Increase = new();
         public Stat range_s_Multiplier = new();
@@ -723,7 +723,7 @@ namespace facingfate
     public enum CardTargetingMode
     {
         Single,
-        Radius,
+        Sphere,
         Ring,
         RingSelf,
         LineFree,

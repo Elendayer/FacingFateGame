@@ -127,6 +127,7 @@ public static class TargetingUtility
     public static List<EntityScript> GetEntitiesInPhysicsRing(Vector3 worldPos, float innerRadius, float outerRadius, CardData cardData = null)
     {
         Collider[] colliders = Physics.OverlapSphere(worldPos, outerRadius);
+
         List<EntityScript> results = new();
 
         foreach (var collider in colliders)
@@ -136,16 +137,23 @@ public static class TargetingUtility
 
             float dist = Vector3.Distance(worldPos, entity.transform.position);
 
+            Debug.Log($"Entity {entity.name} at distance {dist:F2} from center. InnerRadius: {innerRadius}, OuterRadius: {outerRadius}");
+
             // Include targets within the ring (between inner and outer radius)
             if (dist < innerRadius || dist > outerRadius)
                 continue;
 
+
             if (cardData != null && !IsTargetValid(cardData, entity))
                 continue;
 
+            Debug.Log ("Valid target in ring!");
+
             results.Add(entity);
         }
-        return results;
+        
+        Debug.Log (results.Count);
+            return results;
     }
 
     /// <summary>
@@ -175,7 +183,7 @@ public static class TargetingUtility
                 continue;
 
             float angle = Vector3.Angle(direction, toEntity);
-            if (angle <= coneAngle * 0.5f)
+            if (angle <= coneAngle)
             {
                 // Check line of sight with physics raycast
                 if (HasPhysicsLineOfSight(origin, entityPos.transform.position))
@@ -286,6 +294,7 @@ public static class TargetingUtility
 
         // Store caster position for visualization (will be updated for specific modes below)
         targetingModeData.castingPosition = castWorldPos;
+        targetingModeData.aimPosition = aimWorldPos;
 
         switch (cardData.targetingData.cardTargetingMode)
         {
@@ -297,6 +306,24 @@ public static class TargetingUtility
                         {
                             entities.AddRange(GetEntitiesInPhysicsSphere(pos, 0.1f, cardData));
                         }
+                    }
+                }
+                break;
+        
+                case CardTargetingMode.SelectionUnique:
+                {
+                    if (selectedPositions != null)
+                    {
+                        HashSet<EntityScript> uniqueEntities = new();
+                        foreach (var pos in selectedPositions)
+                        {
+                            var entitiesAtPos = GetEntitiesInPhysicsSphere(pos, 0.1f, cardData);
+                            foreach (var entity in entitiesAtPos)
+                            {
+                                uniqueEntities.Add(entity);
+                            }
+                        }
+                        entities = uniqueEntities.ToList();
                     }
                 }
                 break;
@@ -312,7 +339,7 @@ public static class TargetingUtility
             case CardTargetingMode.Cone:
                 {
                     Vector3 direction = (aimWorldPos - castWorldPos).normalized;
-                    entities = GetEntitiesInPhysicsCone(castWorldPos, direction, cardData.Range, 45, cardData);
+                    entities = GetEntitiesInPhysicsCone(castWorldPos, direction, cardData.Range, cardData.Area, cardData);
                 }
                 break;
             case CardTargetingMode.LineSelf:
@@ -323,16 +350,16 @@ public static class TargetingUtility
                 break;
             case CardTargetingMode.Ring:
                 {
-                    entities = GetEntitiesInPhysicsRing(aimWorldPos, cardData.Radius, cardData.Area, cardData);
+                    entities = GetEntitiesInPhysicsRing(aimWorldPos, cardData.Radius, cardData.Radius + cardData.Area, cardData);
                 }
                 break;
             case CardTargetingMode.RingSelf:
                 {
                     // Ring centered at the caster's position, not the aim position
-                    entities = GetEntitiesInPhysicsRing(castWorldPos, cardData.Radius, cardData.Area, cardData);
+                    entities = GetEntitiesInPhysicsRing(castWorldPos, cardData.Radius, cardData.Radius + cardData.Area, cardData);
                 }
                 break;
-            case CardTargetingMode.Radius:
+            case CardTargetingMode.Sphere:
                 {
                     entities = GetEntitiesInPhysicsSphere(aimWorldPos, cardData.Radius, cardData);
                 }

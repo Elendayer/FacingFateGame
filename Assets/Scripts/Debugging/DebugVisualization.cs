@@ -35,22 +35,22 @@ namespace facingfate
         /// <summary>
         /// Visualizes a targeting cone.
         /// </summary>
-        public static void DrawCone(Vector3 apex, Vector3 direction, float range, float coneAngle, Color color, float duration = 0f)
+        public static void DrawCone(Vector3 origin, Vector3 target, float range, float coneAngle, Color color, float duration = 0f)
         {
             if (!isEnabled) return;
 
-            direction = direction.normalized;
-            float halfAngle = coneAngle * 0.5f;
+            target = target.normalized;
+            float halfAngle = coneAngle;
 
             // Draw cone end circle
-            Vector3 coneEnd = apex + direction * range;
+            Vector3 coneEnd = origin + target * range;
             float coneRadiusAtEnd = range * Mathf.Tan(halfAngle * Mathf.Deg2Rad);
 
-            Vector3 perpendicular1 = Vector3.Cross(direction, Vector3.up);
+            Vector3 perpendicular1 = Vector3.Cross(target, Vector3.up);
             if (perpendicular1.magnitude < 0.1f)
-                perpendicular1 = Vector3.Cross(direction, Vector3.right);
+                perpendicular1 = Vector3.Cross(target, Vector3.right);
             perpendicular1 = perpendicular1.normalized;
-            Vector3 perpendicular2 = Vector3.Cross(direction, perpendicular1).normalized;
+            Vector3 perpendicular2 = Vector3.Cross(target, perpendicular1).normalized;
 
             DrawCircle(coneEnd, perpendicular1, perpendicular2, coneRadiusAtEnd, color, duration);
 
@@ -60,10 +60,10 @@ namespace facingfate
             Vector3 edgePoint3 = coneEnd + perpendicular2 * coneRadiusAtEnd;
             Vector3 edgePoint4 = coneEnd - perpendicular2 * coneRadiusAtEnd;
 
-            Debug.DrawLine(apex, edgePoint1, color, duration);
-            Debug.DrawLine(apex, edgePoint2, color, duration);
-            Debug.DrawLine(apex, edgePoint3, color, duration);
-            Debug.DrawLine(apex, edgePoint4, color, duration);
+            Debug.DrawLine(origin, edgePoint1, color, duration);
+            Debug.DrawLine(origin, edgePoint2, color, duration);
+            Debug.DrawLine(origin, edgePoint3, color, duration);
+            Debug.DrawLine(origin, edgePoint4, color, duration);
         }
 
         /// <summary>
@@ -109,49 +109,48 @@ namespace facingfate
             if (!isEnabled || data == null || cardData == null) return;
 
             Vector3 castOrigin = data.castingPosition;
+            Vector3 aimOrigin = data.aimPosition;
 
             switch (mode)
             {
-                case CardTargetingMode.Radius:
-                    // Radius is centered on the aimed position, not the caster
-                    if (data.targetedPositions.Count > 0)
-                    {
-                        Vector3 radiusCenter = data.targetedPositions[0];
-                        DrawSphere(radiusCenter, cardData.Radius, effectColor, duration);
-                        DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
-                    }
+                case CardTargetingMode.Sphere:
+
+                    DrawSphere(aimOrigin, cardData.Radius, effectColor, duration);
+                    DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
+
                     break;
 
                 case CardTargetingMode.Ring:
-                    // Ring is centered on the aimed position, not the caster
-                    if (data.targetedPositions.Count > 0)
-                    {
-                        Vector3 ringCenter = data.targetedPositions[0];
-                        DrawSphere(ringCenter, cardData.Radius, effectColor, duration);
-                        DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
-                    }
+
+                    DrawRing(aimOrigin, cardData.Radius, cardData.Radius + cardData.Area, effectColor, duration);
+                    DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
+                    DrawRingEntityLines(aimOrigin, cardData.Radius, cardData.Radius + cardData.Area, duration);
+
+                    break;
+
+                case CardTargetingMode.RingSelf:
+                    // Ring is centered on the caster's position (aimOrigin == castOrigin for self)
+                    DrawRing(aimOrigin, cardData.Radius, cardData.Radius + cardData.Area, effectColor, duration);
+                    DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
+                    DrawRingEntityLines(aimOrigin, cardData.Radius, cardData.Radius + cardData.Area, duration);
                     break;
 
                 case CardTargetingMode.Cone:
                     if (data.targetedPositions.Count > 0)
                     {
-                        Vector3 direction = (data.targetedPositions[0] - castOrigin).normalized;
-                        DrawCone(castOrigin, direction, cardData.Range, cardData.Area, effectColor, duration);
+                        Vector3 coneDirection = (aimOrigin - castOrigin).normalized;
+                        if (coneDirection == Vector3.zero) coneDirection = Vector3.forward;
+                        DrawCone(castOrigin, coneDirection, cardData.Range, cardData.Area, effectColor, duration);
                         DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     }
                     break;
 
                 case CardTargetingMode.LineSelf:
-                    // Draw line from caster's position along the targeting direction
-                    if (data.targetedPositions.Count > 0)
+                    // Draw line from caster toward the aimed position
                     {
-                        Vector3 direction = (data.targetedPositions[0] - castOrigin).normalized;
-                        DrawCapsule(castOrigin, castOrigin + direction * cardData.Range, cardData.Area, effectColor, duration);
-                    }
-                    else
-                    {
-                        Vector3 direction = Vector3.forward;
-                        DrawCapsule(castOrigin, castOrigin + direction * cardData.Range, cardData.Area, effectColor, duration);
+                        Vector3 lineDirection = (aimOrigin - castOrigin).normalized;
+                        if (lineDirection == Vector3.zero) lineDirection = Vector3.forward;
+                        DrawCapsule(castOrigin, castOrigin + lineDirection * cardData.Range, cardData.Area, effectColor, duration);
                     }
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
@@ -171,18 +170,63 @@ namespace facingfate
                     break;
 
                 case CardTargetingMode.Single:
-                    DrawSphere(castOrigin, 0.3f, effectColor, duration);
+                    DrawSphere(aimOrigin, 0.3f, effectColor, duration);
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
 
                 case CardTargetingMode.Select:
-                    DrawSphere(castOrigin, cardData.Radius, effectColor, duration);
+                    DrawSphere(aimOrigin, cardData.Radius, effectColor, duration);
+                    DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
+                    break;
+
+                case CardTargetingMode.SelectionUnique:
+                    DrawSphere(aimOrigin, cardData.Radius, effectColor, duration);
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
 
                 case CardTargetingMode.All:
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Draws a line from the ring center to each entity position.
+        /// Green if the entity is within the ring area, red otherwise.
+        /// </summary>
+        public static void DrawRingEntityLines(Vector3 center, float innerRadius, float outerRadius, float duration = 0f)
+        {
+            if (!isEnabled) return;
+
+            var allEntities = TargetingUtility.AllEntitiesCache();
+
+            foreach (var entity in allEntities)
+            {
+                if (entity == null) continue;
+                Vector3 pos = entity.transform.position;
+                float dist = Vector3.Distance(center, pos);
+                bool inRing = dist >= innerRadius && dist <= outerRadius;
+                Color lineColor = inRing ? Color.green : Color.red;
+                Debug.DrawLine(center, pos, lineColor, duration);
+            }
+        }
+
+        /// <summary>
+        /// Visualizes a ring (annulus) with inner and outer radii.
+        /// </summary>
+        public static void DrawRing(Vector3 center, float innerRadius, float outerRadius, Color color, float duration = 0f)
+        {
+            if (!isEnabled) return;
+            DrawCircle(center, Vector3.up, innerRadius, color, duration);
+            DrawCircle(center, Vector3.up, outerRadius, color, duration);
+
+            // Draw radial connector lines to make the ring shape clear
+            int connectors = 8;
+            for (int i = 0; i < connectors; i++)
+            {
+                float angle = (i / (float)connectors) * Mathf.PI * 2f;
+                Vector3 dir = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+                Debug.DrawLine(center + dir * innerRadius, center + dir * outerRadius, color, duration);
             }
         }
 

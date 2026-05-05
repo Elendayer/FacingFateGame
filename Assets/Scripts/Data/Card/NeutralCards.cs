@@ -139,8 +139,9 @@ namespace facingfate
                                         stat: target.entityStats.MovementCostModifier_Increase,
                                         value: 1,
                                         condition: true,
-                                        duration: cardData.Duration
-                                    ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                                        duration: cardData.Duration,
+                                        modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                                    ));
                             
                         }
                     ),
@@ -477,6 +478,7 @@ namespace facingfate
                                 baseValue: cardData.Damage,
                                 toTriggerRefs: new() { GameplayRef.onBleed },
                                 duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
                                     OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -488,7 +490,7 @@ namespace facingfate
                                     CombatUtility.ApplyEffectDamage(value, targetEntity, GameplayRef.onBleed, new VFXData("BleedEffect"));
                                 });
 
-                            CombatUtility.ApplyEntityModifier(cardData, target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyEntityModifier(cardData, target, bleed);
                         }
                     )
                 }
@@ -767,9 +769,10 @@ namespace facingfate
                                 name: "Focus",
                                 stat: stat,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -811,16 +814,18 @@ namespace facingfate
                                 name: "Growl Damage Reduction",
                                 stat: target.entityStats.DamageOutModifier_Flat,
                                 value: cardData.Power,
-                                duration: cardData.Duration
-                            ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                            ));
 
                             CombatUtility.ApplyStatDebuff(cardData, target, new StatModifier(
                                 name: "Growl Armour Reduction",
                                 stat: target.entityStats.Armour_Increase,
                                 value: 10,
                                 condition: true,
-                                duration: cardData.Duration
-                            ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                            ));
                         })
                 }
             });
@@ -845,7 +850,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Ally,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage {Power}.",
@@ -863,9 +868,9 @@ namespace facingfate
                                     name: "Damage",
                                     stat: target.entityStats.DamageOutModifier_Flat,
                                     value: cardData.Power,
-                                    duration: cardData.Duration
-                                ),
-                                ModifierMergeStrategy.RefreshDurationAndMerge);
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                                ));
                         })
                 }
             });
@@ -905,8 +910,9 @@ namespace facingfate
                                         name: "Warcry Damage Reduction",
                                         stat: target.entityStats.DamageOutModifier_Increase,
                                         value: -10,
-                                        duration: 2
-                                    ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                                        duration: 2,
+                                        modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                                    ));
                             }
                             else
                             {
@@ -915,8 +921,9 @@ namespace facingfate
                                         name: "Warcry Damage Taken Reduction",
                                         stat: target.entityStats.DamageTakenModifier_Increase,
                                         value: -20,
-                                        duration: 2
-                                    ), ModifierMergeStrategy.Override);
+                                        duration: 2,
+                                        modifierMergeStrategy: ModifierMergeStrategy.Override
+                                    ));
                             }
                         }
                     )
@@ -962,9 +969,10 @@ namespace facingfate
                                 stat: stat,
                                 value: cardData.Power,
                                 condition: true,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.Override
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.Override);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }

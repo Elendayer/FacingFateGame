@@ -551,7 +551,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
                 cardDescriptionAction = (User, d) => d.cardDescription = "Proc all status effects on enemies in area.",
                 cardActionSequence = new()
@@ -606,6 +606,7 @@ namespace facingfate
                                 baseValue: cardData.Damage,
                                 toTriggerRefs: new() { GameplayRef.onBurn },
                                 duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
                                     OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -616,7 +617,7 @@ namespace facingfate
                                 {
                                     CombatUtility.ApplyDamage(null, targetEntity, new VFXData("Impact"), value);
                                 });
-                            CombatUtility.ApplyEntityModifier(cardData, target, ignite, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyEntityModifier(cardData, target, ignite);
                         })
                     )
                 }

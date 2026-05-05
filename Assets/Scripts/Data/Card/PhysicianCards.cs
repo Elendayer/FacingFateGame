@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -61,6 +62,7 @@ namespace facingfate
                                 baseValue: cardData.Healing,
                                 toTriggerRefs: new() { GameplayRef.onHealRecieved },
                                 duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
                                     OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -72,8 +74,7 @@ namespace facingfate
                                     CombatUtility.ApplyHealing(cd, targetEntity, value);
                                 }
                             );
-
-                            CombatUtility.ApplyEntityModifier(cardData, target, regen, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyEntityModifier(cardData, target, regen);
                         }
                     )
                 }
@@ -371,9 +372,10 @@ namespace facingfate
                                 name: "MovementCostMultiplier",
                                 stat: target.entityStats.MovementCostModifier_Multiplier,
                                 value: 0.5f,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -499,7 +501,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Ally,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Allies in range gain {Power} increased damage for {Duration} turns.",
@@ -517,9 +519,10 @@ namespace facingfate
                                 name: "Damage",
                                 stat: target.entityStats.DamageOutModifier_Increase,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -585,7 +588,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and Root enemies for {Duration} turns.",
@@ -613,9 +616,10 @@ namespace facingfate
                                 owner: target,
                                 baseValue: cardData.Power,
                                 duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onApply_Action: (targetEntity, cd, value) => { targetEntity.entityStats.IsRooted = true; },
                                 onRemove_Action: (targetEntity, cd, value) => { targetEntity.entityStats.IsRooted = false; }
-                            ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                            ));
                         }
                     )
                 }
@@ -640,7 +644,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage and Burn for {SecondaryDamage}/turn over {Duration} turns.",
@@ -669,6 +673,7 @@ namespace facingfate
                                 baseValue: cardData.SecondaryDamage,
                                 toTriggerRefs: new() { GameplayRef.onBurn },
                                 duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
                                     OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -679,7 +684,7 @@ namespace facingfate
                                 {
                                     CombatUtility.ApplyDamage(null, targetEntity, new VFXData("BurnEffect", true), value);
                                 });
-                            CombatUtility.ApplyEntityModifier(cardData, target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyEntityModifier(cardData, target, burn);
                         }
                     )
                 }
@@ -758,9 +763,10 @@ namespace facingfate
                                 name: "Health",
                                 stat: target.entityStats.MaxHealth_Flat,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -802,9 +808,10 @@ namespace facingfate
                                 name: "Health",
                                 stat: target.entityStats.MaxHealth_Flat,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.Merge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.Merge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -883,9 +890,10 @@ namespace facingfate
                                 name: "Stamina",
                                 stat: target.entityStats.MaxStamina_Flat,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -927,9 +935,10 @@ namespace facingfate
                                 name: "Stamina",
                                 stat: target.entityStats.MaxStamina_Flat,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.Merge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.Merge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -971,9 +980,10 @@ namespace facingfate
                                 name: "Armour",
                                 stat: target.entityStats.Armour_Flat,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -1012,12 +1022,13 @@ namespace facingfate
                         action: (caster, target, cardData) =>
                         {
                             var mod = new StatModifier(
-                                name: $"ArmourIncrease",
+                                name: "ArmourIncrease",
                                 stat: target.entityStats.Armour_Increase,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -1059,9 +1070,10 @@ namespace facingfate
                                 name: "Armour",
                                 stat: target.entityStats.Armour_Flat,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.Merge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.Merge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -1100,14 +1112,13 @@ namespace facingfate
                         action: (caster, target, cardData) =>
                         {
                             CombatUtility.ApplyStatBuff(cardData, target,
-                                new StatModifier
-                                (
-                                name: $"SoaringDragon",
-                                stat: target.entityStats.DamageOutModifier_Flat,
-                                value: cardData.Power,
-                                duration: cardData.Duration
-                            ),
-                           ModifierMergeStrategy.RefreshDurationAndMerge);
+                                new StatModifier(
+                                    name: "SoaringDragon",
+                                    stat: target.entityStats.DamageOutModifier_Flat,
+                                    value: cardData.Power,
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                                ));
                         }
                     )
                 }
@@ -1149,9 +1160,10 @@ namespace facingfate
                                 name: "Damage",
                                 stat: target.entityStats.DamageOutModifier_Increase,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -1193,9 +1205,10 @@ namespace facingfate
                                 name: "Damage",
                                 stat: target.entityStats.DamageOutModifier_Increase,
                                 value: cardData.Power,
-                                duration: cardData.Duration
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.Merge
                             );
-                            CombatUtility.ApplyStatBuff(cardData, target, mod, ModifierMergeStrategy.Merge);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
                         }
                     )
                 }
@@ -1217,7 +1230,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = $"Cleanses Target of all DoTs.",
@@ -1256,7 +1269,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 CardAiBias = new CardAiBias
@@ -1264,60 +1277,57 @@ namespace facingfate
                     DamageOverrideValue = 40
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Create a cloud of poison, inflicting Poison dealing {Damage} for {Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Create a cloud of poison lasting {Duration} turns, inflicting Poison dealing {Damage} for 3 turns.",
 
                 cardActionSequence = new()
                 {
                     new CardAction(
-                        ExecutionMode.AllAtOnce,
-                        TargetingMode.Ground,
+                        ExecutionMode.Once,
+                        TargetingMode.Aim,
                         delayBefore: 0f,
                         delayBetween: 0.0f,
                         action: (caster, target, cardData) =>
                         {
-
-                                var poisonModifier = new EntityModifier
-                            (
-                                    modifierName: "Poison",
-                                    owner: caster,
-                                    baseValue: cardData.Damage,
-                                    toTriggerRefs: new() { GameplayRef.onPoison },
-                                    duration: cardData.Duration,
-                                    charges: cardData.Charges,
-                                    onRef_Trigger: new RelevantTriggerCheck
-                                    {
-                                        OnTriggerReference = new() { GameplayRef.onTurnStart },
-                                        CheckType = CheckEntityType.User,
-                                        CheckEntity = caster,
-                                    },
-                                    onRef_Action: (target, cd, value) =>
-                                    {
-                                        CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onPoison, new VFXData("PoisonEffect", true));
-                                    }
-                                );
-
-                                var groundEffect = new GroundEffect_Enter_EntityData(
-                                    cardData: cardData,
-                                    relevantTrigger: new RelevantTriggerCheck
-                                    {
-                                        OnTriggerReference = new() { GameplayRef.onTurnStart },
-                                        CheckType = CheckEntityType.User,
-                                        CheckEntity = caster,
-                                    },
-                                    duration: cardData.Duration,
-                                    removeOnExit: false,
-                                    removeOnEnd: false,
-                                    modifier: poisonModifier,
-                                    onEnter: (modifier, target) => { },
-                                    onExit: (modifier, target) => { }
-                                );
-
-                                var vfx = new VFXData("PoisonCloud")
+                            // Shared factory — creates a correctly-wired, per-entity poison modifier.
+                            // Used by modifierFactory (applied on enter) and onRef (refreshes each caster turn).
+                            Func<EntityScript, EntityModifier> poisonFactory = (entity) => new EntityModifier(
+                                modifierName: "Poison",
+                                owner: entity,
+                                baseValue: cardData.Damage,
+                                toTriggerRefs: new() { GameplayRef.onPoison },
+                                duration: 3,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                onRef_Trigger: new RelevantTriggerCheck
                                 {
-                                    radius = cardData.Radius,
-                                };
+                                    OnTriggerReference = new() { GameplayRef.onTurnStart },
+                                    CheckType = CheckEntityType.User,
+                                    CheckEntity = entity,
+                                },
+                                onRef_Action: (poisonedEntity, cd, value) =>
+                                {
+                                    CombatUtility.ApplyEffectDamage(value, poisonedEntity, GameplayRef.onPoison, new VFXData("PoisonEffect", true));
+                                }
+                            );
 
-                                CombatUtility.SpawnGroundEffect(cardData, target, groundEffect, vfx);
+                            var groundEffect = new GroundEffectData
+                            (
+                                cardData: cardData,
+                                relevantTrigger: new RelevantTriggerCheck
+                                {
+                                    OnTriggerReference = new() { GameplayRef.onTurnStart },
+                                    CheckType = CheckEntityType.User,
+                                    CheckEntity = caster,
+                                },
+                                duration: cardData.Duration,
+                                targetingMode: CardTargetingMode.Sphere,
+                                removeOnExit: false,
+                                removeOnEnd: false,
+                                // Applies a fresh poison modifier when an entity first enters the zone
+                                modifierFactory: poisonFactory,
+                                // Refreshes the poison modifier for every entity already in the zone at the start of each caster turn
+                                onRef: (entity) => entity.AddModifier(poisonFactory(entity))
+                            );
+                            CombatUtility.SpawnGroundEffect(cardData, target, groundEffect, new VFXData("PoisonCloud", true) { radius = cardData.Radius });
                         })
                 }
             });
@@ -1341,7 +1351,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = $"Cleanses Target of all DoTs.",
@@ -1380,7 +1390,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = $"Cleanses Target of all DoTs.",

@@ -178,9 +178,13 @@ namespace facingfate
                             EntityModifier burn = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, cardData, ThroughputSource.Damage, target);
                             EntityModifier bleed = EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, cardData, ThroughputSource.Damage, target);
 
-                            CombatUtility.ApplyEntityModifier(cardData, target, poison, ModifierMergeStrategy.RefreshDurationAndMerge);
-                            CombatUtility.ApplyEntityModifier(cardData, target, burn, ModifierMergeStrategy.RefreshDurationAndMerge);
-                            CombatUtility.ApplyEntityModifier(cardData, target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            poison.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                            burn.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                            bleed.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+
+                            CombatUtility.ApplyEntityModifier(cardData, target, poison);
+                            CombatUtility.ApplyEntityModifier(cardData, target, burn);
+                            CombatUtility.ApplyEntityModifier(cardData, target, bleed);
                         }
                     )
                 }
@@ -363,7 +367,9 @@ namespace facingfate
                         action: (caster, target, cardData) =>
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
-                            CombatUtility.ApplyEntityModifier(cardData, target, EffectDatabase.GetEffectByName("Root", CloneMode.Defaults, cardData, ThroughputSource.Damage, target), ModifierMergeStrategy.RefreshDurationAndMerge);
+                            var rootEffect = EffectDatabase.GetEffectByName("Root", CloneMode.Defaults, cardData, ThroughputSource.Damage, target);
+                            rootEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                            CombatUtility.ApplyEntityModifier(cardData, target, rootEffect);
                         }
                     )
                 }
@@ -387,7 +393,7 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deals {Damage} damage",
@@ -555,6 +561,7 @@ namespace facingfate
                                 baseValue: cardData.SecondaryDamage,
                                 toTriggerRefs: new() { GameplayRef.onBleed },
                                 duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
                                     OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -565,7 +572,7 @@ namespace facingfate
                                 {
                                     CombatUtility.ApplyEffectDamage(value, targetEntity, GameplayRef.onBleed, new VFXData("BleedEffect"));
                                 });
-                            CombatUtility.ApplyEntityModifier(cardData, target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyEntityModifier(cardData, target, bleed);
                         }
                     )
                 }
@@ -603,10 +610,11 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            // Direkter Schaden
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"));
 
-                            CombatUtility.ApplyEntityModifier(cardData, target, EffectDatabase.GetEffectByName("Stun", CloneMode.OverrideFromData, cardData, ThroughputSource.Power, target), ModifierMergeStrategy.Merge);
+                            var stun = EffectDatabase.GetEffectByName("Stun", CloneMode.OverrideFromData, cardData, ThroughputSource.Power, target);
+                            stun.ModifierMergeStrategy = ModifierMergeStrategy.Merge;
+                            CombatUtility.ApplyEntityModifier(cardData, target, stun);
                         }
                     )
                 }
@@ -635,7 +643,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Deal {d.Damage} Damage at the Start of your turn to targets in the effect.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} Damage at the start of your turn to targets in the effect.",
 
                 cardActionSequence = new()
                 {
@@ -646,7 +654,7 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (System.Action<EntityScript, Vector3, CardData>)((caster, position, cardData) =>
                         {
-                            CombatUtility.SpawnGroundEffect(cardData, position, new GroundEffect_Ref_Effect
+                            CombatUtility.SpawnGroundEffect(cardData, position, new GroundEffectData        
                                 (
                                 cardData: cardData,
                                 relevantTrigger: new RelevantTriggerCheck
@@ -656,7 +664,7 @@ namespace facingfate
                                     CheckEntity = caster,
                                 },
                                 duration: cardData.Duration,
-                                onRef: (target) => CombatUtility.ApplyDamage(null, target, new VFXData("Impact"), cardData.Damage)
+                                onEnter: (target) => CombatUtility.ApplyDamage(null, target, new VFXData("Impact"), cardData.Damage)
                                 ),
                                 vfxData: null
                                 );
@@ -785,6 +793,7 @@ namespace facingfate
                                     baseValue: cardData.Duration,
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
+                                    modifierMergeStrategy: ModifierMergeStrategy.Override,
                                     onRef_Trigger: new RelevantTriggerCheck
                                     {
                                         OnTriggerReference = new() { GameplayRef.onHitLanded },
@@ -794,9 +803,10 @@ namespace facingfate
                                     actionTargetType: EntityModifier.ActionTargetType.Affected,
                                     onRef_Action: (t, d, value) =>
                                     {
-                                        CombatUtility.ApplyEntityModifier(d, t, EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, t), ModifierMergeStrategy.RefreshDurationAndMerge);
-                                    }),
-                                ModifierMergeStrategy.Override);
+                                        var poisonEffect = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, t);
+                                        poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                                        CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
+                                    }));
                         })
                     )
                 }
@@ -839,6 +849,7 @@ namespace facingfate
                                     baseValue: cardData.Duration,
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
+                                    modifierMergeStrategy: ModifierMergeStrategy.Override,
                                     onRef_Trigger: new RelevantTriggerCheck
                                     {
                                         OnTriggerReference = new() { GameplayRef.onHitLanded },
@@ -848,9 +859,10 @@ namespace facingfate
                                     actionTargetType: EntityModifier.ActionTargetType.Affected,
                                     onRef_Action: (t, d, value) =>
                                     {
-                                        CombatUtility.ApplyEntityModifier(d, t, EffectDatabase.GetEffectByName("Stun", CloneMode.Defaults, d, ThroughputSource.Power, t), ModifierMergeStrategy.RefreshDurationAndMerge);
-                                    }),
-                                ModifierMergeStrategy.Override);
+                                        var stunEffect = EffectDatabase.GetEffectByName("Stun", CloneMode.Defaults, d, ThroughputSource.Power, t);
+                                        stunEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                                        CombatUtility.ApplyEntityModifier(d, t, stunEffect);
+                                    }));
                         })
                     )
                 }
@@ -947,16 +959,17 @@ namespace facingfate
                                     name: "Crit",
                                     stat: target.entityStats.DamageOutModifier_Multiplier,
                                     value: 2,
+                                    condition: (targetEntity, data) => data.cardType == CardType.Technique,
                                     to_TriggerRefs: new() { },
                                     charges: 1,
-                                    condition: (targetEntity, data) => data.cardType == CardType.Technique,
+                                    modifierMergeStrategy: ModifierMergeStrategy.Override,
                                     on_RefTrigger: new RelevantTriggerCheck
                                     {
                                         OnTriggerReference = new() { GameplayRef.Technique },
                                         CheckType = CheckEntityType.User,
                                         CheckEntity = caster,
                                     }
-                                    ), ModifierMergeStrategy.Override);
+                                ));
                         }
                     )
                 }

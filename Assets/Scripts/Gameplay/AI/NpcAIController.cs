@@ -237,7 +237,7 @@ namespace facingfate
                     if (coneTarget != null)
                     {
                         var direction = (coneTarget.transform.position - castPos).normalized;
-                        entities = TargetingUtility.GetEntitiesInPhysicsCone(castPos, direction, cardData.Range, 45, cardData);
+                        entities = TargetingUtility.GetEntitiesInPhysicsCone(castPos, direction, cardData.Range, cardData.Area, cardData);
                     }
                     break;
 
@@ -251,7 +251,7 @@ namespace facingfate
                     }
                     break;
 
-                case CardTargetingMode.Radius:
+                case CardTargetingMode.Sphere:
                     // For radius, center on self
                     entities = TargetingUtility.GetEntitiesInPhysicsSphere(castPos, cardData.Radius, cardData);
                     break;
@@ -292,9 +292,11 @@ namespace facingfate
                 validTargets = validTargets.FindAll(e => TargetingUtility.HasPhysicsLineOfSight(castPos, e.transform.position));
             }
 
+            var primaryTarget = FindPrimaryTarget(castPos);
             var targetingData = new TargetingModeData
             {
                 castingPosition = castPos,
+                aimPosition = primaryTarget != null ? primaryTarget.transform.position : castPos,
                 targetedEntities = validTargets,
                 targetedPositions = validTargets.Select(e => e.transform.position).ToList()
             };

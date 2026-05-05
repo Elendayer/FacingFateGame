@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6208202023648593538}
   - component: {fileID: 8935636570208141450}
   - component: {fileID: 4777331206848150532}
-  - component: {fileID: 1263019130342493916}
+  - component: {fileID: 2563546111939043886}
   - component: {fileID: 5251075547011999912}
   - component: {fileID: 2429520394743626887}
   m_Layer: 7
@@ -64,8 +64,6 @@ MonoBehaviour:
     IsRooted: 0
     tauntTarget: {fileID: 0}
   EntityVisual: {fileID: 0}
-  EntityModel: {fileID: 0}
-  EntityRenderer: {fileID: 0}
   EntityOnMap: {fileID: 0}
   attackSfx:
     idInternal: 0
@@ -265,8 +263,8 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5925646098595141539}
   m_CullTransparentMesh: 1
---- !u!135 &1263019130342493916
-SphereCollider:
+--- !u!64 &2563546111939043886
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -280,12 +278,13 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.4
-  m_Center: {x: 0, y: 0, z: 0}
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -536579742293211713, guid: c315b165227263c4fb909625297a1c69, type: 3}
 --- !u!195 &5251075547011999912
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -304,7 +303,7 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 0
   m_AutoBraking: 1
   m_AutoRepath: 0
-  m_Height: 1
+  m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4

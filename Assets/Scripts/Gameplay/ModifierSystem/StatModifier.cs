@@ -10,10 +10,10 @@ namespace facingfate
         float BaseValue { get; set; }
         int Duration { get; set; }
         int Charges { get; set; }
-        List<GameplayRef> To_TriggerGameplayRefs { get; }
         bool IsExpired { get; }
         bool IsSpend { get; }
-
+        ModifierMergeStrategy modifierMergeStrategy { get; set; }
+        List<GameplayRef> To_TriggerGameplayRefs { get; }
         RelevantTriggerCheck On_RefTrigger { get; set; }
         void RefAction(ToSendTriggerReference reference);
 
@@ -38,6 +38,8 @@ namespace facingfate
         public int Charges { get; set; }
         public bool IsExpired => Duration <= 0;
         public bool IsSpend => Charges <= 0;
+
+        public ModifierMergeStrategy modifierMergeStrategy { get; set; } = ModifierMergeStrategy.RefreshDurationAndMerge;
 
         public List<GameplayRef> To_TriggerGameplayRefs { get; private set; }
         public RelevantTriggerCheck On_RefTrigger { get; set; }
@@ -127,6 +129,7 @@ namespace facingfate
             string name,
             Stat stat,
             float value,
+            ModifierMergeStrategy modifierMergeStrategy,
             bool condition = true,
             List<GameplayRef> to_TriggerRefs = null,
             int duration = 99999,
@@ -135,7 +138,7 @@ namespace facingfate
             Action<StatModifier, EntityScript, CardData, int> on_RefAction = null,
             ConditionalModifierInfo conditionMetadata = null)
         {
-            InitializeCommon(name, stat, to_TriggerRefs, duration, charges, on_RefTrigger, on_RefAction, conditionMetadata);
+            InitializeCommon(name, stat, to_TriggerRefs, duration, charges, modifierMergeStrategy, on_RefTrigger, on_RefAction, conditionMetadata);
             _staticValue = value;
             _staticCondition = condition;
         }
@@ -145,6 +148,7 @@ namespace facingfate
             string name,
             Stat stat,
             float value,
+            ModifierMergeStrategy modifierMergeStrategy,
             Func<EntityScript, CardData, bool> condition,
             List<GameplayRef> to_TriggerRefs = null,
             int duration = 99999,
@@ -153,7 +157,7 @@ namespace facingfate
             Action<StatModifier, EntityScript, CardData, int> on_RefAction = null,
             ConditionalModifierInfo conditionMetadata = null)
         {
-            InitializeCommon(name, stat, to_TriggerRefs, duration, charges, on_RefTrigger, on_RefAction, conditionMetadata);
+            InitializeCommon(name, stat, to_TriggerRefs, duration, charges, modifierMergeStrategy, on_RefTrigger, on_RefAction, conditionMetadata);
             _staticValue = value;
             _dynamicConditionFunc = condition;
         }
@@ -163,10 +167,11 @@ namespace facingfate
             string name,
             Stat stat,
             float value,
+            ModifierMergeStrategy modifierMergeStrategy,
             string condition)
         {
             var metadata = ConditionalModifierInfo.Get(condition);
-            InitializeCommon(name, stat, null, 99999, 99999, new(), null, metadata);
+            InitializeCommon(name, stat, null, 99999, 99999, modifierMergeStrategy, new(), null, metadata);
             _staticValue = value;
             _dynamicConditionFunc = ConditionalModifierInfo.GetCombinedConditionFunc(condition);
         }
@@ -178,10 +183,11 @@ namespace facingfate
             float value,
             List<GameplayRef> to_TriggerRefs,
             int duration,
+            ModifierMergeStrategy modifierMergeStrategy,
             string condition)
         {
             var metadata = ConditionalModifierInfo.Get(condition);
-            InitializeCommon(name, stat, to_TriggerRefs, duration, 99999, new(), null, metadata);
+            InitializeCommon(name, stat, to_TriggerRefs, duration, 99999, modifierMergeStrategy, new(), null, metadata);
             _staticValue = value;
             _dynamicConditionFunc = ConditionalModifierInfo.GetCombinedConditionFunc(condition);
         }
@@ -194,24 +200,25 @@ namespace facingfate
             List<GameplayRef> to_TriggerRefs,
             int duration,
             int charges,
+            ModifierMergeStrategy modifierMergeStrategy,
             params string[] conditions)
         {
             if (conditions == null || conditions.Length == 0)
             {
-                InitializeCommon(name, stat, to_TriggerRefs, duration, charges, new(), null, null);
+                InitializeCommon(name, stat, to_TriggerRefs, duration, charges, modifierMergeStrategy, new(), null, null);
                 _staticValue = value;
                 _dynamicConditionFunc = (e, d) => true;
             }
             else
             {
-                var metadata = conditions.Length == 1 
+                var metadata = conditions.Length == 1
                     ? ConditionalModifierInfo.Get(conditions[0])
                     : ConditionalModifierInfo.CreateCombinedMetadata(
                         string.Join(" + ", conditions),
                         $"Bonus applies when: {string.Join(" AND ", conditions)}",
                         conditions);
 
-                InitializeCommon(name, stat, to_TriggerRefs, duration, charges, new(), null, metadata);
+                InitializeCommon(name, stat, to_TriggerRefs, duration, charges, modifierMergeStrategy, new(), null, metadata);
                 _staticValue = value;
                 _dynamicConditionFunc = ConditionalModifierInfo.GetCombinedConditionFunc(conditions);
             }
@@ -222,6 +229,7 @@ namespace facingfate
             string name,
             Stat stat,
             Func<float> value,
+            ModifierMergeStrategy modifierMergeStrategy,
             bool condition = true,
             List<GameplayRef> to_TriggerRefs = null,
             int duration = 99999,
@@ -230,7 +238,7 @@ namespace facingfate
             Action<StatModifier, EntityScript, CardData, int> on_RefAction = null,
             ConditionalModifierInfo conditionMetadata = null)
         {
-            InitializeCommon(name, stat, to_TriggerRefs, duration, charges, on_RefTrigger, on_RefAction, conditionMetadata);
+            InitializeCommon(name, stat, to_TriggerRefs, duration, charges, modifierMergeStrategy, on_RefTrigger, on_RefAction, conditionMetadata);
             _dynamicValueFunc = value;
             _staticCondition = condition;
         }
@@ -240,6 +248,7 @@ namespace facingfate
             string name,
             Stat stat,
             Func<float> value,
+            ModifierMergeStrategy modifierMergeStrategy,
             Func<EntityScript, CardData, bool> condition,
             List<GameplayRef> to_TriggerRefs = null,
             int duration = 99999,
@@ -248,7 +257,7 @@ namespace facingfate
             Action<StatModifier, EntityScript, CardData, int> on_RefAction = null,
             ConditionalModifierInfo conditionMetadata = null)
         {
-            InitializeCommon(name, stat, to_TriggerRefs, duration, charges, on_RefTrigger, on_RefAction, conditionMetadata);
+            InitializeCommon(name, stat, to_TriggerRefs, duration, charges, modifierMergeStrategy, on_RefTrigger, on_RefAction, conditionMetadata);
             _dynamicValueFunc = value;
             _dynamicConditionFunc = condition;
         }
@@ -258,10 +267,11 @@ namespace facingfate
             string name,
             Stat stat,
             Func<float> value,
+            ModifierMergeStrategy modifierMergeStrategy,
             string condition)
         {
             var metadata = ConditionalModifierInfo.Get(condition);
-            InitializeCommon(name, stat, null, 99999, 99999, new(), null, metadata);
+            InitializeCommon(name, stat, null, 99999, 99999, modifierMergeStrategy, new(), null, metadata);
             _dynamicValueFunc = value;
             _dynamicConditionFunc = ConditionalModifierInfo.GetCombinedConditionFunc(condition);
         }
@@ -274,24 +284,25 @@ namespace facingfate
             List<GameplayRef> to_TriggerRefs,
             int duration,
             int charges,
+            ModifierMergeStrategy modifierMergeStrategy,
             params string[] conditions)
         {
             if (conditions == null || conditions.Length == 0)
             {
-                InitializeCommon(name, stat, to_TriggerRefs, duration, charges, new(), null, null);
+                InitializeCommon(name, stat, to_TriggerRefs, duration, charges, modifierMergeStrategy, new(), null, null);
                 _dynamicValueFunc = value;
                 _dynamicConditionFunc = (e, d) => true;
             }
             else
             {
-                var metadata = conditions.Length == 1 
+                var metadata = conditions.Length == 1
                     ? ConditionalModifierInfo.Get(conditions[0])
                     : ConditionalModifierInfo.CreateCombinedMetadata(
                         string.Join(" + ", conditions),
                         $"Bonus applies when: {string.Join(" AND ", conditions)}",
                         conditions);
 
-                InitializeCommon(name, stat, to_TriggerRefs, duration, charges, new(), null, metadata);
+                InitializeCommon(name, stat, to_TriggerRefs, duration, charges, modifierMergeStrategy, new(), null, metadata);
                 _dynamicValueFunc = value;
                 _dynamicConditionFunc = ConditionalModifierInfo.GetCombinedConditionFunc(conditions);
             }
@@ -303,12 +314,14 @@ namespace facingfate
             List<GameplayRef> to_TriggerRefs,
             int duration,
             int charges,
+            ModifierMergeStrategy mergeStrategy,
             RelevantTriggerCheck on_RefTrigger,
             Action<StatModifier, EntityScript, CardData, int> on_RefAction,
             ConditionalModifierInfo conditionMetadata)
         {
             ModifierName = name;
             Stat = stat;
+            modifierMergeStrategy = mergeStrategy;
             To_TriggerGameplayRefs = to_TriggerRefs ?? new List<GameplayRef>();
             Duration = duration;
             Charges = charges;

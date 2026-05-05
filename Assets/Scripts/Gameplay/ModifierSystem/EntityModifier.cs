@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.UI;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace facingfate
@@ -17,6 +15,8 @@ namespace facingfate
         int Duration { get; set; }
         bool IsExpired { get; }
         int Charges { get; set; }
+
+        ModifierMergeStrategy ModifierMergeStrategy { get; set; }
 
         // Triggering
         List<GameplayRef> ToTriggerGameplayRefs { get; }
@@ -63,6 +63,8 @@ namespace facingfate
         public int Charges { get; set; } = 0;
         public bool IsSpend => Charges <= 0;
 
+        public ModifierMergeStrategy ModifierMergeStrategy { get; set; } = ModifierMergeStrategy.RefreshDurationAndMerge;
+
         // Triggering
         public List<GameplayRef> ToTriggerGameplayRefs { get; set; }
 
@@ -85,6 +87,7 @@ namespace facingfate
         string description = null,
         Sprite icon = null,
         int baseValue = 0,
+        ModifierMergeStrategy modifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge,
         List<GameplayRef> toTriggerRefs = null,
         RelevantTriggerCheck onRef_Trigger = new RelevantTriggerCheck(),
         RelevantTriggerCheck onApply_Trigger = new RelevantTriggerCheck(),
@@ -102,6 +105,7 @@ namespace facingfate
             Icon = icon;
             Owner = owner;
             BaseValue = baseValue;
+            ModifierMergeStrategy = modifierMergeStrategy;
             ToTriggerGameplayRefs = toTriggerRefs;
             OnRef_Trigger = onRef_Trigger;
             OnApply_Trigger = onApply_Trigger;
@@ -294,6 +298,7 @@ namespace facingfate
                 duration: cd.Duration,
                 charges: cd.Charges,
                 actionTargetType: TargetType,
+                modifierMergeStrategy: ModifierMergeStrategy,
                 onRef_Action: OnRef_Action,
                 onApply_Action: OnApply_Action,
                 onRemove_Action: OnRemove_Action
@@ -325,6 +330,7 @@ namespace facingfate
                 duration: Duration,
                 charges: Charges,
                 actionTargetType: TargetType,
+                modifierMergeStrategy: ModifierMergeStrategy,
                 onRef_Action: OnRef_Action,
                 onApply_Action: OnApply_Action,
                 onRemove_Action: OnRemove_Action
