@@ -19,6 +19,7 @@
 								<Switch Name="Fire" ID="{E013E47E-D849-4F65-B66D-24A128DF2761}"/>
 								<Switch Name="Posion" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
 								<Switch Name="Blood" ID="{AC8B01B7-D3DB-4E11-86ED-1E8C2385FF15}"/>
+								<Switch Name="NoElement" ID="{72402775-E51A-4416-9A69-6E9AFCFFCA47}"/>
 							</ChildrenList>
 						</SwitchGroup>
 						<SwitchGroup Name="PowerLVL" ID="{5F973054-11DD-48EC-BABE-6AD8FCE636DD}">
@@ -32,7 +33,7 @@
 								<Switch Name="Fist" ID="{72F11987-0099-4FAB-A152-FF183F1A3B4D}"/>
 								<Switch Name="Spear" ID="{FE7865A8-5449-46D5-A193-FEAED9C9B712}"/>
 								<Switch Name="Bow" ID="{619FCF5D-00A3-43D1-8D4A-6F4FD59B0EAA}"/>
-								<Switch Name="Degger" ID="{950386A8-51C1-45E1-AB69-37E19BB76B2C}"/>
+								<Switch Name="Dagger" ID="{950386A8-51C1-45E1-AB69-37E19BB76B2C}"/>
 								<Switch Name="Potion" ID="{90B26820-D1E2-4E60-A51A-D61B37AF4E2F}"/>
 								<Switch Name="Claw" ID="{293CEB25-FBFA-4ADD-A16D-E7443F1C46D1}"/>
 							</ChildrenList>

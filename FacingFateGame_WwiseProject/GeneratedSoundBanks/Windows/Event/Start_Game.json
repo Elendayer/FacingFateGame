@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{1DA10804-6936-4683-AA25-A1B3769B499F}",
     "Language": "SFX",
-    "Hash": "{96FF5D7D-7BC8-77C8-7313-415DB3D5F944}",
+    "Hash": "{0BC4B170-EB1E-6344-ED93-A5AC3FB61135}",
     "ObjectPath": "Start_Game",
     "ShortName": "Start_Game",
     "Path": "Event/Start_Game.bnk",
@@ -240,6 +240,6 @@
     ]
    }
   ],
-  "FileHash": "{EC1AF1B3-6F83-556C-BD59-42CA0805B793}"
+  "FileHash": "{7B8D2589-665D-21E0-B497-3D16176A1081}"
  }
 }

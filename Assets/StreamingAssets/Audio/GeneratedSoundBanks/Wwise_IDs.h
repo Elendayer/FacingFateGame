@@ -13,8 +13,9 @@ namespace AK
 {
     namespace EVENTS
     {
-        static const AkUniqueID PLAY_CARD_ACTION = 359217377U;
-        static const AkUniqueID PLAY_CARD_IMPACT = 3677450353U;
+        static const AkUniqueID PLAY_CARD_ELEMENT = 4002306001U;
+        static const AkUniqueID PLAY_CARD_MAIN = 2828349068U;
+        static const AkUniqueID PLAY_CARD_WEAPON = 4293961391U;
         static const AkUniqueID PLAY_DEATH = 1172822028U;
         static const AkUniqueID PLAY_DMG = 3025804934U;
         static const AkUniqueID PLAY_FOOTSTEP = 1602358412U;
@@ -31,6 +32,7 @@ namespace AK
         static const AkUniqueID PLAY_SFX_UI_PAUSE_MENU_OPEN = 3507907538U;
         static const AkUniqueID PLAY_SFX_UI_SLIDER = 1901608880U;
         static const AkUniqueID PLAY_SFX_UI_START_GAME = 1373152090U;
+        static const AkUniqueID PLAY_TICK_DMG = 992468480U;
         static const AkUniqueID START_GAME = 1114964412U;
         static const AkUniqueID STOP_GAME = 210615102U;
     } // namespace EVENTS
@@ -127,6 +129,7 @@ namespace AK
             {
                 static const AkUniqueID BLOOD = 3934470635U;
                 static const AkUniqueID FIRE = 2678880713U;
+                static const AkUniqueID NOELEMENT = 4009967300U;
                 static const AkUniqueID POSION = 613188569U;
             } // namespace SWITCH
         } // namespace ELEMENTTYPE
@@ -189,7 +192,7 @@ namespace AK
             {
                 static const AkUniqueID BOW = 546945295U;
                 static const AkUniqueID CLAW = 3737052860U;
-                static const AkUniqueID DEGGER = 3546099895U;
+                static const AkUniqueID DAGGER = 3732162827U;
                 static const AkUniqueID FIST = 2695658315U;
                 static const AkUniqueID POTION = 4272075576U;
                 static const AkUniqueID SPEAR = 573839388U;

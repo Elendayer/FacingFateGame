@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "992468480",
+    "Type": "Event",
+    "GUID": "{8BD7D851-EB45-4F1E-B9E3-06A42D3EC215}",
+    "Language": "SFX",
+    "Hash": "{82627630-57A4-32C7-7A94-A455C27CE128}",
+    "ObjectPath": "Play_Tick_dmg",
+    "ShortName": "Play_Tick_dmg",
+    "Path": "Event/Play_Tick_dmg.bnk",
+    "Events": [
+     {
+      "Id": "992468480",
+      "Name": "Play_Tick_dmg",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Events_Cards\\Play_Tick_dmg",
+      "GUID": "{8BD7D851-EB45-4F1E-B9E3-06A42D3EC215}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{D5D72909-0178-C80D-B87C-6FBC34CCC3D4}"
+ }
+}

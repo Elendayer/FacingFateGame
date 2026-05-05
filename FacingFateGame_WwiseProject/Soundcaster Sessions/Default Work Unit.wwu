@@ -6,8 +6,12 @@
 				<SoundcasterSession Name="New Soundcaster Session" ID="{D976C34A-837A-4F1C-BBA8-2E1FA046186F}">
 					<ModuleList>
 						<Module>
-							<ObjectRef Name="MUSIC_Demo" ID="{AFD24E39-A5E3-4943-A44B-8844FA00E046}" WorkUnitID="{4DAFA85E-5C3E-4BD4-9372-58A748D53293}"/>
+							<ObjectRef Name="Play_Card_Main" ID="{D9ED63CC-1686-49F5-9990-419F7A1846D7}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}"/>
 							<Position X="0" Y="0"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_Card_Weapon" ID="{5386A28E-E31B-431C-BFE7-F7A71C9FF49E}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}"/>
+							<Position X="1" Y="0"/>
 						</Module>
 					</ModuleList>
 				</SoundcasterSession>

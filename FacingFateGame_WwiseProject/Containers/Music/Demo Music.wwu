@@ -1108,6 +1108,13 @@
 									</ReferenceList>
 									<ChildrenList>
 										<MusicTrack Name="Facing-Fate_Skizze7_TutorialMukke" ID="{304EBE27-8C85-47BE-9905-0F100205A833}" ShortID="542167285">
+											<PropertyList>
+												<Property Name="Volume" Type="Real64">
+													<ValueList>
+														<Value>-8</Value>
+													</ValueList>
+												</Property>
+											</PropertyList>
 											<ReferenceList>
 												<Reference Name="OutputBus">
 													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>

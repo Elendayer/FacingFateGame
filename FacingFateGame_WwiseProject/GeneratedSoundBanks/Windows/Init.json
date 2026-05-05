@@ -399,9 +399,9 @@
         "GUID": "{72F11987-0099-4FAB-A152-FF183F1A3B4D}"
        },
        {
-        "Id": "3546099895",
-        "Name": "Degger",
-        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType\\Degger",
+        "Id": "3732162827",
+        "Name": "Dagger",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType\\Dagger",
         "GUID": "{950386A8-51C1-45E1-AB69-37E19BB76B2C}"
        },
        {
@@ -557,12 +557,18 @@
         "Name": "Blood",
         "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ElementType\\Blood",
         "GUID": "{AC8B01B7-D3DB-4E11-86ED-1E8C2385FF15}"
+       },
+       {
+        "Id": "4009967300",
+        "Name": "NoElement",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ElementType\\NoElement",
+        "GUID": "{72402775-E51A-4416-9A69-6E9AFCFFCA47}"
        }
       ]
      }
     ]
    }
   ],
-  "FileHash": "{F212DE5C-2648-82EF-D793-7066CF3E2736}"
+  "FileHash": "{1B8B51D7-CD7E-F8F8-6DBD-177E774081CD}"
  }
 }

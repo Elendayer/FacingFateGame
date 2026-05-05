@@ -183,8 +183,40 @@
 				</Folder>
 				<Folder Name="SFX_Events_Cards" ID="{F9478746-5496-4891-A8ED-103E3CEAD490}" ShortID="482077994">
 					<ChildrenList>
-						<Event Name="Play_Card_Action" ID="{5386A28E-E31B-431C-BFE7-F7A71C9FF49E}"/>
-						<Event Name="Play_Card_Impact" ID="{B6E2D894-0C41-49E4-8445-54226A26A04E}"/>
+						<Event Name="Play_Card_Weapon" ID="{5386A28E-E31B-431C-BFE7-F7A71C9FF49E}">
+							<ChildrenList>
+								<Action Name="" ID="{C5B4C358-7FC7-4EE4-994F-EB23A270F732}" ShortID="325431545">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="02_Weapon CardType" ID="{0B7DBABD-4331-4CEF-9287-97B4402AE01F}" WorkUnitID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_Card_Main" ID="{D9ED63CC-1686-49F5-9990-419F7A1846D7}">
+							<ChildrenList>
+								<Action Name="" ID="{64CC4C91-D9B2-4F49-9D4C-3CDBBC29577C}" ShortID="232478718">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="01_Main Card Action" ID="{E34ACF5C-17BA-45E1-AA45-FD1552F11F1F}" WorkUnitID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_Card_Element" ID="{FA86ADC6-A1DD-4347-9FD7-20B1FA20BD74}">
+							<ChildrenList>
+								<Action Name="" ID="{DE7D85D3-1D7E-4179-9337-4BCC2C116350}" ShortID="549958828">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="03_Element CardType" ID="{FC940526-24DD-4B36-AC13-D55648C3617F}" WorkUnitID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_Tick_dmg" ID="{8BD7D851-EB45-4F1E-B9E3-06A42D3EC215}"/>
 					</ChildrenList>
 				</Folder>
 			</ChildrenList>
