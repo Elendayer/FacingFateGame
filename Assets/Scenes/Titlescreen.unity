@@ -4925,27 +4925,24 @@ MonoBehaviour:
   atmoEvent:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: 0c71ff5c47f5b2044b00a1637f7da9e5, type: 2}
+    WwiseObjectReference: {fileID: 11400000, guid: 23d16afa41f320847b18279854ccbe9c, type: 2}
   musicEvent:
     idInternal: 0
     valueGuidInternal: 
     WwiseObjectReference: {fileID: 11400000, guid: 23d16afa41f320847b18279854ccbe9c, type: 2}
-  switchGroup: SceneType
-  musicStateGroup: LVL_State
+  stateGroup: LVL_State
+  playerStateGroup: Player_State
+  playerAliveState: PlayerAlive_State
   sceneMappings:
   - sceneName: Titlescreen
-    atmoLevel: 1
-    musicStateName: 
+    stateName: Title_Screen
   - sceneName: Tutorial
-    atmoLevel: 2
-    musicStateName: 
+    stateName: Tutorial
   - sceneName: Gameplay_Combat_Map
-    atmoLevel: 3
-    musicStateName: 
+    stateName: Combat
   - sceneName: Random_Encounter_Scene
-    atmoLevel: 4
-    musicStateName: 
-  currentAtmoLevel: -1
+    stateName: Random_Combat
+  currentStateName: None
 --- !u!114 &1445213768
 MonoBehaviour:
   m_ObjectHideFlags: 0

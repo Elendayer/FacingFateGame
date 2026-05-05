@@ -4,47 +4,34 @@ using UnityEngine.SceneManagement;
 
 namespace facingfate
 {
-    // Must match Switch names in Wwise Switch Group "SceneType" exactly.
-    public enum AtmoLevel
-    {
-        None,
-        TitleScreen,
-        Tutorial,
-        Combat,
-        RandomCombat
-    }
-
     [System.Serializable]
     public struct SceneAtmoMapping
     {
-        public string    sceneName;      // Unity scene name, e.g. "Gameplay_Combat_Map"
-        public AtmoLevel atmoLevel;      // Wwise Switch value → SceneType group (for atmo)
-        public string    musicStateName; // Wwise State value → LVL_State group (for music)
-                                         // Must match exactly: "Combat", "Title_Screen", "Tutorial", "Random_Combat"
+        public string sceneName;  // Unity scene name, e.g. "Gameplay_Combat_Map"
+        public string stateName;  // Wwise LVL_State value, e.g. "Combat", "Title_Screen"
     }
 
     public class AtmoManager : MonoBehaviour
     {
         [Header("Wwise Events")]
-        // Both events post on this gameObject. One SetSwitch call controls both atmo sounds.
         [Tooltip("Optional, empty = silent")] public AK.Wwise.Event atmoEvent;
         [Tooltip("Optional, empty = silent")] public AK.Wwise.Event musicEvent;
 
-        [Header("Wwise Groups")]
-        // Switch Group for atmo sounds — must match Wwise Switch Group name exactly.
-        [SerializeField] private string switchGroup = "SceneType";
-        // State Group for music — must match Wwise State Group name exactly.
-        [SerializeField] private string musicStateGroup = "LVL_State";
+        [Header("Wwise State Group")]
+        // Must match State Group name in Wwise exactly.
+        [SerializeField] private string stateGroup = "LVL_State";
+        // Player state set on startup so Music Switch Container finds a valid path.
+        // Override per-scene or on player death via SetState("Player_State", ...).
+        [SerializeField] private string playerStateGroup = "Player_State";
+        [SerializeField] private string playerAliveState = "PlayerAlive_State";
 
-        [Header("Scene → Atmo Mappings")]
+        [Header("Scene → State Mappings")]
         // One entry per scene.
-        // atmoLevel     = Wwise Switch value (SceneType) — controls atmo sounds
-        // musicStateName = Wwise State value (LVL_State) — controls music
-        //                  e.g. "Title_Screen", "Combat", "Tutorial", "Random_Combat"
+        // stateName must match Wwise State name exactly, e.g. "Combat", "Title_Screen", "Tutorial", "Random_Combat"
         [SerializeField] private List<SceneAtmoMapping> sceneMappings = new();
 
         [Header("Debug (read-only)")]
-        [SerializeField] private AtmoLevel currentAtmoLevel = AtmoLevel.None;
+        [SerializeField] private string currentStateName = "None";
 
         private uint _atmoPlayingId;
         private uint _musicPlayingId;
@@ -53,14 +40,18 @@ namespace facingfate
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
 
-            // Set switch + state FIRST so music starts with correct variant from frame 1
+            // Set player state so Music Switch Container finds a valid path
+            if (!string.IsNullOrEmpty(playerStateGroup) && !string.IsNullOrEmpty(playerAliveState))
+                AkUnitySoundEngine.SetState(playerStateGroup, playerAliveState);
+
+            // Set scene state FIRST so correct variant plays from frame 1
             ApplyAtmoForScene(SceneManager.GetActiveScene().name);
+            if (musicEvent != null && musicEvent.IsValid())
+                _musicPlayingId = musicEvent.Post(gameObject);
 
             if (atmoEvent != null && atmoEvent.IsValid())
                 _atmoPlayingId = atmoEvent.Post(gameObject);
 
-            if (musicEvent != null && musicEvent.IsValid())
-                _musicPlayingId = musicEvent.Post(gameObject);
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -73,30 +64,19 @@ namespace facingfate
             foreach (var mapping in sceneMappings)
             {
                 if (mapping.sceneName != sceneName) continue;
-
-                // Atmo sounds — Switch (per-GO, affects atmoEvent on this gameObject)
-                SetAtmoLevel(mapping.atmoLevel);
-
-                // Music — State (global, drives MUSIC_Demo Switch Container via LVL_State)
-                if (!string.IsNullOrEmpty(mapping.musicStateName))
-                {
-                    AkUnitySoundEngine.SetState(musicStateGroup, mapping.musicStateName);
-                    Debug.Log($"[AtmoManager] State → {musicStateGroup}/{mapping.musicStateName}");
-                }
+                SetState(mapping.stateName);
                 return;
             }
-            // No mapping found → keep current state, no change
+            // No mapping found → keep current state
         }
 
         // Call from other scripts for manual override (e.g. boss fight, cutscene).
-        public void SetAtmoLevel(AtmoLevel level)
+        public void SetState(string stateName)
         {
-            if (level == currentAtmoLevel) return;
-            currentAtmoLevel = level;
-
-            // Affects atmo sounds posted on this gameObject
-            AkUnitySoundEngine.SetSwitch(switchGroup, level.ToString(), gameObject);
-            Debug.Log($"[AtmoManager] Switch → {switchGroup}/{level}");
+            if (string.IsNullOrEmpty(stateName) || stateName == currentStateName) return;
+            currentStateName = stateName;
+            AkUnitySoundEngine.SetState(stateGroup, stateName);
+            Debug.Log($"[AtmoManager] State → {stateGroup}/{stateName}");
         }
 
         private void OnDestroy()

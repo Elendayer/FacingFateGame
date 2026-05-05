@@ -52,6 +52,9 @@ namespace facingfate
             if (_pauseGroup == null) _pauseGroup = pausePanel.AddComponent<CanvasGroup>();
             if (optionsMenu == null) optionsMenu = GetComponent<OptionsMenu>();
 
+            TimelineManager.isPaused = false;
+            Time.timeScale = 1f;
+
             pausePanel.SetActive(false);
             optionsPanel.SetActive(false);
             tutorialPanel.SetActive(false);
@@ -178,7 +181,7 @@ namespace facingfate
 
                 if (optionsPanel.activeInHierarchy)
                 {
-                    //optionsMenu.CloseOptionsScroll(true);
+                    CloseOptions();
                 }
 
                 if (EventSystem.current != null)

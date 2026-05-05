@@ -10,19 +10,19 @@
     "Type": "Event",
     "GUID": "{1DA10804-6936-4683-AA25-A1B3769B499F}",
     "Language": "SFX",
-    "Hash": "{ABDF9BD6-86F4-4845-8249-7F3D8CC31F2D}",
+    "Hash": "{F93B4050-D543-E55B-81EF-6AEF55AD6368}",
     "ObjectPath": "Start_Game",
     "ShortName": "Start_Game",
     "Path": "Event/Start_Game.bnk",
     "Media": [
      {
-      "Id": "34910363",
+      "Id": "92887450",
       "Language": "SFX",
       "Streaming": "false",
       "Location": "Loose",
-      "ShortName": "Stille_30sec.wav",
-      "Path": "Media/34910363.wem",
-      "CachePath": "A8/{A885CF9C-145E-41E2-03B8-75376BD6AC11}.wem"
+      "ShortName": "Facing-Fate_Skizze7_TutorialMukke.wav",
+      "Path": "Media/92887450.wem",
+      "CachePath": "C8/{C822AD77-281B-3F3B-30BB-6A02EC60548A}.wem"
      },
      {
       "Id": "191038975",
@@ -116,175 +116,82 @@
        {
         "SwitchValue": {
          "GroupType": "State",
-         "GroupId": "4071417932",
-         "Id": "1031372527",
-         "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
+         "GroupId": "4066245315",
+         "Id": "2764240573",
+         "GUID": "{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"
         },
-        "Children": [
+        "MediaRefs": [
          {
-          "SwitchValue": {
-           "GroupType": "State",
-           "GroupId": "4066245315",
-           "Id": "2764240573",
-           "GUID": "{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"
-          },
-          "MediaRefs": [
-           {
-            "Id": "34910363"
-           },
-           {
-            "Id": "248337119"
-           },
-           {
-            "Id": "443425856"
-           },
-           {
-            "Id": "680960967"
-           },
-           {
-            "Id": "681706893"
-           }
-          ]
+          "Id": "248337119"
+         },
+         {
+          "Id": "443425856"
+         },
+         {
+          "Id": "680960967"
+         },
+         {
+          "Id": "681706893"
          }
         ]
        },
        {
         "SwitchValue": {
          "GroupType": "State",
-         "GroupId": "4071417932",
-         "Id": "1031372527",
-         "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
+         "GroupId": "4066245315",
+         "Id": "917864931",
+         "GUID": "{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"
         },
-        "Children": [
+        "MediaRefs": [
          {
-          "SwitchValue": {
-           "GroupType": "State",
-           "GroupId": "4066245315",
-           "Id": "917864931",
-           "GUID": "{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"
-          },
-          "MediaRefs": [
-           {
-            "Id": "34910363"
-           },
-           {
-            "Id": "248337119"
-           },
-           {
-            "Id": "443425856"
-           },
-           {
-            "Id": "680960967"
-           },
-           {
-            "Id": "681706893"
-           }
-          ]
+          "Id": "248337119"
+         },
+         {
+          "Id": "443425856"
+         },
+         {
+          "Id": "680960967"
+         },
+         {
+          "Id": "681706893"
          }
         ]
        },
        {
         "SwitchValue": {
          "GroupType": "State",
-         "GroupId": "4071417932",
-         "Id": "1031372527",
-         "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
+         "GroupId": "4066245315",
+         "Id": "3853285476",
+         "GUID": "{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"
         },
-        "Children": [
+        "MediaRefs": [
          {
-          "SwitchValue": {
-           "GroupType": "State",
-           "GroupId": "4066245315",
-           "Id": "3853285476",
-           "GUID": "{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"
-          },
-          "MediaRefs": [
-           {
-            "Id": "34910363"
-           },
-           {
-            "Id": "191038975"
-           },
-           {
-            "Id": "443425856"
-           },
-           {
-            "Id": "681706893"
-           },
-           {
-            "Id": "1064355943"
-           }
-          ]
+          "Id": "191038975"
+         },
+         {
+          "Id": "443425856"
+         },
+         {
+          "Id": "681706893"
+         },
+         {
+          "Id": "1064355943"
          }
         ]
        },
        {
         "SwitchValue": {
          "GroupType": "State",
-         "GroupId": "4071417932",
-         "Id": "1265365118",
-         "GUID": "{E3F91561-DD3F-4CD7-8F79-FF3799D29D8D}"
+         "GroupId": "4066245315",
+         "Id": "3762955427",
+         "GUID": "{E795A0CD-17A2-463C-AFE4-F35086D4CD25}"
         },
-        "Children": [
+        "MediaRefs": [
          {
-          "SwitchValue": {
-           "GroupType": "State",
-           "GroupId": "4066245315",
-           "Id": "2764240573",
-           "GUID": "{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"
-          },
-          "MediaRefs": [
-           {
-            "Id": "34910363"
-           },
-           {
-            "Id": "248337119"
-           },
-           {
-            "Id": "443425856"
-           },
-           {
-            "Id": "680960967"
-           },
-           {
-            "Id": "681706893"
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "SwitchValue": {
-         "GroupType": "State",
-         "GroupId": "4071417932",
-         "Id": "1265365118",
-         "GUID": "{E3F91561-DD3F-4CD7-8F79-FF3799D29D8D}"
-        },
-        "Children": [
+          "Id": "92887450"
+         },
          {
-          "SwitchValue": {
-           "GroupType": "State",
-           "GroupId": "4066245315",
-           "Id": "917864931",
-           "GUID": "{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"
-          },
-          "MediaRefs": [
-           {
-            "Id": "34910363"
-           },
-           {
-            "Id": "248337119"
-           },
-           {
-            "Id": "443425856"
-           },
-           {
-            "Id": "680960967"
-           },
-           {
-            "Id": "681706893"
-           }
-          ]
+          "Id": "443425856"
          }
         ]
        }
@@ -329,36 +236,10 @@
         "GUID": "{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"
        }
       ]
-     },
-     {
-      "Id": "4071417932",
-      "Name": "Player_State",
-      "ObjectPath": "\\States\\Default Work Unit\\Player_State",
-      "GUID": "{24E528FE-3BB3-4801-8749-972FE54BC921}",
-      "States": [
-       {
-        "Id": "748895195",
-        "Name": "None",
-        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\None",
-        "GUID": "{4334D4A2-4C75-422F-95B8-DBC6A8546EC3}"
-       },
-       {
-        "Id": "1031372527",
-        "Name": "PlayerAlive_State",
-        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\PlayerAlive_State",
-        "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
-       },
-       {
-        "Id": "1265365118",
-        "Name": "PlayerDead_State",
-        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\PlayerDead_State",
-        "GUID": "{E3F91561-DD3F-4CD7-8F79-FF3799D29D8D}"
-       }
-      ]
      }
     ]
    }
   ],
-  "FileHash": "{E685D291-9040-6293-E697-F236602F6F0F}"
+  "FileHash": "{1FF2AB88-B31A-2FAB-5887-8C6F7A00D3BF}"
  }
 }
