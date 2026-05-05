@@ -1,3 +1,3 @@
 Event	ID	Name			Wwise Object Path	Notes
-	1901608880	Play_SFX_UI_slider			\Default Work Unit\01_Options_Basic-UI\Options_Basic-UI\Play_SFX_UI_slider	
+	1901608880	Play_SFX_UI_slider			\Default Work Unit\SFX_Events\SFX_Evenst_UI\Play_SFX_UI_slider	
 

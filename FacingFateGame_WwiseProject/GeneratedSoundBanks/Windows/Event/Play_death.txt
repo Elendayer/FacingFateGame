@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	1172822028	Play_death			\Default Work Unit\SFX_Events\SFX_Events_Charakter\Play_death	
+

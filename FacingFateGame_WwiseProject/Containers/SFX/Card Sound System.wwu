@@ -1,0 +1,701 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}" SchemaVersion="133">
+	<Containers>
+		<WorkUnit Name="Card Sound System" ID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}" PersistMode="Standalone">
+			<ChildrenList>
+				<SwitchContainer Name="03_Element CardType" ID="{FC940526-24DD-4B36-AC13-D55648C3617F}" ShortID="250715579">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+						<Reference Name="SwitchGroupOrStateGroup">
+							<ObjectRef Name="ElementType" ID="{C667C8E7-EDAD-437F-974B-64F2D7A6A882}" WorkUnitID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<RandomSequenceContainer Name="Fire" ID="{017B35B8-1749-45BF-9B21-F36E022B973B}" ShortID="256322369">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Blood" ID="{6DA33712-7820-400D-8E79-D0E3876A8F14}" ShortID="71435045">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<Sound Name="Element_Blood_1" ID="{E899B776-04A1-422B-86A6-CC6A1B80E394}" ShortID="251738938">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="Element_Blood_1" ID="{924B6E4E-16DE-4F62-BA94-47EAC652B6CE}">
+											<Language>SFX</Language>
+											<AudioFile>Element_Blood_1.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="159805189"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="Element_Blood_1" ID="{924B6E4E-16DE-4F62-BA94-47EAC652B6CE}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+							</ChildrenList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Poison" ID="{31C61BEB-6C7F-4C15-B6E1-437C2A3C12FA}" ShortID="253803381">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+					</ChildrenList>
+					<GroupingInfo>
+						<GroupingBehaviorList>
+							<GroupingBehavior>
+								<ItemRef Name="Blood" ID="{6DA33712-7820-400D-8E79-D0E3876A8F14}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Fire" ID="{017B35B8-1749-45BF-9B21-F36E022B973B}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Poison" ID="{31C61BEB-6C7F-4C15-B6E1-437C2A3C12FA}"/>
+							</GroupingBehavior>
+						</GroupingBehaviorList>
+						<GroupingList>
+							<Grouping>
+								<SwitchRef Name="Posion" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
+								<ItemList>
+									<ItemRef Name="Poison" ID="{31C61BEB-6C7F-4C15-B6E1-437C2A3C12FA}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Fire" ID="{E013E47E-D849-4F65-B66D-24A128DF2761}"/>
+								<ItemList>
+									<ItemRef Name="Fire" ID="{017B35B8-1749-45BF-9B21-F36E022B973B}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Blood" ID="{AC8B01B7-D3DB-4E11-86ED-1E8C2385FF15}"/>
+								<ItemList>
+									<ItemRef Name="Blood" ID="{6DA33712-7820-400D-8E79-D0E3876A8F14}"/>
+								</ItemList>
+							</Grouping>
+						</GroupingList>
+					</GroupingInfo>
+				</SwitchContainer>
+				<SwitchContainer Name="01_Main Card Action" ID="{E34ACF5C-17BA-45E1-AA45-FD1552F11F1F}" ShortID="617865322">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+						<Reference Name="SwitchGroupOrStateGroup">
+							<ObjectRef Name="ActionType" ID="{A691F60D-60D7-4DEF-8A97-E3FE71774415}" WorkUnitID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<RandomSequenceContainer Name="Heal" ID="{79EC70A0-8DED-42CB-9923-F45328294362}" ShortID="20355456">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Magic" ID="{94C90E7E-CAC6-491E-A493-9049F6885D20}" ShortID="780971629">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Buff" ID="{DD6D1B0E-AED0-4398-89D1-F8861C9ED9D5}" ShortID="270936938">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Defense" ID="{B1BE5229-D425-454F-93FD-1AE96E156098}" ShortID="937698162">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<SwitchContainer Name="Attack - Creature Type" ID="{5DB35B6C-C1E6-4D98-A0C3-2434C6ABD09D}" ShortID="170661926">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+								<Reference Name="SwitchGroupOrStateGroup">
+									<ObjectRef Name="SwitchGrp_CharType" ID="{B1353443-4754-4365-B0A2-E085FE5F3C45}" WorkUnitID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<RandomSequenceContainer Name="Human" ID="{59C569B0-F5A6-44C5-ACB5-212EE182B77A}" ShortID="614958296">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<Sound Name="Attack_Human" ID="{48223C70-CED2-4655-A704-3AF5F76F5BDD}" ShortID="281486716">
+											<PropertyList>
+												<Property Name="Pitch" Type="int32">
+													<ModifierList>
+														<ModifierInfo>
+															<Modifier Name="" ID="{F62BAFA1-37E4-4869-826C-79652EB85C71}">
+																<PropertyList>
+																	<Property Name="Enabled" Type="bool" Value="True"/>
+																	<Property Name="Max" Type="Real64" Value="125"/>
+																	<Property Name="Min" Type="Real64" Value="-125"/>
+																</PropertyList>
+															</Modifier>
+														</ModifierInfo>
+													</ModifierList>
+												</Property>
+											</PropertyList>
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Attack_Human" ID="{FCF3DE0A-6E37-496E-8065-288B935E4E78}">
+													<Language>SFX</Language>
+													<AudioFile>Attack_Human.wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="545111731"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Attack_Human" ID="{FCF3DE0A-6E37-496E-8065-288B935E4E78}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+									</ChildrenList>
+								</RandomSequenceContainer>
+								<RandomSequenceContainer Name="Animal" ID="{8DFCE521-E933-4AC0-97D8-EAFF03EC71B9}" ShortID="1026413905">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<Sound Name="Attack_Animal" ID="{DF894162-E02A-4893-83B0-FF24386AC20B}" ShortID="437074618">
+											<PropertyList>
+												<Property Name="Pitch" Type="int32">
+													<ModifierList>
+														<ModifierInfo>
+															<Modifier Name="" ID="{F6DDB89D-6562-4561-A798-3F2D7D452A32}">
+																<PropertyList>
+																	<Property Name="Enabled" Type="bool" Value="True"/>
+																	<Property Name="Max" Type="Real64" Value="125"/>
+																	<Property Name="Min" Type="Real64" Value="-125"/>
+																</PropertyList>
+															</Modifier>
+														</ModifierInfo>
+													</ModifierList>
+												</Property>
+											</PropertyList>
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Attack_Animal" ID="{1C274866-1FBF-45E6-93CB-A8C11E738B73}">
+													<Language>SFX</Language>
+													<AudioFile>Attack_Animal.wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="572645264"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Attack_Animal" ID="{1C274866-1FBF-45E6-93CB-A8C11E738B73}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+									</ChildrenList>
+								</RandomSequenceContainer>
+							</ChildrenList>
+							<GroupingInfo>
+								<GroupingBehaviorList>
+									<GroupingBehavior>
+										<ItemRef Name="Animal" ID="{8DFCE521-E933-4AC0-97D8-EAFF03EC71B9}"/>
+									</GroupingBehavior>
+									<GroupingBehavior>
+										<ItemRef Name="Human" ID="{59C569B0-F5A6-44C5-ACB5-212EE182B77A}"/>
+									</GroupingBehavior>
+								</GroupingBehaviorList>
+								<GroupingList>
+									<Grouping>
+										<SwitchRef Name="Human" ID="{54A5F36C-D8FA-4C6C-8CC9-D048098E6E55}"/>
+										<ItemList>
+											<ItemRef Name="Human" ID="{59C569B0-F5A6-44C5-ACB5-212EE182B77A}"/>
+										</ItemList>
+									</Grouping>
+									<Grouping>
+										<SwitchRef Name="Animal" ID="{2D4451B9-2F01-4C11-BD2E-97B219391B06}"/>
+										<ItemList>
+											<ItemRef Name="Animal" ID="{8DFCE521-E933-4AC0-97D8-EAFF03EC71B9}"/>
+										</ItemList>
+									</Grouping>
+								</GroupingList>
+							</GroupingInfo>
+						</SwitchContainer>
+					</ChildrenList>
+					<GroupingInfo>
+						<GroupingBehaviorList>
+							<GroupingBehavior>
+								<ItemRef Name="Buff" ID="{DD6D1B0E-AED0-4398-89D1-F8861C9ED9D5}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Defense" ID="{B1BE5229-D425-454F-93FD-1AE96E156098}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Attack - Creature Type" ID="{5DB35B6C-C1E6-4D98-A0C3-2434C6ABD09D}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Magic" ID="{94C90E7E-CAC6-491E-A493-9049F6885D20}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Heal" ID="{79EC70A0-8DED-42CB-9923-F45328294362}"/>
+							</GroupingBehavior>
+						</GroupingBehaviorList>
+						<GroupingList>
+							<Grouping>
+								<SwitchRef Name="Heal" ID="{61051003-C4BB-46E1-BB31-C9078BF95003}"/>
+								<ItemList>
+									<ItemRef Name="Heal" ID="{79EC70A0-8DED-42CB-9923-F45328294362}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Buff" ID="{D0D4782D-D5AC-4527-8A31-22F3DD086B3F}"/>
+								<ItemList>
+									<ItemRef Name="Buff" ID="{DD6D1B0E-AED0-4398-89D1-F8861C9ED9D5}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Defense" ID="{B436EB36-E8D9-4AF6-802F-2A8EDE0FF328}"/>
+								<ItemList>
+									<ItemRef Name="Defense" ID="{B1BE5229-D425-454F-93FD-1AE96E156098}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Magic" ID="{08CFCF75-541C-4D4D-AF59-43779F1F4259}"/>
+								<ItemList>
+									<ItemRef Name="Magic" ID="{94C90E7E-CAC6-491E-A493-9049F6885D20}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Attack" ID="{1F28BFF0-8BF8-44F7-A5DB-716B6E19BE90}"/>
+								<ItemList>
+									<ItemRef Name="Attack - Creature Type" ID="{5DB35B6C-C1E6-4D98-A0C3-2434C6ABD09D}"/>
+								</ItemList>
+							</Grouping>
+						</GroupingList>
+					</GroupingInfo>
+				</SwitchContainer>
+				<SwitchContainer Name="02_Weapon CardType" ID="{0B7DBABD-4331-4CEF-9287-97B4402AE01F}" ShortID="695040434">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+						<Reference Name="SwitchGroupOrStateGroup">
+							<ObjectRef Name="WeaponType" ID="{537684AE-9779-4936-8877-854C9778EEAB}" WorkUnitID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<RandomSequenceContainer Name="Bow" ID="{53B4FE54-DDC7-48F5-9935-CF232EF89A6A}" ShortID="750176987">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Claw" ID="{0943F436-4DCE-48C2-A8A2-B47F67C81DFA}" ShortID="332037461">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Dagger" ID="{4DCA6607-F5F0-4E65-90BB-CC201939789E}" ShortID="1006757172">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Fist" ID="{FAF6FCE4-7227-4ED1-AD74-DAE40CDE16F8}" ShortID="299251468">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<Sound Name="Fist_Punch_1" ID="{88DE4F4C-9B2A-46B2-B4FA-6D9BF0B35728}" ShortID="488309034">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="Fist_Punch_1" ID="{2BEC101B-CEE6-45E8-9990-457AFB73ED89}">
+											<Language>SFX</Language>
+											<AudioFile>Fist_Punch_1.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="519713009"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="Fist_Punch_1" ID="{2BEC101B-CEE6-45E8-9990-457AFB73ED89}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="Fist_Punch_2" ID="{4294ECE8-92BF-4F86-9640-9606D6DCF4FF}" ShortID="648711151">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="Fist_Punch_2" ID="{1F7507E6-F7C0-4168-B5C2-7DD63709703E}">
+											<Language>SFX</Language>
+											<AudioFile>Fist_Punch_2.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="510903517"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="Fist_Punch_2" ID="{1F7507E6-F7C0-4168-B5C2-7DD63709703E}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="Fist_Punch_3" ID="{5BA49A14-7201-4932-8F4F-F3BA1663B997}" ShortID="769186991">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="Fist_Punch_3" ID="{42354AE4-3E06-4689-B125-52003AD91857}">
+											<Language>SFX</Language>
+											<AudioFile>Fist_Punch_3.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="470967859"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="Fist_Punch_3" ID="{42354AE4-3E06-4689-B125-52003AD91857}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="Fist_Punch_4" ID="{F58E6B34-6DA2-4759-A35A-4EC8C4EF555C}" ShortID="477124864">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="Fist_Punch_4" ID="{20E6F5C7-5FA7-4AEE-9188-F117DC7629BD}">
+											<Language>SFX</Language>
+											<AudioFile>Fist_Punch_4.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="1068964611"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="Fist_Punch_4" ID="{20E6F5C7-5FA7-4AEE-9188-F117DC7629BD}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="Fist_Punch_5" ID="{BA44775A-F9A1-417F-8AE6-EBA2F7284E44}" ShortID="85838122">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="Fist_Punch_5" ID="{6FACA3E9-9BF7-4CA8-9B8C-D44A19B8F3BA}">
+											<Language>SFX</Language>
+											<AudioFile>Fist_Punch_5.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="208199334"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="Fist_Punch_5" ID="{6FACA3E9-9BF7-4CA8-9B8C-D44A19B8F3BA}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="Fist_Punch_6" ID="{F2AA44E7-7C22-4170-9F58-CFBC3182BB7A}" ShortID="719395009">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="Fist_Punch_6" ID="{4621D40A-5435-42C0-B169-D4F8D1758F59}">
+											<Language>SFX</Language>
+											<AudioFile>Fist_Punch_6.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="48627740"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="Fist_Punch_6" ID="{4621D40A-5435-42C0-B169-D4F8D1758F59}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+							</ChildrenList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Potion" ID="{CCE2986D-AF2B-4793-A44B-31BF2957F35A}" ShortID="382065210">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Spear" ID="{4D81EE52-A7FD-42DB-A6B2-058DA82A00F7}" ShortID="898489552">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+					</ChildrenList>
+					<GroupingInfo>
+						<GroupingBehaviorList>
+							<GroupingBehavior>
+								<ItemRef Name="Dagger" ID="{4DCA6607-F5F0-4E65-90BB-CC201939789E}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Claw" ID="{0943F436-4DCE-48C2-A8A2-B47F67C81DFA}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Spear" ID="{4D81EE52-A7FD-42DB-A6B2-058DA82A00F7}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Bow" ID="{53B4FE54-DDC7-48F5-9935-CF232EF89A6A}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Potion" ID="{CCE2986D-AF2B-4793-A44B-31BF2957F35A}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Fist" ID="{FAF6FCE4-7227-4ED1-AD74-DAE40CDE16F8}"/>
+							</GroupingBehavior>
+						</GroupingBehaviorList>
+						<GroupingList>
+							<Grouping>
+								<SwitchRef Name="Potion" ID="{90B26820-D1E2-4E60-A51A-D61B37AF4E2F}"/>
+								<ItemList>
+									<ItemRef Name="Potion" ID="{CCE2986D-AF2B-4793-A44B-31BF2957F35A}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Claw" ID="{293CEB25-FBFA-4ADD-A16D-E7443F1C46D1}"/>
+								<ItemList>
+									<ItemRef Name="Claw" ID="{0943F436-4DCE-48C2-A8A2-B47F67C81DFA}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Bow" ID="{619FCF5D-00A3-43D1-8D4A-6F4FD59B0EAA}"/>
+								<ItemList>
+									<ItemRef Name="Bow" ID="{53B4FE54-DDC7-48F5-9935-CF232EF89A6A}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Fist" ID="{72F11987-0099-4FAB-A152-FF183F1A3B4D}"/>
+								<ItemList>
+									<ItemRef Name="Fist" ID="{FAF6FCE4-7227-4ED1-AD74-DAE40CDE16F8}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Spear" ID="{FE7865A8-5449-46D5-A193-FEAED9C9B712}"/>
+								<ItemList>
+									<ItemRef Name="Spear" ID="{4D81EE52-A7FD-42DB-A6B2-058DA82A00F7}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Dagger" ID="{950386A8-51C1-45E1-AB69-37E19BB76B2C}"/>
+								<ItemList>
+									<ItemRef Name="Dagger" ID="{4DCA6607-F5F0-4E65-90BB-CC201939789E}"/>
+								</ItemList>
+							</Grouping>
+						</GroupingList>
+					</GroupingInfo>
+				</SwitchContainer>
+				<SwitchContainer Name="04_TickDamage" ID="{3E362507-5855-41BD-885F-C6E6D58FE7E1}" ShortID="687397899">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+						</Reference>
+						<Reference Name="SwitchGroupOrStateGroup">
+							<ObjectRef Name="ElementType" ID="{C667C8E7-EDAD-437F-974B-64F2D7A6A882}" WorkUnitID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<RandomSequenceContainer Name="BloodTick" ID="{5D6DB433-1468-4D38-BB54-A5AA9885C3A1}" ShortID="138229603">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="FireTick" ID="{C93F99D7-F372-40C6-AEF5-E28F83441C30}" ShortID="553117743">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="PosionTick" ID="{C80515C4-C675-4A23-94D7-135763FA8B8A}" ShortID="442037667">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+						</RandomSequenceContainer>
+					</ChildrenList>
+					<GroupingInfo>
+						<GroupingBehaviorList>
+							<GroupingBehavior>
+								<ItemRef Name="BloodTick" ID="{5D6DB433-1468-4D38-BB54-A5AA9885C3A1}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="PosionTick" ID="{C80515C4-C675-4A23-94D7-135763FA8B8A}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="FireTick" ID="{C93F99D7-F372-40C6-AEF5-E28F83441C30}"/>
+							</GroupingBehavior>
+						</GroupingBehaviorList>
+						<GroupingList>
+							<Grouping>
+								<SwitchRef Name="Posion" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
+								<ItemList>
+									<ItemRef Name="PosionTick" ID="{C80515C4-C675-4A23-94D7-135763FA8B8A}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Fire" ID="{E013E47E-D849-4F65-B66D-24A128DF2761}"/>
+								<ItemList>
+									<ItemRef Name="FireTick" ID="{C93F99D7-F372-40C6-AEF5-E28F83441C30}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Blood" ID="{AC8B01B7-D3DB-4E11-86ED-1E8C2385FF15}"/>
+								<ItemList>
+									<ItemRef Name="BloodTick" ID="{5D6DB433-1468-4D38-BB54-A5AA9885C3A1}"/>
+								</ItemList>
+							</Grouping>
+						</GroupingList>
+					</GroupingInfo>
+				</SwitchContainer>
+			</ChildrenList>
+		</WorkUnit>
+	</Containers>
+</WwiseDocument>

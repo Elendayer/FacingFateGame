@@ -1,3 +1,0 @@
-Event	ID	Name			Wwise Object Path	Notes
-	3224649440	Start_Overworld			\Default Work Unit\04_Overworld\Start_Overworld	
-

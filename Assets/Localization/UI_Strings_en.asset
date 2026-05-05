@@ -110,6 +110,10 @@ MonoBehaviour:
     m_Localized: Random Encounter
     m_Metadata:
       m_Items: []
+  - m_Id: 41669709465694208
+    m_Localized: Next
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

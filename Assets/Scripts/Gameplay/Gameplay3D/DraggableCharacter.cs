@@ -217,7 +217,10 @@ namespace facingfate
 
         private IEnumerator MoveWithStatsUpdate(NavMeshPathData pathData)
         {
+            Vector3 startPos = characterOnMap.transform.position;
             yield return characterOnMap.StartMoveRoutineWithPath(pathData);
+
+            OpportunityAttackSystem.CheckAndFireOA(characterEntity, startPos, characterOnMap.transform.position);
 
             // Update stats after movement completes
             characterEntity.entityStats.UpdateStats();

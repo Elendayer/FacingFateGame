@@ -15,6 +15,7 @@ namespace facingfate
         [SerializeField] private Color healColor = new Color(0.2f, 1f, 0.4f);
         [SerializeField] private Color dotColor = new Color(1f, 0.5f, 0f);
         [SerializeField] private Color modifierColor = new Color(1f, 1f, 0.2f);
+        [SerializeField] private Color opportunityAttackColor = new Color(1f, 0.75f, 0f);
 
         [Header("Spawn Offset")]
         [SerializeField] private Vector3 spawnOffset = new Vector3(0f, 0.8f, 0f);
@@ -22,7 +23,7 @@ namespace facingfate
         [Header("Batching")]
         [SerializeField] private float batchWindow = 0.1f;
 
-        public enum NumberType { Damage, Heal, Dot, Modifier }
+        public enum NumberType { Damage, Heal, Dot, Modifier, OpportunityAttack }
 
         private class BatchEntry
         {
@@ -30,6 +31,7 @@ namespace facingfate
             public int healing;
             public int dot;
             public bool hasModifier;
+            public int opportunityAttack;
             public Coroutine coroutine;
         }
 
@@ -58,6 +60,7 @@ namespace facingfate
                 case NumberType.Heal: entry.healing += value; break;
                 case NumberType.Dot: entry.dot += value; break;
                 case NumberType.Modifier: entry.hasModifier = true; break;
+                case NumberType.OpportunityAttack: entry.opportunityAttack += value; break;
             }
 
             if (entry.coroutine != null)
@@ -92,7 +95,13 @@ namespace facingfate
             }
 
             if (entry.hasModifier)
+            {
                 SpawnAt(spawnPos + new Vector3(0f, offsetY, 0f), "!", modifierColor);
+                offsetY += 0.3f;
+            }
+
+            if (entry.opportunityAttack > 0)
+                SpawnAt(spawnPos + new Vector3(0f, offsetY, 0f), "Opportunity Attack", opportunityAttackColor);
 
             batches.Remove(target);
         }

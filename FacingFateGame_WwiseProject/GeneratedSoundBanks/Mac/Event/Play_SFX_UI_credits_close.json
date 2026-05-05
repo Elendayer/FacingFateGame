@@ -10,24 +10,39 @@
     "Type": "Event",
     "GUID": "{6BFDC80A-888C-4D84-8147-636E0DC7BF4A}",
     "Language": "SFX",
-    "Hash": "{76515DE1-595D-52EA-7E6A-B2338AA90E71}",
+    "Hash": "{5F4CE884-F1E5-B668-E5C9-3B52FCE55BD1}",
     "ObjectPath": "Play_SFX_UI_credits_close",
     "ShortName": "Play_SFX_UI_credits_close",
     "Path": "Event/Play_SFX_UI_credits_close.bnk",
+    "Media": [
+     {
+      "Id": "446966568",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Unbenannt.wav",
+      "Path": "Media/446966568.wem",
+      "CachePath": "EF/{EFC70C7F-0C11-3CCE-C37D-B7C435B45F3C}.wem"
+     }
+    ],
     "Events": [
      {
       "Id": "3223191906",
       "Name": "Play_SFX_UI_credits_close",
-      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Options_Basic-UI\\Play_SFX_UI_credits_close",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Evenst_UI\\Play_SFX_UI_credits_close",
       "GUID": "{6BFDC80A-888C-4D84-8147-636E0DC7BF4A}",
-      "MaxAttenuation": "0",
       "DurationType": "OneShot",
-      "DurationMin": "0",
-      "DurationMax": "0"
+      "DurationMin": "0.6150417",
+      "DurationMax": "0.6150417",
+      "MediaRefs": [
+       {
+        "Id": "446966568"
+       }
+      ]
      }
     ]
    }
   ],
-  "FileHash": "{ECDD256F-7B79-6D35-F856-87D7E43EA428}"
+  "FileHash": "{2F493D2F-D07C-AEC1-BE64-D8743BFAEF0D}"
  }
 }

@@ -27,7 +27,7 @@ namespace facingfate
         private CanvasGroup _pauseGroup;
         private GameObject _previousSelected;
 
-        private OptionsMenu optionsMenu;
+        [SerializeField] private OptionsMenu optionsMenu;
 
         private bool _allClosing = false;
 
@@ -50,7 +50,10 @@ namespace facingfate
         {
             _pauseGroup = pausePanel.GetComponent<CanvasGroup>();
             if (_pauseGroup == null) _pauseGroup = pausePanel.AddComponent<CanvasGroup>();
-            optionsMenu = GetComponent<OptionsMenu>();
+            if (optionsMenu == null) optionsMenu = GetComponent<OptionsMenu>();
+
+            TimelineManager.isPaused = false;
+            Time.timeScale = 1f;
 
             pausePanel.SetActive(false);
             optionsPanel.SetActive(false);
@@ -178,7 +181,7 @@ namespace facingfate
 
                 if (optionsPanel.activeInHierarchy)
                 {
-                    //optionsMenu.CloseOptionsScroll(true);
+                    CloseOptions();
                 }
 
                 if (EventSystem.current != null)
@@ -283,6 +286,16 @@ namespace facingfate
                     EventSystem.current.SetSelectedGameObject(defaultSelectedButton);
                 }
             });
+        }
+
+        public void OpenOptions()
+        {
+            if (optionsMenu != null) optionsMenu.OpenOptionsRoll();
+        }
+
+        public void CloseOptions()
+        {
+            if (optionsMenu != null) optionsMenu.CloseOptionsRoll();
         }
 
         public void GiveUpConfirmed()

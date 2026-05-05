@@ -1,6 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}" SchemaVersion="133">
 	<Switches>
-		<WorkUnit Name="Default Work Unit" ID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}" PersistMode="Standalone"/>
+		<WorkUnit Name="Default Work Unit" ID="{4811E808-6B0F-4F48-AA78-78439B4D59BF}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="Card Sound System" ID="{D44E75CC-C8C0-4B16-8E4C-43FC526DEDD6}" ShortID="527741719">
+					<ChildrenList>
+						<SwitchGroup Name="ActionType" ID="{A691F60D-60D7-4DEF-8A97-E3FE71774415}">
+							<ChildrenList>
+								<Switch Name="Attack" ID="{1F28BFF0-8BF8-44F7-A5DB-716B6E19BE90}"/>
+								<Switch Name="Heal" ID="{61051003-C4BB-46E1-BB31-C9078BF95003}"/>
+								<Switch Name="Buff" ID="{D0D4782D-D5AC-4527-8A31-22F3DD086B3F}"/>
+								<Switch Name="Defense" ID="{B436EB36-E8D9-4AF6-802F-2A8EDE0FF328}"/>
+								<Switch Name="Magic" ID="{08CFCF75-541C-4D4D-AF59-43779F1F4259}"/>
+							</ChildrenList>
+						</SwitchGroup>
+						<SwitchGroup Name="ElementType" ID="{C667C8E7-EDAD-437F-974B-64F2D7A6A882}">
+							<ChildrenList>
+								<Switch Name="Fire" ID="{E013E47E-D849-4F65-B66D-24A128DF2761}"/>
+								<Switch Name="Posion" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
+								<Switch Name="Blood" ID="{AC8B01B7-D3DB-4E11-86ED-1E8C2385FF15}"/>
+								<Switch Name="NoElement" ID="{72402775-E51A-4416-9A69-6E9AFCFFCA47}"/>
+							</ChildrenList>
+						</SwitchGroup>
+						<SwitchGroup Name="PowerLVL" ID="{5F973054-11DD-48EC-BABE-6AD8FCE636DD}">
+							<ChildrenList>
+								<Switch Name="light" ID="{A997B127-BBE9-4461-BEA8-22FE1EF6F03B}"/>
+								<Switch Name="heavy" ID="{C7F5589C-B3F5-468B-B0CF-12A6885C494D}"/>
+							</ChildrenList>
+						</SwitchGroup>
+						<SwitchGroup Name="WeaponType" ID="{537684AE-9779-4936-8877-854C9778EEAB}">
+							<ChildrenList>
+								<Switch Name="Fist" ID="{72F11987-0099-4FAB-A152-FF183F1A3B4D}"/>
+								<Switch Name="Spear" ID="{FE7865A8-5449-46D5-A193-FEAED9C9B712}"/>
+								<Switch Name="Bow" ID="{619FCF5D-00A3-43D1-8D4A-6F4FD59B0EAA}"/>
+								<Switch Name="Dagger" ID="{950386A8-51C1-45E1-AB69-37E19BB76B2C}"/>
+								<Switch Name="Potion" ID="{90B26820-D1E2-4E60-A51A-D61B37AF4E2F}"/>
+								<Switch Name="Claw" ID="{293CEB25-FBFA-4ADD-A16D-E7443F1C46D1}"/>
+							</ChildrenList>
+						</SwitchGroup>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="Entity System" ID="{1EE4E65B-EDF7-4809-953F-C6162B4272EE}" ShortID="63740268">
+					<ChildrenList>
+						<SwitchGroup Name="SurfaceType" ID="{6252829A-5136-45AF-8C50-90249382F45A}">
+							<ChildrenList>
+								<Switch Name="general" ID="{FBD2FF92-A4CB-4361-A78F-11D12907DFA3}"/>
+								<Switch Name="wood" ID="{A26FAA25-6313-45F9-81F4-51398A2F7FFD}"/>
+								<Switch Name="stone" ID="{1E1391DC-13C6-4764-A301-32A6370E6FF3}"/>
+								<Switch Name="water" ID="{E6EFC1F7-8A8B-4565-8806-107D58ED6CC7}"/>
+								<Switch Name="gras" ID="{278013AA-00BE-4387-9B04-253558ED7B33}"/>
+							</ChildrenList>
+						</SwitchGroup>
+						<SwitchGroup Name="SwitchGrp_CharType" ID="{B1353443-4754-4365-B0A2-E085FE5F3C45}">
+							<ChildrenList>
+								<Switch Name="Human" ID="{54A5F36C-D8FA-4C6C-8CC9-D048098E6E55}"/>
+								<Switch Name="Animal" ID="{2D4451B9-2F01-4C11-BD2E-97B219391B06}"/>
+								<Switch Name="Oni" ID="{A8D2254E-AF33-40E6-ACD9-2F4FB06CF0BA}"/>
+							</ChildrenList>
+						</SwitchGroup>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="Scene Switches" ID="{4134F0B4-90D8-49EF-A174-761B305211AE}" ShortID="291707879">
+					<ChildrenList>
+						<SwitchGroup Name="SceneType" ID="{9BBFB44C-3EE5-49F4-9299-9640816065E2}">
+							<ChildrenList>
+								<Switch Name="TitleScreen" ID="{901F9E88-3FD9-4425-B578-42A6441241AF}"/>
+								<Switch Name="Combat" ID="{B7B033FC-3561-4BCA-8979-34DF0D1171FC}"/>
+								<Switch Name="Tutorial" ID="{D054F261-C376-4EEB-BC0A-B431EFBD6919}"/>
+								<Switch Name="RandomCombat" ID="{33DD97A8-D82A-417B-A1C7-FDE68E93494D}"/>
+							</ChildrenList>
+						</SwitchGroup>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
 	</Switches>
 </WwiseDocument>

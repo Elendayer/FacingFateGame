@@ -116,10 +116,10 @@ public class HandUtility : MonoBehaviour
         DeckManager deckManager = DeckManager.Instance;
         if (deckManager == null) return;
 
-        deckManager.deckParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
-
-        RectTransform deckParent = deckManager.deckParent;
-        if (deckParent != null)
-            LayoutRebuilder.ForceRebuildLayoutImmediate(deckParent);
+        if (deckManager.deckParent != null)
+        {
+            deckManager.deckParent.GetComponent<DiscardPileVisualizer>()?.Refresh();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(deckManager.deckParent);
+        }
     }
 }

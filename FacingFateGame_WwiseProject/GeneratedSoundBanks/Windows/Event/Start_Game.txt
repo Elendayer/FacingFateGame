@@ -1,3 +1,13 @@
 Event	ID	Name			Wwise Object Path	Notes
-	1114964412	Start_Game			\Default Work Unit\00_Start_Game\Start_Game	
+	1114964412	Start_Game			\Default Work Unit\Scene_Events\01_Start_Game\Start_Game	
+
+State Group	ID	Name			Wwise Object Path	Notes
+	4066245315	LVL_State			\Default Work Unit\LVL_State	
+
+State	ID	Name	State Group			Notes
+	748895195	None	LVL_State			
+	917864931	Random_Combat	LVL_State			
+	2764240573	Combat	LVL_State			
+	3762955427	Tutorial	LVL_State			
+	3853285476	Title_Screen	LVL_State			
 

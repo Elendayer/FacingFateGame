@@ -183,9 +183,12 @@ namespace facingfate
                 entityStats.CurrentStamina -= action.PathData.PathCost;
             }
 
+            Vector3 startPos = EntityOnMap.transform.position;
             ActionQueueUtility.EnqueueActionRoutine(this, () =>
                 EntityOnMap.StartMoveRoutineWithPath(action.PathData), () =>
             {
+                OpportunityAttackSystem.CheckAndFireOA(this, startPos, EntityOnMap.transform.position);
+
                 // Update stats after movement completes
                 entityStats.UpdateStats();
 

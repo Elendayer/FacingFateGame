@@ -716,6 +716,19 @@ namespace facingfate
 
                 int score = EvaluateCardScore(card, validTargets, move.Item1.PathCost);
 
+                // OA awareness: penalise moves that walk out of an enemy's threat range
+                int oaDamage = OpportunityAttackSystem.EstimateOADamage(
+                    npcScript,
+                    mover.transform.position,
+                    move.Item1.End);
+                if (oaDamage > 0)
+                {
+                    if (oaDamage >= npcScript.entityStats.CurrentHealth)
+                        score = int.MinValue / 2;   // never walk into lethal OA
+                    else
+                        score -= oaDamage * 5;
+                }
+
                 bool betterScore = score > best.score;
                 bool equalScoreCheaperPath = score == best.score && score > 0 && move.Item1.PathCost < best.pathData.PathCost;
 
@@ -979,6 +992,13 @@ namespace facingfate
                     if (pathData.PathCost < remainingStamina * 0.5f)
                         score += 15;
 
+                    // OA awareness: penalise ranged chase moves that trigger OA
+                    int rangedChaseOaDamage = OpportunityAttackSystem.EstimateOADamage(npcScript, virtualPosition, pathData.End);
+                    if (rangedChaseOaDamage >= npcScript.entityStats.CurrentHealth)
+                        score = int.MinValue / 2;
+                    else if (rangedChaseOaDamage > 0)
+                        score -= rangedChaseOaDamage * 5;
+
                     if (score > bestScore)
                     {
                         bestScore = score;
@@ -1004,6 +1024,13 @@ namespace facingfate
                     // Bonus if chase is affordable and leaves stamina for actions
                     if (pathData.PathCost < remainingStamina * 0.5f)
                         score += 5;
+
+                    // OA awareness: penalise chase moves that trigger OA
+                    int chaseOaDamage = OpportunityAttackSystem.EstimateOADamage(npcScript, virtualPosition, pathData.End);
+                    if (chaseOaDamage >= npcScript.entityStats.CurrentHealth)
+                        score = int.MinValue / 2;
+                    else if (chaseOaDamage > 0)
+                        score -= chaseOaDamage * 5;
 
                     // Prefer closer enemies with reasonable path costs
                     if (score > bestScore)

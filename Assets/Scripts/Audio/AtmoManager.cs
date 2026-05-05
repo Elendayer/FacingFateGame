@@ -1,111 +1,93 @@
-﻿using UnityEngine;
-//using FMODUnity;
-//using FMOD.Studio;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace facingfate
 {
-    public enum AtmoLevel
+    [System.Serializable]
+    public struct SceneAtmoMapping
     {
-        Atmo_title = 0,
-        Atmo_gym = 1,
-        Atmo_card = 2,
-        Atmo_dungeon = 3,
-        Atmo_final = 4,
-        Atmo_win = 5
-    }
-
-    public enum GameScene
-    {
-        TitleScreen = 0,
-        CardPhase = 1,
-        DungeonPhase = 2,
-        GymTranstitionSzene = 3
-        // Weitere bei Bedarf ergänzen
+        public string sceneName;  // Unity scene name, e.g. "Gameplay_Combat_Map"
+        public string stateName;  // Wwise LVL_State value, e.g. "Combat", "Title_Screen"
     }
 
     public class AtmoManager : MonoBehaviour
     {
-        public AtmoLevel atmoLevel;
+        [Header("Wwise Events")]
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event atmoEvent;
+        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event musicEvent;
 
-        /*
-        public EventReference fmodAtmoEvent;
-        public EventReference fmodBGMusicEvent;
-        private EventInstance _atmoInstance;
-        private EventInstance _BGInstance;
+        [Header("Wwise State Group")]
+        // Must match State Group name in Wwise exactly.
+        [SerializeField] private string stateGroup = "LVL_State";
+        // Player state set on startup so Music Switch Container finds a valid path.
+        // Override per-scene or on player death via SetState("Player_State", ...).
+        [SerializeField] private string playerStateGroup = "Player_State";
+        [SerializeField] private string playerAliveState = "PlayerAlive_State";
 
-        void Start()
+        [Header("Scene → State Mappings")]
+        // One entry per scene.
+        // stateName must match Wwise State name exactly, e.g. "Combat", "Title_Screen", "Tutorial", "Random_Combat"
+        [SerializeField] private List<SceneAtmoMapping> sceneMappings = new();
+
+        [Header("Debug (read-only)")]
+        [SerializeField] private string currentStateName = "None";
+
+        private uint _atmoPlayingId;
+        private uint _musicPlayingId;
+
+        private void Start()
         {
-            IsPlaying(_atmoInstance);
-
-            if (!IsPlaying(_atmoInstance))
-            {
-            _atmoInstance = RuntimeManager.CreateInstance(fmodAtmoEvent);
-            _atmoInstance.start();
-
-            }
-
-            IsPlaying(_BGInstance);
-
-            if (!IsPlaying(_BGInstance))
-            {
-                _BGInstance = RuntimeManager.CreateInstance(fmodBGMusicEvent);
-                _BGInstance.start();
-            }
-
-            DdCodeEventHandler.AtmosphereLevelChanged += OnAtmosphereLevelChanged;
             SceneManager.sceneLoaded += OnSceneLoaded;
+
+            // Set player state so Music Switch Container finds a valid path
+            if (!string.IsNullOrEmpty(playerStateGroup) && !string.IsNullOrEmpty(playerAliveState))
+                AkUnitySoundEngine.SetState(playerStateGroup, playerAliveState);
+
+            // Set scene state FIRST so correct variant plays from frame 1
+            ApplyAtmoForScene(SceneManager.GetActiveScene().name);
+            if (musicEvent != null && musicEvent.IsValid())
+                _musicPlayingId = musicEvent.Post(gameObject);
+
+            if (atmoEvent != null && atmoEvent.IsValid())
+                _atmoPlayingId = atmoEvent.Post(gameObject);
+
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            GameScene sceneEnum = (GameScene)scene.buildIndex;
+            ApplyAtmoForScene(scene.name);
+        }
 
-            switch (sceneEnum)
+        private void ApplyAtmoForScene(string sceneName)
+        {
+            foreach (var mapping in sceneMappings)
             {
-                case GameScene.TitleScreen:
-                    DdCodeEventHandler.Trigger_AtmosphereLevelChanged(AtmoLevel.Atmo_title);
-                    break;
-
-                case GameScene.GymTranstitionSzene:
-                    DdCodeEventHandler.Trigger_AtmosphereLevelChanged(AtmoLevel.Atmo_gym);
-                    break;
-
-                case GameScene.CardPhase:
-                    DdCodeEventHandler.Trigger_AtmosphereLevelChanged(AtmoLevel.Atmo_card);
-                    break;
-
-                case GameScene.DungeonPhase:
-                    // Noch kein Duell → nur auf konzentriert stellen
-                    DdCodeEventHandler.Trigger_AtmosphereLevelChanged(AtmoLevel.Atmo_dungeon);
-                    break;
-
+                if (mapping.sceneName != sceneName) continue;
+                SetState(mapping.stateName);
+                return;
             }
+            // No mapping found → keep current state
         }
 
-        private void OnAtmosphereLevelChanged(AtmoLevel level)
+        // Call from other scripts for manual override (e.g. boss fight, cutscene).
+        public void SetState(string stateName)
         {
-            atmoLevel = level;
-            _atmoInstance.setParameterByName("Atmo_sections", (float)level);
-            _BGInstance.setParameterByName("Music_Sections",(float)level);
-            Debug.Log($"[AtmoManager] Atmo_sections set to: {level} ({(int)level})");
+            if (string.IsNullOrEmpty(stateName) || stateName == currentStateName) return;
+            currentStateName = stateName;
+            AkUnitySoundEngine.SetState(stateGroup, stateName);
+            Debug.Log($"[AtmoManager] State → {stateGroup}/{stateName}");
         }
 
-        bool IsPlaying(FMOD.Studio.EventInstance instance)
+        private void OnDestroy()
         {
-            FMOD.Studio.PLAYBACK_STATE state;
-            instance.getPlaybackState(out state);
-            return state != FMOD.Studio.PLAYBACK_STATE.STOPPED;
-        }
-
-        void OnDestroy()
-        {
-            DdCodeEventHandler.AtmosphereLevelChanged -= OnAtmosphereLevelChanged;
             SceneManager.sceneLoaded -= OnSceneLoaded;
 
-            _atmoInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-            _atmoInstance.release();
+            if (_atmoPlayingId != 0)
+                AkUnitySoundEngine.StopPlayingID(_atmoPlayingId, 500);
+
+            if (_musicPlayingId != 0)
+                AkUnitySoundEngine.StopPlayingID(_musicPlayingId, 500);
         }
-        */
     }
 }

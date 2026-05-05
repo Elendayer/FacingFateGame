@@ -1,3 +1,3 @@
 Event	ID	Name			Wwise Object Path	Notes
-	3223191906	Play_SFX_UI_credits_close			\Default Work Unit\01_Options_Basic-UI\Options_Basic-UI\Play_SFX_UI_credits_close	
+	3223191906	Play_SFX_UI_credits_close			\Default Work Unit\SFX_Events\SFX_Evenst_UI\Play_SFX_UI_credits_close	
 

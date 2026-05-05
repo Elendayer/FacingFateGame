@@ -131,6 +131,9 @@ namespace facingfate
 
         public Stat AdditonalMaxTargets = new();
 
+        [Header("Opportunity Attack")]
+        public float opportunityAttackRange = 2f;
+
         [Header("StatusConditions")]
         public bool IsStunned = false;
         public bool IsRooted = false;

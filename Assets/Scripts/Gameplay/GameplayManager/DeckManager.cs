@@ -65,7 +65,11 @@ namespace facingfate
             // Singleton enforcement
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject); // Ensure only one instance exists
+                // Transfer fresh scene refs to the persistent instance before destroying this duplicate
+                Instance.deckParent = deckParent;
+                Instance.discardParent = discardParent;
+                Instance.deckDrawButton = deckDrawButton;
+                Destroy(gameObject);
                 return;
             }
 

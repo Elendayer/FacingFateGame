@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Start_TitleScreen
   id: 1652174372
   guid: FC6C730F-88AA-4790-BDCA-A26ACB0D2741
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1

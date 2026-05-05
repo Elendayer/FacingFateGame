@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2639148008",
+    "Type": "Event",
+    "GUID": "{7D6470C7-DD4B-4BB7-A36F-0C247273BE62}",
+    "Language": "SFX",
+    "Hash": "{F24B10C3-CEA2-2DFA-FE0E-CA7ED1EC2574}",
+    "ObjectPath": "Play_heal",
+    "ShortName": "Play_heal",
+    "Path": "Event/Play_heal.bnk",
+    "Events": [
+     {
+      "Id": "2639148008",
+      "Name": "Play_heal",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Events_Charakter\\Play_heal",
+      "GUID": "{7D6470C7-DD4B-4BB7-A36F-0C247273BE62}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{153CAD58-E0A5-9BA9-D0BA-A96DF52D8498}"
+ }
+}
