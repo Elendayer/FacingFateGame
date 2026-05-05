@@ -10,11 +10,20 @@
     "Type": "Event",
     "GUID": "{1DA10804-6936-4683-AA25-A1B3769B499F}",
     "Language": "SFX",
-    "Hash": "{E008B6AF-754F-DAEB-AD73-2DB33D7DC208}",
+    "Hash": "{F93B4050-D543-E55B-81EF-6AEF55AD6368}",
     "ObjectPath": "Start_Game",
     "ShortName": "Start_Game",
     "Path": "Event/Start_Game.bnk",
     "Media": [
+     {
+      "Id": "92887450",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Facing-Fate_Skizze7_TutorialMukke.wav",
+      "Path": "Media/92887450.wem",
+      "CachePath": "C8/{C822AD77-281B-3F3B-30BB-6A02EC60548A}.wem"
+     },
      {
       "Id": "191038975",
       "Language": "SFX",
@@ -169,6 +178,22 @@
           "Id": "1064355943"
          }
         ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4066245315",
+         "Id": "3762955427",
+         "GUID": "{E795A0CD-17A2-463C-AFE4-F35086D4CD25}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "92887450"
+         },
+         {
+          "Id": "443425856"
+         }
+        ]
        }
       ]
      }
@@ -215,6 +240,6 @@
     ]
    }
   ],
-  "FileHash": "{1DD7ADE6-64AC-5FB4-DFB6-17B31821E20C}"
+  "FileHash": "{65C89ABB-750E-28CE-3F71-481A92ECA9C6}"
  }
 }
