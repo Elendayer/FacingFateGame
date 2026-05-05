@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "359217377",
+    "Type": "Event",
+    "GUID": "{5386A28E-E31B-431C-BFE7-F7A71C9FF49E}",
+    "Language": "SFX",
+    "Hash": "{677E59F2-647F-A8C7-1558-7D128AEF572A}",
+    "ObjectPath": "Play_Card_Action",
+    "ShortName": "Play_Card_Action",
+    "Path": "Event/Play_Card_Action.bnk",
+    "Events": [
+     {
+      "Id": "359217377",
+      "Name": "Play_Card_Action",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Events_Cards\\Play_Card_Action",
+      "GUID": "{5386A28E-E31B-431C-BFE7-F7A71C9FF49E}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{0D486EFB-FDDC-5FB2-5DF1-BE77BCF0EBB8}"
+ }
+}

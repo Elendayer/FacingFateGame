@@ -1,0 +1,127 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1602358412",
+    "Type": "Event",
+    "GUID": "{D0FFB213-69AF-47BB-A03A-A17AAE5B2E63}",
+    "Language": "SFX",
+    "Hash": "{15605D86-57FA-4443-FC13-2E4DC8F1D040}",
+    "ObjectPath": "Play_footstep",
+    "ShortName": "Play_footstep",
+    "Path": "Event/Play_footstep.bnk",
+    "Events": [
+     {
+      "Id": "1602358412",
+      "Name": "Play_footstep",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Events_Charakter\\Play_footstep",
+      "GUID": "{D0FFB213-69AF-47BB-A03A-A17AAE5B2E63}",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0",
+      "SwitchContainers": [
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "2049048805",
+         "Id": "1064933107",
+         "GUID": "{A8D2254E-AF33-40E6-ACD9-2F4FB06CF0BA}"
+        },
+        "Children": []
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "2049048805",
+         "Id": "3887404748",
+         "GUID": "{54A5F36C-D8FA-4C6C-8CC9-D048098E6E55}"
+        },
+        "Children": []
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "2049048805",
+         "Id": "767988009",
+         "GUID": "{2D4451B9-2F01-4C11-BD2E-97B219391B06}"
+        },
+        "Children": []
+       }
+      ]
+     }
+    ],
+    "SwitchGroups": [
+     {
+      "Id": "63790334",
+      "Name": "SurfaceType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType",
+      "GUID": "{6252829A-5136-45AF-8C50-90249382F45A}",
+      "Switches": [
+       {
+        "Id": "133642231",
+        "Name": "general",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\general",
+        "GUID": "{FBD2FF92-A4CB-4361-A78F-11D12907DFA3}"
+       },
+       {
+        "Id": "906520814",
+        "Name": "gras",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\gras",
+        "GUID": "{278013AA-00BE-4387-9B04-253558ED7B33}"
+       },
+       {
+        "Id": "1216965916",
+        "Name": "stone",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\stone",
+        "GUID": "{1E1391DC-13C6-4764-A301-32A6370E6FF3}"
+       },
+       {
+        "Id": "2058049674",
+        "Name": "wood",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\wood",
+        "GUID": "{A26FAA25-6313-45F9-81F4-51398A2F7FFD}"
+       },
+       {
+        "Id": "2654748154",
+        "Name": "water",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\water",
+        "GUID": "{E6EFC1F7-8A8B-4565-8806-107D58ED6CC7}"
+       }
+      ]
+     },
+     {
+      "Id": "2049048805",
+      "Name": "SwitchGrp_CharType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SwitchGrp_CharType",
+      "GUID": "{B1353443-4754-4365-B0A2-E085FE5F3C45}",
+      "Switches": [
+       {
+        "Id": "767988009",
+        "Name": "Animal",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SwitchGrp_CharType\\Animal",
+        "GUID": "{2D4451B9-2F01-4C11-BD2E-97B219391B06}"
+       },
+       {
+        "Id": "1064933107",
+        "Name": "Oni",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SwitchGrp_CharType\\Oni",
+        "GUID": "{A8D2254E-AF33-40E6-ACD9-2F4FB06CF0BA}"
+       },
+       {
+        "Id": "3887404748",
+        "Name": "Human",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SwitchGrp_CharType\\Human",
+        "GUID": "{54A5F36C-D8FA-4C6C-8CC9-D048098E6E55}"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{07CDB2E2-2FE1-767C-8F89-45CD5177777C}"
+ }
+}

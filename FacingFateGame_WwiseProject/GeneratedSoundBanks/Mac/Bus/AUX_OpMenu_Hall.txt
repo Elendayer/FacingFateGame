@@ -1,0 +1,9 @@
+Game Parameter	ID	Name			Wwise Object Path	Notes
+	2120441819	RTPC_menu_focus			\Default Work Unit\Options Menu\RTPC_menu_focus	
+
+Auxiliary Bus	ID	Name			Wwise Object Path	Notes
+	865777238	AUX_OpMenu_Hall			\Default Work Unit\Main Audio Bus\AUX_OpMenu_Hall	
+
+Effect plug-ins	ID	Name	Type				Notes
+	3216246379	Space_Dreaming	Wwise RoomVerb			
+

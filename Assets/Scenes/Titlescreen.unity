@@ -2466,7 +2466,6 @@ GameObject:
   m_Component:
   - component: {fileID: 764663075}
   - component: {fileID: 764663077}
-  - component: {fileID: 764663076}
   m_Layer: 0
   m_Name: TS BG Audio
   m_TagString: Untagged
@@ -2489,35 +2488,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &764663076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 764663073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85e45073f9ead88468f9870e73c575b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: AK.Wwise.Unity.MonoBehaviour::AkEvent
-  triggerList: f7e1664c
-  useOtherObject: 0
-  actionOnEventType: 0
-  curveInterpolation: 4
-  enableActionOnEvent: 0
-  data:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: b3a6302baee39db45b3742cc53f3916e, type: 2}
-  useCallbacks: 0
-  stopSoundOnDestroy: 1
-  Callbacks: []
-  soundEmitterObject: {fileID: 0}
-  transitionDuration: 0
-  eventIdInternal: 0
-  valueGuidInternal: 
-  m_callbackDataInternal: {fileID: 0}
 --- !u!114 &764663077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4955,15 +4925,26 @@ MonoBehaviour:
   atmoEvent:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
+    WwiseObjectReference: {fileID: 11400000, guid: 0c71ff5c47f5b2044b00a1637f7da9e5, type: 2}
   musicEvent:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  stateGroup: GameScene
+    WwiseObjectReference: {fileID: 11400000, guid: 23d16afa41f320847b18279854ccbe9c, type: 2}
+  switchGroup: SceneType
+  musicStateGroup: LVL_State
   sceneMappings:
-  - sceneName: 
-    atmoLevel: 0
+  - sceneName: Titlescreen
+    atmoLevel: 1
+    musicStateName: 
+  - sceneName: Tutorial
+    atmoLevel: 2
+    musicStateName: 
+  - sceneName: Gameplay_Combat_Map
+    atmoLevel: 3
+    musicStateName: 
+  - sceneName: Random_Encounter_Scene
+    atmoLevel: 4
+    musicStateName: 
   currentAtmoLevel: -1
 --- !u!114 &1445213768
 MonoBehaviour:
@@ -5720,7 +5701,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3814744896787272450, guid: 04e4d2f394825a14abf407fe31800c21, type: 3}
       propertyPath: m_fontSize
-      value: 25
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 3814744896787272450, guid: 04e4d2f394825a14abf407fe31800c21, type: 3}
       propertyPath: m_fontAsset
@@ -7382,6 +7363,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1629715179414598762, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1669640908623636300, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1669640908623636300, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1669640908623636300, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1669640908623636300, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1669640908623636300, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}

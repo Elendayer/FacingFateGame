@@ -10,11 +10,21 @@
     "Type": "User",
     "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
     "Language": "SFX",
-    "Hash": "{87914867-7B61-68A6-9576-1A8FE653D0DE}",
+    "Hash": "{40715570-8561-53CA-B624-BAD431040E46}",
     "ObjectPath": "Init",
     "ShortName": "Init",
     "Path": "Init.bnk",
     "Plugins": {
+     "ShareSets": [
+      {
+       "Id": "3216246379",
+       "Name": "Space_Dreaming",
+       "ObjectPath": "\\Effects\\Factory Effects\\RoomVerb\\Huge Spaces\\Space_Dreaming",
+       "GUID": "{4FF7C4B2-37B0-4DFF-8E8A-1420102AE2DD}",
+       "LibName": "Wwise RoomVerb",
+       "LibId": "7733251"
+      }
+     ],
      "AudioDevices": [
       {
        "Id": "2317455096",
@@ -47,7 +57,16 @@
       "Name": "BUS_music",
       "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus\\BUS_music",
       "GUID": "{669729E3-FBFB-4484-9B87-11D521BF2EA3}",
-      "Color": "5"
+      "Color": "5",
+      "AuxBusRefs": [
+       {
+        "Id": "865777238",
+        "Name": "AUX_OpMenu_Hall",
+        "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus\\AUX_OpMenu_Hall",
+        "GUID": "{10FC8C5F-31A0-44B3-A10A-916C7E3BEED3}",
+        "Color": "10"
+       }
+      ]
      },
      {
       "Id": "1437783383",
@@ -108,11 +127,18 @@
     ],
     "AuxBusses": [
      {
-      "Id": "1039155902",
-      "Name": "AUX_hall_Big",
-      "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus\\AUX_hall_Big",
-      "GUID": "{DBC526F8-C830-4DA4-A8F5-AC2CAF6390C1}",
-      "Color": "10"
+      "Id": "865777238",
+      "Name": "AUX_OpMenu_Hall",
+      "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus\\AUX_OpMenu_Hall",
+      "GUID": "{10FC8C5F-31A0-44B3-A10A-916C7E3BEED3}",
+      "Color": "10",
+      "PluginRefs": {
+       "ShareSets": [
+        {
+         "Id": "3216246379"
+        }
+       ]
+      }
      }
     ],
     "GameParameters": [
@@ -127,6 +153,12 @@
       "Name": "RTPC_atmo_Vol",
       "ObjectPath": "\\Game Parameters\\Default Work Unit\\Volume Slider\\RTPC_atmo_Vol",
       "GUID": "{FAFAB309-AA38-431D-847E-37E1F294699A}"
+     },
+     {
+      "Id": "2120441819",
+      "Name": "RTPC_menu_focus",
+      "ObjectPath": "\\Game Parameters\\Default Work Unit\\Options Menu\\RTPC_menu_focus",
+      "GUID": "{73B5204F-8ACE-41C8-AE78-89DCFBD56A11}"
      },
      {
       "Id": "3061620274",
@@ -146,9 +178,391 @@
       "ObjectPath": "\\Game Parameters\\Default Work Unit\\Volume Slider\\RTPC_dialogue_Vol",
       "GUID": "{4C117E67-5FB3-4F45-89C6-4A4AE4E227E9}"
      }
+    ],
+    "StateGroups": [
+     {
+      "Id": "766723505",
+      "Name": "Game_State",
+      "ObjectPath": "\\States\\Default Work Unit\\Game_State",
+      "GUID": "{F851FEA8-DFBD-4B51-B144-10588A2E1289}",
+      "States": [
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\Game_State\\None",
+        "GUID": "{E7D9376A-F94B-4885-BA08-1A27F6B81FA9}"
+       },
+       {
+        "Id": "2678566748",
+        "Name": "InGame_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Game_State\\InGame_State",
+        "GUID": "{1EAD8DFC-F946-41DB-B496-B9702EC037E2}"
+       },
+       {
+        "Id": "3427763467",
+        "Name": "InMenu_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Game_State\\InMenu_State",
+        "GUID": "{207DC457-947F-45F8-8725-DB5DE00986F6}"
+       }
+      ]
+     },
+     {
+      "Id": "2789492242",
+      "Name": "Room_State",
+      "ObjectPath": "\\States\\Default Work Unit\\Room_State",
+      "GUID": "{763B9EE7-D35C-410C-A016-967658B82B81}",
+      "States": [
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\Room_State\\None",
+        "GUID": "{C2361FF9-5260-45D8-837B-574D7165D8F8}"
+       },
+       {
+        "Id": "1807907088",
+        "Name": "Outside_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Room_State\\Outside_State",
+        "GUID": "{B65683CD-D596-4969-A33A-CDBE0C3CB9B6}"
+       },
+       {
+        "Id": "2599116615",
+        "Name": "Inside_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Room_State\\Inside_State",
+        "GUID": "{8481E590-7A79-4275-BA39-BCE962C8BF73}"
+       }
+      ]
+     },
+     {
+      "Id": "3826569560",
+      "Name": "Music_State",
+      "ObjectPath": "\\States\\Default Work Unit\\Music_State",
+      "GUID": "{0CA1319D-92CE-430F-9453-72DBD531F597}",
+      "States": [
+       {
+        "Id": "118618844",
+        "Name": "HighMusic_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Music_State\\HighMusic_State",
+        "GUID": "{2EA45203-08AC-4557-A51B-5423FF8910F3}"
+       },
+       {
+        "Id": "395520184",
+        "Name": "LowMusic_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Music_State\\LowMusic_State",
+        "GUID": "{C08A2C79-0A91-400F-825A-D58AE9E64B4C}"
+       },
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\Music_State\\None",
+        "GUID": "{D4DF8DF4-3453-4E24-A5EC-8D761ACDEDA1}"
+       },
+       {
+        "Id": "1105946073",
+        "Name": "BossMusic_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Music_State\\BossMusic_State",
+        "GUID": "{5FF0E415-2AB6-4429-88E6-8EAF74559A49}"
+       },
+       {
+        "Id": "3246761572",
+        "Name": "MidMusic_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Music_State\\MidMusic_State",
+        "GUID": "{C0375B17-F1C5-4ED8-A15D-31FC68D714FA}"
+       }
+      ]
+     },
+     {
+      "Id": "4066245315",
+      "Name": "LVL_State",
+      "ObjectPath": "\\States\\Default Work Unit\\LVL_State",
+      "GUID": "{F6650A3C-D783-4405-BA8C-1BBB09930234}",
+      "States": [
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\None",
+        "GUID": "{ADBF181A-5842-4024-A943-67EAA076E44C}"
+       },
+       {
+        "Id": "917864931",
+        "Name": "Random_Combat",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\Random_Combat",
+        "GUID": "{F052AD50-C5FE-437E-B816-66B2D6E4BD40}"
+       },
+       {
+        "Id": "2764240573",
+        "Name": "Combat",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\Combat",
+        "GUID": "{1D51F5E0-DEEE-4343-8B39-94F253D126BF}"
+       },
+       {
+        "Id": "3762955427",
+        "Name": "Tutorial",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\Tutorial",
+        "GUID": "{E795A0CD-17A2-463C-AFE4-F35086D4CD25}"
+       },
+       {
+        "Id": "3853285476",
+        "Name": "Title_Screen",
+        "ObjectPath": "\\States\\Default Work Unit\\LVL_State\\Title_Screen",
+        "GUID": "{D0B43BB0-5B97-40B8-B7AD-5A0043F165EE}"
+       }
+      ]
+     },
+     {
+      "Id": "4071417932",
+      "Name": "Player_State",
+      "ObjectPath": "\\States\\Default Work Unit\\Player_State",
+      "GUID": "{24E528FE-3BB3-4801-8749-972FE54BC921}",
+      "States": [
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\None",
+        "GUID": "{4334D4A2-4C75-422F-95B8-DBC6A8546EC3}"
+       },
+       {
+        "Id": "1031372527",
+        "Name": "PlayerAlive_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\PlayerAlive_State",
+        "GUID": "{EBA1B580-F06D-4BA1-A25C-E628FCEF1889}"
+       },
+       {
+        "Id": "1265365118",
+        "Name": "PlayerDead_State",
+        "ObjectPath": "\\States\\Default Work Unit\\Player_State\\PlayerDead_State",
+        "GUID": "{E3F91561-DD3F-4CD7-8F79-FF3799D29D8D}"
+       }
+      ]
+     }
+    ],
+    "SwitchGroups": [
+     {
+      "Id": "63790334",
+      "Name": "SurfaceType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType",
+      "GUID": "{6252829A-5136-45AF-8C50-90249382F45A}",
+      "Switches": [
+       {
+        "Id": "133642231",
+        "Name": "general",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\general",
+        "GUID": "{FBD2FF92-A4CB-4361-A78F-11D12907DFA3}"
+       },
+       {
+        "Id": "906520814",
+        "Name": "gras",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\gras",
+        "GUID": "{278013AA-00BE-4387-9B04-253558ED7B33}"
+       },
+       {
+        "Id": "1216965916",
+        "Name": "stone",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\stone",
+        "GUID": "{1E1391DC-13C6-4764-A301-32A6370E6FF3}"
+       },
+       {
+        "Id": "2058049674",
+        "Name": "wood",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\wood",
+        "GUID": "{A26FAA25-6313-45F9-81F4-51398A2F7FFD}"
+       },
+       {
+        "Id": "2654748154",
+        "Name": "water",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SurfaceType\\water",
+        "GUID": "{E6EFC1F7-8A8B-4565-8806-107D58ED6CC7}"
+       }
+      ]
+     },
+     {
+      "Id": "767731869",
+      "Name": "WeaponType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType",
+      "GUID": "{537684AE-9779-4936-8877-854C9778EEAB}",
+      "Switches": [
+       {
+        "Id": "546945295",
+        "Name": "Bow",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType\\Bow",
+        "GUID": "{619FCF5D-00A3-43D1-8D4A-6F4FD59B0EAA}"
+       },
+       {
+        "Id": "573839388",
+        "Name": "Spear",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType\\Spear",
+        "GUID": "{FE7865A8-5449-46D5-A193-FEAED9C9B712}"
+       },
+       {
+        "Id": "2695658315",
+        "Name": "Fist",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType\\Fist",
+        "GUID": "{72F11987-0099-4FAB-A152-FF183F1A3B4D}"
+       },
+       {
+        "Id": "3546099895",
+        "Name": "Degger",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType\\Degger",
+        "GUID": "{950386A8-51C1-45E1-AB69-37E19BB76B2C}"
+       },
+       {
+        "Id": "3737052860",
+        "Name": "Claw",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType\\Claw",
+        "GUID": "{293CEB25-FBFA-4ADD-A16D-E7443F1C46D1}"
+       },
+       {
+        "Id": "4272075576",
+        "Name": "Potion",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\WeaponType\\Potion",
+        "GUID": "{90B26820-D1E2-4E60-A51A-D61B37AF4E2F}"
+       }
+      ]
+     },
+     {
+      "Id": "1026584191",
+      "Name": "ActionType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ActionType",
+      "GUID": "{A691F60D-60D7-4DEF-8A97-E3FE71774415}",
+      "Switches": [
+       {
+        "Id": "180661997",
+        "Name": "Attack",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ActionType\\Attack",
+        "GUID": "{1F28BFF0-8BF8-44F7-A5DB-716B6E19BE90}"
+       },
+       {
+        "Id": "1612179606",
+        "Name": "Buff",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ActionType\\Buff",
+        "GUID": "{D0D4782D-D5AC-4527-8A31-22F3DD086B3F}"
+       },
+       {
+        "Id": "1880439950",
+        "Name": "Magic",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ActionType\\Magic",
+        "GUID": "{08CFCF75-541C-4D4D-AF59-43779F1F4259}"
+       },
+       {
+        "Id": "2564315215",
+        "Name": "Defense",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ActionType\\Defense",
+        "GUID": "{B436EB36-E8D9-4AF6-802F-2A8EDE0FF328}"
+       },
+       {
+        "Id": "3448274447",
+        "Name": "Heal",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ActionType\\Heal",
+        "GUID": "{61051003-C4BB-46E1-BB31-C9078BF95003}"
+       }
+      ]
+     },
+     {
+      "Id": "1208296407",
+      "Name": "SceneType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Scene Switches\\SceneType",
+      "GUID": "{9BBFB44C-3EE5-49F4-9299-9640816065E2}",
+      "Switches": [
+       {
+        "Id": "152105657",
+        "Name": "TitleScreen",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Scene Switches\\SceneType\\TitleScreen",
+        "GUID": "{901F9E88-3FD9-4425-B578-42A6441241AF}"
+       },
+       {
+        "Id": "2460335360",
+        "Name": "RandomCombat",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Scene Switches\\SceneType\\RandomCombat",
+        "GUID": "{33DD97A8-D82A-417B-A1C7-FDE68E93494D}"
+       },
+       {
+        "Id": "2764240573",
+        "Name": "Combat",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Scene Switches\\SceneType\\Combat",
+        "GUID": "{B7B033FC-3561-4BCA-8979-34DF0D1171FC}"
+       },
+       {
+        "Id": "3762955427",
+        "Name": "Tutorial",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Scene Switches\\SceneType\\Tutorial",
+        "GUID": "{D054F261-C376-4EEB-BC0A-B431EFBD6919}"
+       }
+      ]
+     },
+     {
+      "Id": "2049048805",
+      "Name": "SwitchGrp_CharType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SwitchGrp_CharType",
+      "GUID": "{B1353443-4754-4365-B0A2-E085FE5F3C45}",
+      "Switches": [
+       {
+        "Id": "767988009",
+        "Name": "Animal",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SwitchGrp_CharType\\Animal",
+        "GUID": "{2D4451B9-2F01-4C11-BD2E-97B219391B06}"
+       },
+       {
+        "Id": "1064933107",
+        "Name": "Oni",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SwitchGrp_CharType\\Oni",
+        "GUID": "{A8D2254E-AF33-40E6-ACD9-2F4FB06CF0BA}"
+       },
+       {
+        "Id": "3887404748",
+        "Name": "Human",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Entity System\\SwitchGrp_CharType\\Human",
+        "GUID": "{54A5F36C-D8FA-4C6C-8CC9-D048098E6E55}"
+       }
+      ]
+     },
+     {
+      "Id": "2201078378",
+      "Name": "PowerLVL",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\PowerLVL",
+      "GUID": "{5F973054-11DD-48EC-BABE-6AD8FCE636DD}",
+      "Switches": [
+       {
+        "Id": "1935470627",
+        "Name": "light",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\PowerLVL\\light",
+        "GUID": "{A997B127-BBE9-4461-BEA8-22FE1EF6F03B}"
+       },
+       {
+        "Id": "2732489590",
+        "Name": "heavy",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\PowerLVL\\heavy",
+        "GUID": "{C7F5589C-B3F5-468B-B0CF-12A6885C494D}"
+       }
+      ]
+     },
+     {
+      "Id": "3055168915",
+      "Name": "ElementType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ElementType",
+      "GUID": "{C667C8E7-EDAD-437F-974B-64F2D7A6A882}",
+      "Switches": [
+       {
+        "Id": "613188569",
+        "Name": "Posion",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ElementType\\Posion",
+        "GUID": "{8A118C7D-BF2A-461D-8231-D4C3E441157F}"
+       },
+       {
+        "Id": "2678880713",
+        "Name": "Fire",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ElementType\\Fire",
+        "GUID": "{E013E47E-D849-4F65-B66D-24A128DF2761}"
+       },
+       {
+        "Id": "3934470635",
+        "Name": "Blood",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ElementType\\Blood",
+        "GUID": "{AC8B01B7-D3DB-4E11-86ED-1E8C2385FF15}"
+       }
+      ]
+     }
     ]
    }
   ],
-  "FileHash": "{BCF44898-0497-44A9-94F1-D0B59EBC40A3}"
+  "FileHash": "{4CA1BBDC-489E-685E-80DA-91A33BC9C519}"
  }
 }

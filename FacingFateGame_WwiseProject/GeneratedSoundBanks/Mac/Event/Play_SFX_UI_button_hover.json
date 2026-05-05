@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{4B56BC21-111C-4626-92C1-E4C4948790CE}",
     "Language": "SFX",
-    "Hash": "{3AA1123E-FD99-A371-0171-4F5549C1D474}",
+    "Hash": "{82F41B99-0690-3B4A-1A72-3B71228DE6AE}",
     "ObjectPath": "Play_SFX_UI_button_hover",
     "ShortName": "Play_SFX_UI_button_hover",
     "Path": "Event/Play_SFX_UI_button_hover.bnk",
@@ -29,7 +29,7 @@
      {
       "Id": "4180039856",
       "Name": "Play_SFX_UI_button_hover",
-      "ObjectPath": "\\Events\\Default Work Unit\\01_Options_Basic-UI\\Options_Basic-UI\\Play_SFX_UI_button_hover",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Evenst_UI\\Play_SFX_UI_button_hover",
       "GUID": "{4B56BC21-111C-4626-92C1-E4C4948790CE}",
       "DurationType": "OneShot",
       "DurationMin": "0.16270833",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{C59374DF-8BFC-2FB9-2FA5-E586DB9846D1}"
+  "FileHash": "{605D3CA4-2482-F1DC-A305-F0B250E415DE}"
  }
 }
