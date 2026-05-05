@@ -173,7 +173,7 @@
 						<Property Name="BelowThresholdBehavior" Type="int16" Value="2"/>
 						<Property Name="MaxSoundPerInstance" Type="int16">
 							<ValueList>
-								<Value>3</Value>
+								<Value>20</Value>
 							</ValueList>
 						</Property>
 						<Property Name="OverLimitBehavior" Type="int16" Value="1"/>
