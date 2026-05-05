@@ -929,7 +929,33 @@
 								</Reference>
 								<Reference Name="PlaylistRoot">
 									<Custom>
-										<MusicPlaylistItem Name="" ID="{7F73D634-B28D-42D0-A331-0B67FF7B3D4B}" ShortID="1069175564"/>
+										<MusicPlaylistItem Name="" ID="{7F73D634-B28D-42D0-A331-0B67FF7B3D4B}" ShortID="1069175564">
+											<PropertyList>
+												<Property Name="LoopCount" Type="int16" Value="0"/>
+											</PropertyList>
+											<ChildrenList>
+												<MusicPlaylistItem Name="" ID="{9D932F8B-C2AB-40FD-84AB-967F78E6E35F}" ShortID="522618215">
+													<PropertyList>
+														<Property Name="PlaylistItemType" Type="int16" Value="1"/>
+													</PropertyList>
+													<ReferenceList>
+														<Reference Name="Segment">
+															<ObjectRef Name="Facing-Fate_Skizze7_TutorialMukke" ID="{5B36FD17-8DBB-49E9-8490-D75E52509F85}" WorkUnitID="{4DAFA85E-5C3E-4BD4-9372-58A748D53293}"/>
+														</Reference>
+													</ReferenceList>
+												</MusicPlaylistItem>
+												<MusicPlaylistItem Name="" ID="{D5D4913B-9F36-43FE-A1B0-15A292C3B7BC}" ShortID="638587179">
+													<PropertyList>
+														<Property Name="PlaylistItemType" Type="int16" Value="1"/>
+													</PropertyList>
+													<ReferenceList>
+														<Reference Name="Segment">
+															<ObjectRef Name="Stille_5sec" ID="{3738F39B-2338-440B-A8A1-73F6DA83C5CD}" WorkUnitID="{4DAFA85E-5C3E-4BD4-9372-58A748D53293}"/>
+														</Reference>
+													</ReferenceList>
+												</MusicPlaylistItem>
+											</ChildrenList>
+										</MusicPlaylistItem>
 									</Custom>
 								</Reference>
 								<Reference Name="TransitionRoot">
@@ -952,6 +978,8 @@
 								<MusicSegment Name="Facing-Fate_Skizze7_TutorialMukke" ID="{5B36FD17-8DBB-49E9-8490-D75E52509F85}" ShortID="715325515">
 									<PropertyList>
 										<Property Name="EndPosition" Type="Real64" Value="155294.125"/>
+										<Property Name="OverrideClockSettings" Type="bool" Value="True"/>
+										<Property Name="Tempo" Type="Real64" Value="136"/>
 									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Conversion">
