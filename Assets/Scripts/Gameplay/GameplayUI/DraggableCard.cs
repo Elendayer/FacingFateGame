@@ -150,7 +150,6 @@ namespace facingfate
             Ray ray = Camera.main.ScreenPointToRay(eventData.position);
             Vector3 cursorPosition = GetFloorHitPosition(ray);
             
-            dragVFX.transform.position = cursorPosition;
             if (dragVFXEffect.HasVector3("End"))
             {
                 dragVFXEffect.SetVector3("End", cursorPosition);

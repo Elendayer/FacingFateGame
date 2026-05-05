@@ -167,8 +167,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: 1832
     y: 853
-    width: 1300
-    height: 2314
+    width: 1299
+    height: 2278
 --- !u!114 &114350483966675019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,6 +296,17 @@ MonoBehaviour:
     expandedSlots: []
     expanded: 1
     supecollapsed: 0
+  - m_Id: 2
+    linkedSlots:
+    - outputSlot: {fileID: 114350483966675392}
+      inputSlot: {fileID: 114350483966676434}
+    - outputSlot: {fileID: 114350483966675394}
+      inputSlot: {fileID: 114350483966676436}
+    position: {x: 2237.3335, y: 2138.6667}
+    expandedSlots:
+    - {fileID: 114350483966675391}
+    expanded: 1
+    supecollapsed: 0
 --- !u!114 &114350483966675391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -366,7 +377,8 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 1
-  m_LinkedSlots: []
+  m_LinkedSlots:
+  - {fileID: 114350483966676434}
 --- !u!114 &114350483966675393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -432,7 +444,8 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 1
-  m_LinkedSlots: []
+  m_LinkedSlots:
+  - {fileID: 114350483966676436}
 --- !u!114 &114350483966675395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2746,7 +2759,7 @@ MonoBehaviour:
   m_Children:
   - {fileID: 114350483966676433}
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_MasterSlot: {fileID: 114350483966676432}
   m_MasterData:
@@ -2783,7 +2796,7 @@ MonoBehaviour:
   - {fileID: 114350483966676435}
   - {fileID: 114350483966676436}
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_MasterSlot: {fileID: 114350483966676432}
   m_MasterData:
@@ -2832,7 +2845,8 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 0
-  m_LinkedSlots: []
+  m_LinkedSlots:
+  - {fileID: 114350483966675392}
 --- !u!114 &114350483966676435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2898,7 +2912,8 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 0
-  m_LinkedSlots: []
+  m_LinkedSlots:
+  - {fileID: 114350483966675394}
 --- !u!114 &114350483966676437
 MonoBehaviour:
   m_ObjectHideFlags: 0

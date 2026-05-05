@@ -368,7 +368,6 @@ namespace facingfate
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
                             var rootEffect = EffectDatabase.GetEffectByName("Root", CloneMode.Defaults, cardData, ThroughputSource.Damage, target);
-                            rootEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                             CombatUtility.ApplyEntityModifier(cardData, target, rootEffect);
                         }
                     )

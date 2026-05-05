@@ -33,37 +33,37 @@ namespace facingfate
         }
 
         /// <summary>
-        /// Visualizes a targeting cone.
+        /// Visualizes a targeting cone as a flat pie-slice in the XZ plane.
         /// </summary>
         public static void DrawCone(Vector3 origin, Vector3 target, float range, float coneAngle, Color color, float duration = 0f)
         {
             if (!isEnabled) return;
 
-            target = target.normalized;
-            float halfAngle = coneAngle;
+            // Flatten to XZ plane
+            target = new Vector3(target.x, 0f, target.z).normalized;
+            if (target == Vector3.zero) target = Vector3.forward;
 
-            // Draw cone end circle
-            Vector3 coneEnd = origin + target * range;
-            float coneRadiusAtEnd = range * Mathf.Tan(halfAngle * Mathf.Deg2Rad);
+            // Two edge rays
+            Vector3 leftEdge = Quaternion.AngleAxis(-coneAngle, Vector3.up) * target;
+            Vector3 rightEdge = Quaternion.AngleAxis(coneAngle, Vector3.up) * target;
+            Vector3 leftTip = origin + leftEdge * range;
+            Vector3 rightTip = origin + rightEdge * range;
 
-            Vector3 perpendicular1 = Vector3.Cross(target, Vector3.up);
-            if (perpendicular1.magnitude < 0.1f)
-                perpendicular1 = Vector3.Cross(target, Vector3.right);
-            perpendicular1 = perpendicular1.normalized;
-            Vector3 perpendicular2 = Vector3.Cross(target, perpendicular1).normalized;
+            Debug.DrawLine(origin, leftTip, color, duration);
+            Debug.DrawLine(origin, rightTip, color, duration);
 
-            DrawCircle(coneEnd, perpendicular1, perpendicular2, coneRadiusAtEnd, color, duration);
-
-            // Draw lines from apex to cone edge
-            Vector3 edgePoint1 = coneEnd + perpendicular1 * coneRadiusAtEnd;
-            Vector3 edgePoint2 = coneEnd - perpendicular1 * coneRadiusAtEnd;
-            Vector3 edgePoint3 = coneEnd + perpendicular2 * coneRadiusAtEnd;
-            Vector3 edgePoint4 = coneEnd - perpendicular2 * coneRadiusAtEnd;
-
-            Debug.DrawLine(origin, edgePoint1, color, duration);
-            Debug.DrawLine(origin, edgePoint2, color, duration);
-            Debug.DrawLine(origin, edgePoint3, color, duration);
-            Debug.DrawLine(origin, edgePoint4, color, duration);
+            // Arc at range
+            int arcSegments = Mathf.Clamp(Mathf.RoundToInt(coneAngle * 2f / 5f), 6, 36);
+            Vector3 prev = leftTip;
+            for (int i = 1; i <= arcSegments; i++)
+            {
+                float t = (float)i / arcSegments;
+                float angle = Mathf.Lerp(-coneAngle, coneAngle, t);
+                Vector3 dir = Quaternion.AngleAxis(angle, Vector3.up) * target;
+                Vector3 next = origin + dir * range;
+                Debug.DrawLine(prev, next, color, duration);
+                prev = next;
+            }
         }
 
         /// <summary>
@@ -136,11 +136,11 @@ namespace facingfate
                     break;
 
                 case CardTargetingMode.Cone:
-                    if (data.targetedPositions.Count > 0)
                     {
                         Vector3 coneDirection = (aimOrigin - castOrigin).normalized;
                         if (coneDirection == Vector3.zero) coneDirection = Vector3.forward;
-                        DrawCone(castOrigin, coneDirection, cardData.Range, cardData.Area, effectColor, duration);
+                        DrawCone(castOrigin, coneDirection, cardData.Range, 45, effectColor, duration);
+                        DrawConeRays(castOrigin, coneDirection, cardData.Range, 45, duration);
                         DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     }
                     break;
@@ -187,6 +187,42 @@ namespace facingfate
                 case CardTargetingMode.All:
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Casts a flat fan of rays in the XZ plane matching the cone detection logic.
+        /// Green up to a hit, faint white for the remainder. Ray count scales with range.
+        /// </summary>
+        public static void DrawConeRays(Vector3 origin, Vector3 direction, float range, float coneAngle, float duration = 0f)
+        {
+            if (!isEnabled) return;
+
+            direction = new Vector3(direction.x, 0f, direction.z).normalized;
+            if (direction == Vector3.zero) direction = Vector3.forward;
+
+            int rayCount = Mathf.Clamp(Mathf.RoundToInt(range * 4f), 8, 64);
+
+            for (int i = 0; i <= rayCount; i++)
+            {
+                float t = (float)i / rayCount;
+                float angle = Mathf.Lerp(-coneAngle, coneAngle, t);
+                Vector3 rayDir = Quaternion.AngleAxis(angle, Vector3.up) * direction;
+                DrawRay(origin, rayDir, range, duration);
+            }
+        }
+
+        private static void DrawRay(Vector3 origin, Vector3 direction, float range, float duration)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(origin, direction, out hit, range))
+            {
+                Debug.DrawLine(origin, hit.point, Color.green, duration);
+                Debug.DrawLine(hit.point, origin + direction * range, new Color(1f, 1f, 1f, 0.2f), duration);
+            }
+            else
+            {
+                Debug.DrawLine(origin, origin + direction * range, new Color(1f, 1f, 1f, 0.2f), duration);
             }
         }
 

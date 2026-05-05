@@ -359,7 +359,7 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (System.Action<EntityScript, Vector3, CardData>)((caster, position, cardData) =>
                         {
-                            // TODO: Spawn a blocking entity/obstacle on the chosen tile for N turns.
+                            CombatUtility.SpawnEntity(cardData, position, "Spectral_Barrier", EntityAffiliation.Neutral, false);
                         })
                     )
                 }
@@ -391,10 +391,10 @@ namespace facingfate
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, target, cardData) =>
                         {
                             MovementUtility.SwapLocations(caster, target);
-                        })
+                        }
                     )
                 }
             });
@@ -417,7 +417,7 @@ namespace facingfate
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
-                cardDescriptionAction = (User, d) => d.cardDescription = "Immediately proc Bleed on target.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Trigger Bleed on the target.",
                 cardActionSequence = new()
                 {
                     new CardAction(
@@ -425,10 +425,15 @@ namespace facingfate
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, target, cardData) =>
                         {
-                            // TODO: Immediately trigger target's Bleed tick(s) or apply Bleed if none.
-                        })
+                            if (target.HasModifier("Bleed"))
+                            {
+                                var bleed = target.GetModifierByName("Bleed");
+
+                                CombatUtility.ApplyEffectDamage(bleed.BaseValue, target, GameplayRef.onBleed, new VFXData("BleedEffect"));
+                            }
+                        }
                     )
                 }
             });
@@ -436,7 +441,7 @@ namespace facingfate
             // 130308 � Venom Hex � proc Poison (non-damage trigger)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Mystic_Spell_Venom_Hex",
+                cardID = "Mystic_Spell_Toxic_Hex",
                 cardName = "Venom Hex",
                 cardType = CardType.Spell,
                 cardClass = CardClass.Mystic,
@@ -451,18 +456,23 @@ namespace facingfate
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
-                cardDescriptionAction = (User, d) => d.cardDescription = "Immediately proc Poison on target.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Trigger Poison on the target.",
                 cardActionSequence = new()
                 {
-                    new CardAction(
+                   new CardAction(
                         ExecutionMode.Once,
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, target, cardData) =>
                         {
-                            // TODO: Immediately trigger target's Poison tick(s) or apply Poison if none.
-                        })
+                            if (target.HasModifier("Poison"))
+                            {
+                                var poison = target.GetModifierByName("Poison");
+
+                                CombatUtility.ApplyEffectDamage(poison.BaseValue, target, GameplayRef.onPoison, new VFXData("PoisonEffect"));
+                            }
+                        }
                     )
                 }
             });
@@ -470,8 +480,8 @@ namespace facingfate
             // 130309 � Crimson Hex � Ignite proc (non-damage trigger)
             CardDatabase.RegisterCard(new CardData()
             {
-                cardID = "Mystic_Spell_Crimson_Hex",
-                cardName = "Crimson Hex",
+                cardID = "Mystic_Spell_Blazing_Hex",
+                cardName = "Blazing Hex",
                 cardType = CardType.Spell,
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Fire },
@@ -485,7 +495,8 @@ namespace facingfate
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
-                cardDescriptionAction = (User, d) => d.cardDescription = "Immediately proc Ignite on target.",
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Trigger Burn on the target.",
                 cardActionSequence = new()
                 {
                     new CardAction(
@@ -493,10 +504,15 @@ namespace facingfate
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, target, cardData) =>
                         {
-                            // TODO: Immediately trigger target's Burn tick(s) or apply Burn if none.
-                        })
+                            if (target.HasModifier("Burn"))
+                            {
+                                var burn = target.GetModifierByName("Burn");
+                                
+                                CombatUtility.ApplyEffectDamage(burn.BaseValue, target, GameplayRef.onBurn, new VFXData("BurnEffect"));
+                            }
+                        }
                     )
                 }
             });
@@ -508,7 +524,7 @@ namespace facingfate
                 cardName = "Mental Chains",
                 cardType = CardType.Spell,
                 cardClass = CardClass.Mystic,
-                cardIdentities = new() { CardIdentity.Ranged },
+                cardIdentities = new() {},
 
                 cost_u = 35,
 
@@ -541,7 +557,7 @@ namespace facingfate
                 cardName = "Rainbow Hex",
                 cardType = CardType.Spell,
                 cardClass = CardClass.Mystic,
-                cardIdentities = new() { CardIdentity.Ranged },
+                cardIdentities = new() {},
 
                 cost_u = 48,
                 range_u = 8f,
@@ -635,7 +651,9 @@ namespace facingfate
                 cardType = CardType.Curse,
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.None },
+
                 cost_u = 0,
+                duration_u = 2,
 
                 targetingData = new()
                 {
@@ -643,7 +661,8 @@ namespace facingfate
                     CardTargetAffiliation = CardTargetAffiliation.Self,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
-                cardDescriptionAction = (User, d) => d.cardDescription = "Using spells costs more.",
+
+                cardDescriptionAction = (User, d) => d.cardDescription = "Spells cost 5 more for {Duration} turns",
                 cardActionSequence = new()
                 {
                     new CardAction(
@@ -653,12 +672,33 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
                         {
-                            // TODO
-                        })
-                    )
+                            new CardAction(
+                            ExecutionMode.Once,
+                            TargetingMode.Entities,
+                            delayBefore: 0f,
+                            delayBetween: 0f,
+                            action: (caster, target, cardData) =>
+                            {
+                                CombatUtility.ApplyStatBuff(cardData, target,
+                                    new StatModifier(
+                                        name: $"Inner Calm",
+                                        stat: target.entityStats.CardCostModifier_Flat,
+                                        value: 5,
+                                        to_TriggerRefs: new(),
+                                        duration: cardData.Duration,
+                                        modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                        condition: "Spell"
+                                        )
+                                    );
+                            });
+                        }))
                 }
             });
         }
+
+
+
+
 
         private static void RegisterBlessings()
         {
@@ -678,7 +718,7 @@ namespace facingfate
                     CardTargetAffiliation = CardTargetAffiliation.Self,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
-                cardDescriptionAction = (User, d) => d.cardDescription = "Spells are cheaper (TODO).",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Spells cost 5 less for 2 turns",
                 cardActionSequence = new()
                 {
                     new CardAction(
@@ -686,10 +726,20 @@ namespace facingfate
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, target, cardData) =>
                         {
-                            // TODO
-                        })
+                            CombatUtility.ApplyStatBuff(cardData, target,
+                                new StatModifier(
+                                    name: $"Inner Calm",
+                                    stat: target.entityStats.CardCostModifier_Flat,
+                                    value: -5,
+                                    to_TriggerRefs: new(),
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                    condition: "Spell"
+                                ));
+
+                        }
                     )
                 }
             });

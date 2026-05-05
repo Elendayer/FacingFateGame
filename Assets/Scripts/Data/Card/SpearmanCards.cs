@@ -206,8 +206,9 @@ namespace facingfate
                 cost_u = 20,
                 damage_u = 12,
 
-                range_u = 4f,
+                range_u = 0.5f,
 
+                radius_u = 2f,
                 area_u = 1f,
 
                 targetingData = new()
@@ -222,6 +223,17 @@ namespace facingfate
                 cardActionSequence = new()
                 {
                     new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Caster,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Firestorm_Ring") {radius = cardData.Radius, area = cardData.Area}, caster.transform.position);
+                            
+                        }
+                    ),
+                    new CardAction(
                         ExecutionMode.EachIndividual,
                         TargetingMode.Entities,
                         delayBefore: 0f,
@@ -230,9 +242,9 @@ namespace facingfate
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("SlashImpact"));
 
+
                             EntityModifier mod = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, cardData, ThroughputSource.Damage, caster);
                             CombatUtility.ApplyEntityModifier(cardData, target, mod);
-                            AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Firestorm_Ring") {radius = cardData.Radius, area = cardData.Area}, target.transform.position);
                         }
                     )
                 }
@@ -361,9 +373,9 @@ namespace facingfate
                         TargetingMode.Aim,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (caster, target, cardData) =>
+                        action: (caster, position, cardData) =>
                         {
-                            AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Firestorm") { radius = cardData.Radius}, target.transform.position);
+                            AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Firestorm") { radius = cardData.Radius}, position);
                         }
                     ),
                     new CardAction(

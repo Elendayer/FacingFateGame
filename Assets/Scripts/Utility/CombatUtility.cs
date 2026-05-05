@@ -91,6 +91,7 @@ public static class CombatUtility
 
         HandleOnDamageVFX(vfxData, target);
 
+
         HandlePostCombatTrigger(refs, null, target, null, (int)damage); return;
     }
 

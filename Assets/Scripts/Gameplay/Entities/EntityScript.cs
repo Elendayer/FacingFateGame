@@ -232,4 +232,20 @@ namespace facingfate
     {
         isDamaged,
     }
+
+    public enum CreatureType
+    {
+        Humanoid,
+        Animal,
+        Beast,
+        Undead,
+        Elemental,
+        Construct,
+        Dragon,
+        Demon,
+        Angel,
+        Giant,
+        Fey,
+        Other
+    }
 }

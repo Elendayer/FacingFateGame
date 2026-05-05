@@ -259,25 +259,27 @@ namespace facingfate
                 cardActionSequence = new()
                 {
                     new CardAction(
-                        ExecutionMode.AllAtOnce,
+                        ExecutionMode.Once,
                         TargetingMode.Entities,
                         delayBefore: 0f,
-                        delayBetween: 0.2f,
+                        delayBetween: 0.0f,
                         action: (caster, target, cardData) =>
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
                         }
                     ),
-                    new CardAction(
-                        ExecutionMode.AllAtOnce,
-                        TargetingMode.Entities,
-                        delayBefore: 0.1f,
+                  new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
+                        delayBefore: 0.0f,
                         delayBetween: 0f,
-                        action: (caster, target, cardData) =>
+                        coroutine: (caster, targetingData, cardData) =>
                         {
-                            MovementUtility.ForcedMove(ForcedMovementType.Push, target, caster.transform.position, 1f);
+                            var target = targetingData.targetedEntities[0];
+                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 1f, target);
+                            return target.EntityOnMap.StartMoveRoutine(pushPath.End);
                         }
-                    )
+                    ),
                 }
             });
 
@@ -306,13 +308,14 @@ namespace facingfate
                 cardActionSequence = new()
                 {
                     new CardAction(
-                        ExecutionMode.AllAtOnce,
-                        TargetingMode.Entities,
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (caster, target, cardData) =>
+                        coroutine: (caster, targetingData, cardData) =>
                         {
-                            MovementUtility.ForcedMove(ForcedMovementType.Pull, caster, target.transform.position);
+                            var target = targetingData.targetedEntities[0];
+                            return caster.EntityOnMap.StartMoveRoutine(target.transform.position);
                         }
                     ),
                     new CardAction(
@@ -323,7 +326,18 @@ namespace facingfate
                         action: (caster, target, cardData) =>
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
-                            MovementUtility.ForcedMove(ForcedMovementType.Push, target, caster.transform.position, 1);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
+                        delayBefore: 0.1f,
+                        delayBetween: 0f,
+                        coroutine: (caster, targetingData, cardData) =>
+                        {
+                            var target = targetingData.targetedEntities[0];
+                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 1f, target);
+                            return target.EntityOnMap.StartMoveRoutine(pushPath.End);
                         }
                     )
                 }
@@ -347,17 +361,18 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Disengage by 2.5 meters.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Disengage by 3 meters.",
                 cardActionSequence = new()
                 {
                     new CardAction(
                         ExecutionMode.Once,
-                        TargetingMode.Entities,
+                        TargetingMode.Coroutine,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (caster, target, cardData) =>
+                        coroutine: (caster, targetingData, cardData) =>
                         {
-                            MovementUtility.ForcedMove(ForcedMovementType.Push, caster, target, 2.5f);
+                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 3f, caster);
+                            return caster.EntityOnMap.StartMoveRoutine(pushPath.End);
                         }
                     )
                 }
@@ -519,14 +534,12 @@ namespace facingfate
                 {
                     new CardAction(
                         ExecutionMode.Once,
-                        TargetingMode.Ground,
-                        delayBefore: 0f,
-                        delayBetween: 0.2f,
-                        action: (caster, position, cardData) =>
+                        TargetingMode.Coroutine,
+                        delayBefore: 0.0f,
+                        delayBetween: 0f,
+                        coroutine: (caster, targetingData, cardData) =>
                         {
-                   
-                                MovementUtility.ForcedMove(ForcedMovementType.Jump, caster, position);
-                            
+                            return caster.EntityOnMap.StartJumpRoutine(targetingData.aimPosition);
                         }
                     )
                 }

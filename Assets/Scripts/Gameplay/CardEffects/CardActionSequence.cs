@@ -82,6 +82,17 @@ namespace facingfate
             delayBetweenTargets = delayBetween;
             actionDelegate = coroutine;
         }
+        /// <summary>
+        /// Constructor for caster-only actions (TargetingMode.Caster). The action receives only the caster, with no target parameter.
+        /// </summary>
+        public CardAction(ExecutionMode mode, TargetingMode targeting, float delayBefore, float delayBetween, Action<EntityScript, CardData> action)
+        {
+            executionMode = mode;
+            targetingMode = targeting;
+            delayBeforeExecution = delayBefore;
+            delayBetweenTargets = delayBetween;
+            actionDelegate = action;
+        }
     }
 
     /// <summary>
@@ -162,11 +173,18 @@ namespace facingfate
 
             if (action.targetingMode == TargetingMode.Caster)
             {
-                var casterAction = action.actionDelegate as Action<EntityScript, EntityScript, CardData>;
-                if (casterAction == null)
+                var casterAction = action.actionDelegate as Action<EntityScript, CardData>;
+                if (casterAction != null)
+                {
+                    casterAction.Invoke(caster, cardData);
+                    yield return null;
                     yield break;
-
-                casterAction.Invoke(caster, caster, cardData);
+                }
+                // Legacy fallback: Action<EntityScript, EntityScript, CardData> with caster passed as both args
+                var legacyCasterAction = action.actionDelegate as Action<EntityScript, EntityScript, CardData>;
+                if (legacyCasterAction == null)
+                    yield break;
+                legacyCasterAction.Invoke(caster, caster, cardData);
                 yield return null;
                 yield break;
             }
