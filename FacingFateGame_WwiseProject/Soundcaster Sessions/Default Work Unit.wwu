@@ -3,7 +3,14 @@
 	<SoundcasterSessions>
 		<WorkUnit Name="Default Work Unit" ID="{A8162011-0F1E-4B7C-8CF5-8641D486D3EE}" PersistMode="Standalone">
 			<ChildrenList>
-				<SoundcasterSession Name="New Soundcaster Session" ID="{D976C34A-837A-4F1C-BBA8-2E1FA046186F}"/>
+				<SoundcasterSession Name="New Soundcaster Session" ID="{D976C34A-837A-4F1C-BBA8-2E1FA046186F}">
+					<ModuleList>
+						<Module>
+							<ObjectRef Name="MUSIC_Demo" ID="{AFD24E39-A5E3-4943-A44B-8844FA00E046}" WorkUnitID="{4DAFA85E-5C3E-4BD4-9372-58A748D53293}"/>
+							<Position X="0" Y="0"/>
+						</Module>
+					</ModuleList>
+				</SoundcasterSession>
 				<SoundcasterSession Name="New Soundcaster Session_01" ID="{D196F566-C65D-4B16-9F77-8FA8759C9A73}"/>
 			</ChildrenList>
 		</WorkUnit>
