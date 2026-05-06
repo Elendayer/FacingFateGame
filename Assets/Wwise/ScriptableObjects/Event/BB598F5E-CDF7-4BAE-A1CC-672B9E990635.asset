@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_SFX_UI_credits_open
   id: 2400083638
   guid: BB598F5E-CDF7-4BAE-A1CC-672B9E990635
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1

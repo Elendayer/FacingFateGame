@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_SFX_UI_button_hover
   id: 4180039856
   guid: 4B56BC21-111C-4626-92C1-E4C4948790CE
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1

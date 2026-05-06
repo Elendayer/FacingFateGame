@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_SFX_UI_pause_menu_open
   id: 3507907538
   guid: 94BD96F1-20C0-4358-AB0D-0E0F3601B928
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1

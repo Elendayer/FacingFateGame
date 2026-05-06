@@ -105,6 +105,11 @@ Assets/TextMesh Pro Examples & Extras/
 UserSettings/
 
 ###############################################################################
+# Wwise GeneratedSoundBanks (build output, not source)
+###############################################################################
+FacingFateGame_WwiseProject/GeneratedSoundBanks/
+
+###############################################################################
 # Claude Code
 ###############################################################################
 .claude/worktrees/

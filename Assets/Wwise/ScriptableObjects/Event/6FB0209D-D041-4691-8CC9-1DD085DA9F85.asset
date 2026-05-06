@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_SFX_UI_options_menu_open
   id: 1741661546
   guid: 6FB0209D-D041-4691-8CC9-1DD085DA9F85
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1

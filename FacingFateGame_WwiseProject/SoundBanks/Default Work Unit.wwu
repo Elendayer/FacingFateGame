@@ -4,7 +4,25 @@
 		<WorkUnit Name="Default Work Unit" ID="{94DA1E86-491C-443E-8311-BF8B15195791}" PersistMode="Standalone">
 			<ChildrenList>
 				<SoundBank Name="Main" ID="{EAEF9EFB-DF7A-4B87-9297-2153FBB83F24}">
-					<ObjectInclusionList/>
+					<ObjectInclusionList>
+						<ObjectRef Name="Play_SFX_UI_pause_menu_close" ID="{5B408633-3042-41B3-9875-4095D897B661}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_pause_menu_open" ID="{94BD96F1-20C0-4358-AB0D-0E0F3601B928}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_options_menu_close" ID="{07A42EC2-1B9C-4472-AC29-2D6C060539E2}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_button_drop_down" ID="{D733D6F0-7B0A-44CD-B254-0797CB491D5D}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_button_hover" ID="{4B56BC21-111C-4626-92C1-E4C4948790CE}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Start_Game" ID="{1DA10804-6936-4683-AA25-A1B3769B499F}" WorkUnitID="{AE04E30B-DDCA-438F-94FF-51EFD52C7497}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_options_menu_open" ID="{6FB0209D-D041-4691-8CC9-1DD085DA9F85}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_Shuffle_Cards" ID="{56C27600-7DE1-46B8-AD7F-B0C62F76E232}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_slider" ID="{E1EDDD63-1A4A-47B9-9675-635896D2613F}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_button_click" ID="{C6903DAA-C357-487E-A88C-CB83EA37D9AA}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_Card_SFX" ID="{33CFFC87-A926-48A4-8241-1238BA0ADC44}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_back_to_title_screen" ID="{8306E655-C6E7-48AF-9477-FFFAC23FFCB5}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_credits_open" ID="{BB598F5E-CDF7-4BAE-A1CC-672B9E990635}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Stop_Game" ID="{FD9A2B9D-7CD3-4BE1-97D4-BA5D131FC559}" WorkUnitID="{AE04E30B-DDCA-438F-94FF-51EFD52C7497}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_credits_close" ID="{6BFDC80A-888C-4D84-8147-636E0DC7BF4A}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_UI_start_game" ID="{7C3A0F8B-E692-4E87-A75F-E4C4A2A62508}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_Tick_dmg" ID="{8BD7D851-EB45-4F1E-B9E3-06A42D3EC215}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}" Origin="Manual" Filter="7"/>
+					</ObjectInclusionList>
 					<ObjectExclusionList/>
 					<GameSyncExclusionList/>
 				</SoundBank>

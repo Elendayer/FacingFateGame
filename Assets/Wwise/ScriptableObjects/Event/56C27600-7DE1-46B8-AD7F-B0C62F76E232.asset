@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_Shuffle_Cards
   id: 1108484029
   guid: 56C27600-7DE1-46B8-AD7F-B0C62F76E232
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1

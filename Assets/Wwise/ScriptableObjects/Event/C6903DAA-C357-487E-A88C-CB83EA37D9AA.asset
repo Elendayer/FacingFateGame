@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_SFX_UI_button_click
   id: 15941370
   guid: C6903DAA-C357-487E-A88C-CB83EA37D9AA
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1

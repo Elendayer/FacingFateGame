@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_SFX_UI_slider
   id: 1901608880
   guid: E1EDDD63-1A4A-47B9-9675-635896D2613F
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1
