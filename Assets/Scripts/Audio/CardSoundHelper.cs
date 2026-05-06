@@ -6,7 +6,7 @@ namespace facingfate
     public static class CardSoundHelper
     {
         // Default sound — Strike card values. Applied first, card-specific switches override per group.
-        private const string DefaultEvent = "Play_Card_SFX";
+        private static readonly uint DefaultEventId = AkUtilities.ShortIDGenerator.Compute("Play_Card_SFX");
 
         private static readonly List<WwiseSwitchEntry> DefaultSwitches = new()
         {
@@ -40,11 +40,14 @@ namespace facingfate
             }
 
             // 3) Post event
-            string eventName = (card != null && !string.IsNullOrEmpty(card.playSfxEvent))
-                ? card.playSfxEvent
-                : DefaultEvent;
-
-            AkUnitySoundEngine.PostEvent(eventName, emitter);
+            if (card != null && !string.IsNullOrEmpty(card.playSfxEvent))
+            {
+                AkUnitySoundEngine.PostEvent(card.playSfxEvent, emitter);
+            }
+            else
+            {
+                AkUnitySoundEngine.PostEvent(DefaultEventId, emitter);
+            }
         }
     }
 }

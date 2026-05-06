@@ -42,13 +42,11 @@ public static class TargetingUtility
 
         bool baseValid = targeting.CardTargetAffiliation switch
         {
-            CardTargetAffiliation.Ally => targetAff == ownerAff && target != owner,
+            CardTargetAffiliation.Ally => targetAff == ownerAff,
             CardTargetAffiliation.Enemy => targetAff != ownerAff,
             CardTargetAffiliation.Self => target == owner,
             CardTargetAffiliation.All => true,
-            CardTargetAffiliation.AllyNeutral => (targetAff == ownerAff || targetAff == EntityAffiliation.Neutral) && target != owner,
-            CardTargetAffiliation.EnemyNeutral => targetAff != ownerAff || targetAff == EntityAffiliation.Neutral,
-            CardTargetAffiliation.AllyEnemy => targetAff != EntityAffiliation.Neutral && target != owner,
+            CardTargetAffiliation.None => false,
             _ => false
         };
 

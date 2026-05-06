@@ -262,8 +262,32 @@ namespace facingfate
                     break;
 
                 case CardTargetingMode.Single:
-                    // For single target, find nearest valid enemy within range
-                    var singleTarget = FindPrimaryTarget(castPos);
+                    // For single target, find appropriate target based on card affiliation
+                    EntityScript singleTarget = null;
+
+                    switch (cardData.targetingData.CardTargetAffiliation)
+                    {
+                        case CardTargetAffiliation.Self:
+                            // Self-targeting: use the caster (NPC)
+                            singleTarget = npcScript;
+                            break;
+                        case CardTargetAffiliation.Ally:
+                            // Ally targeting: find nearest ally (including self)
+                            singleTarget = FindPrimaryAlly(castPos);
+                            break;
+                        case CardTargetAffiliation.Enemy:
+                            // Enemy targeting: find nearest enemy
+                            singleTarget = FindPrimaryTarget(castPos);
+                            break;
+                        case CardTargetAffiliation.All:
+                            // All targeting: find nearest entity (including self and allies)
+                            singleTarget = FindNearestEntity(castPos);
+                            break;
+                        default:
+                            singleTarget = FindPrimaryTarget(castPos);
+                            break;
+                    }
+
                     if (singleTarget != null)
                     {
                         float distToTarget = Vector3.Distance(castPos, singleTarget.transform.position);
@@ -339,6 +363,72 @@ namespace facingfate
             }
 
             return nearest;
+        }
+
+        /// <summary>
+        /// Finds the nearest ally to target for ally-targeting cards.
+        /// Includes self and other allies.
+        /// </summary>
+        private EntityScript FindPrimaryAlly(Vector3 fromPosition)
+        {
+            EntityScript nearest = npcScript; // Default to self
+            float nearestDist = Vector3.Distance(fromPosition, npcScript.transform.position);
+
+            var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+
+            foreach (var entity in allEntities)
+            {
+                // Skip self (already the default)
+                if (entity == npcScript)
+                    continue;
+
+                // Only consider allies (same affiliation)
+                if (entity.entityAffiliation != npcScript.entityAffiliation)
+                    continue;
+
+                // Skip neutrals
+                if (entity.entityAffiliation == EntityAffiliation.Neutral)
+                    continue;
+
+                var dist = Vector3.Distance(fromPosition, entity.transform.position);
+
+                if (dist < nearestDist)
+                {
+                    nearestDist = dist;
+                    nearest = entity;
+                }
+            }
+
+            return nearest;
+        }
+
+        /// <summary>
+        /// Finds the nearest entity to target for all-targeting cards.
+        /// Prioritizes by distance from the given position.
+        /// </summary>
+        private EntityScript FindNearestEntity(Vector3 fromPosition)
+        {
+            EntityScript nearest = null;
+            float nearestDist = float.MaxValue;
+
+            var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+
+            foreach (var entity in allEntities)
+            {
+                // Skip neutrals
+                if (entity.entityAffiliation == EntityAffiliation.Neutral)
+                    continue;
+
+                var dist = Vector3.Distance(fromPosition, entity.transform.position);
+
+                if (dist < nearestDist)
+                {
+                    nearestDist = dist;
+                    nearest = entity;
+                }
+            }
+
+            return nearest ?? npcScript; // Fallback to self
         }
 
         /// <summary>
@@ -825,9 +915,9 @@ namespace facingfate
 
             return targetingAffiliation switch
             {
-                CardTargetAffiliation.Self =>           target == npcScript,
-                CardTargetAffiliation.Ally =>           target.entityAffiliation == npcScript.entityAffiliation,
-                CardTargetAffiliation.Enemy =>          target.entityAffiliation != npcScript.entityAffiliation,
+                CardTargetAffiliation.Self => target == npcScript,
+                CardTargetAffiliation.Ally => target.entityAffiliation == npcScript.entityAffiliation,
+                CardTargetAffiliation.Enemy => target.entityAffiliation != npcScript.entityAffiliation,
                 CardTargetAffiliation.All => true,
                 CardTargetAffiliation.None => false,
                 _ => true

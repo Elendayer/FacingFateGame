@@ -100,11 +100,33 @@ namespace facingfate
 
         public void ToggleOptions()
         {
-            if (optionsMenu == null || optionsMenu.optionsPanel == null) return;
+            if (optionsMenu == null)
+            {
+                Debug.LogError("UIManager.ToggleOptions: optionsMenu is null!");
+                return;
+            }
 
-            bool isActive = optionsMenu.optionsPanel.activeSelf;
-            if (!isActive) optionsMenu.OpenOptionsRoll();
-            else optionsMenu.CloseOptionsRoll();
+            // Ensure scrollAnimator is available before checking its state
+            ScrollRollAnimator animator = optionsMenu.scrollAnimator;
+            if (animator == null)
+            {
+                Debug.LogError("UIManager.ToggleOptions: scrollAnimator is null!");
+                return;
+            }
+
+            // If currently animating, don't allow another toggle
+            if (animator.IsAnimating)
+            {
+                Debug.Log("UIManager.ToggleOptions: Still animating, ignoring toggle request");
+                return;
+            }
+
+            // Toggle based on actual open state
+            Debug.Log($"UIManager.ToggleOptions: IsOpen={animator.IsOpen}, toggling to {!animator.IsOpen}");
+            if (animator.IsOpen)
+                optionsMenu.CloseOptionsRoll();
+            else
+                optionsMenu.OpenOptionsRoll();
         }
 
     }

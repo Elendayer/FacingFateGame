@@ -37,6 +37,8 @@ namespace facingfate
         private Vector2 _offScreenPos;
         private bool _cached;
         private Sequence _seq;
+        private bool _isOpen;
+        private bool _isAnimating;
 
         private void Awake()
         {
@@ -58,6 +60,9 @@ namespace facingfate
                 contentGroup.interactable = false;
                 contentGroup.blocksRaycasts = false;
             }
+
+            _isOpen = false;
+            _isAnimating = false;
         }
 
         private void CachePositionsIfNeeded()
@@ -76,11 +81,39 @@ namespace facingfate
 
         public void Open(GameObject selectedAfterOpen = null)
         {
-            if (panelRoot == null || scrollRoot == null || revealRect == null) return;
+            // Check all references before proceeding
+            if (panelRoot == null)
+            {
+                Debug.LogWarning("ScrollRollAnimator.Open: panelRoot is null!");
+                return;
+            }
+            if (scrollRoot == null)
+            {
+                Debug.LogWarning("ScrollRollAnimator.Open: scrollRoot is null!");
+                return;
+            }
+            if (revealRect == null)
+            {
+                Debug.LogWarning("ScrollRollAnimator.Open: revealRect is null!");
+                return;
+            }
+
+            // Don't try to open if already open or animating
+            if (_isOpen && !_isAnimating) return;
+            if (_isAnimating) return;
+
             CachePositionsIfNeeded();
             KillSequence();
 
-            panelRoot.SetActive(true);
+            _isAnimating = true;
+            _isOpen = true; // Set to open immediately so rapid clicks are ignored
+
+            // Ensure the panel is active before starting animation
+            if (panelRoot != null)
+            {
+                panelRoot.SetActive(true);
+                Debug.Log("ScrollRollAnimator.Open: Panel activated, starting animation");
+            }
 
             // Startzustand (geschlossen + offscreen)
             scrollRoot.anchoredPosition = _offScreenPos;
@@ -127,6 +160,8 @@ namespace facingfate
                     rootGroup.blocksRaycasts = true;
                 }
 
+                _isAnimating = false;
+
                 if (selectedAfterOpen != null && EventSystem.current != null)
                 {
                     EventSystem.current.SetSelectedGameObject(null);
@@ -137,9 +172,17 @@ namespace facingfate
 
         public void Close(GameObject restoreSelection = null)
         {
+            // Check references
             if (panelRoot == null || scrollRoot == null || revealRect == null) return;
+
+            // Don't try to close if already closed or animating
+            if (!_isOpen && !_isAnimating) return;
+            if (_isAnimating) return;
+
             CachePositionsIfNeeded();
             KillSequence();
+
+            _isAnimating = true;
 
             if (rootGroup != null)
             {
@@ -171,6 +214,8 @@ namespace facingfate
             _seq.AppendCallback(() =>
             {
                 panelRoot.SetActive(false);
+                _isAnimating = false;
+                _isOpen = false;
 
                 if (restoreSelection != null && EventSystem.current != null)
                 {
@@ -193,5 +238,8 @@ namespace facingfate
                 _seq = null;
             }
         }
+
+        public bool IsOpen => _isOpen;
+        public bool IsAnimating => _isAnimating;
     }
 }

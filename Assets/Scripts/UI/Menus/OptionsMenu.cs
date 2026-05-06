@@ -36,7 +36,7 @@ namespace facingfate
         private OptionDataManager _dataManager;
         private Resolution[] _resolutions;
 
-        [SerializeField] private ScrollRollAnimator scrollAnimator;
+        public ScrollRollAnimator scrollAnimator;
 
         private void Start()
         {
@@ -44,17 +44,38 @@ namespace facingfate
             if (_canvasGroup == null) _canvasGroup = optionsPanel.AddComponent<CanvasGroup>();
 
             //_canvasGroup.alpha = 1f;
-            optionsPanel.SetActive(false);
+            // Don't disable the panel here - let ScrollRollAnimator handle visibility
+            // optionsPanel.SetActive(false);
 
             _dataManager = OptionDataManager.Instance;
 
             SetupResolutionDropdown();
             SetupLanguageDropdown();
             LoadSettingsIntoUI();
+
+            // Debug check and auto-find if not assigned
+            if (scrollAnimator == null)
+            {
+                scrollAnimator = GetComponentInChildren<ScrollRollAnimator>();
+                if (scrollAnimator == null)
+                    Debug.LogError("OptionsMenu: scrollAnimator not assigned and could not be found in children!");
+                else
+                    Debug.Log("OptionsMenu: scrollAnimator auto-found in children");
+            }
+            else
+            {
+                Debug.Log("OptionsMenu: scrollAnimator successfully initialized");
+            }
         }
 
         public void OpenOptionsRoll()
         {
+            if (scrollAnimator == null)
+            {
+                Debug.LogError("OptionsMenu.OpenOptionsRoll: scrollAnimator is null!");
+                return;
+            }
+
             if (EventSystem.current != null)
                 previousSelected = EventSystem.current.currentSelectedGameObject;
 
@@ -63,6 +84,11 @@ namespace facingfate
 
         public void CloseOptionsRoll()
         {
+            if (scrollAnimator == null)
+            {
+                Debug.LogError("OptionsMenu.CloseOptionsRoll: scrollAnimator is null!");
+                return;
+            }
             scrollAnimator.Close(previousSelected);
         }
 
@@ -107,18 +133,42 @@ namespace facingfate
             _resolutions = Screen.resolutions;
             resolutionDropdown.ClearOptions();
 
-            var currentResolutionIndex = 0;
-            for (var i = 0; i < _resolutions.Length; i++)
+            // Use a HashSet to track unique resolutions and avoid duplicates
+            var uniqueResolutions = new System.Collections.Generic.List<Resolution>();
+            var resolutionStrings = new System.Collections.Generic.HashSet<string>();
+
+            // Add resolutions in reverse order (highest resolution last, so we add it first)
+            for (var i = _resolutions.Length - 1; i >= 0; i--)
             {
-                resolutionDropdown.options.Add(
-                    new TMP_Dropdown.OptionData(_resolutions[i].width + "x" + _resolutions[i].height));
-                if (_resolutions[i].width == Screen.currentResolution.width &&
-                    _resolutions[i].height == Screen.currentResolution.height)
+                var res = _resolutions[i];
+                var resolutionString = res.width + "x" + res.height;
+
+                // Only add if this resolution hasn't been added yet
+                if (resolutionStrings.Add(resolutionString))
                 {
-                    currentResolutionIndex = i;
-                    //Debug.Log(currentResolutionIndex);
+                    uniqueResolutions.Add(res);
                 }
             }
+
+            // Reverse the list to have them in ascending order for display
+            uniqueResolutions.Reverse();
+
+            var currentResolutionIndex = 0;
+            for (var i = 0; i < uniqueResolutions.Count; i++)
+            {
+                var res = uniqueResolutions[i];
+                resolutionDropdown.options.Add(
+                    new TMP_Dropdown.OptionData(res.width + "x" + res.height));
+
+                if (res.width == Screen.currentResolution.width &&
+                    res.height == Screen.currentResolution.height)
+                {
+                    currentResolutionIndex = i;
+                }
+            }
+
+            // Update the internal resolutions array to match the filtered list
+            _resolutions = uniqueResolutions.ToArray();
 
             resolutionDropdown.RefreshShownValue();
             if (_dataManager != null)
@@ -147,7 +197,7 @@ namespace facingfate
             if (muteToggle != null) muteToggle.SetIsOnWithoutNotify(_dataManager.IsMuted);
 
             if (fullscreenToggle != null)
-                fullscreenToggle.SetIsOnWithoutNotify(_dataManager.IsFullscreen);
+                fullscreenToggle.SetIsOnWithoutNotify(_dataManager.FullscreenMode == FullScreenMode.ExclusiveFullScreen);
 
             if (resolutionDropdown != null)
                 resolutionDropdown.SetValueWithoutNotify(_dataManager.ResolutionIndex);

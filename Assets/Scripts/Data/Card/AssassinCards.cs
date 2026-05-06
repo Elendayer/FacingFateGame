@@ -723,6 +723,7 @@ namespace facingfate
 
                 cost_u = 5,
                 charges_u = 3,
+
                 damage_u = 5,
                 duration_u = 3,
 
@@ -733,7 +734,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = $"Next {d.Power} attacks apply Burn (DoT {d.Damage} for {d.Duration} turns).",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Next {Charges} attacks apply {Damage} Burn.",
 
                 cardActionSequence = new()
                 {
@@ -744,7 +745,34 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
                         {
-                            //VenomUtility.ArmBurnFromCard(caster, cardData);
+                            new CardAction(
+                                ExecutionMode.Once,
+                                TargetingMode.Caster,
+                                delayBefore: 0f,
+                                delayBetween: 0f,
+                                action: (caster, cardData) =>
+                                {
+                                    CombatUtility.ApplyEntityModifier(cardData, caster,
+                                        new EntityModifier(
+                                            modifierName: "BurningVenom",
+                                            owner: caster,
+                                            toTriggerRefs: new() { },
+                                            charges: cardData.Charges,
+                                            modifierMergeStrategy: ModifierMergeStrategy.Override,
+                                            onRef_Trigger: new RelevantTriggerCheck
+                                            {
+                                                OnTriggerReference = new() { GameplayRef.onHitLanded },
+                                                CheckType = CheckEntityType.User,
+                                                CheckEntity = caster,
+                                            },
+                                            actionTargetType: EntityModifier.ActionTargetType.Affected,
+                                            onRef_Action: (t, d, value) =>
+                                            {
+                                                var poisonEffect = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, t);
+                                                poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                                                CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
+                                            }));
+                                });
                         })
                     )
                 }
@@ -780,16 +808,15 @@ namespace facingfate
                 {
                     new CardAction(
                         ExecutionMode.Once,
-                        TargetingMode.Entities,
+                        TargetingMode.Caster,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, cardData) =>
                         {
                             CombatUtility.ApplyEntityModifier(cardData, caster,
                                 new EntityModifier(
                                     modifierName: "PosionVenom",
                                     owner: caster,
-                                    baseValue: cardData.Duration,
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
                                     modifierMergeStrategy: ModifierMergeStrategy.Override,
@@ -806,7 +833,7 @@ namespace facingfate
                                         poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                                         CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
                                     }));
-                        })
+                        }
                     )
                 }
             });
@@ -836,16 +863,15 @@ namespace facingfate
                 {
                     new CardAction(
                         ExecutionMode.Once,
-                        TargetingMode.Entities,
+                        TargetingMode.Caster,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, cardData) =>
                         {
                             CombatUtility.ApplyEntityModifier(cardData, caster,
                                 new EntityModifier(
                                     modifierName: "StunVenom",
                                     owner: caster,
-                                    baseValue: cardData.Duration,
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
                                     modifierMergeStrategy: ModifierMergeStrategy.Override,
@@ -862,7 +888,7 @@ namespace facingfate
                                         stunEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                                         CombatUtility.ApplyEntityModifier(d, t, stunEffect);
                                     }));
-                        })
+                        }
                     )
                 }
             });

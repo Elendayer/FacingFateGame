@@ -19,8 +19,10 @@ namespace facingfate
         [SerializeField, Range(0f, 1f)] private float dialogueSlider01 = 0.8f;
         [SerializeField, Range(0f, 1f)] private float atmoSlider01 = 0.8f;
         [SerializeField] private bool isMuted = false;
-        [SerializeField] private bool isFullscreen = true;
+        [SerializeField] private FullScreenMode fullscreenMode = FullScreenMode.ExclusiveFullScreen;
         [SerializeField] private int resolutionIndex;
+        [SerializeField] private int windowWidth = 1920;
+        [SerializeField] private int windowHeight = 1080;
         public string selectedLanguageCode = "en"; // Standard auf Englisch
 
         [Header("Wwise RTPC Names")]
@@ -40,8 +42,10 @@ namespace facingfate
         private const string PREF_ATMO = "opt_atmo_01";
         private const string PREF_DIALOGUE = "opt_dialogue_01";
         private const string PREF_MUTED = "opt_muted";
-        private const string PREF_FULLSCREEN = "opt_fullscreen";
+        private const string PREF_FULLSCREEN_MODE = "opt_fullscreen_mode";
         private const string PREF_RESOLUTION = "opt_resolution_index";
+        private const string PREF_WINDOW_WIDTH = "opt_window_width";
+        private const string PREF_WINDOW_HEIGHT = "opt_window_height";
         private const string PREF_LANGUAGE = "opt_language_code";
 
         public float Master01 => masterSlider01;
@@ -50,8 +54,10 @@ namespace facingfate
         public float Atmo01 => atmoSlider01;
         public float Dialogue01 => dialogueSlider01;
         public bool IsMuted => isMuted;
-        public bool IsFullscreen => isFullscreen;
+        public FullScreenMode FullscreenMode => fullscreenMode;
         public int ResolutionIndex => resolutionIndex;
+        public int WindowWidth => windowWidth;
+        public int WindowHeight => windowHeight;
         public string SelectedLanguageCode => selectedLanguageCode;
 
         private void Awake()
@@ -63,12 +69,14 @@ namespace facingfate
             DontDestroyOnLoad(gameObject);
 
             LoadFromPrefs();
+            // Apply display settings immediately before scene fully initializes
+            ApplyDisplaySettings();
         }
 
         private IEnumerator Start()
         {
             yield return LocalizationSettings.InitializationOperation;
-            ApplyAllSettings();
+            ApplyAudioRtpcs();
         }
 
         public void SetMasterVolume01(float slider01)
@@ -128,11 +136,34 @@ namespace facingfate
 
         public void SetFullscreen(bool fullscreen)
         {
-            isFullscreen = fullscreen;
-            PlayerPrefs.SetInt(PREF_FULLSCREEN, fullscreen ? 1 : 0);
+            fullscreenMode = fullscreen ? FullScreenMode.ExclusiveFullScreen : FullScreenMode.Windowed;
+            PlayerPrefs.SetInt(PREF_FULLSCREEN_MODE, (int)fullscreenMode);
             PlayerPrefs.Save();
 
-            Screen.fullScreen = isFullscreen;
+            ApplyDisplaySettings();
+        }
+
+        public void SetFullscreenMode(FullScreenMode mode)
+        {
+            fullscreenMode = mode;
+            PlayerPrefs.SetInt(PREF_FULLSCREEN_MODE, (int)fullscreenMode);
+            PlayerPrefs.Save();
+
+            ApplyDisplaySettings();
+        }
+
+        public void SetWindowSize(int width, int height)
+        {
+            windowWidth = Mathf.Max(640, width);
+            windowHeight = Mathf.Max(480, height);
+            PlayerPrefs.SetInt(PREF_WINDOW_WIDTH, windowWidth);
+            PlayerPrefs.SetInt(PREF_WINDOW_HEIGHT, windowHeight);
+            PlayerPrefs.Save();
+
+            if (fullscreenMode == FullScreenMode.Windowed)
+            {
+                Screen.SetResolution(windowWidth, windowHeight, fullscreenMode);
+            }
         }
 
         public void SetResolution(int index)
@@ -159,10 +190,22 @@ namespace facingfate
 
         public void ApplyAllSettings()
         {
-            Screen.fullScreen = isFullscreen;
-            SetResolution(resolutionIndex);
+            ApplyDisplaySettings();
             ApplyLanguageSetting();
             ApplyAudioRtpcs();
+        }
+
+        private void ApplyDisplaySettings()
+        {
+            if (fullscreenMode == FullScreenMode.Windowed)
+            {
+                Screen.SetResolution(windowWidth, windowHeight, fullscreenMode);
+            }
+            else
+            {
+                SetResolution(resolutionIndex);
+                Screen.fullScreenMode = fullscreenMode;
+            }
         }
 
         private void ApplyLanguageSetting()
@@ -204,8 +247,10 @@ namespace facingfate
             atmoSlider01 = PlayerPrefs.GetFloat(PREF_ATMO, atmoSlider01);
             dialogueSlider01 = PlayerPrefs.GetFloat(PREF_DIALOGUE, dialogueSlider01);
             isMuted = PlayerPrefs.GetInt(PREF_MUTED, isMuted ? 1 : 0) == 1;
-            isFullscreen = PlayerPrefs.GetInt(PREF_FULLSCREEN, isFullscreen ? 1 : 0) == 1;
-            resolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION, resolutionIndex);
+            fullscreenMode = (FullScreenMode)PlayerPrefs.GetInt(PREF_FULLSCREEN_MODE, (int)FullScreenMode.ExclusiveFullScreen);
+            resolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION, FindClosestResolutionIndex());
+            windowWidth = PlayerPrefs.GetInt(PREF_WINDOW_WIDTH, 1920);
+            windowHeight = PlayerPrefs.GetInt(PREF_WINDOW_HEIGHT, 1080);
             selectedLanguageCode = PlayerPrefs.GetString(PREF_LANGUAGE, selectedLanguageCode);
 
             masterSlider01 = Mathf.Clamp01(masterSlider01);
@@ -213,6 +258,17 @@ namespace facingfate
             sfxSlider01 = Mathf.Clamp01(sfxSlider01);
             atmoSlider01 = Mathf.Clamp01(atmoSlider01);
             dialogueSlider01 = Mathf.Clamp01(dialogueSlider01);
+            windowWidth = Mathf.Max(640, windowWidth);
+            windowHeight = Mathf.Max(480, windowHeight);
+        }
+
+        private int FindClosestResolutionIndex()
+        {
+            var resolutions = Screen.resolutions;
+            if (resolutions == null || resolutions.Length == 0) return 0;
+
+            // Use the native resolution (typically the last in the list)
+            return resolutions.Length - 1;
         }
     }
 }

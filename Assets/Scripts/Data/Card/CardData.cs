@@ -679,8 +679,10 @@ namespace facingfate
             return mode switch
             {
                 CardTargetAffiliation.Self => target == owner,
-                CardTargetAffiliation.Ally => target.entityAffiliation == owner.entityAffiliation && target != owner,
+                CardTargetAffiliation.Ally => target.entityAffiliation == owner.entityAffiliation,
                 CardTargetAffiliation.Enemy => target.entityAffiliation != owner.entityAffiliation,
+                CardTargetAffiliation.All => true,
+                CardTargetAffiliation.None => false,
                 _ => true
             };
         }
@@ -725,10 +727,7 @@ namespace facingfate
         All,
         Self,
         Ally,
-        AllyNeutral,
         Enemy,
-        EnemyNeutral,
-        AllyEnemy,
     }
     public enum CardTargetingMode
     {

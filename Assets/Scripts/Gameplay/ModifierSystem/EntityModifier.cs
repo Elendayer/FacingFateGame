@@ -188,28 +188,25 @@ namespace facingfate
                 }
             }
 
-            // If the trigger is not relevant for the modifier, we still want to tick duration if its a turn start or end trigger, as well as check for expiration
+            // If the trigger is not relevant for the modifier, we still want to tick duration at turn end and check for expiration
             if (OnRef_Trigger.OnTriggerReference == null || OnRef_Trigger.OnTriggerReference.Count == 0)
             {
                 return;
             }
-            
-            // Tick Duration if its not triggered at TurnStart and has Duration
-            if (!OnRef_Trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
-            {
-                RelevantTriggerCheck FallBackEndTurnTrigger = new RelevantTriggerCheck()
-                {
-                    OnTriggerReference = new List<GameplayRef>() { GameplayRef.onTurnEnd },
-                    CheckType = CheckEntityType.User,
-                    CheckEntity = Owner,
-                };
 
-                if (GameEvents.CheckIfRelevantTrigger(trigger, FallBackEndTurnTrigger))
+            // Always tick duration at TurnEnd for the owner, regardless of other triggers
+            RelevantTriggerCheck EndTurnTrigger = new RelevantTriggerCheck()
+            {
+                OnTriggerReference = new List<GameplayRef>() { GameplayRef.onTurnStart },
+                CheckType = CheckEntityType.User,
+                CheckEntity = Owner,
+            };
+
+            if (GameEvents.CheckIfRelevantTrigger(trigger, EndTurnTrigger))
+            {
+                if (Duration < 9999)
                 {
-                    if (Duration < 9999)
-                    {
-                        Duration--;
-                    }
+                    Duration--;
                 }
 
                 if (IsExpired || IsSpend)

@@ -95,7 +95,7 @@ namespace facingfate
                     )
                 }
             });
-
+            
             // 100102 – Heavy Blow – slow heavy hit with debuff
             CardDatabase.RegisterCard(new CardData()
             {
