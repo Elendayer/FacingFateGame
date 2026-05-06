@@ -1,3 +1,0 @@
-Event	ID	Name			Wwise Object Path	Notes
-	4180039856	Play_SFX_UI_button_hover			\Default Work Unit\SFX_Events\SFX_Evenst_UI\Play_SFX_UI_button_hover	
-

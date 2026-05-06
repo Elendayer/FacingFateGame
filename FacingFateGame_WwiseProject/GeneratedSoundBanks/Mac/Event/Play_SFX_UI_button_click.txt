@@ -1,3 +1,0 @@
-Event	ID	Name			Wwise Object Path	Notes
-	15941370	Play_SFX_UI_button_click			\Default Work Unit\01_Options_Basic-UI\Options_Basic-UI\Play_SFX_UI_button_click	
-
