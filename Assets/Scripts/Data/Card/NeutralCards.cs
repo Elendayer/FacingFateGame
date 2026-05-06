@@ -57,12 +57,13 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 // Audio — Wwise event + switches. Values must match Wwise Switch names exactly.
-                playSfxEvent = "Play_CardEffect",
+                playSfxEvent = "Play_Card_SFX",
                 soundSwitches = new()
                 {
-                    new WwiseSwitchEntry { group = "ActionType",  value = "Attack"   },
-                    new WwiseSwitchEntry { group = "WeaponType",  value = "Fist"     },
-                    new WwiseSwitchEntry { group = "ElementType", value = "Physical" },
+                    new WwiseSwitchEntry { group = "ActionType",      value = "Attack"   },
+                    new WwiseSwitchEntry { group = "WeaponType",      value = "Fist"     },
+                    new WwiseSwitchEntry { group = "ElementType",     value = "Blood" },
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human" },
                 },
 
                 cost_u = 10,
