@@ -1,11 +1,19 @@
 Event	ID	Name			Wwise Object Path	Notes
-	2828349068	Play_Card_Main			\Default Work Unit\SFX_Events\SFX_Events_Cards\Play_Card_Main	
+	730768008	Play_Card_SFX			\Default Work Unit\SFX_Events\SFX_Events_Cards\Play_Card_SFX	
 
 Switch Group	ID	Name			Wwise Object Path	Notes
+	767731869	WeaponType			\Default Work Unit\Card Sound System\WeaponType	
 	1026584191	ActionType			\Default Work Unit\Card Sound System\ActionType	
 	2049048805	SwitchGrp_CharType			\Default Work Unit\Entity System\SwitchGrp_CharType	
+	3055168915	ElementType			\Default Work Unit\Card Sound System\ElementType	
 
 Switch	ID	Name	Switch Group			Notes
+	546945295	Bow	WeaponType			
+	573839388	Spear	WeaponType			
+	2695658315	Fist	WeaponType			
+	3732162827	Dagger	WeaponType			
+	3737052860	Claw	WeaponType			
+	4272075576	Potion	WeaponType			
 	180661997	Attack	ActionType			
 	1612179606	Buff	ActionType			
 	1880439950	Magic	ActionType			
@@ -14,4 +22,8 @@ Switch	ID	Name	Switch Group			Notes
 	767988009	Animal	SwitchGrp_CharType			
 	1064933107	Oni	SwitchGrp_CharType			
 	3887404748	Human	SwitchGrp_CharType			
+	613188569	Posion	ElementType			
+	2678880713	Fire	ElementType			
+	3934470635	Blood	ElementType			
+	4009967300	NoElement	ElementType			
 

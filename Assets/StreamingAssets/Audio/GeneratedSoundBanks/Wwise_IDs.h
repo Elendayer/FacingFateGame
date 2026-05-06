@@ -13,9 +13,7 @@ namespace AK
 {
     namespace EVENTS
     {
-        static const AkUniqueID PLAY_CARD_ELEMENT = 4002306001U;
-        static const AkUniqueID PLAY_CARD_MAIN = 2828349068U;
-        static const AkUniqueID PLAY_CARD_WEAPON = 4293961391U;
+        static const AkUniqueID PLAY_CARD_SFX = 730768008U;
         static const AkUniqueID PLAY_DEATH = 1172822028U;
         static const AkUniqueID PLAY_DMG = 3025804934U;
         static const AkUniqueID PLAY_FOOTSTEP = 1602358412U;
@@ -133,17 +131,6 @@ namespace AK
                 static const AkUniqueID POSION = 613188569U;
             } // namespace SWITCH
         } // namespace ELEMENTTYPE
-
-        namespace POWERLVL
-        {
-            static const AkUniqueID GROUP = 2201078378U;
-
-            namespace SWITCH
-            {
-                static const AkUniqueID HEAVY = 2732489590U;
-                static const AkUniqueID LIGHT = 1935470627U;
-            } // namespace SWITCH
-        } // namespace POWERLVL
 
         namespace SCENETYPE
         {

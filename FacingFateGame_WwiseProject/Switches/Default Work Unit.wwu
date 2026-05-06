@@ -22,12 +22,6 @@
 								<Switch Name="NoElement" ID="{72402775-E51A-4416-9A69-6E9AFCFFCA47}"/>
 							</ChildrenList>
 						</SwitchGroup>
-						<SwitchGroup Name="PowerLVL" ID="{5F973054-11DD-48EC-BABE-6AD8FCE636DD}">
-							<ChildrenList>
-								<Switch Name="light" ID="{A997B127-BBE9-4461-BEA8-22FE1EF6F03B}"/>
-								<Switch Name="heavy" ID="{C7F5589C-B3F5-468B-B0CF-12A6885C494D}"/>
-							</ChildrenList>
-						</SwitchGroup>
 						<SwitchGroup Name="WeaponType" ID="{537684AE-9779-4936-8877-854C9778EEAB}">
 							<ChildrenList>
 								<Switch Name="Fist" ID="{72F11987-0099-4FAB-A152-FF183F1A3B4D}"/>

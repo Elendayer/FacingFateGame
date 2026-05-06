@@ -515,26 +515,6 @@
       ]
      },
      {
-      "Id": "2201078378",
-      "Name": "PowerLVL",
-      "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\PowerLVL",
-      "GUID": "{5F973054-11DD-48EC-BABE-6AD8FCE636DD}",
-      "Switches": [
-       {
-        "Id": "1935470627",
-        "Name": "light",
-        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\PowerLVL\\light",
-        "GUID": "{A997B127-BBE9-4461-BEA8-22FE1EF6F03B}"
-       },
-       {
-        "Id": "2732489590",
-        "Name": "heavy",
-        "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\PowerLVL\\heavy",
-        "GUID": "{C7F5589C-B3F5-468B-B0CF-12A6885C494D}"
-       }
-      ]
-     },
-     {
       "Id": "3055168915",
       "Name": "ElementType",
       "ObjectPath": "\\Switches\\Default Work Unit\\Card Sound System\\ElementType",
@@ -569,6 +549,6 @@
     ]
    }
   ],
-  "FileHash": "{1B8B51D7-CD7E-F8F8-6DBD-177E774081CD}"
+  "FileHash": "{31987D2E-CCB4-7A98-BD18-9ED8E29992E2}"
  }
 }
