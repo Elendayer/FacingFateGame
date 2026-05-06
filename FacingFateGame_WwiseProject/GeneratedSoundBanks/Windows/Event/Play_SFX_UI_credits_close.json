@@ -29,7 +29,7 @@
      {
       "Id": "3223191906",
       "Name": "Play_SFX_UI_credits_close",
-      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Evenst_UI\\Play_SFX_UI_credits_close",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_UI_Basic\\Play_SFX_UI_credits_close",
       "GUID": "{6BFDC80A-888C-4D84-8147-636E0DC7BF4A}",
       "DurationType": "OneShot",
       "DurationMin": "0.6150417",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{AC17BF0C-62A1-D0AB-7D4C-B9DC37C7DBE2}"
+  "FileHash": "{7E065EB0-1BF9-27BA-BBE4-866B9BFF9FC9}"
  }
 }

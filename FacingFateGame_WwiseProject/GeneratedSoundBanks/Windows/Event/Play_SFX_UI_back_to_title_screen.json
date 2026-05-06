@@ -29,7 +29,7 @@
      {
       "Id": "3206396784",
       "Name": "Play_SFX_UI_back_to_title_screen",
-      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Evenst_UI\\Play_SFX_UI_back_to_title_screen",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_UI_Basic\\Play_SFX_UI_back_to_title_screen",
       "GUID": "{8306E655-C6E7-48AF-9477-FFFAC23FFCB5}",
       "DurationType": "OneShot",
       "DurationMin": "4",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{C041BD53-DC6F-918C-2EEC-0B49F355A2F9}"
+  "FileHash": "{97C1EB56-9452-6989-FA28-4085C88C4C7D}"
  }
 }

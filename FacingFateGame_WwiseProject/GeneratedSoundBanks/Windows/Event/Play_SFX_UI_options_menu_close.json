@@ -29,7 +29,7 @@
      {
       "Id": "3690523182",
       "Name": "Play_SFX_UI_options_menu_close",
-      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Evenst_UI\\Play_SFX_UI_options_menu_close",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_UI_Basic\\Play_SFX_UI_options_menu_close",
       "GUID": "{07A42EC2-1B9C-4472-AC29-2D6C060539E2}",
       "DurationType": "OneShot",
       "DurationMin": "0.5666875",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{9A5D8083-5189-3952-3D5D-049BB03BFB63}"
+  "FileHash": "{F7F02E48-6F57-C56D-7189-E6B2DA1E2314}"
  }
 }

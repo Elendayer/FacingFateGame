@@ -29,7 +29,7 @@
      {
       "Id": "4180039856",
       "Name": "Play_SFX_UI_button_hover",
-      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_Evenst_UI\\Play_SFX_UI_button_hover",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX_Events\\SFX_UI_Basic\\Play_SFX_UI_button_hover",
       "GUID": "{4B56BC21-111C-4626-92C1-E4C4948790CE}",
       "DurationType": "OneShot",
       "DurationMin": "0.16270833",
@@ -43,6 +43,6 @@
     ]
    }
   ],
-  "FileHash": "{D37CA949-10C9-BA99-737F-26921504286D}"
+  "FileHash": "{DA4F2251-404D-202B-30F8-30A3B0688CA3}"
  }
 }

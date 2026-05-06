@@ -30,6 +30,7 @@ namespace AK
         static const AkUniqueID PLAY_SFX_UI_PAUSE_MENU_OPEN = 3507907538U;
         static const AkUniqueID PLAY_SFX_UI_SLIDER = 1901608880U;
         static const AkUniqueID PLAY_SFX_UI_START_GAME = 1373152090U;
+        static const AkUniqueID PLAY_SHUFFLE_CARDS = 1108484029U;
         static const AkUniqueID PLAY_TICK_DMG = 992468480U;
         static const AkUniqueID START_GAME = 1114964412U;
         static const AkUniqueID STOP_GAME = 210615102U;
