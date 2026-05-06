@@ -1579,7 +1579,7 @@ PrefabInstance:
       addedObject: {fileID: 1838403240}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      insertIndex: -1
+      insertIndex: 9
       addedObject: {fileID: 936281330}
     - targetCorrespondingSourceObject: {fileID: 4257654223386310045, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       insertIndex: -1
@@ -2213,11 +2213,11 @@ MonoBehaviour:
   drawCardSfx:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
+    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
   discardCardSfx:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
+    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
 --- !u!4 &511670867
 Transform:
   m_ObjectHideFlags: 0

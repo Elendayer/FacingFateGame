@@ -198,6 +198,7 @@ GameObject:
   - component: {fileID: 4777331206848150532}
   - component: {fileID: 6731699159668004584}
   - component: {fileID: 8359350333834423061}
+  - component: {fileID: 6519311762090524330}
   - component: {fileID: 8647470432071908107}
   m_Layer: 7
   m_Name: Character Player
@@ -242,6 +243,7 @@ MonoBehaviour:
     CurrentHealth: 0
     CurrentStamina: 0
     CurrentBlock: 0
+    opportunityAttackRange: 2
     IsStunned: 0
     IsRooted: 0
     tauntTarget: {fileID: 0}
@@ -488,6 +490,30 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
+--- !u!114 &6519311762090524330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925646098595141539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c658bed3a028d6c4bb614c0b905e2106, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AK.Wwise.Unity.MonoBehaviour::AkGameObj
+  m_listeners:
+    initialListenerList: []
+    useDefaultListeners: 1
+  isEnvironmentAware: 1
+  isStaticObject: 0
+  usePositionOffsetData: 0
+  m_positionOffsetData:
+    KeepMe: 0
+    positionOffset: {x: 0, y: 0, z: 0}
+  scalingFactor: 1
+  m_posOffsetData: {fileID: 0}
+  listenerMask: 1
 --- !u!208 &8647470432071908107
 NavMeshObstacle:
   m_ObjectHideFlags: 0
