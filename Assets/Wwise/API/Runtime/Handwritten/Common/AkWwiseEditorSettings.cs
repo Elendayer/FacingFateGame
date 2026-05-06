@@ -57,7 +57,7 @@ public class WwiseSettings
 	[FormerlySerializedAs("GeneratedSoundbanksPath")] public string RootOutputPath;
 
 	public bool CreatedPicker = false;
-	public bool CreateWwiseGlobal = true;
+	public bool CreateWwiseGlobal = false;
 	public bool CreateWwiseListener = true;
 	public bool ObjectReferenceAutoCleanup = true;
 	public bool LoadSoundEngineInEditMode = true;

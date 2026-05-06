@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5622014750317160216}
-  - component: {fileID: 5314865836282742868}
+  - component: {fileID: 5340912802143503553}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5314865836282742868
+--- !u!114 &5340912802143503553
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,9 +41,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 7514928087018657523}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e33ef114b1b901747886a1f642b724cd, type: 3}
+  m_Script: {fileID: 11500000, guid: 0e0ecf0f335e0a0468ec7525cda5f69c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::facingfate.CombatAudioController
+  m_EditorClassIdentifier: Assembly-CSharp::facingfate.AudioManager
+  playCardSFX:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: da7a3ef0c96d52943bc66f74ead3bd34, type: 2}
+  playCardDrawSound:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
+  playCardDiscardSound:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
   combatStartSfx:
     idInternal: 0
     valueGuidInternal: 
@@ -64,11 +76,16 @@ MonoBehaviour:
     idInternal: 0
     valueGuidInternal: 
     WwiseObjectReference: {fileID: 0}
-  drawCardSfx:
+  playAttackSound:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
-  discardCardSfx:
+    WwiseObjectReference: {fileID: 0}
+  playHitSound:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
+    WwiseObjectReference: {fileID: 0}
+  playDamageSound:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 0}
+  registeredEvents: []

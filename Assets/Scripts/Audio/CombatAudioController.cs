@@ -2,6 +2,11 @@ using UnityEngine;
 
 namespace facingfate
 {
+    /// <summary>
+    /// Handles audio responses to gameplay events (combat flow, entity actions, card plays).
+    /// Works in conjunction with AudioManager (which provides the event registry)
+    /// and CardSoundHelper (which handles card-specific audio).
+    /// </summary>
     public class CombatAudioController : MonoBehaviour
     {
         [Header("Turn Flow")]
@@ -35,12 +40,12 @@ namespace facingfate
             GameEvents.OnGameplayReference -= HandleGameplayReference;
         }
 
-        private void HandleCombatStart() => WwiseAudioHelper.PlayGlobal(combatStartSfx, gameObject);
-        private void HandleTurnStart()   => WwiseAudioHelper.PlayGlobal(turnStartSfx, gameObject);
-        private void HandleRoundStart()  => WwiseAudioHelper.PlayGlobal(roundStartSfx, gameObject);
+        private void HandleCombatStart() => PlayGlobal(combatStartSfx);
+        private void HandleTurnStart()   => PlayGlobal(turnStartSfx);
+        private void HandleRoundStart()  => PlayGlobal(roundStartSfx);
 
         private void HandleCombatEnd(bool playerWon) =>
-            WwiseAudioHelper.PlayGlobal(playerWon ? victorySfx : defeatSfx, gameObject);
+            PlayGlobal(playerWon ? victorySfx : defeatSfx);
 
         private void HandleGameplayReference(ToSendTriggerReference refData)
         {
@@ -74,22 +79,30 @@ namespace facingfate
                         PlayEntitySfx(affected, affected?.modifierExpiredSfx);
                         break;
                     case GameplayRef.onCardDrawn:
-                        WwiseAudioHelper.PlayGlobal(drawCardSfx, gameObject);
+                        PlayGlobal(drawCardSfx);
                         break;
                     case GameplayRef.onCardDiscarded:
-                        WwiseAudioHelper.PlayGlobal(discardCardSfx, gameObject);
+                        PlayGlobal(discardCardSfx);
                         break;
                     case GameplayRef.onCardPlayed:
-                        // Card SFX plays in ApplyDamage instead
+                        // Card SFX plays via CardSoundHelper.PlayCardEffect() instead
                         break;
                 }
             }
         }
 
+        private void PlayGlobal(AK.Wwise.Event sfx)
+        {
+            if (sfx != null && sfx.IsValid())
+            {
+                sfx.Post(gameObject);
+            }
+        }
+
         private static void PlayEntitySfx(EntityScript entity, AK.Wwise.Event sfx)
         {
-            if (entity == null) return;
-            WwiseAudioHelper.Play(sfx, entity.gameObject);
+            if (entity == null || sfx == null || !sfx.IsValid()) return;
+            sfx.Post(entity.gameObject);
         }
 
         private static EntityScript FirstAffected(ToSendTriggerReference refData) =>

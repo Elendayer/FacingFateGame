@@ -579,10 +579,16 @@ namespace facingfate
                             handCandidates.Add(r);
                             Debug.Log($"[NpcAI][HandEvaluation] Result {i}: ADDED TO CANDIDATES - Card: {r.card.cardData.cardName}, Score: {r.score}");
                         }
+                        else if (r.score == 0 && r.targets != null && r.targets.Count > 0)
+                        {
+                            // Allow cards with score 0 if they have valid targets
+                            handCandidates.Add(r);
+                            Debug.Log($"[NpcAI][HandEvaluation] Result {i}: ADDED TO CANDIDATES (score 0 but has targets) - Card: {r.card.cardData.cardName}, Targets: {r.targets.Count}");
+                        }
                         else
                         {
                             zeroScoreCount++;
-                            Debug.Log($"[NpcAI][HandEvaluation] Result {i}: REJECTED - Score is 0 (Card: {r.card.cardData.cardName})");
+                            Debug.Log($"[NpcAI][HandEvaluation] Result {i}: REJECTED - Score is 0 or less with no targets (Card: {r.card.cardData.cardName})");
                         }
                     }
 
@@ -626,9 +632,19 @@ namespace facingfate
 
                 var bestAction = SelectBestActionCandidate(actionCandidates, virtualStamina);
 
-                if (bestAction == null || bestAction.score <= 0)
+                if (bestAction == null)
                 {
-                    Debug.Log($"[NpcAI] No valid action found. Breaking turn planning.");
+                    Debug.Log($"[NpcAI] No valid action found (null). Breaking turn planning.");
+                    break;
+                }
+
+                // Allow card actions with score 0 if they have valid targets, but reject movement-only with score 0
+                bool isCard = bestAction.card != null && bestAction.executionOption == CardExecutionOption.PlayCard;
+                bool hasValidTargets = bestAction.targets != null && bestAction.targets.Count > 0;
+
+                if (bestAction.score <= 0 && (!isCard || !hasValidTargets))
+                {
+                    Debug.Log($"[NpcAI] No valid action found (score <= 0). Breaking turn planning.");
                     break;
                 }
 
@@ -638,7 +654,8 @@ namespace facingfate
                 int cardCost = bestAction.card?.cardData?.Cost ?? 0;
                 int totalCost = moveCost + cardCost;
 
-                if (totalCost > virtualStamina || totalCost <= 0)
+                // Allow cost of 0 (movement-only actions or 0-cost cards), but break if total exceeds stamina
+                if (totalCost > virtualStamina)
                     break;
 
                 // Detect movement-only actions (chase/reposition/flee)
@@ -963,24 +980,175 @@ namespace facingfate
             // Get throughput - CardAiBias is optional, defaults to 0 if null
             int throughput = card.cardData.CardAiBias?.ThroughputOverride(npcAIBias, card.cardData, targets) ?? 0;
 
-            // If CardAiBias is null, use a default throughput based on card damage
-            if (throughput == 0 && card.cardData.CardAiBias == null)
+            // If throughput is 0 or negative, use fallback based on card damage
+            if (throughput <= 0 && card.cardData.CardAiBias == null)
             {
-                // Fallback: base throughput on damage * number of targets
+                // CardAiBias is null, use basic fallback
                 throughput = card.cardData.Damage * targets.Count;
                 Debug.Log($"[CardScore] '{card.cardData.cardName}' - NO CardAiBias, using fallback throughput: {throughput} (damage: {card.cardData.Damage}, targets: {targets.Count})");
             }
-            else if (throughput == 0)
+            else if (throughput <= 0 && card.cardData.CardAiBias != null)
             {
-                Debug.Log($"[CardScore] '{card.cardData.cardName}' - CardAiBias returned 0 throughput!");
+                // CardAiBias returned 0 or negative - use basic fallback as minimum score
+                int basicThroughput = card.cardData.Damage * targets.Count;
+                if (basicThroughput > 0)
+                {
+                    Debug.Log($"[CardScore] '{card.cardData.cardName}' - CardAiBias returned {throughput}, using basic fallback: {basicThroughput} (damage: {card.cardData.Damage}, targets: {targets.Count})");
+                    throughput = basicThroughput;
+                }
+                else
+                {
+                    Debug.Log($"[CardScore] '{card.cardData.cardName}' - CardAiBias returned {throughput} and no basic damage!");
+                }
             }
 
-            int cost = Mathf.Max(1, card.cardData.Cost + moveCost);
-            int score = (throughput * 100) / cost;
+            int cost = card.cardData.Cost + moveCost;
+            int scoreDiv = Mathf.Max(1, cost);
 
-            Debug.Log($"[CardScore] '{card.cardData.cardName}' - Targets: {targets.Count}, Throughput: {throughput}, Cost: {cost}, Score: {score}");
+            // Multi-factor scoring for richer decision-making
+            int efficiencyScore = CalculateEfficiencyScore(throughput, cost);
+            int targetingScore = CalculateTargetingScore(card, targets);
+            int tacticalMultiplier = CalculateTacticalMultiplier(card, targets);
+
+            // Blend scores: efficiency is primary (50%), targeting quality (30%), tactical context (20%)
+            int score = (efficiencyScore * 50 + targetingScore * 30 + tacticalMultiplier * 20) / 100;
+
+            Debug.Log($"[CardScore] '{card.cardData.cardName}' - Targets: {targets.Count}, Throughput: {throughput}, Cost: {cost}, Efficiency: {efficiencyScore}, Targeting: {targetingScore}, Tactical: {tacticalMultiplier}, Final: {score}");
 
             return score;
+        }
+
+        /// <summary>
+        /// Calculates efficiency score based on throughput-to-cost ratio.
+        /// Higher throughput and lower cost yield higher efficiency.
+        /// </summary>
+        private int CalculateEfficiencyScore(int throughput, int cost)
+        {
+            if (cost <= 0)
+                return Mathf.Max(0, throughput);
+
+            // Efficiency = (throughput / cost) * 100, clamped to prevent overflow
+            int efficiency = (throughput * 100) / cost;
+            return Mathf.Max(0, efficiency);
+        }
+
+        /// <summary>
+        /// Calculates targeting quality score based on number, health of targets, and card affiliation.
+        /// Rewards cards that hit multiple targets, weak enemies, and strategic target types.
+        /// </summary>
+        private int CalculateTargetingScore(CardScript card, List<EntityScript> targets)
+        {
+            if (targets == null || targets.Count == 0)
+                return 0;
+
+            int targetCount = targets.Count;
+
+            // Calculate average health of targets (lower health targets are easier to eliminate)
+            float totalHealth = 0;
+            float minHealth = float.MaxValue;
+
+            foreach (var target in targets)
+            {
+                if (target?.GetComponent<EntityScript>()?.entityStats != null)
+                {
+                    float health = target.GetComponent<EntityScript>().entityStats.CurrentHealth;
+                    totalHealth += health;
+                    minHealth = Mathf.Min(minHealth, health);
+                }
+            }
+
+            float avgHealth = totalHealth / Mathf.Max(1, targetCount);
+
+            // Score: bonus for multiple targets, bonus for low-health targets
+            int multiTargetBonus = (targetCount - 1) * 15; // +15 per extra target
+            int lowHealthBonus = avgHealth < 20 ? 20 : (avgHealth < 50 ? 10 : 0);
+
+            // Affiliation bonus: cards targeting specific affiliations are more strategic
+            int affiliationBonus = CalculateAffiliationBonus(card?.cardData);
+
+            return Mathf.Max(10, multiTargetBonus + lowHealthBonus + affiliationBonus);
+        }
+
+        /// <summary>
+        /// Calculates affiliation bonus based on card target type.
+        /// Enemy-targeting cards get highest priority, self/ally buffs are secondary.
+        /// </summary>
+        private int CalculateAffiliationBonus(CardData cardData)
+        {
+            if (cardData?.targetingData == null)
+                return 0;
+
+            return cardData.targetingData.CardTargetAffiliation switch
+            {
+                CardTargetAffiliation.Enemy => 25,      // +25 for offensive cards (primary focus)
+                CardTargetAffiliation.Ally => 15,       // +15 for ally support (secondary)
+                CardTargetAffiliation.Self => 10,       // +10 for self-targeting (emergency/buff)
+                CardTargetAffiliation.All => 5,         // +5 for all-targeting (situational)
+                CardTargetAffiliation.None => 0,        // No bonus for null targeting
+                _ => 0
+            };
+        }
+
+        /// <summary>
+        /// Calculates tactical multiplier based on card type, affiliation, and NPC health state.
+        /// Prioritizes damage cards when healthy, utility/defense cards when hurt.
+        /// Considers card affiliation to make context-aware choices.
+        /// </summary>
+        private int CalculateTacticalMultiplier(CardScript card, List<EntityScript> targets)
+        {
+            if (card?.cardData == null)
+                return 100; // Neutral multiplier
+
+            int healthPercent = Mathf.RoundToInt((npcScript.entityStats.CurrentHealth / Mathf.Max(1, npcScript.entityStats.MaxHealth)) * 100);
+            var cardAffiliation = card.cardData.targetingData.CardTargetAffiliation;
+
+            // If NPC is above 70% health, prefer offensive cards
+            if (healthPercent > 70)
+            {
+                // Strong boost for enemy-targeting offensive cards
+                if (cardAffiliation == CardTargetAffiliation.Enemy && card.cardData.Damage > 5)
+                    return 130; // +30% boost for strong offensive cards
+                // Neutral for weak damage or non-enemy cards
+                else if (cardAffiliation == CardTargetAffiliation.Enemy)
+                    return 115; // +15% for any enemy-targeting card when healthy
+                // Mild penalty for ally/self buffs when healthy (can be needed later)
+                else if (cardAffiliation == CardTargetAffiliation.Ally || cardAffiliation == CardTargetAffiliation.Self)
+                    return 90;  // -10% when healthy and not needed
+                else
+                    return 100; // Neutral for other types
+            }
+
+            // If NPC is between 40-70% health, balanced approach
+            else if (healthPercent > 40)
+            {
+                // Neutral boost for all cards
+                if (cardAffiliation == CardTargetAffiliation.Enemy)
+                    return 115; // Slightly more preference for offense
+                else if (cardAffiliation == CardTargetAffiliation.Ally || cardAffiliation == CardTargetAffiliation.Self)
+                    return 105; // Slightly more preference for support
+                else
+                    return 110; // +10% neutral boost
+            }
+
+            // If NPC is below 40% health, prefer healing/defensive
+            else
+            {
+                // Strong boost for self-healing and ally buffs when desperate
+                if (cardAffiliation == CardTargetAffiliation.Self || cardAffiliation == CardTargetAffiliation.Ally)
+                {
+                    if (card.cardData.Damage <= 0 || card.cardData.Range == 0)
+                        return 150; // +50% boost for defensive/utility cards when hurt
+                    else
+                        return 130; // +30% boost for ally/self damage when desperate
+                }
+                // Penalty for pure offense when desperately low health
+                else if (cardAffiliation == CardTargetAffiliation.Enemy)
+                {
+                    return 75;  // -25% penalty for offensive cards when desperately low health
+                }
+                else
+                    return 100; // Neutral for others
+            }
         }
 
         #endregion
