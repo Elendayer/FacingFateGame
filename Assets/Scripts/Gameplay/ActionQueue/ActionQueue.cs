@@ -150,6 +150,57 @@ namespace facingfate
         }
 
         /// <summary>
+        /// Enqueue a CardActionSequence. The queue will wait until all actions complete.
+        /// </summary>
+        public void Enqueue(CardActionSequence cardSequence, float delay = 0f)
+        {
+            Enqueue(cardSequence, delay, null, false);
+        }
+
+        /// <summary>
+        /// Enqueue a CardActionSequence with an associated source entity.
+        /// </summary>
+        public void Enqueue(CardActionSequence cardSequence, float delay, EntityScript source)
+        {
+            Enqueue(cardSequence, delay, source, false);
+        }
+
+        /// <summary>
+        /// Enqueue a CardActionSequence with priority.
+        /// </summary>
+        public void EnqueuePriority(CardActionSequence cardSequence, float delay = 0f, EntityScript source = null)
+        {
+            Enqueue(cardSequence, delay, source, true);
+        }
+
+        private void Enqueue(CardActionSequence cardSequence, float delay, EntityScript source, bool isPriority)
+        {
+            if (cardSequence == null) return;
+
+            // Wrap CardActionSequence in a coroutine for consistent handling
+            Func<IEnumerator> sequenceCoroutine = () => cardSequence.Execute();
+            var newAction = new QueuedAction(sequenceCoroutine, delay, source, isPriority);
+
+            if (isPriority)
+            {
+                int insertIndex = queue.FindIndex(a => !a.IsPriority);
+                if (insertIndex == -1)
+                    queue.Add(newAction);
+                else
+                    queue.Insert(insertIndex, newAction);
+            }
+            else
+            {
+                queue.Add(newAction);
+            }
+
+            if (!isProcessing)
+            {
+                StartCoroutine(ProcessQueue());
+            }
+        }
+
+        /// <summary>
         /// Processes the queue sequentially.
         /// </summary>
         private IEnumerator ProcessQueue()
@@ -161,6 +212,10 @@ namespace facingfate
                 var item = queue[0];
                 queue.RemoveAt(0);
 
+                // Wait for the initial delay before executing
+                if (item.Delay > 0f)
+                    yield return new WaitForSeconds(item.Delay);
+
                 if (item.IsCoroutine)
                 {
                     // Run the coroutine and wait for it to finish
@@ -170,13 +225,8 @@ namespace facingfate
                 {
                     // Execute the action
                     item.Action?.Invoke();
-                }
-
-                // Wait for the specified delay
-                if (item.Delay > 0f)
-                    yield return new WaitForSeconds(item.Delay);
-                else
                     yield return null; // yield a frame to avoid locking
+                }
             }
 
             isProcessing = false;

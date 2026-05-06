@@ -148,15 +148,15 @@ namespace facingfate
             NonPlayerScript npcScript = Owner as NonPlayerScript;
             if (npcScript != null)
             {
-                Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: npcScript.npcData.baseStrength));
-                Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: npcScript.npcData.baseDexterity));
-                Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: npcScript.npcData.baseWisdom));
-                Intelligence_Flat.AddModifier(new StatModifier("BaseValue", Intelligence_Flat, value: npcScript.npcData.baseIntelligence));
-                Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: npcScript.npcData.baseEndurance));
-                Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: npcScript.npcData.baseTenacity));
+                Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, npcScript.npcData.baseStrength, ModifierMergeStrategy.Override));
+                Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, npcScript.npcData.baseDexterity, ModifierMergeStrategy.Override));
+                Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, npcScript.npcData.baseWisdom, ModifierMergeStrategy.Override));
+                Intelligence_Flat.AddModifier(new StatModifier("BaseValue", Intelligence_Flat, npcScript.npcData.baseIntelligence, ModifierMergeStrategy.Override));
+                Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, npcScript.npcData.baseEndurance, ModifierMergeStrategy.Override));
+                Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, npcScript.npcData.baseTenacity, ModifierMergeStrategy.Override));
 
-                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f));
-                MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f));
+                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f, modifierMergeStrategy: ModifierMergeStrategy.Override));
+                MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f, modifierMergeStrategy: ModifierMergeStrategy.Override));
             }
             else
             {
@@ -164,15 +164,15 @@ namespace facingfate
                     ? PlayerDatabase.Get(ps.playerClass) ?? new PlayerData()
                     : new PlayerData();
 
-                Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, value: pd.baseStrength));
-                Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, value: pd.baseDexterity));
-                Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, value: pd.baseWisdom));
-                Intelligence_Flat.AddModifier(new StatModifier("BaseValue", Intelligence_Flat, value: pd.baseIntelligence));
-                Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, value: pd.baseEndurance));
-                Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, value: pd.baseTenacity));
+                Strength_Flat.AddModifier(new StatModifier("BaseValue", Strength_Flat, pd.baseStrength, ModifierMergeStrategy.Override));
+                Dexterity_Flat.AddModifier(new StatModifier("BaseValue", Dexterity_Flat, pd.baseDexterity, ModifierMergeStrategy.Override));
+                Wisdom_Flat.AddModifier(new StatModifier("BaseValue", Wisdom_Flat, pd.baseWisdom, ModifierMergeStrategy.Override));
+                Intelligence_Flat.AddModifier(new StatModifier("BaseValue", Intelligence_Flat, pd.baseIntelligence, ModifierMergeStrategy.Override));
+                Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, pd.baseEndurance, ModifierMergeStrategy.Override));
+                Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, pd.baseTenacity, ModifierMergeStrategy.Override));
 
-                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f));
-                MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f));
+                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f, modifierMergeStrategy: ModifierMergeStrategy.Override));
+                MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f, modifierMergeStrategy: ModifierMergeStrategy.Override));
             }
 
 
@@ -181,9 +181,9 @@ namespace facingfate
             isInitialized = true;
 
             // Attribute-based damage bonuses using ConditionalModifierInfo - simple string-based condition lookup
-            DamageOutModifier_Increase.AddModifier(new StatModifier("Strength", DamageOutModifier_Increase, value: () => CurrentStrength, condition: "Melee"));
-            DamageOutModifier_Increase.AddModifier(new StatModifier("Dexterity", DamageOutModifier_Increase, value: () => CurrentDexterity, condition: "Ranged"));
-            DamageOutModifier_Increase.AddModifier(new StatModifier("Intelligence", DamageOutModifier_Increase, value: () => CurrentIntelligence, condition: "Spell"));
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Strength", DamageOutModifier_Increase, value: () => CurrentStrength, modifierMergeStrategy: ModifierMergeStrategy.Override, condition: "Melee"));
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Dexterity", DamageOutModifier_Increase, value: () => CurrentDexterity, modifierMergeStrategy: ModifierMergeStrategy.Override, condition: "Ranged"));
+            DamageOutModifier_Increase.AddModifier(new StatModifier("Intelligence", DamageOutModifier_Increase, value: () => CurrentIntelligence, modifierMergeStrategy: ModifierMergeStrategy.Override, condition: "Spell"));
 
             // Initial tick to set all stats correctly
             ActionQueueUtility.EnqueueAction(() =>
@@ -325,12 +325,12 @@ namespace facingfate
 
                     GameObject corspe = GameObject.Instantiate(AssetManager.Instance.CorspePrefab, Owner.transform.position, quaternion.identity);
                     corspe.transform.rotation = new quaternion(90, 0, 0, 0);
-                    corspe.transform.localScale = Owner.EntityModel.transform.localScale;
+                    corspe.transform.localScale = Owner.EntityVisual.meshFilter.transform.localScale;
                     MeshRenderer mr = corspe.GetComponent<MeshRenderer>();
                     MeshFilter mf = corspe.GetComponent<MeshFilter>();
 
-                    mf.mesh = Owner.EntityModel.mesh;
-                    mr.materials = Owner.EntityRenderer.materials;
+                    mf.mesh = Owner.EntityVisual.meshFilter.mesh;
+                    mr.materials = Owner.EntityVisual.meshRenderer.materials;
 
                     // Disable the entity (don't destroy immediately to avoid serialization issues)
                     Owner.gameObject.SetActive(false);

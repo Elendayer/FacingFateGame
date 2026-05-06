@@ -150,7 +150,6 @@ namespace facingfate
             Ray ray = Camera.main.ScreenPointToRay(eventData.position);
             Vector3 cursorPosition = GetFloorHitPosition(ray);
             
-            dragVFX.transform.position = cursorPosition;
             if (dragVFXEffect.HasVector3("End"))
             {
                 dragVFXEffect.SetVector3("End", cursorPosition);
@@ -423,7 +422,7 @@ namespace facingfate
             return cardScript.cardData.targetingData.cardTargetingMode switch
             {
                 CardTargetingMode.Select => "vfx_targeting_single",
-                CardTargetingMode.Radius => "vfx_targeting_sphere",
+                CardTargetingMode.Sphere => "vfx_targeting_sphere",
                 CardTargetingMode.Ring => "vfx_targeting_ring",
                 CardTargetingMode.RingSelf => "vfx_targeting_ring",
                 CardTargetingMode.Cone => "vfx_targeting_cone",

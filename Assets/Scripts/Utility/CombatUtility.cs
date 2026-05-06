@@ -91,6 +91,7 @@ public static class CombatUtility
 
         HandleOnDamageVFX(vfxData, target);
 
+
         HandlePostCombatTrigger(refs, null, target, null, (int)damage); return;
     }
 
@@ -122,29 +123,29 @@ public static class CombatUtility
         }
     }
 
-    public static void ApplyStatBuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+    public static void ApplyStatBuff(CardData cardData, EntityScript target, IStatModifier mod)
     {
         List<GameplayRef> refs = new();
 
         refs.Add(GameplayRef.onBuffRecieved);
 
-        mod.Stat.AddModifier(mod, mergeStrategy);
+        mod.Stat.AddModifier(mod);
 
         Debug.Log($"Applied Buff {mod.ModifierName} to {target.name}");
         HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, (int)mod.BaseValue);
     }
 
-    public static void ApplyStatDebuff(CardData cardData, EntityScript target, IStatModifier mod, ModifierMergeStrategy mergeStrategy)
+    public static void ApplyStatDebuff(CardData cardData, EntityScript target, IStatModifier mod)
     {
         List<GameplayRef> refs = new() { GameplayRef.onDebuffRecieved };
 
-        mod.Stat.AddModifier(mod, mergeStrategy);
+        mod.Stat.AddModifier(mod);
 
         Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
         HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);
     }
 
-    public static void ApplyEntityModifier(CardData cardData, EntityScript EffectOwner, EntityModifier mod, ModifierMergeStrategy mergeStrategy, int valueOverride = 0)
+    public static void ApplyEntityModifier(CardData cardData, EntityScript EffectOwner, EntityModifier mod, int valueOverride = 0)
     {
         List<GameplayRef> refs = new() { GameplayRef.onModifierApplied };
 
@@ -173,7 +174,7 @@ public static class CombatUtility
             mod.BaseValue = valueOverride;
         }
 
-        EffectOwner.AddModifier(mod, mergeStrategy);
+        EffectOwner.AddModifier(mod);
         DamageNumberSpawner.Instance?.SpawnDamage(EffectOwner, 0, DamageNumberSpawner.NumberType.Modifier);
 
         Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
@@ -225,17 +226,19 @@ public static class CombatUtility
     public static void SpawnGroundEffect(CardData cardData, Vector3 spawnPosition, GroundEffectData groundEffectData, VFXData vfxData)
     {
         List<GameplayRef> refs = new();
+
         GameObject SpawnObj = GameObject.Instantiate(AssetManager.Instance.groundEffectPrefab, parent: cardData.Owner.transform.parent);
         GroundEffectScript groundEffectScript = SpawnObj.GetComponent<GroundEffectScript>();
         SpawnObj.transform.position = spawnPosition;
-        groundEffectScript.EffectData = groundEffectData;
 
-        SpawnObj.GetComponent<SphereCollider>().radius = cardData.Radius;
+        groundEffectData.SpawnPosition = spawnPosition;
+        groundEffectScript.EffectData = groundEffectData;
 
         if (vfxData != null)
         {
-            AssetManager.Instance.CreateVFXAttachedToGameObjects(vfxData, new List<GameObject>() { SpawnObj });
+            AssetManager.Instance.CreateVFXAttachedToGameObject(vfxData,  SpawnObj );
         }
+
         HandlePostCombatTrigger(refs, cardData.Owner, null, cardData);
     }
     #endregion
@@ -248,12 +251,12 @@ public static class CombatUtility
         if (vfxData == null) return;
         if (vfxData.attachToMesh)
         {
-            vfxData.mesh = target.EntityModel.mesh;
+            vfxData.mesh = target.EntityVisual.meshFilter.mesh;
             AssetManager.Instance.CreateVFXAttachedToEntityMesh(vfxData, target); return;
         }
         else
         {
-            AssetManager.Instance.CreateVFXAttachedToGameObjects(vfxData, new List<EntityScript>() { target });
+            AssetManager.Instance.CreateVFXAttachedToGameObjects(vfxData, target );
         }
     }
 

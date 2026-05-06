@@ -157,10 +157,6 @@ PrefabInstance:
       value: Npc_Wolf_Normal
       objectReference: {fileID: 0}
     - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
-      propertyPath: EntityModel
-      value: 
-      objectReference: {fileID: 5096324999148939425}
-    - target: {fileID: 3510526810490553361, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
       propertyPath: npcAIBiasId
       value: StupidFuck
       objectReference: {fileID: 0}
@@ -319,31 +315,5 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 8724192631051933097}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
---- !u!33 &5096324999148939425 stripped
-MeshFilter:
-  m_CorrespondingSourceObject: {fileID: 7149920695243058398, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
-  m_PrefabInstance: {fileID: 2702254782677648511}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &8627852158557705180 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: c22bdf2cb52e62548a6542cb93abc5be, type: 3}
-  m_PrefabInstance: {fileID: 2702254782677648511}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8724192631051933097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8627852158557705180}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0bb8a9b9cbc16c4d86828515b91ae29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StatusDebugView
-  _rows: []

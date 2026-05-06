@@ -4050,15 +4050,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 879898363418085064, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.632
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 879898363418085064, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 879898363418085064, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.632
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 890340804256250067, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4142,15 +4142,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2996911423772418573, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.632
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2996911423772418573, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2996911423772418573, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.632
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3113381889981323865, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: hpText
@@ -4210,15 +4210,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5685115527424631948, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.632
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5685115527424631948, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5685115527424631948, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.632
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5904452564142650115, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.x
@@ -4366,15 +4366,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7836434841472294215, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.632
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7836434841472294215, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7836434841472294215, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.632
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8381754964785338310, guid: 81552fdedbc456645bfe6aa8bb92ec48, type: 3}
       propertyPath: m_AnchorMax.x
@@ -7234,9 +7234,13 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: 6f99323ca4453d24c94db003cefacc5a, type: 3}
-    m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 533604244859968795, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
+    - target: {fileID: 9022245669738801197, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
+      propertyPath: playerClass
+      value: 2
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 2590310657287207681, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6650985624110678995, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
@@ -7354,6 +7358,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: 6f99323ca4453d24c94db003cefacc5a, type: 3}
+    - target: {fileID: 715858503122721031, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
+      propertyPath: playerClass
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1925559665963277622, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -7400,6 +7408,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3805418433866574280, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4453149122399698716, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
+      propertyPath: m_ImplicitCom
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4453149122399698716, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
+      propertyPath: m_ImplicitTensor
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4737051542883700935, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
@@ -7530,6 +7546,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 6604927694719916108, guid: 28245d7b0fa89914a9499634d428f322, type: 3}
+    - target: {fileID: 1496234548557341816, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
+      propertyPath: playerClass
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2140487719574110043, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -7603,8 +7623,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 406105126441981589, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3871910308446719878, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
@@ -7698,6 +7717,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: 6f99323ca4453d24c94db003cefacc5a, type: 3}
+    - target: {fileID: 8342593571069594236, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
+      propertyPath: playerClass
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8342593571069594236, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
       propertyPath: 'deckCardIDs.Array.data[11]'
       value: Assassin_Abil_Apply_Scorching_Blood_Venom
@@ -7932,21 +7955,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1997503278471104185, guid: 549d340176dfa0d4e888e0e66d765679, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: -876546973899608171, guid: ddc5c69fa029cb74abb0c0bb472feae5, type: 3}
-    - target: {fileID: 2570342246310451735, guid: 549d340176dfa0d4e888e0e66d765679, type: 3}
-      propertyPath: m_Height
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 4127617777182778652, guid: 549d340176dfa0d4e888e0e66d765679, type: 3}
       propertyPath: m_Name
       value: Enemy Jolf
-      objectReference: {fileID: 0}
-    - target: {fileID: 5387222325905247800, guid: 549d340176dfa0d4e888e0e66d765679, type: 3}
-      propertyPath: m_Enabled
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5492934551917992979, guid: 549d340176dfa0d4e888e0e66d765679, type: 3}
       propertyPath: m_LocalPosition.x

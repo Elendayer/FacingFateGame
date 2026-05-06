@@ -6,25 +6,33 @@ namespace facingfate
 {
     public class GroundEffectScript : MonoBehaviour
     {
-        [Header("References")]
-        public Collider groundEffectCollider;
-
         [Header("Ground Effect (Single)")]
         public GroundEffectData EffectData;
 
+        // Entities currently inside the zone
         private readonly HashSet<EntityScript> affectedEntities = new();
+        // Entities that have exited but whose modifier persists (RemoveOnExit = false)
+        private readonly HashSet<EntityScript> exitedEntities = new();
+        // Modifier applied per entity
+        private readonly Dictionary<EntityScript, IEntityModifier> appliedModifiers = new();
 
+        [Header("Debug (Read-Only)")]
+        [SerializeField] private List<EntityScript> _affectedEntities = new();
+        [SerializeField] private List<EntityScript> _exitedEntities = new();
+
+        // =============================
+        // Unity Lifecycle
+        // =============================
         private void Awake()
         {
-            if (!groundEffectCollider)
-                groundEffectCollider = GetComponent<Collider>();
+            GameEvents.OnGameplayReference += OnGameplayRef;
+        }
 
-            switch (EffectData)
-            {
-                case GroundEffect_Ref_EntityData: GameEvents.OnGameplayReference += OnGameplayRef; break;
-                case GroundEffect_Ref_StatData: GameEvents.OnGameplayReference += OnGameplayRef; break;
-                case GroundEffect_Ref_Effect: GameEvents.OnGameplayReference += OnGameplayRef; break;
-            }
+        private void Start()
+        {
+            if (EffectData == null) return;
+            EffectData.OnSpawn?.Invoke(null);
+            RefreshEntitiesInZone();
         }
 
         private void OnDestroy()
@@ -39,61 +47,150 @@ namespace facingfate
         {
             if (EffectData == null) return;
 
-            // Tick duration only on creator's turn
+            // Tick duration and refresh zone once per owner turn start
             if (trigger.UserEntity == EffectData.CardData.Owner &&
                 trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart))
             {
-                if (EffectData.Duration < 9999)
-                    EffectData.Duration--;
-
-                if (EffectData.Duration == 0)
-                {
-                    if (EffectData.RemoveOnEnd)
-                    {
-                        RemoveEffectFromAll();
-                        return;
-                    }
-                    Destroy(gameObject);
-                    return;
-                }           
+                RefreshEntitiesInZone();
+                TickDuration();
+                return;
             }
 
-            // Apply effect via trigger
+            // Fire OnRef for every valid entity inside the zone
             if (GameEvents.CheckIfRelevantTrigger(trigger, EffectData.RelevantTrigger))
             {
-                foreach (var target in trigger.AffectedEntities)
+                var snapshot = new List<EntityScript>(affectedEntities);
+                foreach (var target in snapshot)
                 {
-                    if (!TargetingUtility.IsTargetValid(EffectData.CardData, target))
+                    if (!IsAlive(target) || !TargetingUtility.IsTargetValid(EffectData.CardData, target))
                         continue;
 
-                    ApplyEffect(target);
+                    EffectData.OnRef?.Invoke(target);
                 }
             }
         }
 
-        // =============================
-        // Area-Based Application
-        // =============================
-        private void OnTriggerEnter(Collider other)
+        private void TickDuration()
         {
-            if (EffectData == null) return;
+            if (EffectData.Duration < 9999)
+                EffectData.Duration--;
 
-            EntityScript target = other.GetComponent<EntityScript>();
-            if (!target || !TargetingUtility.IsTargetValid(EffectData.CardData, target))
-                return;
+            if (EffectData.Duration > 0) return;
 
-            ApplyEffect(target);
+            // Duration has elapsed — fire OnEnd for all tracked entities then destroy
+            var snapshot = new List<EntityScript>(affectedEntities);
+            foreach (var target in snapshot)
+            {
+                if (EffectData.RemoveOnEnd)
+                    RemoveModifierFrom(target);
+
+                EffectData.OnExit?.Invoke(target);
+                EffectData.OnEnd?.Invoke(target);
+            }
+
+            // Also fire OnEnd for entities that exited early but kept their modifier
+            var exitedSnapshot = new List<EntityScript>(exitedEntities);
+            foreach (var target in exitedSnapshot)
+            {
+                if (EffectData.RemoveOnEnd)
+                    RemoveModifierFrom(target);
+
+                EffectData.OnEnd?.Invoke(target);
+            }
+
+            appliedModifiers.Clear();
+            affectedEntities.Clear();
+            exitedEntities.Clear();
+            SyncDebugLists();
+
+            Destroy(gameObject);
         }
 
-        private void OnTriggerExit(Collider other)
+        // =============================
+        // Zone Query
+        // =============================
+        private void RefreshEntitiesInZone()
         {
-            if (EffectData == null || !EffectData.RemoveOnExit) return;
+            var currentInZone = QueryEntitiesInZone();
 
-            EntityScript target = other.GetComponent<EntityScript>();
-            if (!target || !affectedEntities.Contains(target))
-                return;
+            // Entities that entered since last refresh
+            foreach (var target in currentInZone)
+            {
+                if (affectedEntities.Contains(target)) continue;
 
-            RemoveEffect(target);
+                // Was outside the zone (exitedEntities) — re-entering
+                if (exitedEntities.Remove(target))
+                {
+                    affectedEntities.Add(target);
+                    SyncDebugLists();
+                    EffectData.OnEnter?.Invoke(target);
+                }
+                else
+                {
+                    ApplyEffect(target);
+                }
+            }
+
+            // Entities that left since last refresh
+            var currentSet = new HashSet<EntityScript>(currentInZone);
+            var departed = new List<EntityScript>();
+            foreach (var target in affectedEntities)
+            {
+                if (!currentSet.Contains(target))
+                    departed.Add(target);
+            }
+
+            foreach (var target in departed)
+            {
+                if (EffectData.RemoveOnExit)
+                {
+                    RemoveEffect(target);
+                }
+                else
+                {
+                    affectedEntities.Remove(target);
+                    exitedEntities.Add(target);
+                    SyncDebugLists();
+                    EffectData.OnExit?.Invoke(target);
+                }
+            }
+        }
+
+        private List<EntityScript> QueryEntitiesInZone()
+        {
+            var cd = EffectData.CardData;
+            var pos = EffectData.SpawnPosition;
+            var owner = cd.Owner;
+
+            switch (EffectData.TargetingMode)
+            {
+                case CardTargetingMode.Sphere:
+                    return TargetingUtility.GetEntitiesInPhysicsSphere(pos, cd.Radius, cd);
+
+                case CardTargetingMode.Ring:
+                    return TargetingUtility.GetEntitiesInPhysicsRing(pos, cd.Radius, cd.Area, cd);
+
+                case CardTargetingMode.RingSelf:
+                    return TargetingUtility.GetEntitiesInPhysicsRing(owner.transform.position, cd.Radius, cd.Area, cd);
+
+                case CardTargetingMode.Cone:
+                {
+                    var dir = (pos - owner.transform.position).normalized;
+                    return TargetingUtility.GetEntitiesInPhysicsCone(owner.transform.position, dir, cd.Range, cd.Area, cd);
+                }
+
+                case CardTargetingMode.LineSelf:
+                {
+                    var dir = (pos - owner.transform.position).normalized;
+                    return TargetingUtility.GetEntitiesInPhysicsLine(owner.transform.position, dir, cd.Range, cd.Area, cd);
+                }
+
+                case CardTargetingMode.LineFree:
+                    return TargetingUtility.GetEntitiesInPhysicsLine(pos, Vector3.forward, cd.Range, cd.Area, cd);
+
+                default:
+                    return TargetingUtility.GetEntitiesInPhysicsSphere(pos, cd.Radius, cd);
+            }
         }
 
         // =============================
@@ -101,203 +198,104 @@ namespace facingfate
         // =============================
         private void ApplyEffect(EntityScript target)
         {
-            if (!affectedEntities.Contains(target))
-            {
-                affectedEntities.Add(target);
-            }
-            switch (EffectData)
-            {
-                case GroundEffect_Enter_EntityData entityData:
-                    {
-                        entityData.OnEnter?.Invoke(entityData.Modifier, target);
-                    }
-                    break;
+            if (!affectedEntities.Add(target)) return;
 
-                case GroundEffect_Enter_StatData statData:
-                    {
-                        statData.OnEnter?.Invoke(statData.Modifier, target);
-                    }
-                    break;
-                case GroundEffect_Enter_Effect effectData:
-                    {
-                        effectData.OnEnter?.Invoke(target);
-                    }
-                    break;
+            SyncDebugLists();
+
+            if (EffectData.ModifierFactory != null)
+            {
+                var modifier = EffectData.ModifierFactory(target);
+                appliedModifiers[target] = modifier;
+                target.AddModifier(modifier);
             }
+
+            EffectData.OnEnter?.Invoke(target);
         }
 
         private void RemoveEffect(EntityScript target)
         {
-            switch (EffectData)
-            {
-                case GroundEffect_Enter_EntityData entityData:
-                    {
-                        entityData.OnExit?.Invoke(entityData.Modifier, target);
-                        if (EffectData.RemoveOnExit)
-                        {
-                            RemoveEffect(target);
-                        }
-                    }
-                    break;
-
-                case GroundEffect_Enter_StatData statData:
-                    {
-                        statData.OnExit?.Invoke(statData.Modifier, target);
-                        if (EffectData.RemoveOnExit)
-                        {
-                            RemoveEffect(target);
-                        }
-                    }
-                    break;
-                case GroundEffect_Enter_Effect effectData:
-                    {
-                        effectData.OnExit?.Invoke(target);
-                    }
-                    break;
-            }
+            RemoveModifierFrom(target);
+            EffectData.OnExit?.Invoke(target);
+            affectedEntities.Remove(target);
+            SyncDebugLists();
         }
 
-        private void RemoveEffectFromAll()
+        private void RemoveModifierFrom(EntityScript target)
         {
-            if (!EffectData.RemoveOnEnd) return;
+            if (!appliedModifiers.TryGetValue(target, out var modifier)) return;
+            target.RemoveModifier(modifier);
+            appliedModifiers.Remove(target);
+        }
 
-            foreach (var target in affectedEntities)
-            {
-                RemoveEffect(target);
-            }
+        // =============================
+        // Helpers
+        // =============================
+        private static bool IsAlive(EntityScript entity) => entity != null && entity.enabled;
 
-            affectedEntities.Clear();
+        private void SyncDebugLists()
+        {
+            _affectedEntities.Clear();
+            _affectedEntities.AddRange(affectedEntities);
+            _exitedEntities.Clear();
+            _exitedEntities.AddRange(exitedEntities);
         }
     }
 
     // =============================
-    // Base Ground Effect Data
+    // Ground Effect Data
     // =============================
     [System.Serializable]
-    public abstract class GroundEffectData
+    public class GroundEffectData
     {
         public CardData CardData;
         public RelevantTriggerCheck RelevantTrigger;
         public int Duration;
         public bool RemoveOnExit = true;
         public bool RemoveOnEnd = true;
-    }
 
+        public CardTargetingMode TargetingMode;
+        public Vector3 SpawnPosition;
 
-    // =============================
-    // GroundEffects Enter / Exit Data
-    // =============================
-    [System.Serializable]
-    public class GroundEffect_Enter_EntityData : GroundEffectData
-    {
-        public EntityModifier Modifier;
-        public Action<EntityModifier, EntityScript> OnEnter;
-        public Action<EntityModifier, EntityScript> OnExit;
-
-        public GroundEffect_Enter_EntityData(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, bool removeOnExit, bool removeOnEnd, EntityModifier modifier, Action<EntityModifier, EntityScript> onEnter, Action<EntityModifier, EntityScript> onExit)
-        {
-            CardData = cardData;
-            RelevantTrigger = relevantTrigger;
-            Duration = duration;
-            RemoveOnExit = removeOnExit;
-            RemoveOnEnd = removeOnEnd;
-            Modifier = modifier;
-            OnEnter = onEnter;
-            OnExit = onExit;
-        }
-    }
-
-    [System.Serializable]
-    public class GroundEffect_Enter_StatData : GroundEffectData
-    {
-        public StatModifier Modifier;
-        public Action<StatModifier, EntityScript> OnEnter;
-        public Action<StatModifier, EntityScript> OnExit;
-
-        public GroundEffect_Enter_StatData(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, bool removeOnExit, bool removeOnEnd, StatModifier modifier, Action<StatModifier, EntityScript> onEnter, Action<StatModifier, EntityScript> onExit)
-        {
-            CardData = cardData;
-            RelevantTrigger = relevantTrigger;
-            Duration = duration;
-            RemoveOnExit = removeOnExit;
-            RemoveOnEnd = removeOnEnd;
-            Modifier = modifier;
-            OnEnter = onEnter;
-            OnExit = onExit;
-        }
-    }
-
-    public class GroundEffect_Enter_Effect : GroundEffectData
-    {
-        public StatModifier Modifier;
-        public Action< EntityScript> OnEnter;
-        public Action< EntityScript> OnExit;
-        public GroundEffect_Enter_Effect(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, bool removeOnExit, bool removeOnEnd, Action<EntityScript> onEnter, Action<EntityScript> onExit)
-        {
-            CardData = cardData;
-            RelevantTrigger = relevantTrigger;
-            Duration = duration;
-            RemoveOnExit = removeOnExit;
-            RemoveOnEnd = removeOnEnd;
-            OnEnter = onEnter;
-            OnExit = onExit;
-        }
-    }
-    // =============================
-    // GroundEffects Reference Triggered
-    // =============================
-    [System.Serializable]
-    public class GroundEffect_Ref_EntityData : GroundEffectData
-    {
-        public EntityModifier Modifier;
-        public Action<EntityModifier, EntityScript> OnEnter;
-        public Action<EntityModifier, EntityScript> OnExit;
-        public Action<StatModifier, EntityScript> OnRef;
-
-        public GroundEffect_Ref_EntityData(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, EntityModifier modifier, Action<StatModifier, EntityScript> onRef, bool removeOnExit = false, bool removeOnEnd = false)
-        {
-            CardData = cardData;
-            RelevantTrigger = relevantTrigger;
-            Duration = duration;
-            RemoveOnExit = removeOnExit;
-            RemoveOnEnd = removeOnEnd;
-            Modifier = modifier;
-            OnRef = onRef;
-        }
-    }
-
-    [System.Serializable]
-    public class GroundEffect_Ref_StatData : GroundEffectData
-    {
-        public StatModifier Modifier;
-        public Action<StatModifier, EntityScript> OnEnter;
-        public Action<StatModifier, EntityScript> OnExit;
-        public Action<StatModifier, EntityScript> OnRef;
-
-        public GroundEffect_Ref_StatData(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, StatModifier modifier, Action<StatModifier, EntityScript> onRef, bool removeOnExit =false, bool removeOnEnd = false )
-        {
-            CardData = cardData;
-            RelevantTrigger = relevantTrigger;
-            Duration = duration;
-            RemoveOnExit = removeOnExit;
-            RemoveOnEnd = removeOnEnd;
-            Modifier = modifier;
-            OnRef = onRef;
-        }
-    }
-
-    public class GroundEffect_Ref_Effect : GroundEffectData
-    {
-        public StatModifier Modifier;
+        public Action<EntityScript> OnSpawn;
         public Action<EntityScript> OnRef;
-        public GroundEffect_Ref_Effect(CardData cardData, RelevantTriggerCheck relevantTrigger, int duration, Action<EntityScript> onRef, bool removeOnExit = false, bool removeOnEnd = false)
+        public Action<EntityScript> OnEnter;
+        public Action<EntityScript> OnExit;
+        public Action<EntityScript> OnEnd;
+
+        public Func<EntityScript, IEntityModifier> ModifierFactory;
+
+        public VFXData VFXData;
+
+        public GroundEffectData(
+            CardData cardData,
+            RelevantTriggerCheck relevantTrigger,
+            int duration,
+            CardTargetingMode targetingMode = CardTargetingMode.Sphere,
+            bool removeOnExit = true,
+            bool removeOnEnd = true,
+            Action<EntityScript> onSpawn = null,
+            Action<EntityScript> onRef = null,
+            Action<EntityScript> onEnter = null,
+            Action<EntityScript> onExit = null,
+            Action<EntityScript> onEnd = null,
+            Func<EntityScript, IEntityModifier> modifierFactory = null,
+            VFXData vfxData = null)
         {
             CardData = cardData;
             RelevantTrigger = relevantTrigger;
             Duration = duration;
+            TargetingMode = targetingMode;
             RemoveOnExit = removeOnExit;
             RemoveOnEnd = removeOnEnd;
-            OnRef = onRef;
+
+            OnSpawn = onSpawn ?? (_ => { });
+            OnRef   = onRef   ?? (_ => { });
+            OnEnter = onEnter ?? (_ => { });
+            OnExit  = onExit  ?? (_ => { });
+            OnEnd   = onEnd   ?? (_ => { });
+
+            ModifierFactory = modifierFactory;
+            VFXData = vfxData;
         }
     }
 }

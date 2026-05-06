@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2505238372199327944}
-  - component: {fileID: 259639654897334880}
   - component: {fileID: 8552086975940715518}
   m_Layer: 0
   m_Name: GroundEffect
@@ -33,27 +32,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &259639654897334880
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7852985932251146890}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.2
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8552086975940715518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67,3 +45,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   groundEffectCollider: {fileID: 0}
+  EffectData:
+    CardData:
+      cardID: MissingID
+      cardName: 
+      Owner: {fileID: 0}
+      playSfxEvent: 
+      cardArtwork: {fileID: 0}
+      cardDescription: 
+      cardType: 0
+      cardClass: 0
+      cardIdentities: 
+      cost_u: 0
+      power_u: 0
+      damage_u: 0
+      healing_u: 0
+      secondaryDamage_u: 0
+      secondaryHealing_u: 0
+      duration_u: 99999
+      repeats_u: 1
+      range_u: 0.7
+      area_u: 1
+      radius_u: 1
+      maxtarget_u: 0
+      charges_u: 0
+      isFrozen: 0
+      targetingData:
+        TargetingUsesVision: 0
+        EffectUsesVision: 0
+        CardTargetType: 0
+        CardTargetAffiliation: 0
+        cardTargetingMode: 0
+      EffectTargetTypes: 
+      TargetCard: {fileID: 0}
+      cardActionSequence: []
+    Duration: 0
+    RemoveOnExit: 0
+    RemoveOnEnd: 0
+    TargetingMode: 0
+    SpawnPosition: {x: 0, y: 0, z: 0}
+  _affectedEntities: []
+  _exitedEntities: []

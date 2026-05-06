@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class EntityVisualScript : MonoBehaviour
 {
-
+    public MeshRenderer meshRenderer;
+    public MeshFilter meshFilter;
 
     public TextMeshPro textMeshProUGUI;
     public GameObject UIAnchor;

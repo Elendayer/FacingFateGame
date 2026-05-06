@@ -13,9 +13,10 @@ namespace facingfate
 
         public readonly List<IStatModifier> statModifiers = new();
 
-        public void AddModifier(IStatModifier modifier, ModifierMergeStrategy strategy = ModifierMergeStrategy.Override)
+        public void AddModifier(IStatModifier modifier)
         {
             var existing = statModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
+            var strategy = modifier.modifierMergeStrategy;
 
             switch (strategy)
             {

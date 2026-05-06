@@ -38,15 +38,23 @@ namespace facingfate
                     EffectUsesVision = true,
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage {Repeats} times to all enemies in the area.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact") { activationCount = d.Repeats});
-                },
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Ground,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, position, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, position, new VFXData("Impact") { activationCount = cardData.Repeats});
+                        })
+                }
             });
 
             // 110102 – Piercing Light (LineSelf 3)
@@ -73,13 +81,18 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { area = Data.Area, start = Data.Owner.transform.position, end = Target.targetedPositions[0]}, Target.targetedPositions[0]);
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"));
+                            AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") { area = cardData.Area, start = caster.transform.position, end = target.transform.position}, target.transform.position);
+                        })
                 }
             });
 
@@ -107,13 +120,30 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target,  new VFXData ("Impact"));
-                },
-                cardEffectGroundAction = (User, Target, d) =>
-                {
-                    MovementUtility.ForcedMove(ForcedMovementType.Jump, User, Target, d.Power, 100f);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
+                        delayBefore: 0.0f,
+                        delayBetween: 0f,
+                        coroutine: (caster, targetingData, cardData) =>
+                        {
+                            var target = targetingData.targetedEntities[0];
+                            return caster.EntityOnMap.StartJumpRoutine(target.transform.position);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0.0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"));
+                        }
+                    ),
+
                 }
             });
 
@@ -147,10 +177,20 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Apply Bleed dealing {Damage} for {Duration} turns",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    EntityModifier entityModifier = EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, d, ThroughputSource.Damage, User);
-                    CombatUtility.ApplyEntityModifier(d, Target, entityModifier, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            EntityModifier entityModifier = EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, cardData, ThroughputSource.Damage, caster);
+                            entityModifier.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                            CombatUtility.ApplyEntityModifier(cardData, target, entityModifier);
+                        }
+                    )
                 }
             });
 
@@ -166,29 +206,47 @@ namespace facingfate
                 cost_u = 20,
                 damage_u = 12,
 
-                range_u = 1.2f,
+                range_u = 0.5f,
+
+                radius_u = 2f,
                 area_u = 1f,
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.Ground,
+                    CardTargetType = CardTargetType.Entity,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.RingSelf,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to enemies in a ring. Inflict 5 Burn.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") );
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Caster,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Firestorm_Ring") {radius = cardData.Radius, area = cardData.Area}, caster.transform.position);
+                            
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("SlashImpact"));
 
-                    EntityModifier mod = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, d, ThroughputSource.Damage, User);
-                    CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
 
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Firestorm_Ring") {radius = Data.Radius, area = Data.Area}, Target.targetedPositions[0]);
+                            EntityModifier mod = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, cardData, ThroughputSource.Damage, caster);
+                            CombatUtility.ApplyEntityModifier(cardData, target, mod);
+                        }
+                    )
                 }
             });
 
@@ -210,7 +268,6 @@ namespace facingfate
                 range_u = 3f,
                 area_u = 35f,
 
-
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Ground,
@@ -220,20 +277,29 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage in a ring and increase movement cost of enemies hit.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = 1 });
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("SlashImpact") { activationCount = 1 });
 
-                    CombatUtility.ApplyStatDebuff(d, Target,
-                        new StatModifier
-                        (
-                            name: "MovementFlat",
-                            stat: Target.entityStats.MovementCostModifier_Flat,
-                            value: d.Power,
-                            duration: d.Duration,
-                            to_TriggerRefs: new() { GameplayRef.onSlowed }
-                        ),
-                        ModifierMergeStrategy.RefreshDurationAndOverride);
+                            CombatUtility.ApplyStatDebuff(cardData, target,
+                                new StatModifier
+                                (
+                                    name: "MovementFlat",
+                                    stat: target.entityStats.MovementCostModifier_Flat,
+                                    value: cardData.Power,
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndOverride,
+                                    to_TriggerRefs: new() { GameplayRef.onSlowed }
+                                ));
+                        }
+                    )
                 }
             });
 
@@ -252,7 +318,6 @@ namespace facingfate
                 range_u = 4f,
                 area_u = 40f,
 
-
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Ground,
@@ -262,10 +327,18 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to all enemies in a ring.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = 1 });
-                    // To-Do Slow
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("SlashImpact") { activationCount = 1 });
+                        }
+                    )
                 }
             });
 
@@ -288,20 +361,34 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData ("BurnEffect") , d.Damage);
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAtIndividualPositions(new VFXData("Firestorm") { radius = Data.Radius}, Target.targetedPositions);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Aim,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, position, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Firestorm") { radius = cardData.Radius}, position);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0.1f,
+                        delayBetween: 0.0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("BurnEffect"), cardData.Damage);
+                        }
+                    )
                 }
-
             });
 
             // 110109 – Azure Dragon's Roar (Self; until end of turn)
@@ -330,21 +417,37 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Increases attack damage by {Power}%.",
-    
-                cardEffectAction = (User, Target, d) =>
+
+                cardActionSequence = new()
                 {
-                    var mod = new StatModifier
-                    (
-                        name: "Damage",
-                        stat: Target.entityStats.DamageOutModifier_Increase,
-                        value: d.Power,
-                        duration: d.Duration
-                        );
-                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.AddUnique);
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            var mod = new StatModifier
+                            (
+                                name: "Damage",
+                                stat: target.entityStats.DamageOutModifier_Increase,
+                                value: cardData.Power,
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.AddUnique
+                            );
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), target);
+                        }
+                    )
                 }
             });
 
@@ -370,36 +473,50 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage. Roots for {Duration} turns",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyEntityModifier(d, Target, new EntityModifier
-                        (
-                            modifierName: "Rooted",
-                            owner: Target,
-                            baseValue: d.Power,
-                            duration: d.Duration,
-                            onApply_Action: (target, cd, value) =>
-                            {
-                                target.entityStats.IsRooted = true;
-                            },
-                            onRemove_Action: (target, cd, value) =>
-                            {
-                                target.entityStats.IsRooted = false;
-                            }
-                        ),
-                     ModifierMergeStrategy.RefreshDurationAndMerge);
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyEntityModifier(cardData, target, new EntityModifier
+                                (
+                                    modifierName: "Rooted",
+                                    owner: target,
+                                    baseValue: cardData.Power,
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                    onApply_Action: (targetEntity, cd, value) =>
+                                    {
+                                        targetEntity.entityStats.IsRooted = true;
+                                    },
+                                    onRemove_Action: (targetEntity, cd, value) =>
+                                    {
+                                        targetEntity.entityStats.IsRooted = false;
+                                    }
+                                ));
 
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    //AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("SpearsFromGround") {positions = Target.targetedPositions });
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"));
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), target);
+                        }
+                    )
                 }
             });
         }
@@ -428,23 +545,37 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Increase melee range by {Power} until end of turn.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyStatBuff(d, Target,
-                        new StatModifier(
-                            name: $"MeleeRangeFlat",
-                            stat: Target.entityStats.RangeModifier_Flat,
-                            value: d.Power,
-                            to_TriggerRefs: new(),
-                            duration: d.Duration,
-                            condition: "Melee"
-                            ),
-                        ModifierMergeStrategy.RefreshDurationAndMerge
-                        );
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyStatBuff(cardData, target,
+                                new StatModifier(
+                                    name: $"MeleeRangeFlat",
+                                    stat: target.entityStats.RangeModifier_Flat,
+                                    value: cardData.Power,
+                                    to_TriggerRefs: new(),
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                    condition: "Melee"
+                                ));
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), target);
+                        }
+                    )
                 }
             });
 
@@ -472,35 +603,51 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) =>
                 {
-                    d.cardDescription =     "On next hit taken this round, counter for {Damage}.";
+                    d.cardDescription = "On next hit taken this round, counter for {Damage}.";
                 },
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    var mod = new EntityModifier(
-                        modifierName: "SpearmanIronWallReversalCounter",
-                        owner: Target,
-                        baseValue: d.Damage,
-                        toTriggerRefs: new(),
-                        duration: d.Duration,
-                        charges: d.Charges,
-                        onRef_Trigger: new RelevantTriggerCheck
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
                         {
-                            OnTriggerReference = new() { GameplayRef.onHitLanded },
-                            CheckType = CheckEntityType.Target,
-                            CheckEntity = User,
-                        },
-                        onRef_Action: (target, cd, value) =>
-                        {
-                            Debug.Log($"Spearman Iron Wall Reversal counter triggered for {value} damage.");
-                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved, new VFXData ("Impact"));
+                            var mod = new EntityModifier(
+                                modifierName: "SpearmanIronWallReversalCounter",
+                                owner: target,
+                                baseValue: cardData.Damage,
+                                toTriggerRefs: new(),
+                                duration: cardData.Duration,
+                                charges: cardData.Charges,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                onRef_Trigger: new RelevantTriggerCheck
+                                {
+                                    OnTriggerReference = new() { GameplayRef.onHitLanded },
+                                    CheckType = CheckEntityType.Target,
+                                    CheckEntity = caster,
+                                },
+                                onRef_Action: (targetEntity, cd, value) =>
+                                {
+                                    Debug.Log($"Spearman Iron Wall Reversal counter triggered for {value} damage.");
+                                    CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved, new VFXData("Impact"));
+                                }
+                            );
+                            CombatUtility.ApplyEntityModifier(cardData, target, mod);
                         }
-                    );
-                    CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), target);
+                        }
+                    )
                 }
             });
 
@@ -530,26 +677,39 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = $"On next ranged technique received this round, reduce the damage to 0.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                 CombatUtility.ApplyStatBuff(d, Target,
-                        new StatModifier
-                        (
-                            name: "RangedDamage",
-                            stat: Target.entityStats.DamageTakenModifier_Flat,
-                            value: 0,
-                            to_TriggerRefs: new(),
-                            duration: d.Duration,
-                            charges: 1,
-                            "Technique", "Ranged"
-                        ),
-                    ModifierMergeStrategy.RefreshDurationAndMerge
-                    );
-
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyStatBuff(cardData, target,
+                                new StatModifier
+                                (
+                                    "RangedDamage",
+                                    target.entityStats.DamageTakenModifier_Flat,
+                                    0f,
+                                    new(),
+                                    cardData.Duration,
+                                    1,
+                                    ModifierMergeStrategy.RefreshDurationAndMerge,
+                                    "Technique", "Ranged"
+                                ));
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), target);
+                        }
+                    )
                 }
             });
 
@@ -577,42 +737,58 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Taunt target and gain {Power} Armour for {Duration} turns.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    // Apply Armour
-                    CombatUtility.ApplyStatBuff(d, User,
-                        new StatModifier
-                        (
-                        name: "Armour",
-                        stat: User.entityStats.Armour_Flat,
-                        value: d.Power,
-                        duration: d.Duration
-                        ),
-                        ModifierMergeStrategy.AddUnique);
-
-                    // Apply Taunt
-
-                    var taunt  = new EntityModifier
-                    (
-                        modifierName: "Taunt",
-                        owner: User,
-                        duration: d.Duration,
-                        onApply_Action: (target, cd, value) =>
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
                         {
-                            target.entityStats.tauntTarget = d.Owner;
-                        },
-                        onRemove_Action: (target, cd, value) =>
-                        {
-                            target.entityStats.tauntTarget = null;
+
+                            // Apply Taunt
+                            var taunt = new EntityModifier
+                            (
+                                modifierName: "Taunt",
+                                owner: caster,
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.Override,
+                                onApply_Action: (targetEntity, cd, value) =>
+                                {
+                                    targetEntity.entityStats.tauntTarget = cardData.Owner;
+                                },
+                                onRemove_Action: (targetEntity, cd, value) =>
+                                {
+                                    targetEntity.entityStats.tauntTarget = null;
+                                }
+                            );
+
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), target);
+                            CombatUtility.ApplyEntityModifier(cardData, target, taunt);
                         }
-                    );
-
-                    CombatUtility.ApplyEntityModifier(d, Target, taunt, ModifierMergeStrategy.Override);
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), new List<EntityScript>() { Data.Owner });
+                    ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            EntityScript e = target;
+                            // Apply Armour
+                            CombatUtility.ApplyStatBuff(cardData, caster,
+                                new StatModifier
+                                (
+                                    name: "Armour",
+                                    stat: caster.entityStats.Armour_Flat,
+                                    value: cardData.Power,
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.AddUnique
+                                ));
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), caster);
+                        }
+                    )
                 }
             });
 
@@ -641,26 +817,36 @@ namespace facingfate
                     d.cardDescription = "On next hit received this turn, counter for {Damage}.";
                 },
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    var mod = new EntityModifier(
-                         modifierName: "SpearmanSkyRendingReversalCounter",
-                         owner: Target,
-                         baseValue: d.Damage,
-                         toTriggerRefs: new() { },
-                         duration: d.Duration,
-                         onRef_Trigger: new RelevantTriggerCheck
-                         {
-                             OnTriggerReference = new() { GameplayRef.onDamageRecieved },
-                             CheckType = CheckEntityType.Target,
-                             CheckEntity = User,
-                         },
-                        onRef_Action: (target, cd, value) =>
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
                         {
-                            CombatUtility.ApplyDamage(null, target, new VFXData("SlashImpact"), value);
+                            var mod = new EntityModifier(
+                                modifierName: "SpearmanSkyRendingReversalCounter",
+                                owner: target,
+                                baseValue: cardData.Damage,
+                                toTriggerRefs: new() { },
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                onRef_Trigger: new RelevantTriggerCheck
+                                {
+                                    OnTriggerReference = new() { GameplayRef.onDamageRecieved },
+                                    CheckType = CheckEntityType.Target,
+                                    CheckEntity = caster,
+                                },
+                                onRef_Action: (targetEntity, cd, value) =>
+                                {
+                                    CombatUtility.ApplyDamage(null, targetEntity, new VFXData("SlashImpact"), value);
+                                }
+                            );
+                            CombatUtility.ApplyEntityModifier(cardData, target, mod);
                         }
-                     );
-                    CombatUtility.ApplyEntityModifier(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    )
                 }
             });
 
@@ -684,42 +870,57 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Entity,
                     CardTargetAffiliation = CardTargetAffiliation.Ally,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Increses armour by {Power}) for adjacent allies and gives them thorns {Damage}.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyStatBuff(d, Target,
-                        new StatModifier(
-                        name: "Armour",
-                        stat: Target.entityStats.Armour_Flat,
-                        value: d.Power,
-                        duration: d.Duration),
-                        ModifierMergeStrategy.AddUnique);
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyStatBuff(cardData, target,
+                                new StatModifier(
+                                    name: "Armour",
+                                    stat: target.entityStats.Armour_Flat,
+                                    value: cardData.Power,
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.AddUnique));
 
-                    CombatUtility.ApplyEntityModifier(d, Target,
-                        new EntityModifier(
-                        modifierName: "SpearmanSkyRendingReversalCounter",
-                        owner: Target,
-                        baseValue: d.Damage,
-                        duration: d.Duration,
-                        onRef_Trigger: new RelevantTriggerCheck
+                            CombatUtility.ApplyEntityModifier(cardData, target,
+                                new EntityModifier(
+                                    modifierName: "SpearmanPhalanxGuardThorns",
+                                    owner: target,
+                                    baseValue: cardData.Damage,
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                    onRef_Trigger: new RelevantTriggerCheck
+                                    {
+                                        OnTriggerReference = new() { GameplayRef.onDamageRecieved },
+                                        CheckType = CheckEntityType.Target,
+                                        CheckEntity = caster,
+                                    },
+                                    onRef_Action: (targetEntity, cd, value) =>
+                                    {
+                                        CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onThorns, new VFXData("Impact"));
+                                    }));
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
                         {
-                            OnTriggerReference = new() { GameplayRef.onDamageRecieved },
-                            CheckType = CheckEntityType.Target,
-                            CheckEntity = User,
-                        },
-                        onRef_Action: (target, cd, value) =>
-                        {
-                            CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onThorns, new VFXData ("Impact"));
-                        }),
-                        ModifierMergeStrategy.RefreshDurationAndMerge);
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), target);
+                        }
+                    )
                 }
             });
         }
@@ -749,20 +950,28 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Reduce Armour by {Power}%.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    var stat = Target.entityStats.IgnoreArmour;
-                    var mod = new StatModifier(
-                        name: "Armour",
-                        stat: stat,
-                        value: -d.Power,
-                        duration: d.Duration);
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            var stat = target.entityStats.IgnoreArmour;
+                            var mod = new StatModifier(
+                                name: "Armour",
+                                stat: stat,
+                                value: -cardData.Power,
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge);
 
-                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), Target.targetedEntities);
+                            CombatUtility.ApplyStatDebuff(cardData, target, mod);
+                                                        AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Debuff"), target);
+
+                        }
+                    ),
                 }
             });
         }
@@ -790,25 +999,38 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Increase Attack power by {Power}% while active.",
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    var stat = Target.entityStats.DamageOutModifier_Increase;
-                    var mod = new StatModifier(
-                        name: "Damage",
-                        stat: stat,
-                        value: d.Power,
-                        duration: d.Duration);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            var stat = target.entityStats.DamageOutModifier_Increase;
+                            var mod = new StatModifier(
+                                name: "Damage",
+                                stat: stat,
+                                value: cardData.Power,
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.AddUnique);
 
-                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.AddUnique);
-
-                    // To-Do Increase Aggro
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), target);
+                        }
+                    )
                 }
             });
         }
     }
 }
-

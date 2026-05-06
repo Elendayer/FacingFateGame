@@ -14,7 +14,16 @@ namespace facingfate
         public EntityScript Owner = null;
 
         [Header("Audio")]
-        public string playSfxEvent; // Optional, empty = silent. Wwise event name, e.g. "Play_Card_Fireball"
+        // Wwise event to post when this card's effect fires. Leave empty = silent.
+        // Example: "Play_CardEffect"
+        public string playSfxEvent;
+
+        // Wwise switches to set before posting playSfxEvent.
+        // Each entry: group = Switch Group name in Wwise, value = Switch name in Wwise.
+        // Example: new WwiseSwitchEntry { group = "CardSoundIdentity",   value = "Physical" }
+        //          new WwiseSwitchEntry { group = "CardSoundDamageType", value = "Melee"    }
+        // Leave list empty to post without any switch changes.
+        public List<WwiseSwitchEntry> soundSwitches = new();
 
         [Header("Visuals")]
         public Sprite cardArtwork;
@@ -263,7 +272,7 @@ namespace facingfate
 
         [Header("Area of Effect")]
         public Func<CardData, float> rangeFunc;
-        public float range_u = 0.7f;
+        public float range_u = 1f;
         public Stat range_s_Flat = new();
         public Stat range_s_Increase = new();
         public Stat range_s_Multiplier = new();
@@ -394,27 +403,14 @@ namespace facingfate
 
 
         public Action<EntityScript, CardData> cardDescriptionAction =
-            (user, data) => 
-            { 
+            (user, data) =>
+            {
                 Debug.Log($"Not defined Description of {data.cardName}");
             };
 
-        public Action<EntityScript, EntityScript, CardData> cardEffectAction =
-            (user, target, data) =>
-            {
-                Debug.Log($"Not defined Effect used by {user} at {target} by Card {data.cardName}");
-            };
+        [Header("Card Action Sequence")]
+        public List<CardAction> cardActionSequence = new();
 
-        public Action<EntityScript, Vector3, CardData> cardEffectGroundAction =
-            (user, target, data) => 
-            {
-                // Debug.Log($"Not defined Ground Effect used by {user} at {target} by Card {data.cardName}");
-            };
-        public Action<CardData,TargetingModeData> cardVfx =
-            (cardData, targetData) =>
-            {
-                AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("LightningStrike"), targetData.targetedEntities );           
-            };
 
         [Header("AI")]
         public CardAiBias CardAiBias = new();
@@ -439,7 +435,8 @@ namespace facingfate
                 Owner = Owner,
                 cardArtwork = cardArtwork,
                 cardDescription = cardDescription,
-                playSfxEvent = playSfxEvent,
+                playSfxEvent  = playSfxEvent,
+                soundSwitches = soundSwitches != null ? new List<WwiseSwitchEntry>(soundSwitches) : new(),
 
                 // Typisierung
                 cardType = cardType,
@@ -528,9 +525,9 @@ namespace facingfate
 
                 // Delegates (zeigen auf dieselben Methoden – gewünscht)
                 cardDescriptionAction = cardDescriptionAction,
-                cardEffectAction = cardEffectAction,
-                cardEffectGroundAction = cardEffectGroundAction,
-                cardVfx = cardVfx,
+
+                // Card Action Sequence
+                cardActionSequence = cardActionSequence != null ? new List<CardAction>(cardActionSequence) : new List<CardAction>(),
 
                 // AI
                 CardAiBias = CardAiBias,
@@ -736,7 +733,7 @@ namespace facingfate
     public enum CardTargetingMode
     {
         Single,
-        Radius,
+        Sphere,
         Ring,
         RingSelf,
         LineFree,
@@ -799,6 +796,13 @@ namespace facingfate
         Mechanical,
     }
     // If Updated needs to update GameplayReference as well
+    [System.Serializable]
+    public struct WwiseSwitchEntry
+    {
+        public string group; // Switch Group name in Wwise, e.g. "CardSoundIdentity"
+        public string value; // Switch name in Wwise,       e.g. "Physical"
+    }
+
     public enum CardClass
     {
         Spearman,

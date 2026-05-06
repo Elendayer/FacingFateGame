@@ -80,8 +80,10 @@ namespace facingfate
                         WwiseAudioHelper.PlayGlobal(discardCardSfx, gameObject);
                         break;
                     case GameplayRef.onCardPlayed:
-                        if (!string.IsNullOrEmpty(refData.CardData?.playSfxEvent))
-                            AkUnitySoundEngine.PostEvent(refData.CardData.playSfxEvent, gameObject);
+                        // Emitter = caster GO so switches are per-entity, not shared
+                        CardSoundHelper.PlayCardEffect(
+                            refData.CardData,
+                            refData.UserEntity?.gameObject ?? gameObject);
                         break;
                 }
             }

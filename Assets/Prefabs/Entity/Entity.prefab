@@ -318,6 +318,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4434992cd79b5346a731912d81358f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  meshRenderer: {fileID: 6332386633766443708}
+  meshFilter: {fileID: 5810604458026291680}
   textMeshProUGUI: {fileID: 3090055328379412842}
   UIAnchor: {fileID: 5018158550700208092}
   lineRenderer: {fileID: 6789846225628192042}

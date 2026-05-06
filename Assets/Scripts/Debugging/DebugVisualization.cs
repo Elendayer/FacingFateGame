@@ -33,37 +33,37 @@ namespace facingfate
         }
 
         /// <summary>
-        /// Visualizes a targeting cone.
+        /// Visualizes a targeting cone as a flat pie-slice in the XZ plane.
         /// </summary>
-        public static void DrawCone(Vector3 apex, Vector3 direction, float range, float coneAngle, Color color, float duration = 0f)
+        public static void DrawCone(Vector3 origin, Vector3 target, float range, float coneAngle, Color color, float duration = 0f)
         {
             if (!isEnabled) return;
 
-            direction = direction.normalized;
-            float halfAngle = coneAngle * 0.5f;
+            // Flatten to XZ plane
+            target = new Vector3(target.x, 0f, target.z).normalized;
+            if (target == Vector3.zero) target = Vector3.forward;
 
-            // Draw cone end circle
-            Vector3 coneEnd = apex + direction * range;
-            float coneRadiusAtEnd = range * Mathf.Tan(halfAngle * Mathf.Deg2Rad);
+            // Two edge rays
+            Vector3 leftEdge = Quaternion.AngleAxis(-coneAngle, Vector3.up) * target;
+            Vector3 rightEdge = Quaternion.AngleAxis(coneAngle, Vector3.up) * target;
+            Vector3 leftTip = origin + leftEdge * range;
+            Vector3 rightTip = origin + rightEdge * range;
 
-            Vector3 perpendicular1 = Vector3.Cross(direction, Vector3.up);
-            if (perpendicular1.magnitude < 0.1f)
-                perpendicular1 = Vector3.Cross(direction, Vector3.right);
-            perpendicular1 = perpendicular1.normalized;
-            Vector3 perpendicular2 = Vector3.Cross(direction, perpendicular1).normalized;
+            Debug.DrawLine(origin, leftTip, color, duration);
+            Debug.DrawLine(origin, rightTip, color, duration);
 
-            DrawCircle(coneEnd, perpendicular1, perpendicular2, coneRadiusAtEnd, color, duration);
-
-            // Draw lines from apex to cone edge
-            Vector3 edgePoint1 = coneEnd + perpendicular1 * coneRadiusAtEnd;
-            Vector3 edgePoint2 = coneEnd - perpendicular1 * coneRadiusAtEnd;
-            Vector3 edgePoint3 = coneEnd + perpendicular2 * coneRadiusAtEnd;
-            Vector3 edgePoint4 = coneEnd - perpendicular2 * coneRadiusAtEnd;
-
-            Debug.DrawLine(apex, edgePoint1, color, duration);
-            Debug.DrawLine(apex, edgePoint2, color, duration);
-            Debug.DrawLine(apex, edgePoint3, color, duration);
-            Debug.DrawLine(apex, edgePoint4, color, duration);
+            // Arc at range
+            int arcSegments = Mathf.Clamp(Mathf.RoundToInt(coneAngle * 2f / 5f), 6, 36);
+            Vector3 prev = leftTip;
+            for (int i = 1; i <= arcSegments; i++)
+            {
+                float t = (float)i / arcSegments;
+                float angle = Mathf.Lerp(-coneAngle, coneAngle, t);
+                Vector3 dir = Quaternion.AngleAxis(angle, Vector3.up) * target;
+                Vector3 next = origin + dir * range;
+                Debug.DrawLine(prev, next, color, duration);
+                prev = next;
+            }
         }
 
         /// <summary>
@@ -109,49 +109,48 @@ namespace facingfate
             if (!isEnabled || data == null || cardData == null) return;
 
             Vector3 castOrigin = data.castingPosition;
+            Vector3 aimOrigin = data.aimPosition;
 
             switch (mode)
             {
-                case CardTargetingMode.Radius:
-                    // Radius is centered on the aimed position, not the caster
-                    if (data.targetedPositions.Count > 0)
-                    {
-                        Vector3 radiusCenter = data.targetedPositions[0];
-                        DrawSphere(radiusCenter, cardData.Radius, effectColor, duration);
-                        DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
-                    }
+                case CardTargetingMode.Sphere:
+
+                    DrawSphere(aimOrigin, cardData.Radius, effectColor, duration);
+                    DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
+
                     break;
 
                 case CardTargetingMode.Ring:
-                    // Ring is centered on the aimed position, not the caster
-                    if (data.targetedPositions.Count > 0)
-                    {
-                        Vector3 ringCenter = data.targetedPositions[0];
-                        DrawSphere(ringCenter, cardData.Radius, effectColor, duration);
-                        DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
-                    }
+
+                    DrawRing(aimOrigin, cardData.Radius, cardData.Radius + cardData.Area, effectColor, duration);
+                    DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
+                    DrawRingEntityLines(aimOrigin, cardData.Radius, cardData.Radius + cardData.Area, duration);
+
+                    break;
+
+                case CardTargetingMode.RingSelf:
+                    // Ring is centered on the caster's position (aimOrigin == castOrigin for self)
+                    DrawRing(aimOrigin, cardData.Radius, cardData.Radius + cardData.Area, effectColor, duration);
+                    DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
+                    DrawRingEntityLines(aimOrigin, cardData.Radius, cardData.Radius + cardData.Area, duration);
                     break;
 
                 case CardTargetingMode.Cone:
-                    if (data.targetedPositions.Count > 0)
                     {
-                        Vector3 direction = (data.targetedPositions[0] - castOrigin).normalized;
-                        DrawCone(castOrigin, direction, cardData.Range, cardData.Area, effectColor, duration);
+                        Vector3 coneDirection = (aimOrigin - castOrigin).normalized;
+                        if (coneDirection == Vector3.zero) coneDirection = Vector3.forward;
+                        DrawCone(castOrigin, coneDirection, cardData.Range, 45, effectColor, duration);
+                        DrawConeRays(castOrigin, coneDirection, cardData.Range, 45, duration);
                         DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     }
                     break;
 
                 case CardTargetingMode.LineSelf:
-                    // Draw line from caster's position along the targeting direction
-                    if (data.targetedPositions.Count > 0)
+                    // Draw line from caster toward the aimed position
                     {
-                        Vector3 direction = (data.targetedPositions[0] - castOrigin).normalized;
-                        DrawCapsule(castOrigin, castOrigin + direction * cardData.Range, cardData.Area, effectColor, duration);
-                    }
-                    else
-                    {
-                        Vector3 direction = Vector3.forward;
-                        DrawCapsule(castOrigin, castOrigin + direction * cardData.Range, cardData.Area, effectColor, duration);
+                        Vector3 lineDirection = (aimOrigin - castOrigin).normalized;
+                        if (lineDirection == Vector3.zero) lineDirection = Vector3.forward;
+                        DrawCapsule(castOrigin, castOrigin + lineDirection * cardData.Range, cardData.Area, effectColor, duration);
                     }
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
@@ -171,18 +170,99 @@ namespace facingfate
                     break;
 
                 case CardTargetingMode.Single:
-                    DrawSphere(castOrigin, 0.3f, effectColor, duration);
+                    DrawSphere(aimOrigin, 0.3f, effectColor, duration);
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
 
                 case CardTargetingMode.Select:
-                    DrawSphere(castOrigin, cardData.Radius, effectColor, duration);
+                    DrawSphere(aimOrigin, cardData.Radius, effectColor, duration);
+                    DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
+                    break;
+
+                case CardTargetingMode.SelectionUnique:
+                    DrawSphere(aimOrigin, cardData.Radius, effectColor, duration);
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
 
                 case CardTargetingMode.All:
                     DrawEntityMarkers(data.targetedPositions, Color.green, 0.2f, duration);
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Casts a flat fan of rays in the XZ plane matching the cone detection logic.
+        /// Green up to a hit, faint white for the remainder. Ray count scales with range.
+        /// </summary>
+        public static void DrawConeRays(Vector3 origin, Vector3 direction, float range, float coneAngle, float duration = 0f)
+        {
+            if (!isEnabled) return;
+
+            direction = new Vector3(direction.x, 0f, direction.z).normalized;
+            if (direction == Vector3.zero) direction = Vector3.forward;
+
+            int rayCount = Mathf.Clamp(Mathf.RoundToInt(range * 4f), 8, 64);
+
+            for (int i = 0; i <= rayCount; i++)
+            {
+                float t = (float)i / rayCount;
+                float angle = Mathf.Lerp(-coneAngle, coneAngle, t);
+                Vector3 rayDir = Quaternion.AngleAxis(angle, Vector3.up) * direction;
+                DrawRay(origin, rayDir, range, duration);
+            }
+        }
+
+        private static void DrawRay(Vector3 origin, Vector3 direction, float range, float duration)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(origin, direction, out hit, range))
+            {
+                Debug.DrawLine(origin, hit.point, Color.green, duration);
+                Debug.DrawLine(hit.point, origin + direction * range, new Color(1f, 1f, 1f, 0.2f), duration);
+            }
+            else
+            {
+                Debug.DrawLine(origin, origin + direction * range, new Color(1f, 1f, 1f, 0.2f), duration);
+            }
+        }
+
+        /// <summary>
+        /// Draws a line from the ring center to each entity position.
+        /// Green if the entity is within the ring area, red otherwise.
+        /// </summary>
+        public static void DrawRingEntityLines(Vector3 center, float innerRadius, float outerRadius, float duration = 0f)
+        {
+            if (!isEnabled) return;
+
+            var allEntities = TargetingUtility.AllEntitiesCache();
+
+            foreach (var entity in allEntities)
+            {
+                if (entity == null) continue;
+                Vector3 pos = entity.transform.position;
+                float dist = Vector3.Distance(center, pos);
+                bool inRing = dist >= innerRadius && dist <= outerRadius;
+                Color lineColor = inRing ? Color.green : Color.red;
+                Debug.DrawLine(center, pos, lineColor, duration);
+            }
+        }
+
+        /// <summary>
+        /// Visualizes a ring (annulus) with inner and outer radii.
+        /// </summary>
+        public static void DrawRing(Vector3 center, float innerRadius, float outerRadius, Color color, float duration = 0f)
+        {
+            if (!isEnabled) return;
+            DrawCircle(center, Vector3.up, innerRadius, color, duration);
+            DrawCircle(center, Vector3.up, outerRadius, color, duration);
+
+            // Draw radial connector lines to make the ring shape clear
+            int connectors = 8;
+            for (int i = 0; i < connectors; i++)
+            {
+                float angle = (i / (float)connectors) * Mathf.PI * 2f;
+                Vector3 dir = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+                Debug.DrawLine(center + dir * innerRadius, center + dir * outerRadius, color, duration);
             }
         }
 

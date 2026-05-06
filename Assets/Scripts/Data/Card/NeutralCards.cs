@@ -1,9 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace facingfate
 {
-    // Neutral cards (Class = 10)
-    // ID-Schema: 10 | TT | II   (TT: MartialArt=01, Ability=02, Spell=03, Curse=04, Blessing=05, Item=06)
     public static class NeutralCards
     {
         public static void RegisterAll()
@@ -18,29 +16,36 @@ namespace facingfate
         {
              CardDatabase.RegisterCard(new CardData()
              {
-                 cardID= "Neutral_Tech_Punch",
-                 cardName ="Punch",
-                 cardType= CardType.Technique,
+                 cardID = "Neutral_Tech_Punch",
+                 cardName = "Punch",
+                 cardType = CardType.Technique,
                  cardClass = CardClass.Neutral,
-                    cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
+                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
-                    cost_u = 5,
-                    damage_u = 8,
+                 cost_u = 5,
+                 damage_u = 8,
 
- 
-                        targetingData = new()
-                        {
-                            CardTargetType = CardTargetType.Entity,
-                            CardTargetAffiliation = CardTargetAffiliation.Enemy,
-                            cardTargetingMode = CardTargetingMode.Single,
-                        },
+                 targetingData = new()
+                 {
+                     CardTargetType = CardTargetType.Entity,
+                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
+                     cardTargetingMode = CardTargetingMode.Single,
+                 },
 
-                        cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} Damage",
-                        cardEffectAction = (User, Target, d) =>
-                        {
-                            CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
-                        },
-                    });
+                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} Damage",
+                 cardActionSequence = new()
+                 {
+                     new CardAction(
+                         ExecutionMode.AllAtOnce,
+                         TargetingMode.Entities,
+                         delayBefore: 0f,
+                         delayBetween: 0.2f,
+                         action: (caster, target, cardData) =>
+                         {
+                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
+                         })
+                 },
+             });
 
             // 100101 – Strike – normal attack
             CardDatabase.RegisterCard(new CardData()
@@ -50,6 +55,15 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
+
+                // Audio — Wwise event + switches. Values must match Wwise Switch names exactly.
+                playSfxEvent = "Play_CardEffect",
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",  value = "Attack"   },
+                    new WwiseSwitchEntry { group = "WeaponType",  value = "Fist"     },
+                    new WwiseSwitchEntry { group = "ElementType", value = "Physical" },
+                },
 
                 cost_u = 10,
 
@@ -66,13 +80,22 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal Damage equal to your Strength: {Damage}",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
-                },
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.2f,
+                        action: (caster, target, cardData) =>
+                        {
+                                CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
+                        }
+                    )
+                }
             });
 
-            // 100102 – Heavy Blow – slow heavy hit (TODO: -1 Movement)
+            // 100102 – Heavy Blow – slow heavy hit with debuff
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Neutral_Tech_Heavy_Blow",
@@ -98,21 +121,49 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal Damage equal to twice your Strength: {Damage}, increase movement cost by 1 for {Duration} turns",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
-                    CombatUtility.ApplyStatDebuff(d, Target,
-                        new StatModifier(
-                        name: "Movement",
-                        stat: Target.entityStats.MovementCostModifier_Increase,
-                        value: 1,
-                        condition: true,
-                        duration: d.Duration
-                    ), ModifierMergeStrategy.RefreshDurationAndMerge);
-                },
-                cardVfx = (Data,Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData ("Debuff"), Target.targetedEntities);
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.2f,
+                        action: (caster, target, cardData) =>
+                        {
+        
+                                CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
+                            
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0.2f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                                CombatUtility.ApplyStatDebuff(cardData, target,
+                                    new StatModifier(
+                                        name: "Movement",
+                                        stat: target.entityStats.MovementCostModifier_Increase,
+                                        value: 1,
+                                        condition: true,
+                                        duration: cardData.Duration,
+                                        modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                                    ));
+                            
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Ground,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAtSinglePosition(new VFXData("Debuff"), target);
+                        }
+                    )
                 }
             });
 
@@ -141,10 +192,21 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal damage equal to your Dexterity: {Damage}.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") ,d.Damage);
-                },
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.2f,
+                        action: (caster, target, cardData) =>
+                        {
+                    
+                                CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
+                            
+                        }
+                    )
+                }
             });
 
             // 100104 – Double Cut – strike twice
@@ -168,10 +230,19 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage, {Repeats} times.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact") { activationCount = d.Repeats }, d.Damage);
-                },
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.2f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("SlashImpact") { activationCount = cardData.Repeats }, cardData.Damage);
+                        }
+                    )
+                }
             });
 
             // 100105 – Shove – push 1 space (minor damage)
@@ -194,14 +265,34 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} and push enemy 1 meter.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData ("Impact") , d.Damage);
-                    MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.transform.position, 1f);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
+                        }
+                    ),
+                  new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
+                        delayBefore: 0.0f,
+                        delayBetween: 0f,
+                        coroutine: (caster, targetingData, cardData) =>
+                        {
+                            var target = targetingData.targetedEntities[0];
+                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 1f, target);
+                            return target.EntityOnMap.StartMoveRoutine(pushPath.End);
+                        }
+                    ),
                 }
             });
 
-            // 100106 – Charge – move both 1 space 
+            // 100106 – Charge – move both 1 space with damage
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Neutral_Tech_Charge",
@@ -223,13 +314,41 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Charge to target and push them back 1 meter.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    MovementUtility.ForcedMove(ForcedMovementType.Pull, User, Target.transform.position);
-                    MovementUtility.ForcedMove(ForcedMovementType.Push, Target, User.transform.position, 1);
-
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
-                    // TODO: User/Target bewegen und Stun anwenden
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        coroutine: (caster, targetingData, cardData) =>
+                        {
+                            var target = targetingData.targetedEntities[0];
+                            return caster.EntityOnMap.StartMoveRoutine(target.transform.position);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0.2f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
+                        delayBefore: 0.1f,
+                        delayBetween: 0f,
+                        coroutine: (caster, targetingData, cardData) =>
+                        {
+                            var target = targetingData.targetedEntities[0];
+                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 1f, target);
+                            return target.EntityOnMap.StartMoveRoutine(pushPath.End);
+                        }
+                    )
                 }
             });
 
@@ -251,13 +370,20 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Disengage by 2.5 meters.",
-                cardEffectAction = (User, Target, d) =>
+                cardDescriptionAction = (User, d) => d.cardDescription = "Disengage by 3 meters.",
+                cardActionSequence = new()
                 {
-                    EntityModifier disengaged = EffectDatabase.GetEffectByName("Disengaged", CloneMode.Defaults, d, ThroughputSource.Damage, User);
-                    CombatUtility.ApplyEntityModifier(d, User, disengaged, ModifierMergeStrategy.Override);
-                    MovementUtility.ForcedMove(ForcedMovementType.Push, User, User.transform.position, 2.5f);
-                    // TODO: User 1 Feld rückwärts bewegen
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        coroutine: (caster, targetingData, cardData) =>
+                        {
+                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 3f, caster);
+                            return caster.EntityOnMap.StartMoveRoutine(pushPath.End);
+                        }
+                    )
                 }
             });
 
@@ -281,9 +407,18 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"), d.Damage);
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.2f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
+                        }
+                    )
                 }
             });
             CardDatabase.RegisterCard(new CardData()
@@ -305,9 +440,18 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("SlashImpact"), d.Damage);
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.2f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("SlashImpact"), cardData.Damage);
+                        }
+                    )
                 }
             });
 
@@ -333,29 +477,46 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Bite multiple times and apply Bleed over time.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    // direct hit (per repeat)
-                    CombatUtility.ApplyDamage(d, Target, new VFXData ("SlashImpact"), d.Damage);
-
-                    var bleed = new EntityModifier(
-                        modifierName: "Bleed",
-                        owner: Target,
-                        baseValue: d.Damage,
-                        toTriggerRefs: new() { GameplayRef.onBleed },
-                        duration: d.Duration,
-                        onRef_Trigger: new RelevantTriggerCheck
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
                         {
-                            OnTriggerReference = new() { GameplayRef.onTurnStart },
-                            CheckType = CheckEntityType.User,
-                            CheckEntity = Target,
-                        },
-                        onRef_Action: (target, cd, value) =>
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("SlashImpact"), cardData.Damage);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0.1f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
                         {
-                            CombatUtility.ApplyEffectDamage(value, target, GameplayRef.onBleed , new VFXData ("BleedEffect"));
-                        });
+                            var bleed = new EntityModifier(
+                                modifierName: "Bleed",
+                                owner: target,
+                                baseValue: cardData.Damage,
+                                toTriggerRefs: new() { GameplayRef.onBleed },
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                onRef_Trigger: new RelevantTriggerCheck
+                                {
+                                    OnTriggerReference = new() { GameplayRef.onTurnStart },
+                                    CheckType = CheckEntityType.User,
+                                    CheckEntity = target,
+                                },
+                                onRef_Action: (targetEntity, cd, value) =>
+                                {
+                                    CombatUtility.ApplyEffectDamage(value, targetEntity, GameplayRef.onBleed, new VFXData("BleedEffect"));
+                                });
 
-                    CombatUtility.ApplyEntityModifier(d, Target, bleed, ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyEntityModifier(cardData, target, bleed);
+                        }
+                    )
                 }
             });
 
@@ -378,10 +539,19 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Jump to a location within range.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    MovementUtility.ForcedMove(ForcedMovementType.Jump, User, Target.transform.position);
-                },
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Coroutine,
+                        delayBefore: 0.0f,
+                        delayBetween: 0f,
+                        coroutine: (caster, targetingData, cardData) =>
+                        {
+                            return caster.EntityOnMap.StartJumpRoutine(targetingData.aimPosition);
+                        }
+                    )
+                }
             });
 
             CardDatabase.RegisterCard(new CardData()
@@ -403,13 +573,18 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyDamage(d, Target, new VFXData("Impact"));
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    //Wip VFX for Cone
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.15f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
+                        }
+                    )
                 }
             });
 
@@ -485,13 +660,28 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyHealing(d, Target, d.Healing);
-                },
-                cardVfx = (Data, Target) =>
-                {
-                    AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), Target.targetedEntities);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyHealing(cardData, target, cardData.Healing);
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFXAttachedToGameObjects(new VFXData("Buff"), target );
+                        }
+                    )
                 }
             });
 
@@ -511,9 +701,18 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
                 cardDescriptionAction = (User, d) => d.cardDescription = "Draw a Card",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    User.DrawCards(1);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            target.DrawCards(1);
+                        }
+                    )
                 }
             });
 
@@ -533,19 +732,27 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
                 cardDescriptionAction = (User, d) => d.cardDescription = "Discard your hand and draw that many cards.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    if (d.Owner is PlayerScript player)
-                    {
-                        DeckManager.Instance.Player_DiscardRandomCardFromHand();
-                        DeckManager.Instance.Player_DrawTopCard();
-                    }
-                    else if (d.Owner is NonPlayerScript npc)
-                    {
-                        npc.DiscardCards(1);
-                        npc.DrawCards(1);
-                    }
-
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            if (target is PlayerScript player)
+                            {
+                                DeckManager.Instance.Player_DiscardRandomCardFromHand();
+                                DeckManager.Instance.Player_DrawTopCard();
+                            }
+                            else if (target is NonPlayerScript npc)
+                            {
+                                npc.DiscardCards(1);
+                                npc.DrawCards(1);
+                            }
+                        }
+                    )
                 }
             });
 
@@ -570,16 +777,26 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Your next attack is empowered by {Power}.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    var stat = Target.entityStats.DamageOutModifier_Increase;
-                    var mod = new StatModifier(
-                        name: "Focus",
-                        stat: stat,
-                        value: d.Power,
-                        duration: d.Duration
-                    );
-                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.RefreshDurationAndMerge);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            var stat = target.entityStats.DamageOutModifier_Increase;
+                            var mod = new StatModifier(
+                                name: "Focus",
+                                stat: stat,
+                                value: cardData.Power,
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                            );
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
+                        }
+                    )
                 }
             });
 
@@ -606,22 +823,32 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Demoralize enemies reduces damage by {Power} and their Armor by 10%.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyStatDebuff(d, Target, new StatModifier(
-                        name: "Growl Damage Reduction",
-                        stat: Target.entityStats.DamageOutModifier_Flat,
-                        value: d.Power,
-                        duration: d.Duration
-                    ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyStatDebuff(cardData, target, new StatModifier(
+                                name: "Growl Damage Reduction",
+                                stat: target.entityStats.DamageOutModifier_Flat,
+                                value: cardData.Power,
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                            ));
 
-                    CombatUtility.ApplyStatDebuff(d, Target, new StatModifier(
-                        name: "Growl Armour Reduction",
-                        stat: Target.entityStats.Armour_Increase,
-                        value: 10,
-                        condition: true,
-                        duration: d.Duration
-                    ), ModifierMergeStrategy.RefreshDurationAndMerge);
+                            CombatUtility.ApplyStatDebuff(cardData, target, new StatModifier(
+                                name: "Growl Armour Reduction",
+                                stat: target.entityStats.Armour_Increase,
+                                value: 10,
+                                condition: true,
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                            ));
+                        })
                 }
             });
 
@@ -645,21 +872,28 @@ namespace facingfate
                 {
                     CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Ally,
-                    cardTargetingMode = CardTargetingMode.Radius,
+                    cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage {Power}.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.ApplyStatBuff(d, Target,
-                        new StatModifier
-                        (
-                            name: "Damage",
-                            stat: Target.entityStats.DamageOutModifier_Flat,
-                            value: d.Power,
-                            duration: d.Duration
-                            ),
-                        ModifierMergeStrategy.RefreshDurationAndMerge);
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyStatBuff(cardData, target,
+                                new StatModifier(
+                                    name: "Damage",
+                                    stat: target.entityStats.DamageOutModifier_Flat,
+                                    value: cardData.Power,
+                                    duration: cardData.Duration,
+                                    modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                                ));
+                        })
                 }
             });
 
@@ -682,30 +916,39 @@ namespace facingfate
                     CardTargetAffiliation = CardTargetAffiliation.All,
                     cardTargetingMode = CardTargetingMode.All,
                 },
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    if (TargetingUtility.isEnemyOf(User, Target))
-                    {
-                        CombatUtility.ApplyStatDebuff(d, Target,
-                            new StatModifier
-                            (
-                                name: "Warcry Damage Reduction",
-                                stat: Target.entityStats.DamageOutModifier_Increase,
-                                value: -10,
-                                duration: 2
-                            ), ModifierMergeStrategy.RefreshDurationAndMerge);
-                    }
-                    else
-                    {
-                        CombatUtility.ApplyStatBuff(d, Target,
-                            new StatModifier
-                            (
-                                name: "Warcry Damage Taken Reduction",
-                                stat: Target.entityStats.DamageTakenModifier_Increase,
-                                value: -20,
-                                duration: 2
-                            ), ModifierMergeStrategy.Override);
-                    }
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.1f,
+                        action: (caster, target, cardData) =>
+                        {
+                            if (TargetingUtility.isEnemyOf(caster, target))
+                            {
+                                CombatUtility.ApplyStatDebuff(cardData, target,
+                                    new StatModifier(
+                                        name: "Warcry Damage Reduction",
+                                        stat: target.entityStats.DamageOutModifier_Increase,
+                                        value: -10,
+                                        duration: 2,
+                                        modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
+                                    ));
+                            }
+                            else
+                            {
+                                CombatUtility.ApplyStatBuff(cardData, target,
+                                    new StatModifier(
+                                        name: "Warcry Damage Taken Reduction",
+                                        stat: target.entityStats.DamageTakenModifier_Increase,
+                                        value: -20,
+                                        duration: 2,
+                                        modifierMergeStrategy: ModifierMergeStrategy.Override
+                                    ));
+                            }
+                        }
+                    )
                 }
             });
 
@@ -733,24 +976,34 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Increase your Armour until end of turn by {Power}.",
-                cardEffectAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    var stat = Target.entityStats.Armour_Increase;
-                    var mod = new StatModifier(
-                        name: "Guard_Up",
-                        stat: stat,
-                        value: d.Power,
-                        condition: true,
-                        duration: d.Duration
-                    );
-                    CombatUtility.ApplyStatBuff(d, Target, mod, ModifierMergeStrategy.Override);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            var stat = target.entityStats.Armour_Increase;
+                            var mod = new StatModifier(
+                                name: "Guard_Up",
+                                stat: stat,
+                                value: cardData.Power,
+                                condition: true,
+                                duration: cardData.Duration,
+                                modifierMergeStrategy: ModifierMergeStrategy.Override
+                            );
+                            CombatUtility.ApplyStatBuff(cardData, target, mod);
+                        }
+                    )
                 }
             });
         }
 
         private static void RegisterSpells()
         {
-            // 100301 – Fireball – ranged hit + Burn DoT
+            // 100301 – Summon Wolf – ground-targeted summoning
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Neutral_Spell_Summon_Wolf",
@@ -770,9 +1023,18 @@ namespace facingfate
                 },
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Summon a Wolf ally",
-                cardEffectGroundAction = (User, Target, d) =>
+                cardActionSequence = new()
                 {
-                    CombatUtility.SpawnEntity(d, Target, "Npc_Wolf_Summon", User.entityAffiliation, true);
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Ground,
+                        delayBefore: 0f,
+                        delayBetween: 0.2f,
+                        action: (caster, position, cardData) =>
+                        {
+                            CombatUtility.SpawnEntity(cardData, position, "Npc_Wolf_Summon", caster.entityAffiliation, true);
+                        }
+                    )
                 }
             });
         }

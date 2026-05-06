@@ -151,7 +151,7 @@ namespace facingfate
                 case CardTargetingMode.RingSelf:
                     parts.Add($"Ring Self, {cardData.Radius}m by {cardData.Area}m");
                     break;
-                case CardTargetingMode.Radius:
+                case CardTargetingMode.Sphere:
                     parts.Add($"Radius, {cardData.Radius}m");
                     break;
 

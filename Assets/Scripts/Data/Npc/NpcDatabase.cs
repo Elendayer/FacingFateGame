@@ -86,6 +86,8 @@ namespace facingfate
                 name = "Wolf",
                 aiBias = AiBiasDatabase.GetBiasById("Aggressive_Melee"),
 
+                CreatureType = CreatureType.Animal,
+
                 cardIds = new List<string>()
                 {
                     "Neutral_Tech_Bite",
@@ -240,8 +242,8 @@ namespace facingfate
                 "Mystic_Spell_Spectral_Barrier",
                 "Mystic_Spell_Spacial_Reversal",
                 "Mystic_Spell_Bloody_Hex",
-                "Mystic_Spell_Venom_Hex",
-                "Mystic_Spell_Crimson_Hex",
+                "Mystic_Spell_Toxic_Hex",
+                "Mystic_Spell_Blazing_Hex",
                 "Mystic_Spell_Mental_Chains",
                 "Mystic_Spell_Rainbow_Hex",
                 "Mystic_Spell_Pure_Flames",
@@ -512,8 +514,8 @@ namespace facingfate
                     "Mystic_Tech_Mind_Shock",
                     "Mystic_Tech_Mind_Shock",
                     "Mystic_Spell_Bloody_Hex",
-                    "Mystic_Spell_Venom_Hex",
-                    "Mystic_Spell_Crimson_Hex",
+                    "Mystic_Spell_Toxic_Hex",
+                    "Mystic_Spell_Blazing_Hex",
                     "Mystic_Spell_Sleepwalking",
                     "Mystic_Spell_Pure_Flames",
                 },
@@ -561,6 +563,21 @@ namespace facingfate
                 baseIntelligence = 6,
                 baseWisdom       = 6,
             });
+
+            RegisterNpc(new NpcData()
+            {
+                id = "Spectral_Barrier",
+                name = "Spectral Barrier",
+                aiBias = AiBiasDatabase.GetBiasById("Balanced"),
+
+
+                baseStrength = 0,
+                baseDexterity = 0,
+                baseTenacity = 20,
+                baseEndurance = 0,
+                baseIntelligence = 0,
+                baseWisdom = 0,
+            });
         }
     }
 
@@ -569,6 +586,8 @@ namespace facingfate
         public string id;
         public string name;
         public NpcAiBias aiBias = new();
+
+        public CreatureType CreatureType = CreatureType.Humanoid;
 
         public List<string> cardIds = new();
 

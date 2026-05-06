@@ -48,9 +48,13 @@ namespace facingfate
                     yield return new WaitForSeconds(repeatDelay);
                 }
 
-                ApplyCardEffect(source, cardData, targetingData);
-                // Trying to ensure all effects are applied before moving on to VFX
-                ApplyCardFX(source, cardData, targetingData);
+                // Use CardActionSequence if available, otherwise fall back to legacy actions
+                if (cardData.cardActionSequence != null && cardData.cardActionSequence.Count > 0)
+                {
+                    var sequence = new CardActionSequence(source, targetingData, cardData);
+                    sequence.actions = new List<CardAction>(cardData.cardActionSequence);
+                    yield return sequence.Execute();
+                }
 
                 yield return null; // wait a frame after applying effects
             }
@@ -81,43 +85,6 @@ namespace facingfate
             // 7 Signal that this action is complete
             onComplete?.Invoke();
         }
-
-        private static void ApplyCardEffect(
-            EntityScript source,
-            CardData cardData,
-            TargetingModeData targetingData)
-        {
-            foreach (Vector3 tile in targetingData.targetedPositions)
-            {
-                cardData.cardEffectGroundAction?.Invoke(source, tile, cardData);
-            }
-            foreach (EntityScript target in targetingData.targetedEntities)
-            {
-                cardData.cardEffectAction?.Invoke(source, target, cardData);
-            }
-        }
-        private static void ApplyCardFX(
-            EntityScript source,
-            CardData cardData,
-            TargetingModeData targetingData,
-            bool atEach = false)
-        {            
-            if (atEach)
-            {
-                foreach (EntityScript target in targetingData.targetedEntities)
-                {
-                    cardData.cardVfx?.Invoke(cardData, new TargetingModeData
-                    {
-                        targetedEntities = new List<EntityScript> { target },
-                        targetedPositions = new List<Vector3>(),
-                        castingPosition = source.transform.position,
-                    });
-                }
-            }
-            else
-                cardData.cardVfx?.Invoke(cardData, targetingData);
-        }
-
         private static IEnumerator MoveCoroutine(
             EntityOnMap entityOnMap,
             NavMeshPathData pathData,
@@ -223,6 +190,45 @@ namespace facingfate
         {
             EntityScript entitySource = source as EntityScript;
             TimelineManager.GlobalActionQueue.EnqueuePriority(() => ActionCoroutine(action, onComplete), 0f, entitySource);
+        }
+
+        /// <summary>
+        /// Enqueue a CardActionSequence directly to the global action queue.
+        /// </summary>
+        public static void EnqueueCardActionSequence(
+            EntityScript source,
+            CardActionSequence sequence,
+            float delay = 0f,
+            Action onComplete = null)
+        {
+            TimelineManager.GlobalActionQueue.Enqueue(
+                () => CardActionSequenceCoroutine(sequence, onComplete),
+                delay,
+                source
+            );
+        }
+
+        private static IEnumerator CardActionSequenceCoroutine(
+            CardActionSequence sequence,
+            Action onComplete)
+        {
+            yield return sequence.Execute(onComplete);
+        }
+
+        /// <summary>
+        /// Enqueue a CardActionSequence with priority.
+        /// </summary>
+        public static void EnqueuePriorityCardActionSequence(
+            EntityScript source,
+            CardActionSequence sequence,
+            float delay = 0f,
+            Action onComplete = null)
+        {
+            TimelineManager.GlobalActionQueue.EnqueuePriority(
+                () => CardActionSequenceCoroutine(sequence, onComplete),
+                delay,
+                source
+            );
         }
     }
 }

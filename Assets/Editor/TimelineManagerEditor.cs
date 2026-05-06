@@ -70,12 +70,12 @@ namespace facingfate
                             bgColor = Color.cyan;
                         }
                         // Green if all allies affected
-                        else if (affected.All(e => e.entityAffiliation == triggerRef.UserEntity.entityAffiliation))
+                        else if (affected.All(e => e != null && e.entityAffiliation == triggerRef.UserEntity.entityAffiliation))
                         {
                             bgColor = Color.green;
                         }
                         // Red if all enemies affected
-                        else if (affected.All(e => e.entityAffiliation != triggerRef.UserEntity.entityAffiliation))
+                        else if (affected.All(e => e != null && e.entityAffiliation != triggerRef.UserEntity.entityAffiliation))
                         {
                             bgColor = Color.red;
                         }

@@ -122,38 +122,35 @@ namespace facingfate
             }
         }
 
-        public void CreateVFXAttachedToGameObjects(VFXData vfxData, List<GameObject> hosts)
+        public void CreateVFXAttachedToGameObject(VFXData vfxData, GameObject host)
         {
-            foreach (GameObject host in hosts)
+
+            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
+
+            if (vfx.obj == null || vfx.effect == null)
             {
-                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
-
-                if (vfx.obj == null || vfx.effect == null)
-                {
-                    Debug.LogError("Failed to create VFX.");
-                    return;
-                }
-
-                vfx.obj.transform.SetParent(host.transform);
-                vfx.obj.transform.localPosition = Vector3.zero;
+                Debug.LogError("Failed to create VFX.");
+                return;
             }
+
+            vfx.obj.transform.SetParent(host.transform);
+            vfx.obj.transform.localPosition = Vector3.zero;
         }
-        public void CreateVFXAttachedToGameObjects(VFXData vfxData, List<EntityScript> hosts)
+        public void CreateVFXAttachedToGameObjects(VFXData vfxData, EntityScript host)
         {
-            foreach (EntityScript host in hosts)
+
+            (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
+
+            if (vfx.obj == null || vfx.effect == null)
             {
-                (GameObject obj, VisualEffect effect) vfx = CreateVFX(vfxData.vfxName, vfxData);
-
-                if (vfx.obj == null || vfx.effect == null)
-                {
-                    Debug.LogError("Failed to create VFX.");
-                    return;
-                }
-
-                vfx.obj.transform.SetParent(host.transform);
-                vfx.obj.transform.localPosition = Vector3.zero;
+                Debug.LogError("Failed to create VFX.");
+                return;
             }
+
+            vfx.obj.transform.SetParent(host.transform);
+            vfx.obj.transform.localPosition = Vector3.zero;
         }
+        
 
         public void CreateVFXAttachedToEntityMesh(VFXData vfxData, GameObject host)
         {
@@ -167,9 +164,9 @@ namespace facingfate
 
             EntityScript entityScript = host.GetComponent<EntityScript>();
 
-            if (entityScript.EntityModel != null)
+            if (entityScript.EntityVisual != null)
             {
-                if (entityScript.EntityModel.mesh == null)
+                if (entityScript.EntityVisual.meshFilter.mesh == null)
                 {
                     Debug.LogWarning("Entity model mesh is not assigned.");
                     return;
@@ -189,14 +186,14 @@ namespace facingfate
             vfx.obj.transform.SetParent(host.transform);
             vfx.obj.transform.localPosition = Vector3.zero;
 
-            if (host.EntityModel != null)
+            if (host.EntityVisual != null)
             {
-                if (host.EntityModel.mesh == null)
+                if (host.EntityVisual.meshFilter.mesh == null)
                 {
                     Debug.LogWarning("Entity model mesh is not assigned.");
                     return;
                 }
-                Mesh entityMesh = host.EntityModel.mesh;
+                Mesh entityMesh = host.EntityVisual.meshFilter.mesh;
             }
         }
         public (GameObject, VisualEffect) CreateVFX(string name, VFXData vfxData)

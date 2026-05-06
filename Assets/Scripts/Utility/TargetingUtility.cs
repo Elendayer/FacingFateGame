@@ -127,6 +127,7 @@ public static class TargetingUtility
     public static List<EntityScript> GetEntitiesInPhysicsRing(Vector3 worldPos, float innerRadius, float outerRadius, CardData cardData = null)
     {
         Collider[] colliders = Physics.OverlapSphere(worldPos, outerRadius);
+
         List<EntityScript> results = new();
 
         foreach (var collider in colliders)
@@ -136,56 +137,58 @@ public static class TargetingUtility
 
             float dist = Vector3.Distance(worldPos, entity.transform.position);
 
+            Debug.Log($"Entity {entity.name} at distance {dist:F2} from center. InnerRadius: {innerRadius}, OuterRadius: {outerRadius}");
+
             // Include targets within the ring (between inner and outer radius)
             if (dist < innerRadius || dist > outerRadius)
                 continue;
 
+
             if (cardData != null && !IsTargetValid(cardData, entity))
                 continue;
+
+            Debug.Log ("Valid target in ring!");
 
             results.Add(entity);
         }
-        return results;
+        
+        Debug.Log (results.Count);
+            return results;
     }
 
     /// <summary>
-    /// Gets entities within a physics cone (uses raycasts from apex).
+    /// Gets entities within a physics cone by casting a flat fan of rays in the XZ plane.
+    /// Ray count scales with range to keep consistent angular density.
     /// </summary>
     public static List<EntityScript> GetEntitiesInPhysicsCone(Vector3 origin, Vector3 direction, float range, float coneAngle, CardData cardData = null)
     {
-        List<EntityScript> results = new();
-        var allEntities = AllEntitiesCache();
+        // Flatten to XZ plane — targets sit at ground level (y = 0)
+        direction = new Vector3(direction.x, 0f, direction.z).normalized;
+        if (direction == Vector3.zero) direction = Vector3.forward;
 
-        foreach (var entity in allEntities)
+        // Scale ray count with range: ~4 rays per unit, clamped 8–64
+        int rayCount = Mathf.Clamp(Mathf.RoundToInt(range * 4f), 8, 64);
+
+        HashSet<EntityScript> hitSet = new();
+        int layerMask = ~0;
+
+        for (int i = 0; i <= rayCount; i++)
         {
-            if (entity == null || !entity.enabled)
-                continue;
+            float t = (float)i / rayCount;
+            float angle = Mathf.Lerp(-coneAngle, coneAngle, t);
+            Vector3 rayDir = Quaternion.AngleAxis(angle, Vector3.up) * direction;
 
-            if (cardData != null && !IsTargetValid(cardData, entity))
-                continue;
-
-            var entityPos = entity.GetComponent<EntityOnMap>();
-            if (entityPos == null)
-                continue;
-
-            Vector3 toEntity = entityPos.transform.position - origin;
-            float distance = toEntity.magnitude;
-
-            if (distance > range)
-                continue;
-
-            float angle = Vector3.Angle(direction, toEntity);
-            if (angle <= coneAngle * 0.5f)
+            var hits = Physics.RaycastAll(origin, rayDir, range, layerMask);
+            foreach (var hit in hits)
             {
-                // Check line of sight with physics raycast
-                if (HasPhysicsLineOfSight(origin, entityPos.transform.position))
-                {
-                    results.Add(entity);
-                }
+                var entity = hit.collider.GetComponentInParent<EntityScript>();
+                if (entity == null || !entity.enabled) continue;
+                if (cardData != null && !IsTargetValid(cardData, entity)) continue;
+                hitSet.Add(entity);
             }
         }
 
-        return results;
+        return new List<EntityScript>(hitSet);
     }
 
     /// <summary>
@@ -286,6 +289,7 @@ public static class TargetingUtility
 
         // Store caster position for visualization (will be updated for specific modes below)
         targetingModeData.castingPosition = castWorldPos;
+        targetingModeData.aimPosition = aimWorldPos;
 
         switch (cardData.targetingData.cardTargetingMode)
         {
@@ -297,6 +301,24 @@ public static class TargetingUtility
                         {
                             entities.AddRange(GetEntitiesInPhysicsSphere(pos, 0.1f, cardData));
                         }
+                    }
+                }
+                break;
+        
+                case CardTargetingMode.SelectionUnique:
+                {
+                    if (selectedPositions != null)
+                    {
+                        HashSet<EntityScript> uniqueEntities = new();
+                        foreach (var pos in selectedPositions)
+                        {
+                            var entitiesAtPos = GetEntitiesInPhysicsSphere(pos, 0.1f, cardData);
+                            foreach (var entity in entitiesAtPos)
+                            {
+                                uniqueEntities.Add(entity);
+                            }
+                        }
+                        entities = uniqueEntities.ToList();
                     }
                 }
                 break;
@@ -323,16 +345,16 @@ public static class TargetingUtility
                 break;
             case CardTargetingMode.Ring:
                 {
-                    entities = GetEntitiesInPhysicsRing(aimWorldPos, cardData.Radius, cardData.Area, cardData);
+                    entities = GetEntitiesInPhysicsRing(aimWorldPos, cardData.Radius, cardData.Radius + cardData.Area, cardData);
                 }
                 break;
             case CardTargetingMode.RingSelf:
                 {
                     // Ring centered at the caster's position, not the aim position
-                    entities = GetEntitiesInPhysicsRing(castWorldPos, cardData.Radius, cardData.Area, cardData);
+                    entities = GetEntitiesInPhysicsRing(castWorldPos, cardData.Radius, cardData.Radius + cardData.Area, cardData);
                 }
                 break;
-            case CardTargetingMode.Radius:
+            case CardTargetingMode.Sphere:
                 {
                     entities = GetEntitiesInPhysicsSphere(aimWorldPos, cardData.Radius, cardData);
                 }
