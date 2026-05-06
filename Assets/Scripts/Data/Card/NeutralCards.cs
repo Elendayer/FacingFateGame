@@ -56,6 +56,15 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
+                // Audio — Wwise event + switches. Values must match Wwise Switch names exactly.
+                playSfxEvent = "Play_CardEffect",
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",  value = "Attack"   },
+                    new WwiseSwitchEntry { group = "WeaponType",  value = "Fist"     },
+                    new WwiseSwitchEntry { group = "ElementType", value = "Physical" },
+                },
+
                 cost_u = 10,
 
                 damageFunc = card =>

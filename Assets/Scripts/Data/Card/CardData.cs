@@ -14,7 +14,16 @@ namespace facingfate
         public EntityScript Owner = null;
 
         [Header("Audio")]
-        public string playSfxEvent; // Optional, empty = silent. Wwise event name, e.g. "Play_Card_Fireball"
+        // Wwise event to post when this card's effect fires. Leave empty = silent.
+        // Example: "Play_CardEffect"
+        public string playSfxEvent;
+
+        // Wwise switches to set before posting playSfxEvent.
+        // Each entry: group = Switch Group name in Wwise, value = Switch name in Wwise.
+        // Example: new WwiseSwitchEntry { group = "CardSoundIdentity",   value = "Physical" }
+        //          new WwiseSwitchEntry { group = "CardSoundDamageType", value = "Melee"    }
+        // Leave list empty to post without any switch changes.
+        public List<WwiseSwitchEntry> soundSwitches = new();
 
         [Header("Visuals")]
         public Sprite cardArtwork;
@@ -426,7 +435,8 @@ namespace facingfate
                 Owner = Owner,
                 cardArtwork = cardArtwork,
                 cardDescription = cardDescription,
-                playSfxEvent = playSfxEvent,
+                playSfxEvent  = playSfxEvent,
+                soundSwitches = soundSwitches != null ? new List<WwiseSwitchEntry>(soundSwitches) : new(),
 
                 // Typisierung
                 cardType = cardType,
@@ -786,6 +796,13 @@ namespace facingfate
         Mechanical,
     }
     // If Updated needs to update GameplayReference as well
+    [System.Serializable]
+    public struct WwiseSwitchEntry
+    {
+        public string group; // Switch Group name in Wwise, e.g. "CardSoundIdentity"
+        public string value; // Switch name in Wwise,       e.g. "Physical"
+    }
+
     public enum CardClass
     {
         Spearman,
