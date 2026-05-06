@@ -21,7 +21,7 @@
 						<Event Name="Play_heal" ID="{7D6470C7-DD4B-4BB7-A36F-0C247273BE62}"/>
 					</ChildrenList>
 				</Folder>
-				<Folder Name="SFX_Evenst_UI" ID="{D727BA6D-A0AE-436B-B40D-BECEB5818A88}" ShortID="208067816">
+				<Folder Name="SFX_UI_Basic" ID="{D727BA6D-A0AE-436B-B40D-BECEB5818A88}" ShortID="208067816">
 					<ChildrenList>
 						<Event Name="Play_SFX_UI_pause_menu_open" ID="{94BD96F1-20C0-4358-AB0D-0E0F3601B928}">
 							<ChildrenList>
@@ -183,31 +183,30 @@
 				</Folder>
 				<Folder Name="SFX_Events_Cards" ID="{F9478746-5496-4891-A8ED-103E3CEAD490}" ShortID="482077994">
 					<ChildrenList>
-						<Event Name="Play_Card_Weapon" ID="{5386A28E-E31B-431C-BFE7-F7A71C9FF49E}">
+						<Event Name="Play_Tick_dmg" ID="{8BD7D851-EB45-4F1E-B9E3-06A42D3EC215}"/>
+						<Event Name="Play_Card_SFX" ID="{33CFFC87-A926-48A4-8241-1238BA0ADC44}">
 							<ChildrenList>
-								<Action Name="" ID="{C5B4C358-7FC7-4EE4-994F-EB23A270F732}" ShortID="325431545">
-									<ReferenceList>
-										<Reference Name="Target">
-											<ObjectRef Name="02_Weapon CardType" ID="{0B7DBABD-4331-4CEF-9287-97B4402AE01F}" WorkUnitID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}"/>
-										</Reference>
-									</ReferenceList>
-								</Action>
-							</ChildrenList>
-						</Event>
-						<Event Name="Play_Card_Main" ID="{D9ED63CC-1686-49F5-9990-419F7A1846D7}">
-							<ChildrenList>
-								<Action Name="" ID="{64CC4C91-D9B2-4F49-9D4C-3CDBBC29577C}" ShortID="232478718">
+								<Action Name="" ID="{659B0862-3ED7-4FB3-A462-1F92E6A21FDB}" ShortID="43768913">
 									<ReferenceList>
 										<Reference Name="Target">
 											<ObjectRef Name="01_Main Card Action" ID="{E34ACF5C-17BA-45E1-AA45-FD1552F11F1F}" WorkUnitID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}"/>
 										</Reference>
 									</ReferenceList>
 								</Action>
-							</ChildrenList>
-						</Event>
-						<Event Name="Play_Card_Element" ID="{FA86ADC6-A1DD-4347-9FD7-20B1FA20BD74}">
-							<ChildrenList>
-								<Action Name="" ID="{DE7D85D3-1D7E-4179-9337-4BCC2C116350}" ShortID="549958828">
+								<Action Name="" ID="{D78D96BA-6194-4C2C-8454-BB4AEA8E01DF}" ShortID="942848698">
+									<PropertyList>
+										<Property Name="Delay" Type="Real64" Value="0.1"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="02_Weapon CardType" ID="{0B7DBABD-4331-4CEF-9287-97B4402AE01F}" WorkUnitID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+								<Action Name="" ID="{F6DBF05E-089A-47DE-8329-BC8EB1B17D55}" ShortID="409066816">
+									<PropertyList>
+										<Property Name="Delay" Type="Real64" Value="0.2"/>
+									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Target">
 											<ObjectRef Name="03_Element CardType" ID="{FC940526-24DD-4B36-AC13-D55648C3617F}" WorkUnitID="{3C1DC7AE-E853-4B63-8199-778D0E44C6B6}"/>
@@ -216,7 +215,21 @@
 								</Action>
 							</ChildrenList>
 						</Event>
-						<Event Name="Play_Tick_dmg" ID="{8BD7D851-EB45-4F1E-B9E3-06A42D3EC215}"/>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="SFX_UI_Cards" ID="{4DC18B73-2EF3-482A-A359-A720E5D5E5BA}" ShortID="533820741">
+					<ChildrenList>
+						<Event Name="Play_Shuffle_Cards" ID="{56C27600-7DE1-46B8-AD7F-B0C62F76E232}">
+							<ChildrenList>
+								<Action Name="" ID="{8F2F2E3D-BB76-4E1B-9EB1-23DB9DF38EBB}" ShortID="632061928">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="ShuffelCards" ID="{3634B998-A7CC-45AB-A866-5C0F6CF8C7B0}" WorkUnitID="{EABB8CD1-D178-433C-A4BA-C47FE45CFE00}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 					</ChildrenList>
 				</Folder>
 			</ChildrenList>

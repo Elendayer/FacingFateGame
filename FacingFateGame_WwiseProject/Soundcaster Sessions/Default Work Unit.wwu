@@ -3,18 +3,7 @@
 	<SoundcasterSessions>
 		<WorkUnit Name="Default Work Unit" ID="{A8162011-0F1E-4B7C-8CF5-8641D486D3EE}" PersistMode="Standalone">
 			<ChildrenList>
-				<SoundcasterSession Name="New Soundcaster Session" ID="{D976C34A-837A-4F1C-BBA8-2E1FA046186F}">
-					<ModuleList>
-						<Module>
-							<ObjectRef Name="Play_Card_Main" ID="{D9ED63CC-1686-49F5-9990-419F7A1846D7}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}"/>
-							<Position X="0" Y="0"/>
-						</Module>
-						<Module>
-							<ObjectRef Name="Play_Card_Weapon" ID="{5386A28E-E31B-431C-BFE7-F7A71C9FF49E}" WorkUnitID="{DE5F0DE4-CDF2-4505-ADEE-522C08FF2C05}"/>
-							<Position X="1" Y="0"/>
-						</Module>
-					</ModuleList>
-				</SoundcasterSession>
+				<SoundcasterSession Name="New Soundcaster Session" ID="{D976C34A-837A-4F1C-BBA8-2E1FA046186F}"/>
 				<SoundcasterSession Name="New Soundcaster Session_01" ID="{D196F566-C65D-4B16-9F77-8FA8759C9A73}"/>
 			</ChildrenList>
 		</WorkUnit>
