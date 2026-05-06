@@ -80,10 +80,7 @@ namespace facingfate
                         WwiseAudioHelper.PlayGlobal(discardCardSfx, gameObject);
                         break;
                     case GameplayRef.onCardPlayed:
-                        // Emitter = caster GO so switches are per-entity, not shared
-                        CardSoundHelper.PlayCardEffect(
-                            refData.CardData,
-                            refData.UserEntity?.gameObject ?? gameObject);
+                        // Card SFX plays in ApplyDamage instead
                         break;
                 }
             }

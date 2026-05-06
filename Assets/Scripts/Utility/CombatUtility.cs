@@ -78,7 +78,10 @@ public static class CombatUtility
 
         if (cardData != null)
         {
-            // 5) Lifesteal
+            // 5) Card SFX — plays on hit so sound lands with the impact
+            CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
+
+            // 6) Lifesteal
             if (damage > 0 && cardData.Owner.entityStats.Lifesteal.Value() > 0)
             {
                 refs.Add(GameplayRef.onLifesteal);

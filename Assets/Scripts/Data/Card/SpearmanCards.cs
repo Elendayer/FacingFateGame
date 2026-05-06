@@ -620,8 +620,8 @@ namespace facingfate
                                 owner: target,
                                 baseValue: cardData.Damage,
                                 toTriggerRefs: new(),
-                                duration: cardData.Duration,
-                                charges: cardData.Charges,
+                                duration: 99999,
+                                charges: 1,
                                 modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
@@ -631,7 +631,9 @@ namespace facingfate
                                 },
                                 onRef_Action: (targetEntity, cd, value) =>
                                 {
-                                    Debug.Log($"Spearman Iron Wall Reversal counter triggered for {value} damage.");
+                                    Debug.Log($"[IronWall] Action running. cd={cd}, cd.Owner={cd?.Owner}, value={value}, targetEntity={targetEntity}");
+                                    if (cd?.Owner == null) { Debug.LogWarning("[IronWall] cd or Owner is null — returning."); return; }
+                                    Debug.Log($"[IronWall] Applying {value} damage to {cd.Owner.name}");
                                     CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved, new VFXData("Impact"));
                                 }
                             );
@@ -804,6 +806,8 @@ namespace facingfate
 
                 cost_u = 12,
                 damage_u = 30,
+                duration_u = 2,
+                charges_u = 1,
 
                 targetingData = new()
                 {
@@ -830,18 +834,22 @@ namespace facingfate
                                 modifierName: "SpearmanSkyRendingReversalCounter",
                                 owner: target,
                                 baseValue: cardData.Damage,
-                                toTriggerRefs: new() { },
-                                duration: cardData.Duration,
-                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                toTriggerRefs: new() { GameplayRef.onCounterRecieved },
+                                duration: 99999,
+                                charges: 1,
+                                modifierMergeStrategy: ModifierMergeStrategy.Override,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
-                                    OnTriggerReference = new() { GameplayRef.onDamageRecieved },
+                                    OnTriggerReference = new() { GameplayRef.onHitLanded },
                                     CheckType = CheckEntityType.Target,
                                     CheckEntity = caster,
                                 },
                                 onRef_Action: (targetEntity, cd, value) =>
                                 {
-                                    CombatUtility.ApplyDamage(null, targetEntity, new VFXData("SlashImpact"), value);
+                                    Debug.Log($"[SkyRending] Action running. cd={cd}, cd.Owner={cd?.Owner}, value={value}, targetEntity={targetEntity}");
+                                    if (cd?.Owner == null) { Debug.LogWarning("[SkyRending] cd or Owner is null — returning."); return; }
+                                    Debug.Log($"[SkyRending] Applying {value} damage to {cd.Owner.name}");
+                                    CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved, new VFXData("SlashImpact"));
                                 }
                             );
                             CombatUtility.ApplyEntityModifier(cardData, target, mod);
