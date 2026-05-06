@@ -197,7 +197,7 @@ namespace facingfate
             if (muteToggle != null) muteToggle.SetIsOnWithoutNotify(_dataManager.IsMuted);
 
             if (fullscreenToggle != null)
-                fullscreenToggle.SetIsOnWithoutNotify(_dataManager.FullscreenMode == FullScreenMode.ExclusiveFullScreen);
+                fullscreenToggle.SetIsOnWithoutNotify(_dataManager.FullscreenMode != FullScreenMode.Windowed);
 
             if (resolutionDropdown != null)
                 resolutionDropdown.SetValueWithoutNotify(_dataManager.ResolutionIndex);

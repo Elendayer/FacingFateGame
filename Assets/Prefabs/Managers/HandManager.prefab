@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9045629467444487883}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -1000, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -46,11 +46,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handAnchor: {fileID: 0}
   cardPrefab: {fileID: 6460608915492105488, guid: 2202288eaec2efc47953e567cc136fa3, type: 3}
-  cardSpacing: 12
+  cardSpacing: 2
   cardFanAngle: 4
   hoverOffsetY: 30
   selectedOffsetY: 60
-  fanRadius: -2800
+  fanRadius: -2000
   handHoverRadius: 300
   animDuration: 0.2
   maxHandsize: 8

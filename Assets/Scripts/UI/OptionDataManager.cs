@@ -19,7 +19,7 @@ namespace facingfate
         [SerializeField, Range(0f, 1f)] private float dialogueSlider01 = 0.8f;
         [SerializeField, Range(0f, 1f)] private float atmoSlider01 = 0.8f;
         [SerializeField] private bool isMuted = false;
-        [SerializeField] private FullScreenMode fullscreenMode = FullScreenMode.ExclusiveFullScreen;
+        [SerializeField] private FullScreenMode fullscreenMode = FullScreenMode.FullScreenWindow;
         [SerializeField] private int resolutionIndex;
         [SerializeField] private int windowWidth = 1920;
         [SerializeField] private int windowHeight = 1080;
@@ -47,6 +47,8 @@ namespace facingfate
         private const string PREF_WINDOW_WIDTH = "opt_window_width";
         private const string PREF_WINDOW_HEIGHT = "opt_window_height";
         private const string PREF_LANGUAGE = "opt_language_code";
+        private const string PREF_SETTINGS_VERSION = "opt_settings_version";
+        private const int SETTINGS_VERSION = 4;
 
         public float Master01 => masterSlider01;
         public float Music01 => musicSlider01;
@@ -136,7 +138,7 @@ namespace facingfate
 
         public void SetFullscreen(bool fullscreen)
         {
-            fullscreenMode = fullscreen ? FullScreenMode.ExclusiveFullScreen : FullScreenMode.Windowed;
+            fullscreenMode = fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
             PlayerPrefs.SetInt(PREF_FULLSCREEN_MODE, (int)fullscreenMode);
             PlayerPrefs.Save();
 
@@ -176,7 +178,7 @@ namespace facingfate
             PlayerPrefs.Save();
 
             var r = res[resolutionIndex];
-            Screen.SetResolution(r.width, r.height, Screen.fullScreen);
+            Screen.SetResolution(r.width, r.height, fullscreenMode);
         }
 
         public void SetLanguage(string localeCode)
@@ -198,14 +200,11 @@ namespace facingfate
         private void ApplyDisplaySettings()
         {
             if (fullscreenMode == FullScreenMode.Windowed)
-            {
-                Screen.SetResolution(windowWidth, windowHeight, fullscreenMode);
-            }
+                Screen.SetResolution(windowWidth, windowHeight, FullScreenMode.Windowed);
             else
-            {
-                SetResolution(resolutionIndex);
-                Screen.fullScreenMode = fullscreenMode;
-            }
+                Screen.SetResolution(Screen.resolutions[Mathf.Clamp(resolutionIndex, 0, Screen.resolutions.Length - 1)].width,
+                    Screen.resolutions[Mathf.Clamp(resolutionIndex, 0, Screen.resolutions.Length - 1)].height,
+                    fullscreenMode);
         }
 
         private void ApplyLanguageSetting()
@@ -241,17 +240,36 @@ namespace facingfate
 
         private void LoadFromPrefs()
         {
+            bool resetDisplay = PlayerPrefs.GetInt(PREF_SETTINGS_VERSION, 0) < SETTINGS_VERSION;
+
             masterSlider01 = PlayerPrefs.GetFloat(PREF_MASTER, masterSlider01);
             musicSlider01 = PlayerPrefs.GetFloat(PREF_MUSIC, musicSlider01);
             sfxSlider01 = PlayerPrefs.GetFloat(PREF_SFX, sfxSlider01);
             atmoSlider01 = PlayerPrefs.GetFloat(PREF_ATMO, atmoSlider01);
             dialogueSlider01 = PlayerPrefs.GetFloat(PREF_DIALOGUE, dialogueSlider01);
             isMuted = PlayerPrefs.GetInt(PREF_MUTED, isMuted ? 1 : 0) == 1;
-            fullscreenMode = (FullScreenMode)PlayerPrefs.GetInt(PREF_FULLSCREEN_MODE, (int)FullScreenMode.ExclusiveFullScreen);
-            resolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION, FindClosestResolutionIndex());
-            windowWidth = PlayerPrefs.GetInt(PREF_WINDOW_WIDTH, 1920);
-            windowHeight = PlayerPrefs.GetInt(PREF_WINDOW_HEIGHT, 1080);
             selectedLanguageCode = PlayerPrefs.GetString(PREF_LANGUAGE, selectedLanguageCode);
+
+            if (resetDisplay)
+            {
+                fullscreenMode = FullScreenMode.FullScreenWindow;
+                resolutionIndex = FindClosestResolutionIndex();
+                windowWidth = 1920;
+                windowHeight = 1080;
+                PlayerPrefs.SetInt(PREF_FULLSCREEN_MODE, (int)fullscreenMode);
+                PlayerPrefs.SetInt(PREF_RESOLUTION, resolutionIndex);
+                PlayerPrefs.SetInt(PREF_WINDOW_WIDTH, windowWidth);
+                PlayerPrefs.SetInt(PREF_WINDOW_HEIGHT, windowHeight);
+                PlayerPrefs.SetInt(PREF_SETTINGS_VERSION, SETTINGS_VERSION);
+                PlayerPrefs.Save();
+            }
+            else
+            {
+                fullscreenMode = (FullScreenMode)PlayerPrefs.GetInt(PREF_FULLSCREEN_MODE, (int)FullScreenMode.FullScreenWindow);
+                resolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION, FindClosestResolutionIndex());
+                windowWidth = PlayerPrefs.GetInt(PREF_WINDOW_WIDTH, 1920);
+                windowHeight = PlayerPrefs.GetInt(PREF_WINDOW_HEIGHT, 1080);
+            }
 
             masterSlider01 = Mathf.Clamp01(masterSlider01);
             musicSlider01 = Mathf.Clamp01(musicSlider01);
