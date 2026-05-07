@@ -12,13 +12,13 @@ namespace facingfate
         {
             _bankIds = new uint[bankNames.Length];
             for (int i = 0; i < bankNames.Length; i++)
-                AkSoundEngine.LoadBank(bankNames[i], out _bankIds[i]);
+                AkUnitySoundEngine.LoadBank(bankNames[i], out _bankIds[i]);
         }
 
         private void OnDestroy()
         {
             for (int i = 0; i < _bankIds.Length; i++)
-                AkSoundEngine.UnloadBank(_bankIds[i], System.IntPtr.Zero);
+                AkUnitySoundEngine.UnloadBank(_bankIds[i], System.IntPtr.Zero);
         }
     }
 }

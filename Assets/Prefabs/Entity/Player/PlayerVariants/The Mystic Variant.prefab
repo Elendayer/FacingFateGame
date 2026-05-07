@@ -25,8 +25,12 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: playerClass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 26
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
@@ -74,11 +78,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[11]'
-      value: Mystic_Spell_Spectral_Barrier
+      value: Mystic_Tech_Mind_Shock
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[12]'
-      value: Mystic_Spell_Spectral_Barrier
+      value: Mystic_Tech_Mind_Shock
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[13]'
@@ -90,35 +94,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[15]'
-      value: Mystic_Tech_Mind_Shock
-      objectReference: {fileID: 0}
-    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[16]'
-      value: Mystic_Tech_Mind_Shock
-      objectReference: {fileID: 0}
-    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[17]'
       value: Mystic_Spell_Spacial_Reversal
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[18]'
+      propertyPath: 'deckCardIDs.Array.data[16]'
       value: Mystic_Spell_Bloody_Hex
+      objectReference: {fileID: 0}
+    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: 'deckCardIDs.Array.data[17]'
+      value: Mystic_Spell_Bloody_Hex
+      objectReference: {fileID: 0}
+    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: 'deckCardIDs.Array.data[18]'
+      value: Mystic_Spell_Toxic_Hex
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[19]'
-      value: Mystic_Spell_Bloody_Hex
+      value: Mystic_Spell_Toxic_Hex
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[20]'
-      value: Mystic_Spell_Toxic_Hex
+      value: Mystic_Spell_Blazing_Hex
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[21]'
-      value: Mystic_Spell_Toxic_Hex
+      value: Mystic_Spell_Blazing_Hex
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[22]'
-      value: Mystic_Spell_Blazing_Hex
+      value: Mystic_Spell_Sleepwalking
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[23]'

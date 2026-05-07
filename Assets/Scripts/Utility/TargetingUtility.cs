@@ -7,6 +7,13 @@ using UnityEngine.AI;
 
 public static class TargetingUtility
 {
+    // Set to false in Release builds to eliminate debug log overhead
+    #if UNITY_EDITOR
+    private const bool ENABLE_TARGETING_LOGGING = false;
+    #else
+    private const bool ENABLE_TARGETING_LOGGING = false;
+    #endif
+
     #region Entity Validation
     public static List<EntityScript> GetValidTargets(CardData card, EntityScript overrideOwner = null)
     {
@@ -135,7 +142,9 @@ public static class TargetingUtility
 
             float dist = Vector3.Distance(worldPos, entity.transform.position);
 
-            Debug.Log($"Entity {entity.name} at distance {dist:F2} from center. InnerRadius: {innerRadius}, OuterRadius: {outerRadius}");
+            #if UNITY_EDITOR
+            if (ENABLE_TARGETING_LOGGING) Debug.Log($"Entity {entity.name} at distance {dist:F2} from center. InnerRadius: {innerRadius}, OuterRadius: {outerRadius}");
+            #endif
 
             // Include targets within the ring (between inner and outer radius)
             if (dist < innerRadius || dist > outerRadius)
@@ -145,12 +154,16 @@ public static class TargetingUtility
             if (cardData != null && !IsTargetValid(cardData, entity))
                 continue;
 
-            Debug.Log ("Valid target in ring!");
+            #if UNITY_EDITOR
+            if (ENABLE_TARGETING_LOGGING) Debug.Log("Valid target in ring!");
+            #endif
 
             results.Add(entity);
         }
-        
-        Debug.Log (results.Count);
+
+        #if UNITY_EDITOR
+        if (ENABLE_TARGETING_LOGGING) Debug.Log(results.Count);
+        #endif
             return results;
     }
 
@@ -398,7 +411,7 @@ public static class TargetingUtility
         }
 
         // Visualize the targeting effect
-        DebugVisualization.DrawTargetingData(targetingModeData, cardData.targetingData.cardTargetingMode, cardData, Color.cyan);
+        //DebugVisualization.DrawTargetingData(targetingModeData, cardData.targetingData.cardTargetingMode, cardData, Color.cyan);
 
         return targetingModeData;
     }
@@ -464,14 +477,16 @@ public static class TargetingUtility
     {
         float currentDist = Vector3.Distance(ownerPos, targetPos);
 
-        // [FindPathIntoRange] Debug: Entry
-        Debug.Log($"[FindPathIntoRange] FindRangeAwarePositionForTarget called - OwnerPos: {ownerPos}, TargetPos: {targetPos}, CardRange: {cardRange}, CurrentDist: {currentDist:F2}");
+        #if UNITY_EDITOR
+        if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] FindRangeAwarePositionForTarget called - OwnerPos: {ownerPos}, TargetPos: {targetPos}, CardRange: {cardRange}, CurrentDist: {currentDist:F2}");
+        #endif
 
         // Already in range, return the target position
         if (currentDist <= cardRange)
         {
-            // [FindPathIntoRange] Debug: Already in range
-            Debug.Log($"[FindPathIntoRange] Target already in range! Current distance {currentDist:F2} <= card range {cardRange}");
+            #if UNITY_EDITOR
+            if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] Target already in range! Current distance {currentDist:F2} <= card range {cardRange}");
+            #endif
             return targetPos;
         }
 
@@ -488,7 +503,7 @@ public static class TargetingUtility
         Vector3 referencePoint = targetPos - (directionToTarget * cardRange);
 
         // [FindPathIntoRange] Debug: Reference point
-        Debug.Log($"[FindPathIntoRange] Using reference point at: {referencePoint}, (cardRange {cardRange}m from target along owner direction)");
+        //Debug.Log($"[FindPathIntoRange] Using reference point at: {referencePoint}, (cardRange {cardRange}m from target along owner direction)");
 
         // First, try the reference point itself
         if (NavMesh.SamplePosition(referencePoint, out NavMeshHit hit, 2f, NavMesh.AllAreas))
@@ -496,11 +511,11 @@ public static class TargetingUtility
             float distToTarget = Vector3.Distance(hit.position, targetPos);
             positionsTestedCount++;
 
-            Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
+            //Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
 
             if (distToTarget <= cardRange + TOLERANCE)
             {
-                Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Reference point is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
+                //Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Reference point is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
                 return hit.position;
             }
         }
@@ -517,11 +532,15 @@ public static class TargetingUtility
             {
                 float distToTarget = Vector3.Distance(hit.position, targetPos);
 
-                Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
+                #if UNITY_EDITOR
+                if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
+                #endif
 
                 if (distToTarget <= cardRange + TOLERANCE)
                 {
-                    Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
+                    #if UNITY_EDITOR
+                    if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
+                    #endif
                     return hit.position;
                 }
             }
@@ -537,19 +556,24 @@ public static class TargetingUtility
                 {
                     float distToTarget = Vector3.Distance(hit.position, targetPos);
 
-                    Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
+                    #if UNITY_EDITOR
+                    if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
+                    #endif
 
                     if (distToTarget <= cardRange + TOLERANCE)
                     {
-                        Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
+                        #if UNITY_EDITOR
+                        if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
+                        #endif
                         return hit.position;
                     }
                 }
             }
         }
 
-        // [FindPathIntoRange] Debug: Search exhausted
-        Debug.Log($"[FindPathIntoRange] ✗ FAILED - Tested {positionsTestedCount} positions but none were valid navmesh positions within {cardRange}m (+ {TOLERANCE}m tolerance) of target");
+        #if UNITY_EDITOR
+        if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✗ FAILED - Tested {positionsTestedCount} positions but none were valid navmesh positions within {cardRange}m (+ {TOLERANCE}m tolerance) of target");
+        #endif
         return null;
     }
 
@@ -565,44 +589,51 @@ public static class TargetingUtility
         EntityStats entityStats,
         float movementBudget)
     {
-        // [FindPathIntoRange] Debug: Log entry
-        Debug.Log($"[FindPathIntoRange] Attempting to find path into range. From: {fromPosition}, Target: {targetPosition}, CardRange: {cardRange}, Budget: {movementBudget}");
+        #if UNITY_EDITOR
+        if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] Attempting to find path into range. From: {fromPosition}, Target: {targetPosition}, CardRange: {cardRange}, Budget: {movementBudget}");
+        #endif
 
         // Try to find a position within range
         var rangePosition = FindRangeAwarePositionForTarget(targetPosition, fromPosition, cardRange);
 
         if (!rangePosition.HasValue)
         {
-            // [FindPathIntoRange] Debug: Position search failed
-            Debug.Log($"[FindPathIntoRange] FAILED - FindRangeAwarePositionForTarget returned null. No valid navmesh position found within {cardRange}m of target");
+            #if UNITY_EDITOR
+            if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] FAILED - FindRangeAwarePositionForTarget returned null. No valid navmesh position found within {cardRange}m of target");
+            #endif
             return null;
         }
 
-        // [FindPathIntoRange] Debug: Position found
-        Debug.Log($"[FindPathIntoRange] Found valid position on navmesh: {rangePosition.Value}, distance from target: {Vector3.Distance(rangePosition.Value, targetPosition):F2}");
+        #if UNITY_EDITOR
+        if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] Found valid position on navmesh: {rangePosition.Value}, distance from target: {Vector3.Distance(rangePosition.Value, targetPosition):F2}");
+        #endif
 
         // Find path to that position
         var pathData = MovementUtility.FindPath(fromPosition, rangePosition.Value, entityStats);
 
         if (pathData == null)
         {
-            // [FindPathIntoRange] Debug: Pathfinding failed
-            Debug.Log($"[FindPathIntoRange] FAILED - FindPath returned null. Unable to calculate path from {fromPosition} to {rangePosition.Value}");
+            #if UNITY_EDITOR
+            if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] FAILED - FindPath returned null. Unable to calculate path from {fromPosition} to {rangePosition.Value}");
+            #endif
             return null;
         }
 
-        // [FindPathIntoRange] Debug: Path found, check cost
-        Debug.Log($"[FindPathIntoRange] Path found! Cost: {pathData.PathCost:F1}, Budget: {movementBudget}, Cost: {pathData.PathCost:F2}");
+        #if UNITY_EDITOR
+        if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] Path found! Cost: {pathData.PathCost:F1}, Budget: {movementBudget}");
+        #endif
 
         if (pathData.PathCost > movementBudget)
         {
-            // [FindPathIntoRange] Debug: Path cost exceeds budget
-            Debug.Log($"[FindPathIntoRange] REJECTED - Path cost {pathData.PathCost:F1} exceeds movement budget {movementBudget}");
+            #if UNITY_EDITOR
+            if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] REJECTED - Path cost {pathData.PathCost:F1} exceeds movement budget {movementBudget}");
+            #endif
             return null;
         }
 
-        // [FindPathIntoRange] Debug: Success
-        Debug.Log($"[FindPathIntoRange] SUCCESS - Path to casting position found with cost {pathData.PathCost:F1}");
+        #if UNITY_EDITOR
+        if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] SUCCESS - Path to casting position found with cost {pathData.PathCost:F1}");
+        #endif
         return (pathData, rangePosition.Value);
     }
 

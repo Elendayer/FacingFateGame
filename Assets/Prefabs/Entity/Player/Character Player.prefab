@@ -237,7 +237,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entityAffiliation: 1
-  deckCardIDs: []
+  deckCardIDs:
+  - Neutral_Tech_Punch
+  - Neutral_Tech_Punch
+  - Neutral_Tech_Strike
+  - Neutral_Tech_Step_Back
+  - Neutral_Tech_Step_Back
+  - Neutral_Abil_Meditate
+  - Neutral_Abil_Meditate
+  - Neutral_Abil_Rethink
+  - Neutral_Abil_Rethink
+  - Physician_Item_Brew_of_a_Hundred_Herbs
+  - Physician_Item_Brew_of_a_Hundred_Herbs
+  - Physician_Item_Brew_of_a_Hundred_Herbs
+  - Physician_Item_Crimson_Rejuvenation_Elixir
+  - Physician_Item_Crimson_Rejuvenation_Elixir
+  - Physician_Item_Crimson_Rejuvenation_Brew
+  - Physician_Item_Crimson_Rejuvenation_Brew
+  - Physician_Item_Soaring_Dragon_Elixir
+  - Physician_Item_Soaring_Dragon_Elixir
+  - Physician_Item_Soaring_Dragon_Brew
+  - Physician_Item_Soaring_Dragon_Brew
+  - Physician_Item_Soaring_Dragon_Brew
+  - Physician_Item_Mandrake_Poison_Cloud
+  - Physician_Item_Mandrake_Poison_Cloud
+  - Physician_Abil_Poison_Barbs
+  - Physician_Abil_Poison_Barbs
+  - Physician_Abil_Combat_Alchemy
+  - Physician_Tech_Needle_of_the_Flowing_River
+  - Physician_Tech_Needle_of_the_Flowing_River
+  - Physician_Spell_Breath_of_the_Jade_Lotus
+  - Physician_Spell_Breath_of_the_Jade_Lotus
+  - Physician_Item_Spiderweb_Bomb
+  - Physician_Item_Spiderweb_Bomb
+  - Physician_Item_Alchemic_Fire
+  - Physician_Item_Alchemic_Fire
+  - Physician_Abil_Doctors_Footwork
   entityStats:
     Owner: {fileID: 0}
     CurrentHealth: 0
@@ -249,37 +284,9 @@ MonoBehaviour:
     tauntTarget: {fileID: 0}
   EntityVisual: {fileID: 0}
   EntityOnMap: {fileID: 0}
-  attackSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  damageSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  blockSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  healSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  deathSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  statusAppliedSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  modifierExpiredSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
   isDead: 0
   modifierNames: []
-  playerClass: 0
+  playerClass: 3
 --- !u!114 &9001171521745787760
 MonoBehaviour:
   m_ObjectHideFlags: 0

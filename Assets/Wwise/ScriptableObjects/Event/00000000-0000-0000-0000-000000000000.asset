@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_Card_SFX
   id: 730768008
   guid: 00000000-0000-0000-0000-000000000000
-  IsInUserDefinedSoundBank: 0
+  IsInUserDefinedSoundBank: 1

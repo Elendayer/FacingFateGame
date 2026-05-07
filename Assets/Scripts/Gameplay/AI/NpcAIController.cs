@@ -9,6 +9,13 @@ namespace facingfate
 {
     public class NpcAIController
     {
+        // Set to false in Release builds to eliminate 49ms+ frame time from Debug.Log overhead
+        #if UNITY_EDITOR
+                private const bool ENABLE_AI_LOGGING = false;
+        #else
+                private const bool ENABLE_AI_LOGGING = false;
+        #endif
+
         private readonly NonPlayerScript npcScript;
         private readonly NpcAiBias npcAIBias;
         private readonly EntityOnMap mover;
@@ -29,12 +36,14 @@ namespace facingfate
             CardScript card,
             float stamina,
             Vector3 virtualPosition,
-            Action<ScoredCard> onComplete)
+            Action<ScoredCard> onComplete,
+            List<EntityScript> cachedEnemies = null,
+            List<EntityScript> cachedAllies = null)
         {
             // Validation
             if (card == null || card.cardData == null)
             {
-                Debug.LogWarning("[NpcAI][EvaluateCard] Invalid card or missing cardData");
+                if (ENABLE_AI_LOGGING) Debug.LogWarning("[NpcAI][EvaluateCard] Invalid card or missing cardData");
                 onComplete?.Invoke(null);
                 yield break;
             }
@@ -45,7 +54,7 @@ namespace facingfate
 
             if (cardCost > stamina)
             {
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' REJECTED: Cost {cardCost} > stamina {stamina}");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' REJECTED: Cost {cardCost} > stamina {stamina}");
                 onComplete?.Invoke(null);
                 yield break;
             }
@@ -55,67 +64,93 @@ namespace facingfate
             float movementBudget = stamina - cardCost;
 
             // Phase 1: Try casting from current virtual position
-            var targetingAtCurrent = GetTargetingFromPosition(card, virtualPosition);
+            var targetingAtCurrent = GetTargetingFromPosition(card, virtualPosition, cachedEnemies, cachedAllies);
             if (targetingAtCurrent?.targetedEntities != null && targetingAtCurrent.targetedEntities.Count > 0)
             {
                 reachableMoves.Add((
                     new NavMeshPathData { PathCost = 0, Start = virtualPosition, End = virtualPosition },
                     targetingAtCurrent
                 ));
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 1 SUCCESS - Found {targetingAtCurrent.targetedEntities.Count} targets at virtual position");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 1 SUCCESS - Found {targetingAtCurrent.targetedEntities.Count} targets at virtual position");
             }
             else
             {
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 1 FAILED - No targets at current position (distance too far for range {cardRange:F2})");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 1 FAILED - No targets at current position (distance too far for range {cardRange:F2})");
             }
 
             // Phase 2: If card has range and we have movement budget, explore better positions
             if (cardRange > 0 && movementBudget > 0)
             {
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - Entering Phase 2 & 3 (Range: {cardRange:F2}, MoveBudget: {movementBudget:F0})");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - Entering Phase 2 & 3 (Range: {cardRange:F2}, MoveBudget: {movementBudget:F0})");
 
                 // Try nearby positions for better coverage
                 var nearbyPositions = GetNearbyPositionsForCard(virtualPosition, movementBudget, cardRange);
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 - Found {nearbyPositions.Count} nearby positions to explore");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 - Found {nearbyPositions.Count} nearby positions to explore");
 
                 foreach (var (pathData, castPos) in nearbyPositions)
                 {
-                    var targetingAtNearby = GetTargetingFromPosition(card, castPos);
+                    var targetingAtNearby = GetTargetingFromPosition(card, castPos, cachedEnemies, cachedAllies);
                     if (targetingAtNearby?.targetedEntities != null && targetingAtNearby.targetedEntities.Count > 0)
                     {
                         reachableMoves.Add((pathData, targetingAtNearby));
-                        Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 - Found {targetingAtNearby.targetedEntities.Count} targets at nearby position");
+                        if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 - Found {targetingAtNearby.targetedEntities.Count} targets at nearby position");
                     }
                 }
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 Complete - reachableMoves count: {reachableMoves.Count}");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 2 Complete - reachableMoves count: {reachableMoves.Count}");
 
                 // Phase 3: Try moving into range of enemies (search independently)
                 // This handles cases where targets are out of current range but can be reached via movement
-                var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
                 var potentialEnemies = new List<EntityScript>();
 
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Starting independent enemy search (found {allEntities.Length} total entities)");
-
-                foreach (var entity in allEntities)
+                // OPTIMIZATION: Use cached enemies instead of FindObjectsByType
+                if (cachedEnemies != null && cachedEnemies.Count > 0)
                 {
-                    // Skip self and allies
-                    if (entity == npcScript || entity.entityAffiliation == npcScript.entityAffiliation)
-                        continue;
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Starting enemy search with {cachedEnemies.Count} cached enemies");
 
-                    // Check if target is valid for this card
-                    if (IsValidTargetAffiliation(entity, card.cardData) && TargetingUtility.IsTargetValid(card.cardData, entity))
+                    foreach (var entity in cachedEnemies)
                     {
-                        potentialEnemies.Add(entity);
+                        // Check if target is valid for this card
+                        if (IsValidTargetAffiliation(entity, card.cardData) && TargetingUtility.IsTargetValid(card.cardData, entity))
+                        {
+                            potentialEnemies.Add(entity);
+                        }
+                    }
+                }
+                else
+                {
+                    // Fallback: use FindObjectsByType only if cache not provided (backward compatibility)
+                    var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - No cached enemies, scanning {allEntities.Length} entities");
+
+                    foreach (var entity in allEntities)
+                    {
+                        // Skip self and allies
+                        if (entity == npcScript || entity.entityAffiliation == npcScript.entityAffiliation)
+                            continue;
+
+                        // Check if target is valid for this card
+                        if (IsValidTargetAffiliation(entity, card.cardData) && TargetingUtility.IsTargetValid(card.cardData, entity))
+                        {
+                            potentialEnemies.Add(entity);
+                        }
                     }
                 }
 
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Found {potentialEnemies.Count} valid potential enemies to path to");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Found {potentialEnemies.Count} valid potential enemies to path to");
 
                 int pathsFound = 0;
                 int pathsFailed = 0;
+                const int MAX_PHASE3_PATHS = 3; // OPTIMIZATION: Early termination - stop after finding 3 viable paths
 
                 foreach (var targetEntity in potentialEnemies)
                 {
+                    // OPTIMIZATION: Early termination - if we have enough viable moves, skip remaining enemies
+                    if (pathsFound >= MAX_PHASE3_PATHS)
+                    {
+                        if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Early termination: found {pathsFound} viable moves, skipping remaining {potentialEnemies.Count - (pathsFound + pathsFailed)} enemies");
+                        break;
+                    }
+
                     var targetPos = targetEntity.GetComponent<EntityOnMap>()?.transform.position ?? targetEntity.transform.position;
                     var distToTarget = Vector3.Distance(virtualPosition, targetPos);
 
@@ -123,7 +158,7 @@ namespace facingfate
                     // Only try to path to targets that are beyond current range
                     if (distToTarget > cardRange)
                     {
-                        Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Attempting path to '{targetEntity.name}' at distance {distToTarget:F2} (range: {cardRange:F2})");
+                        if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Attempting path to '{targetEntity.name}' at distance {distToTarget:F2} (range: {cardRange:F2})");
 
                         var rangeResult = TargetingUtility.FindPathIntoRange(virtualPosition, targetPos, cardRange, npcScript.entityStats, movementBudget);
 
@@ -139,7 +174,7 @@ namespace facingfate
                             {
                                 // For Single target cards, verify the target is valid from this position
                                 // GetTargetingFromPosition might find a different target, so we need to check explicitly
-                                var targetingAtRange = GetTargetingFromPosition(card, castPos);
+                                var targetingAtRange = GetTargetingFromPosition(card, castPos, cachedEnemies, cachedAllies);
 
                                 // Check if our intended target is in the resulting targets
                                 bool targetFoundInResults = targetingAtRange?.targetedEntities != null && targetingAtRange.targetedEntities.Contains(targetEntity);
@@ -148,47 +183,47 @@ namespace facingfate
                                 {
                                     reachableMoves.Add((rangeResult.Value.pathData, targetingAtRange));
                                     pathsFound++;
-                                    Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 SUCCESS - Path found to '{targetEntity.name}', {targetingAtRange.targetedEntities.Count} targets at cast position");
+                                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 SUCCESS - Path found to '{targetEntity.name}', {targetingAtRange.targetedEntities.Count} targets at cast position");
                                 }
                                 else if (targetingAtRange?.targetedEntities != null && targetingAtRange.targetedEntities.Count > 0)
                                 {
                                     // Found other targets even if not the intended one - still valid
                                     reachableMoves.Add((rangeResult.Value.pathData, targetingAtRange));
                                     pathsFound++;
-                                    Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 SUCCESS - Path found, targeting different entity. Found {targetingAtRange.targetedEntities.Count} targets at cast position");
+                                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 SUCCESS - Path found, targeting different entity. Found {targetingAtRange.targetedEntities.Count} targets at cast position");
                                 }
                                 else
                                 {
-                                    Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Path to '{targetEntity.name}' found but target not reachable from cast position (distance from cast: {distFromCastPos:F2})");
+                                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Path to '{targetEntity.name}' found but target not reachable from cast position (distance from cast: {distFromCastPos:F2})");
                                 }
                             }
                             else
                             {
-                                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - FindPathIntoRange returned position outside range of target (distance: {distFromCastPos:F2} > {cardRange + RANGE_TOLERANCE:F2} [range + tolerance])");
+                                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - FindPathIntoRange returned position outside range of target (distance: {distFromCastPos:F2} > {cardRange + RANGE_TOLERANCE:F2} [range + tolerance])");
                             }
                         }
                         else
                         {
                             pathsFailed++;
-                            Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - No path found to '{targetEntity.name}' (distance: {distToTarget:F2}, budget: {movementBudget})");
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - No path found to '{targetEntity.name}' (distance: {distToTarget:F2}, budget: {movementBudget})");
                         }
                     }
                     else
                     {
-                        Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Target '{targetEntity.name}' already in range ({distToTarget:F2} <= {cardRange:F2}), skipping");
+                        if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 - Target '{targetEntity.name}' already in range ({distToTarget:F2} <= {cardRange:F2}), skipping");
                     }
                 }
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 Complete - Paths found: {pathsFound}, Paths failed: {pathsFailed}, Total reachableMoves: {reachableMoves.Count}");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' Phase 3 Complete - Paths found: {pathsFound}, Paths failed: {pathsFailed}, Total reachableMoves: {reachableMoves.Count}");
             }
             else if (cardRange <= 0 || movementBudget <= 0)
             {
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - SKIPPING Phase 2&3 (Range: {cardRange:F2}, MoveBudget: {movementBudget})");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - SKIPPING Phase 2&3 (Range: {cardRange:F2}, MoveBudget: {movementBudget})");
             }
 
             // If no valid positions found, return zero score
             if (reachableMoves.Count == 0)
             {
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' REJECTED: No valid targeting positions found");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' REJECTED: No valid targeting positions found");
                 onComplete?.Invoke(null);
                 yield break;
             }
@@ -204,12 +239,12 @@ namespace facingfate
             }
             else if (evaluation.score == 0)
             {
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - No viable moves (score: 0) [{elapsed:0.000}s]");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - No viable moves (score: 0) [{elapsed:0.000}s]");
                 onComplete?.Invoke(evaluation);
             }
             else
             {
-                Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - Score: {evaluation.score} [{elapsed:0.000}s]");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][EvaluateCard] '{cardName}' - Score: {evaluation.score} [{elapsed:0.000}s]");
                 onComplete?.Invoke(evaluation);
             }
 
@@ -219,8 +254,9 @@ namespace facingfate
         /// <summary>
         /// Gets targeting data from a specific casting position without relying on the NPC's current position.
         /// Temporarily simulates the NPC being at castPos for targeting calculations.
+        /// OPTIMIZATION: Accepts cached entity lists to avoid repeated FindObjectsByType calls.
         /// </summary>
-        private TargetingModeData GetTargetingFromPosition(CardScript card, Vector3 castPos)
+        private TargetingModeData GetTargetingFromPosition(CardScript card, Vector3 castPos, List<EntityScript> cachedEnemies = null, List<EntityScript> cachedAllies = null)
         {
             if (card?.cardData == null)
                 return null;
@@ -233,7 +269,7 @@ namespace facingfate
             {
                 case CardTargetingMode.Cone:
                     // For cone, aim towards primary enemies
-                    var coneTarget = FindPrimaryTarget(castPos);
+                    var coneTarget = FindPrimaryTarget(castPos, cachedEnemies);
                     if (coneTarget != null)
                     {
                         var direction = (coneTarget.transform.position - castPos).normalized;
@@ -243,7 +279,7 @@ namespace facingfate
 
                 case CardTargetingMode.LineSelf:
                     // For line, aim towards primary enemies
-                    var lineTarget = FindPrimaryTarget(castPos);
+                    var lineTarget = FindPrimaryTarget(castPos, cachedEnemies);
                     if (lineTarget != null)
                     {
                         var direction = (lineTarget.transform.position - castPos).normalized;
@@ -273,18 +309,18 @@ namespace facingfate
                             break;
                         case CardTargetAffiliation.Ally:
                             // Ally targeting: find nearest ally (including self)
-                            singleTarget = FindPrimaryAlly(castPos);
+                            singleTarget = FindPrimaryAlly(castPos, cachedAllies);
                             break;
                         case CardTargetAffiliation.Enemy:
                             // Enemy targeting: find nearest enemy
-                            singleTarget = FindPrimaryTarget(castPos);
+                            singleTarget = FindPrimaryTarget(castPos, cachedEnemies);
                             break;
                         case CardTargetAffiliation.All:
                             // All targeting: find nearest entity (including self and allies)
-                            singleTarget = FindNearestEntity(castPos);
+                            singleTarget = FindNearestEntity(castPos, cachedEnemies, cachedAllies);
                             break;
                         default:
-                            singleTarget = FindPrimaryTarget(castPos);
+                            singleTarget = FindPrimaryTarget(castPos, cachedEnemies);
                             break;
                     }
 
@@ -316,7 +352,7 @@ namespace facingfate
                 validTargets = validTargets.FindAll(e => TargetingUtility.HasPhysicsLineOfSight(castPos, e.transform.position));
             }
 
-            var primaryTarget = FindPrimaryTarget(castPos);
+            var primaryTarget = FindPrimaryTarget(castPos, cachedEnemies);
             var targetingData = new TargetingModeData
             {
                 castingPosition = castPos,
@@ -330,16 +366,18 @@ namespace facingfate
 
         /// <summary>
         /// Finds the nearest enemy to target for directional targeting modes (cone, line, single).
+        /// OPTIMIZATION: Accepts cached enemy list to avoid repeated FindObjectsByType calls.
         /// Returns null if no valid enemy is found.
         /// </summary>
-        private EntityScript FindPrimaryTarget(Vector3 fromPosition)
+        private EntityScript FindPrimaryTarget(Vector3 fromPosition, List<EntityScript> cachedEnemies = null)
         {
             EntityScript nearest = null;
             float nearestDist = float.MaxValue;
 
-            var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+            // OPTIMIZATION: Use cached enemies if provided
+            var entitiesToSearch = cachedEnemies ?? new List<EntityScript>(UnityEngine.Object.FindObjectsByType<EntityScript>(0));
 
-            foreach (var entity in allEntities)
+            foreach (var entity in entitiesToSearch)
             {
                 // Skip self and allies
                 if (entity == npcScript || entity.entityAffiliation == npcScript.entityAffiliation)
@@ -367,35 +405,53 @@ namespace facingfate
 
         /// <summary>
         /// Finds the nearest ally to target for ally-targeting cards.
+        /// OPTIMIZATION: Accepts cached ally list to avoid repeated FindObjectsByType calls.
         /// Includes self and other allies.
         /// </summary>
-        private EntityScript FindPrimaryAlly(Vector3 fromPosition)
+        private EntityScript FindPrimaryAlly(Vector3 fromPosition, List<EntityScript> cachedAllies = null)
         {
             EntityScript nearest = npcScript; // Default to self
             float nearestDist = Vector3.Distance(fromPosition, npcScript.transform.position);
 
-            var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
-
-            foreach (var entity in allEntities)
+            // OPTIMIZATION: Use cached allies if provided, otherwise fall back to FindObjectsByType
+            if (cachedAllies != null)
             {
-                // Skip self (already the default)
-                if (entity == npcScript)
-                    continue;
-
-                // Only consider allies (same affiliation)
-                if (entity.entityAffiliation != npcScript.entityAffiliation)
-                    continue;
-
-                // Skip neutrals
-                if (entity.entityAffiliation == EntityAffiliation.Neutral)
-                    continue;
-
-                var dist = Vector3.Distance(fromPosition, entity.transform.position);
-
-                if (dist < nearestDist)
+                foreach (var entity in cachedAllies)
                 {
-                    nearestDist = dist;
-                    nearest = entity;
+                    var dist = Vector3.Distance(fromPosition, entity.transform.position);
+
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearest = entity;
+                    }
+                }
+            }
+            else
+            {
+                var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+
+                foreach (var entity in allEntities)
+                {
+                    // Skip self (already the default)
+                    if (entity == npcScript)
+                        continue;
+
+                    // Only consider allies (same affiliation)
+                    if (entity.entityAffiliation != npcScript.entityAffiliation)
+                        continue;
+
+                    // Skip neutrals
+                    if (entity.entityAffiliation == EntityAffiliation.Neutral)
+                        continue;
+
+                    var dist = Vector3.Distance(fromPosition, entity.transform.position);
+
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearest = entity;
+                    }
                 }
             }
 
@@ -404,27 +460,75 @@ namespace facingfate
 
         /// <summary>
         /// Finds the nearest entity to target for all-targeting cards.
+        /// OPTIMIZATION: Accepts cached entity lists to avoid repeated FindObjectsByType calls.
         /// Prioritizes by distance from the given position.
         /// </summary>
-        private EntityScript FindNearestEntity(Vector3 fromPosition)
+        private EntityScript FindNearestEntity(Vector3 fromPosition, List<EntityScript> cachedEnemies = null, List<EntityScript> cachedAllies = null)
         {
             EntityScript nearest = null;
             float nearestDist = float.MaxValue;
 
-            var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
-
-            foreach (var entity in allEntities)
+            // Start with self
+            if (npcScript.entityAffiliation != EntityAffiliation.Neutral)
             {
-                // Skip neutrals
-                if (entity.entityAffiliation == EntityAffiliation.Neutral)
-                    continue;
+                nearest = npcScript;
+                nearestDist = Vector3.Distance(fromPosition, npcScript.transform.position);
+            }
 
-                var dist = Vector3.Distance(fromPosition, entity.transform.position);
-
-                if (dist < nearestDist)
+            // Search cached enemies if provided
+            if (cachedEnemies != null)
+            {
+                foreach (var entity in cachedEnemies)
                 {
-                    nearestDist = dist;
-                    nearest = entity;
+                    if (entity.entityAffiliation == EntityAffiliation.Neutral)
+                        continue;
+
+                    var dist = Vector3.Distance(fromPosition, entity.transform.position);
+
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearest = entity;
+                    }
+                }
+            }
+
+            // Search cached allies if provided
+            if (cachedAllies != null)
+            {
+                foreach (var entity in cachedAllies)
+                {
+                    if (entity.entityAffiliation == EntityAffiliation.Neutral)
+                        continue;
+
+                    var dist = Vector3.Distance(fromPosition, entity.transform.position);
+
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearest = entity;
+                    }
+                }
+            }
+
+            // Fallback if no cache provided
+            if (nearest == null)
+            {
+                var allEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+
+                foreach (var entity in allEntities)
+                {
+                    // Skip neutrals
+                    if (entity.entityAffiliation == EntityAffiliation.Neutral)
+                        continue;
+
+                    var dist = Vector3.Distance(fromPosition, entity.transform.position);
+
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearest = entity;
+                    }
                 }
             }
 
@@ -433,19 +537,23 @@ namespace facingfate
 
         /// <summary>
         /// Gets nearby positions to evaluate for card casting within movement budget.
-        /// Uses spiral search pattern to efficiently find tactical positions without grid explosion.
-        /// Instead of testing (2*radius+1)^2 positions, tests ~12-16 positions per distance ring.
+        /// Uses spiral search pattern with ADAPTIVE RADIUS to efficiently find tactical positions.
+        /// Instead of testing (2*radius+1)^2 positions, limits to maxPositions with early termination.
+        /// OPTIMIZATION: Reduces from ~144 tests to ~16 tests by stopping once good targets are found.
         /// </summary>
         private List<(NavMeshPathData, Vector3)> GetNearbyPositionsForCard(Vector3 currentPos, float movementBudget, float cardRange)
         {
             var positions = new List<(NavMeshPathData, Vector3)>();
-            const int maxPositions = 16;  // Limit total positions evaluated
-            const int anglesPerRing = 12; // 12 angles = 30° increments
+            const int maxPositions = 8;  // OPTIMIZATION: Reduced from 16 to 8 - aggressive early termination
+            const int anglesPerRing = 8; // OPTIMIZATION: Reduced from 12 to 8 angles = 45° increments (still good coverage)
 
-            // Start with small radius and spiral outward
-            for (float distance = 1f; distance <= movementBudget && positions.Count < maxPositions; distance += 1f)
+            // OPTIMIZATION: Adaptive max distance based on card range - don't search beyond useful range
+            float maxSearchDistance = Mathf.Min(movementBudget, cardRange + 2f);
+
+            // Start with small radius and spiral outward, but terminate early if we have good options
+            for (float distance = 1f; distance <= maxSearchDistance && positions.Count < maxPositions; distance += 2f) // OPTIMIZATION: Step by 2 instead of 1
             {
-                // Test 12 angles around the circle at this distance
+                // Test 8 angles around the circle at this distance
                 for (int angleIndex = 0; angleIndex < anglesPerRing; angleIndex++)
                 {
                     if (positions.Count >= maxPositions)
@@ -454,9 +562,9 @@ namespace facingfate
                     float angle = (angleIndex * 360f / anglesPerRing) * Mathf.Deg2Rad;
                     Vector3 candidate = currentPos + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * distance;
 
-                    // Snap to navmesh
+                    // Snap to navmesh - OPTIMIZATION: Use smaller search radius (1f) for faster snapping
                     NavMeshHit hit;
-                    if (NavMesh.SamplePosition(candidate, out hit, 2f, NavMesh.AllAreas))
+                    if (NavMesh.SamplePosition(candidate, out hit, 1f, NavMesh.AllAreas))
                     {
                         candidate = hit.position;
 
@@ -501,13 +609,32 @@ namespace facingfate
             bool hasRepositioned = false;
             bool hasChased = false;
 
-            Debug.Log($"[NpcAI][ExecuteTurnPlanning] Starting turn planning for {npcScript.name}");
-            Debug.Log($"[NpcAI][ExecuteTurnPlanning] Initial stamina: {virtualStamina}, Position: {virtualPosition}, Hand: {hand.Count} cards");
-            if (hand.Count > 0)
+            // OPTIMIZATION: Cache all entities at turn start instead of finding them repeatedly
+            var cachedAllEntities = UnityEngine.Object.FindObjectsByType<EntityScript>(0);
+            var cachedEnemies = new List<EntityScript>();
+            var cachedAllies = new List<EntityScript>();
+
+            foreach (var entity in cachedAllEntities)
             {
-                Debug.Log($"[NpcAI][ExecuteTurnPlanning] Cards in hand: {string.Join(", ", hand.Select(c => c?.cardData?.cardName ?? "NULL"))}");
+                if (entity == npcScript)
+                    continue;
+                if (entity.entityAffiliation == npcScript.entityAffiliation)
+                    cachedAllies.Add(entity);
+                else if (entity.entityAffiliation != EntityAffiliation.Neutral)
+                    cachedEnemies.Add(entity);
             }
 
+            if (ENABLE_AI_LOGGING) 
+            {
+                Debug.Log($"[NpcAI][ExecuteTurnPlanning] Starting turn planning for {npcScript.name}");
+                Debug.Log($"[NpcAI][ExecuteTurnPlanning] Initial stamina: {virtualStamina}, Position: {virtualPosition}, Hand: {hand.Count} cards");
+                Debug.Log($"[NpcAI][ExecuteTurnPlanning] Cached entities - Enemies: {cachedEnemies.Count}, Allies: {cachedAllies.Count}");
+       
+                if (hand.Count > 0)
+                {
+                    Debug.Log($"[NpcAI][ExecuteTurnPlanning] Cards in hand: {string.Join(", ", hand.Select(c => c?.cardData?.cardName ?? "NULL"))}");
+                }
+            }
             // Continue selecting best actions until no valid action remains
             while (virtualStamina > 0)
             {
@@ -518,7 +645,7 @@ namespace facingfate
                 var remaining = handCount;
                 var results = new ScoredCard[handCount];
 
-                Debug.Log($"[NpcAI][HandEvaluation] Evaluating {handCount} cards in hand (stamina: {virtualStamina}, position: {virtualPosition})");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Evaluating {handCount} cards in hand (stamina: {virtualStamina}, position: {virtualPosition})");
 
                 if (handCount > 0)
                 {
@@ -528,27 +655,27 @@ namespace facingfate
                         // Skip cards that have already been played this turn
                         if (playedCards.Contains(hand[idx]))
                         {
-                            Debug.Log($"[NpcAI][HandEvaluation] Card {idx} ({hand[idx].cardData.cardName}) already played, skipping");
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Card {idx} ({hand[idx].cardData.cardName}) already played, skipping");
                             results[idx] = null;
                             remaining--;
                             continue;
                         }
 
-                        Debug.Log($"[NpcAI][HandEvaluation] Starting evaluation coroutine for card {idx}: {hand[idx].cardData.cardName}");
+                        if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Starting evaluation coroutine for card {idx}: {hand[idx].cardData.cardName}");
 
                         CoroutineRunner.Instance.StartCoroutineManaged(EvaluateCardCoroutine(hand[idx], virtualStamina, virtualPosition, (res) =>
                         {
                             if (res != null)
                             {
-                                Debug.Log($"[NpcAI][HandEvaluation] Card {idx} ({hand[idx].cardData.cardName}) evaluation complete. Score: {res.score}");
+                                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Card {idx} ({hand[idx].cardData.cardName}) evaluation complete. Score: {res.score}");
                             }
                             else
                             {
-                                Debug.Log($"[NpcAI][HandEvaluation] Card {idx} ({hand[idx].cardData.cardName}) evaluation returned NULL");
+                                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Card {idx} ({hand[idx].cardData.cardName}) evaluation returned NULL");
                             }
                             results[idx] = res;
                             remaining--;
-                        }));
+                        }, cachedEnemies, cachedAllies));
                         // Slight yield to spread coroutine starts across frames
                         yield return null;
                     }
@@ -563,7 +690,7 @@ namespace facingfate
                     int nullCount = 0;
                     int zeroScoreCount = 0;
 
-                    Debug.Log($"[NpcAI][HandEvaluation] Processing {handCount} evaluation results...");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Processing {handCount} evaluation results...");
 
                     for (int i = 0; i < handCount; i++)
                     {
@@ -571,37 +698,37 @@ namespace facingfate
                         if (r == null)
                         {
                             nullCount++;
-                            Debug.Log($"[NpcAI][HandEvaluation] Result {i}: NULL (card not viable - no stamina, no targets, or aborted)");
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Result {i}: NULL (card not viable - no stamina, no targets, or aborted)");
                             // Null results are expected - card wasn't viable (no stamina, no targets, etc.)
                         }
                         else if (r.score > 0)
                         {
                             handCandidates.Add(r);
-                            Debug.Log($"[NpcAI][HandEvaluation] Result {i}: ADDED TO CANDIDATES - Card: {r.card.cardData.cardName}, Score: {r.score}");
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Result {i}: ADDED TO CANDIDATES - Card: {r.card.cardData.cardName}, Score: {r.score}");
                         }
                         else if (r.score == 0 && r.targets != null && r.targets.Count > 0)
                         {
                             // Allow cards with score 0 if they have valid targets
                             handCandidates.Add(r);
-                            Debug.Log($"[NpcAI][HandEvaluation] Result {i}: ADDED TO CANDIDATES (score 0 but has targets) - Card: {r.card.cardData.cardName}, Targets: {r.targets.Count}");
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Result {i}: ADDED TO CANDIDATES (score 0 but has targets) - Card: {r.card.cardData.cardName}, Targets: {r.targets.Count}");
                         }
                         else
                         {
                             zeroScoreCount++;
-                            Debug.Log($"[NpcAI][HandEvaluation] Result {i}: REJECTED - Score is 0 or less with no targets (Card: {r.card.cardData.cardName})");
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Result {i}: REJECTED - Score is 0 or less with no targets (Card: {r.card.cardData.cardName})");
                         }
                     }
 
-                    Debug.Log($"[NpcAI][HandEvaluation] Results summary - NULL: {nullCount}, Zero Score: {zeroScoreCount}, Valid candidates: {handCandidates.Count}");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Results summary - NULL: {nullCount}, Zero Score: {zeroScoreCount}, Valid candidates: {handCandidates.Count}");
 
                     if (handCandidates.Count > 0)
                     {
                         actionCandidates.AddRange(handCandidates);
-                        Debug.Log($"[NpcAI][HandEvaluation] Added {handCandidates.Count} hand candidates to action candidates list");
+                        if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][HandEvaluation] Added {handCandidates.Count} hand candidates to action candidates list");
                     }
                     else
                     {
-                        Debug.LogWarning($"[NpcAI][HandEvaluation] NO HAND CANDIDATES! All {handCount} cards were rejected or had null results");
+                        if (ENABLE_AI_LOGGING) Debug.LogWarning($"[NpcAI][HandEvaluation] NO HAND CANDIDATES! All {handCount} cards were rejected or had null results");
                     }
                 }
 
@@ -634,7 +761,7 @@ namespace facingfate
 
                 if (bestAction == null)
                 {
-                    Debug.Log($"[NpcAI] No valid action found (null). Breaking turn planning.");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] No valid action found (null). Breaking turn planning.");
                     break;
                 }
 
@@ -644,11 +771,11 @@ namespace facingfate
 
                 if (bestAction.score <= 0 && (!isCard || !hasValidTargets))
                 {
-                    Debug.Log($"[NpcAI] No valid action found (score <= 0). Breaking turn planning.");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] No valid action found (score <= 0). Breaking turn planning.");
                     break;
                 }
 
-                Debug.Log($"[NpcAI] Action chosen: {bestAction.pseudoName} (score: {bestAction.score})");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] Action chosen: {bestAction.pseudoName} (score: {bestAction.score})");
 
                 int moveCost = bestAction.pathData?.PathCost ?? 0;
                 int cardCost = bestAction.card?.cardData?.Cost ?? 0;
@@ -686,7 +813,7 @@ namespace facingfate
                         CardCost = 0  // Movement action doesn't consume card cost
                     });
 
-                    Debug.Log($"[NpcAI] Recorded movement: cost={bestAction.pathData.PathCost}, position={bestAction.pathData.End}");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] Recorded movement: cost={bestAction.pathData.PathCost}, position={bestAction.pathData.End}");
 
                     // Update virtual position immediately (predictive)
                     virtualPosition = bestAction.pathData.End;
@@ -712,7 +839,7 @@ namespace facingfate
                         CardCost = cardCost
                     });
 
-                    Debug.Log($"[NpcAI] Recorded card play: card={bestAction.card.cardData.cardName}, cost={cardCost}, casting_pos={bestAction.targetingModeData.castingPosition}");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] Recorded card play: card={bestAction.card.cardData.cardName}, cost={cardCost}, casting_pos={bestAction.targetingModeData.castingPosition}");
                 }
 
                 // Deduct stamina immediately (predictive)
@@ -720,13 +847,16 @@ namespace facingfate
             }
 
             float duration = Time.realtimeSinceStartup - startTime;
-            Debug.Log($"[NpcAI] BuildTurnPlan for {npcScript.name} took {duration:0.000}s");
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] BuildTurnPlan for {npcScript.name} took {duration:0.000}s");
 
-            Debug.Log($"[NpcAI] Turn plan complete. Total actions planned: {plan.Count}");
-            for (int i = 0; i < plan.Count; i++)
+            if (ENABLE_AI_LOGGING)
             {
-                var action = plan[i];
-                Debug.Log($"[NpcAI] Action {i + 1}: {action.Type} - {action.Name}, with Cost: {action.Cost}");
+                Debug.Log($"[NpcAI] Turn plan complete. Total actions planned: {plan.Count}");
+                for (int i = 0; i < plan.Count; i++)
+                {
+                    var action = plan[i];
+                    Debug.Log($"[NpcAI] Action {i + 1}: {action.Type} - {action.Name}, with Cost: {action.Cost}");
+                }
             }
 
             yield break;
@@ -735,7 +865,7 @@ namespace facingfate
         public void DrawCard()
         {
             int cardsToDraw = Mathf.RoundToInt(npcScript.entityStats.CurrentWisdom / 2);
-            Debug.Log($"[NpcAI][DrawCard] NPC: {npcScript.name}, Current Wisdom: {npcScript.entityStats.CurrentWisdom}, Cards to draw: {cardsToDraw}");
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][DrawCard] NPC: {npcScript.name}, Current Wisdom: {npcScript.entityStats.CurrentWisdom}, Cards to draw: {cardsToDraw}");
 
             for (int i = 0; i < cardsToDraw; i++)
             {
@@ -765,17 +895,17 @@ namespace facingfate
                     CardScript cardScript = cardObj.GetComponent<CardScript>();
 
                     hand.Add(cardScript);
-                    Debug.Log($"[NpcAI][DrawCard] Drew card: {cardScript.cardData.cardName}, Hand size now: {hand.Count}");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][DrawCard] Drew card: {cardScript.cardData.cardName}, Hand size now: {hand.Count}");
 
                     cardObj.SetParent(discard);
                 }
                 else
                 {
-                    Debug.LogWarning($"[NpcAI][DrawCard] Tried to draw card #{i + 1} but deck is empty!");
+                    if (ENABLE_AI_LOGGING) Debug.LogWarning($"[NpcAI][DrawCard] Tried to draw card #{i + 1} but deck is empty!");
                 }
             }
 
-            Debug.Log($"[NpcAI][DrawCard] Draw complete. Final hand size: {hand.Count} cards");
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][DrawCard] Draw complete. Final hand size: {hand.Count} cards");
         }
         public void DiscardCard(int toDiscard)
         {
@@ -860,7 +990,7 @@ namespace facingfate
         {
             if (targets == null || targets.Count == 0)
             {
-                Debug.Log($"[FilterValidTargets] '{card?.cardData?.cardName}' - Input targets NULL or empty");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[FilterValidTargets] '{card?.cardData?.cardName}' - Input targets NULL or empty");
                 return new List<EntityScript>();
             }
 
@@ -868,7 +998,7 @@ namespace facingfate
             var cardData = card.cardData;
             var castingPosition = movePath?.End ?? mover.transform.position;
 
-            Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Input: {targets.Count} targets, Casting from: {castingPosition}");
+            if (ENABLE_AI_LOGGING) Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Input: {targets.Count} targets, Casting from: {castingPosition}");
 
             // Pre-compute visible tiles as HashSet for O(1) lookup
             HashSet<Vector3> visibleTiles = null;
@@ -898,7 +1028,7 @@ namespace facingfate
                 // Check affiliation match
                 if (!IsValidTargetAffiliation(target, cardData))
                 {
-                    Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Rejected '{target.name}': Invalid affiliation");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Rejected '{target.name}': Invalid affiliation");
                     rejectedCount++;
                     continue;
                 }
@@ -909,17 +1039,17 @@ namespace facingfate
                     var targetEntityOnMap = target.GetComponent<EntityOnMap>();
                     if (targetEntityOnMap == null || !visibleTiles.Contains(targetEntityOnMap.transform.position))
                     {
-                        Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Rejected '{target.name}': No line of sight");
+                        if (ENABLE_AI_LOGGING) Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Rejected '{target.name}': No line of sight");
                         rejectedCount++;
                         continue;
                     }
                 }
 
                 validTargets.Add(target);
-                Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - ACCEPTED '{target.name}'");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - ACCEPTED '{target.name}'");
             }
 
-            Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Final: {validTargets.Count} valid targets (rejected: {rejectedCount})");
+            if (ENABLE_AI_LOGGING) Debug.Log($"[FilterValidTargets] '{cardData.cardName}' - Final: {validTargets.Count} valid targets (rejected: {rejectedCount})");
             return validTargets;
         }
 
@@ -985,7 +1115,7 @@ namespace facingfate
             {
                 // CardAiBias is null, use basic fallback
                 throughput = card.cardData.Damage * targets.Count;
-                Debug.Log($"[CardScore] '{card.cardData.cardName}' - NO CardAiBias, using fallback throughput: {throughput} (damage: {card.cardData.Damage}, targets: {targets.Count})");
+                if (ENABLE_AI_LOGGING) Debug.Log($"[CardScore] '{card.cardData.cardName}' - NO CardAiBias, using fallback throughput: {throughput} (damage: {card.cardData.Damage}, targets: {targets.Count})");
             }
             else if (throughput <= 0 && card.cardData.CardAiBias != null)
             {
@@ -993,12 +1123,12 @@ namespace facingfate
                 int basicThroughput = card.cardData.Damage * targets.Count;
                 if (basicThroughput > 0)
                 {
-                    Debug.Log($"[CardScore] '{card.cardData.cardName}' - CardAiBias returned {throughput}, using basic fallback: {basicThroughput} (damage: {card.cardData.Damage}, targets: {targets.Count})");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[CardScore] '{card.cardData.cardName}' - CardAiBias returned {throughput}, using basic fallback: {basicThroughput} (damage: {card.cardData.Damage}, targets: {targets.Count})");
                     throughput = basicThroughput;
                 }
                 else
                 {
-                    Debug.Log($"[CardScore] '{card.cardData.cardName}' - CardAiBias returned {throughput} and no basic damage!");
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[CardScore] '{card.cardData.cardName}' - CardAiBias returned {throughput} and no basic damage!");
                 }
             }
 
@@ -1013,7 +1143,7 @@ namespace facingfate
             // Blend scores: efficiency is primary (50%), targeting quality (30%), tactical context (20%)
             int score = (efficiencyScore * 50 + targetingScore * 30 + tacticalMultiplier * 20) / 100;
 
-            Debug.Log($"[CardScore] '{card.cardData.cardName}' - Targets: {targets.Count}, Throughput: {throughput}, Cost: {cost}, Efficiency: {efficiencyScore}, Targeting: {targetingScore}, Tactical: {tacticalMultiplier}, Final: {score}");
+            if (ENABLE_AI_LOGGING) Debug.Log($"[CardScore] '{card.cardData.cardName}' - Targets: {targets.Count}, Throughput: {throughput}, Cost: {cost}, Efficiency: {efficiencyScore}, Targeting: {targetingScore}, Tactical: {tacticalMultiplier}, Final: {score}");
 
             return score;
         }
@@ -1359,16 +1489,29 @@ namespace facingfate
             ScoredCard bestTarget = null;
             float bestScore = float.MinValue;
 
-            // Expand search radius for better target discovery
+            // OPTIMIZATION: Use adaptive search instead of full grid
+            // Instead of testing all positions in a square grid (O(n²)), use spiral search with early termination
             int searchRadius = Mathf.Max(maxFleeDistance, Mathf.RoundToInt(realStamina));
+            const int MAX_FLEE_POSITIONS = 12; // Test max 12 positions instead of searchRadius² (could be 400+)
+            const int ANGLES_PER_RING = 8;
+            int positionsEvaluated = 0;
 
-            for (int dx = -searchRadius; dx <= searchRadius; dx++)
+            // Spiral outward from current position
+            for (float distance = 1f; distance <= searchRadius && positionsEvaluated < MAX_FLEE_POSITIONS; distance += 2f)
             {
-                for (int dy = -searchRadius; dy <= searchRadius; dy++)
+                for (int angleIndex = 0; angleIndex < ANGLES_PER_RING; angleIndex++)
                 {
-                    Vector3 candidate = new Vector3(realPosition.x + dx, realPosition.y + dy, realPosition.z);
+                    if (positionsEvaluated >= MAX_FLEE_POSITIONS)
+                        break;
 
-                    // Skip current position or invalid tiles
+                    float angle = (angleIndex * 360f / ANGLES_PER_RING) * Mathf.Deg2Rad;
+                    Vector3 candidate = new Vector3(
+                        realPosition.x + Mathf.Cos(angle) * distance,
+                        realPosition.y + Mathf.Sin(angle) * distance,
+                        realPosition.z
+                    );
+
+                    // Skip current position
                     if (candidate == realPosition)
                         continue;
 
@@ -1403,6 +1546,8 @@ namespace facingfate
                     if (validEnemyCount == 0)
                         continue;
 
+                    positionsEvaluated++;
+
                     // Scoring formula prioritizing average distance and minimum safety distance
                     float averageEnemyDist = totalEnemyDist / validEnemyCount;
                     float score = (averageEnemyDist * 1.5f) + (minEnemyDist * 1f) - (moveCost * 0.5f);
@@ -1410,13 +1555,11 @@ namespace facingfate
                     // Heavy penalty for being too close to any enemy
                     if (minEnemyDist < 2f)
                         score -= 150f;
-
                     // Moderate penalty for being somewhat close
                     else if (minEnemyDist < 3f)
                         score -= 50f;
-
                     // Bonus for finding a position with good spacing from multiple enemies
-                    if (averageEnemyDist > minEnemyDist + 2f)
+                    else if (averageEnemyDist > minEnemyDist + 2f)
                         score += 30f;
 
                     // Track best-scoring candidate
@@ -1434,6 +1577,7 @@ namespace facingfate
                 }
             }
 
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][Flee] Evaluated {positionsEvaluated} flee positions (max: {MAX_FLEE_POSITIONS}), best score: {bestScore:F0}");
             return bestTarget;
         }
         #endregion

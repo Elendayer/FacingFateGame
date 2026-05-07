@@ -249,6 +249,7 @@ namespace facingfate
                     selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
                     selectedCard = null;
                 }
+                AssetManager.Instance?.HideRangeIndicator();
                 UpdateHandLayout(hoveredCard);
                 return;
             }
@@ -263,13 +264,33 @@ namespace facingfate
             selectedCard = card;
             selectedCard.GetComponent<CardOutline>()?.SetSelected(true);
 
+            CardScript cardScript = card.GetComponent<CardScript>();
+            if (cardScript != null && cardScript.cardData != null)
+            {
+                AssetManager.Instance?.ShowRangeIndicator(cardScript.cardData);
+            }
+
             UpdateHandLayout(hoveredCard);
         }
         public void HoverCard(GameObject card)
         {
             hoveredCard = card;
             if (hoveredCard == null)
+            {
                 CardPreviewPanel.Instance?.Hide();
+                if (selectedCard == null)
+                {
+                    AssetManager.Instance?.HideRangeIndicator();
+                }
+            }
+            else
+            {
+                CardScript cardScript = card.GetComponent<CardScript>();
+                if (cardScript != null && cardScript.cardData != null)
+                {
+                    AssetManager.Instance?.ShowRangeIndicator(cardScript.cardData);
+                }
+            }
             UpdateHandLayout(hoveredCard);
         }
     }

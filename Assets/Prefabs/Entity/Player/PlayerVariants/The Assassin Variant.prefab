@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &1405541984570820452
+--- !u!1001 &7613504349269971999
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -27,150 +27,134 @@ PrefabInstance:
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: EntityModel
       value: 
-      objectReference: {fileID: 7574955480498041827}
+      objectReference: {fileID: 0}
+    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: playerClass
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: deckCardIDs.Array.size
-      value: 35
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[0]'
-      value: Neutral_Tech_Punch
+      value: Neutral_Tech_Quick_Jab
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[1]'
-      value: Neutral_Tech_Punch
+      value: Neutral_Tech_Quick_Jab
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[2]'
-      value: Neutral_Tech_Strike
+      value: Neutral_Tech_Quick_Jab
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[3]'
-      value: Neutral_Tech_Step_Back
+      value: Neutral_Tech_Throw
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[4]'
-      value: Neutral_Tech_Step_Back
+      value: Neutral_Tech_Throw
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[5]'
-      value: Neutral_Abil_Meditate
+      value: Neutral_Tech_Double_Cut
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[6]'
-      value: Neutral_Abil_Meditate
+      value: Neutral_Tech_Double_Cut
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[7]'
-      value: Neutral_Abil_Rethink
+      value: Neutral_Abil_Meditate
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[8]'
-      value: Neutral_Abil_Rethink
+      value: Neutral_Abil_Meditate
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[9]'
-      value: Physician_Item_Brew_of_a_Hundred_Herbs
+      value: Neutral_Abil_Rethink
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[10]'
-      value: Physician_Item_Brew_of_a_Hundred_Herbs
+      value: Neutral_Abil_Rethink
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[11]'
-      value: Physician_Item_Brew_of_a_Hundred_Herbs
+      value: Assassin_Abil_Apply_Scorching_Blood_Venom
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[12]'
-      value: Physician_Item_Crimson_Rejuvenation_Elixir
+      value: Assassin_Abil_Apply_Black_Lotus_Venom
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[13]'
-      value: Physician_Item_Crimson_Rejuvenation_Elixir
+      value: Assassin_Abil_Phantom_Step
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[14]'
-      value: Physician_Item_Crimson_Rejuvenation_Brew
+      value: Assassin_Abil_Phantom_Step
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[15]'
-      value: Physician_Item_Crimson_Rejuvenation_Brew
+      value: Assassin_Tech_Shadowfang_Strike
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[16]'
-      value: Physician_Item_Soaring_Dragon_Elixir
+      value: Assassin_Tech_Shadowfang_Strike
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[17]'
-      value: Physician_Item_Soaring_Dragon_Elixir
+      value: Assassin_Tech_Dance_of_Hundred_Cuts
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[18]'
-      value: Physician_Item_Soaring_Dragon_Brew
+      value: Assassin_Tech_Dance_of_Hundred_Cuts
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[19]'
-      value: Physician_Item_Soaring_Dragon_Brew
+      value: Assassin_Tech_Bouncing_Shot
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[20]'
-      value: Physician_Item_Soaring_Dragon_Brew
+      value: Assassin_Tech_Bouncing_Shot
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[21]'
-      value: Physician_Item_Mandrake_Poison_Cloud
+      value: Assassin_Tech_Midnight_Rain
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[22]'
-      value: Physician_Item_Mandrake_Poison_Cloud
+      value: Assassin_Tech_Midnight_Rain
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[23]'
-      value: Physician_Abil_Poison_Barbs
+      value: Assassin_Tech_Crimson_Thorn_Array
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[24]'
-      value: Physician_Abil_Poison_Barbs
+      value: Assassin_Tech_Serpents_Coil_Shot
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[25]'
-      value: Physician_Abil_Combat_Alchemy
+      value: Assassin_Tech_Moon_Piercing
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[26]'
-      value: Physician_Tech_Needle_of_the_Flowing_River
+      value: Assassin_Abil_Eye_of_the_Nighthawk
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[27]'
-      value: Physician_Tech_Needle_of_the_Flowing_River
+      value: Assassin_Abil_Eye_of_the_Nighthawk
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[28]'
-      value: Physician_Spell_Breath_of_the_Jade_Lotus
+      value: Assassin_Tech_Lotus_Death_Kiss
       objectReference: {fileID: 0}
     - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: 'deckCardIDs.Array.data[29]'
-      value: Physician_Spell_Breath_of_the_Jade_Lotus
-      objectReference: {fileID: 0}
-    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[30]'
-      value: Spiderweb Bomb
-      objectReference: {fileID: 0}
-    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[31]'
-      value: Spiderweb Bomb
-      objectReference: {fileID: 0}
-    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[32]'
-      value: Alchemic Fire
-      objectReference: {fileID: 0}
-    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[33]'
-      value: Alchemic Fire
-      objectReference: {fileID: 0}
-    - target: {fileID: 1904531680357473891, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[34]'
-      value: Physician_Abil_Doctors_Footwork
+      value: Assassin_Tech_Lotus_Death_Kiss
       objectReference: {fileID: 0}
     - target: {fileID: 2832468515761090220, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_Pivot.x
@@ -206,7 +190,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2832468515761090220, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.9499993
+      value: -5.3699994
       objectReference: {fileID: 0}
     - target: {fileID: 2832468515761090220, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_LocalPosition.y
@@ -214,7 +198,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2832468515761090220, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2832468515761090220, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_LocalRotation.w
@@ -251,6 +235,18 @@ PrefabInstance:
     - target: {fileID: 2832468515761090220, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3567744316417343318, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: curveResolution
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3567744316417343318, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: arrowHeightOffset
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3567744316417343318, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: minEntityDistance
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 4886731697068249589, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_IsActive
@@ -314,7 +310,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_Name
-      value: Tony - The Physician Variant
+      value: Marcus - The Assassin Variant
       objectReference: {fileID: 0}
     - target: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_IsActive
@@ -376,10 +372,54 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_Height
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_Radius
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_AutoRepath
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_BaseOffset
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_AutoBraking
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_StoppingDistance
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_ObstacleAvoidanceType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359350333834423061, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_AutoTraverseOffMeshLink
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8835738236975723655, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+    - target: {fileID: 9001171521745787760, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9001171521745787760, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
+      propertyPath: currentCell.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9020706638173528162, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -398,20 +438,20 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8429974896115075976}
+      addedObject: {fileID: 3909536493914896799}
   m_SourcePrefab: {fileID: 100100000, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
---- !u!1 &4737051542883700935 stripped
+--- !u!1 &4293204113833952188 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5925646098595141539, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-  m_PrefabInstance: {fileID: 1405541984570820452}
+  m_PrefabInstance: {fileID: 7613504349269971999}
   m_PrefabAsset: {fileID: 0}
---- !u!208 &8429974896115075976
+--- !u!208 &3909536493914896799
 NavMeshObstacle:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4737051542883700935}
+  m_GameObject: {fileID: 4293204113833952188}
   m_Enabled: 0
   serializedVersion: 3
   m_Shape: 0
@@ -421,8 +461,3 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 0
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.1
---- !u!33 &7574955480498041827 stripped
-MeshFilter:
-  m_CorrespondingSourceObject: {fileID: 8835738236975723655, guid: 7897782127c5c7a49aad8f7a1e0ffc10, type: 3}
-  m_PrefabInstance: {fileID: 1405541984570820452}
-  m_PrefabAsset: {fileID: 0}

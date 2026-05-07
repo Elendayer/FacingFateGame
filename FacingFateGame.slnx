@@ -18,4 +18,5 @@
   <Project Path="Unity.RenderPipelines.Core.Samples.Editor.csproj" />
   <Project Path="Ak.Wwise.Api.WAAPI.csproj" />
   <Project Path="AK.Wwise.Unity.AddressableUpdater.csproj" />
+  <Project Path="BenchmarkSuite1/BenchmarkSuite1.csproj" />
 </Solution>

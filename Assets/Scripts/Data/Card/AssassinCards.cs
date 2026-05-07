@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -82,7 +83,7 @@ namespace facingfate
                 cardActionSequence = new()
                 {
                     new CardAction(
-                        ExecutionMode.Once,
+                        ExecutionMode.AllAtOnce,
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
@@ -174,9 +175,9 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            EntityModifier poison = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, cardData, ThroughputSource.Damage, target);
-                            EntityModifier burn = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, cardData, ThroughputSource.Damage, target);
-                            EntityModifier bleed = EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, cardData, ThroughputSource.Damage, target);
+                            EntityModifier poison = EffectDatabase.GetEffectByName("Poison", cardData, ThroughputSource.Damage, target);
+                            EntityModifier burn = EffectDatabase.GetEffectByName("Burn", cardData, ThroughputSource.Damage, target);
+                            EntityModifier bleed = EffectDatabase.GetEffectByName("Bleed", cardData, ThroughputSource.Damage, target);
 
                             poison.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                             burn.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
@@ -234,7 +235,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 75,
+                damage_u = 45,
                 range_u = 8f,
 
                 targetingData = new()
@@ -248,9 +249,21 @@ namespace facingfate
                 cardActionSequence = new()
                 {
                     new CardAction(
-                        ExecutionMode.Once,
+                        ExecutionMode.AllAtOnce,
                         TargetingMode.Entities,
                         delayBefore: 0f,
+                        delayBetween: 0f,
+
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFX("Arrowshot", new VFXData("Arrowshot") {start = caster.transform.position, end = target.transform.position});
+                            }
+
+                        ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0.5f,
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
@@ -283,12 +296,24 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} Damage.",
                 cardActionSequence = new()
-                {
+                {                 
                     new CardAction(
-                        ExecutionMode.Once,
+                        ExecutionMode.AllAtOnce,
                         TargetingMode.Entities,
                         delayBefore: 0f,
-                        delayBetween: 0f,
+                        delayBetween: 0.05f,
+
+                        action: (caster, target, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFX("Arrowshot", new VFXData("Arrowshot") {start = caster.transform.position, end = target.transform.position});
+                            }
+
+                        ),
+                    new CardAction(
+                        ExecutionMode.EachIndividual,
+                        TargetingMode.Entities,
+                        delayBefore: 0.5f,
+                        delayBetween: 0.05f,
                         action: (caster, target, cardData) =>
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
@@ -367,7 +392,7 @@ namespace facingfate
                         action: (caster, target, cardData) =>
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
-                            var rootEffect = EffectDatabase.GetEffectByName("Root", CloneMode.Defaults, cardData, ThroughputSource.Damage, target);
+                            var rootEffect = EffectDatabase.GetEffectByName("Root", cardData, ThroughputSource.Power, target);
                             CombatUtility.ApplyEntityModifier(cardData, target, rootEffect);
                         }
                     )
@@ -401,8 +426,18 @@ namespace facingfate
                 {
                     new CardAction(
                         ExecutionMode.Once,
-                        TargetingMode.Entities,
+                        TargetingMode.Aim,
                         delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, targetPosition, cardData) =>
+                        {
+                            AssetManager.Instance.CreateVFX("Arrow_Rain", new VFXData("Arrow_Rain") { start = targetPosition, radius = cardData.Radius });
+                        }
+                    ),
+                    new CardAction(
+                        ExecutionMode.AllAtOnce,
+                        TargetingMode.Entities,
+                        delayBefore: 0.2f,
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
@@ -611,7 +646,7 @@ namespace facingfate
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"));
 
-                            var stun = EffectDatabase.GetEffectByName("Stun", CloneMode.OverrideFromData, cardData, ThroughputSource.Power, target);
+                            var stun = EffectDatabase.GetEffectByName("Stun", cardData, ThroughputSource.Power, target);
                             stun.ModifierMergeStrategy = ModifierMergeStrategy.Merge;
                             CombatUtility.ApplyEntityModifier(cardData, target, stun);
                         }
@@ -701,12 +736,12 @@ namespace facingfate
                 {
                     new CardAction(
                         ExecutionMode.Once,
-                        TargetingMode.Entities,
+                        TargetingMode.Coroutine,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (caster, target, cardData) =>
+                        coroutine: (caster, targetingData, cardData) =>
                         {
-                            MovementUtility.ForcedMove(ForcedMovementType.Jump, caster, target.transform.position);
+                            return StartTeleportBehindTarget(caster, targetingData.targetedEntities[0]);
                         }
                     )
                 }
@@ -745,9 +780,16 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            CombatUtility.ApplyEntityModifier(cardData, caster,
+                            new CardAction(
+                                ExecutionMode.Once,
+                                TargetingMode.Caster,
+                                delayBefore: 0f,
+                                delayBetween: 0f,
+                                action: (caster, cardData) =>
+                                {
+                                   CombatUtility.ApplyEntityModifier(cardData, caster,
                                 new EntityModifier(
-                                    modifierName: "BurningVenom",
+                                    modifierName: "Scorching Blood Venom",
                                     owner: caster,
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
@@ -761,11 +803,12 @@ namespace facingfate
                                     actionTargetType: EntityModifier.ActionTargetType.Affected,
                                     onRef_Action: (t, d, value) =>
                                     {
-                                        var poisonEffect = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, t);
-                                        poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
-                                        CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
+                                        var burnEffect = EffectDatabase.GetEffectByName("Burn", d, ThroughputSource.Damage, t);
+                                        burnEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                                        CombatUtility.ApplyEntityModifier(d, t, burnEffect);
                                     }));
-                        }
+                                });
+                        })
                     )
                 }
             });
@@ -807,7 +850,7 @@ namespace facingfate
                         {
                             CombatUtility.ApplyEntityModifier(cardData, caster,
                                 new EntityModifier(
-                                    modifierName: "PosionVenom",
+                                    modifierName: "Black Lotus Venom",
                                     owner: caster,
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
@@ -821,7 +864,7 @@ namespace facingfate
                                     actionTargetType: EntityModifier.ActionTargetType.Affected,
                                     onRef_Action: (t, d, value) =>
                                     {
-                                        var poisonEffect = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, t);
+                                        var poisonEffect = EffectDatabase.GetEffectByName("Poison", d, ThroughputSource.Damage, t);
                                         poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                                         CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
                                     }));
@@ -876,7 +919,7 @@ namespace facingfate
                                     actionTargetType: EntityModifier.ActionTargetType.Affected,
                                     onRef_Action: (t, d, value) =>
                                     {
-                                        var stunEffect = EffectDatabase.GetEffectByName("Stun", CloneMode.Defaults, d, ThroughputSource.Power, t);
+                                        var stunEffect = EffectDatabase.GetEffectByName("Stun", d, ThroughputSource.Power, t);
                                         stunEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                                         CombatUtility.ApplyEntityModifier(d, t, stunEffect);
                                     }));
@@ -1067,6 +1110,17 @@ namespace facingfate
                     )
                 }
             });
+        }
+
+        private static System.Collections.IEnumerator StartTeleportBehindTarget(EntityScript caster, EntityScript target)
+        {
+            // Calculate position behind the target
+            Vector3 directionToTarget = (target.transform.position - caster.transform.position).normalized;
+            Vector3 behindPosition = target.transform.position + directionToTarget * 2f;
+
+            // Teleport instantly
+            caster.EntityOnMap.TeleportTo(behindPosition);
+            yield return null;
         }
     }
 }

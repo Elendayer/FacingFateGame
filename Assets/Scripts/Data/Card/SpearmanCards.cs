@@ -187,7 +187,7 @@ namespace facingfate
                         delayBetween: 0.1f,
                         action: (caster, target, cardData) =>
                         {
-                            EntityModifier entityModifier = EffectDatabase.GetEffectByName("Bleed", CloneMode.Defaults, cardData, ThroughputSource.Damage, caster);
+                            EntityModifier entityModifier = EffectDatabase.GetEffectByName("Bleed", cardData, ThroughputSource.Damage, caster);
                             entityModifier.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                             CombatUtility.ApplyEntityModifier(cardData, target, entityModifier);
                         }
@@ -206,10 +206,11 @@ namespace facingfate
 
                 cost_u = 20,
                 damage_u = 12,
+                secondaryDamage_u = 15,
 
                 range_u = 0.5f,
 
-                radius_u = 2f,
+                radius_u = 1.5f,
                 area_u = 1f,
 
                 targetingData = new()
@@ -235,7 +236,7 @@ namespace facingfate
                         }
                     ),
                     new CardAction(
-                        ExecutionMode.EachIndividual,
+                        ExecutionMode.AllAtOnce,
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0.1f,
@@ -244,7 +245,7 @@ namespace facingfate
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("SlashImpact"));
 
 
-                            EntityModifier mod = EffectDatabase.GetEffectByName("Burn", CloneMode.Defaults, cardData, ThroughputSource.Damage, caster);
+                            EntityModifier mod = EffectDatabase.GetEffectByName("Burn", cardData, ThroughputSource.SecondaryDamage, caster);
                             CombatUtility.ApplyEntityModifier(cardData, target, mod);
                         }
                     )

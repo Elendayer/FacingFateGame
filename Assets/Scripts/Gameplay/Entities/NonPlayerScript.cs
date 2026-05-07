@@ -38,7 +38,7 @@ namespace facingfate
                 npcData = NpcDatabase.GetNpcById(NpcID, this);
                 if (npcData == null)
                 {
-                    Debug.LogError($"[NonPlayerScript] NpcDatabase has no entry for NpcID '{NpcID}'. Check TutorialCombatManager enemyWaves npcId field.");
+                    //Debug.LogError($"[NonPlayerScript] NpcDatabase has no entry for NpcID '{NpcID}'. Check TutorialCombatManager enemyWaves npcId field.");
                     return;
                 }
                 name = $"{entityAffiliation}_{npcData.name}";
@@ -50,7 +50,7 @@ namespace facingfate
             npcAIController = new NpcAIController(this, npcData);
             DeckManager.Instance.BuildDeckFromIDs(this);
 
-            Debug.Log($"[NonPlayerScript] Setup complete for {name}");
+            //Debug.Log($"[NonPlayerScript] Setup complete for {name}");
         }
 
         public override void StartTurn()
@@ -61,7 +61,7 @@ namespace facingfate
             {
                 ActionQueueUtility.EnqueueAction(() =>
                 {
-                    Debug.Log($"[NonPlayerScript] {name} is stunned and skips their turn.");
+                    //Debug.Log($"[NonPlayerScript] {name} is stunned and skips their turn.");
                     GameEvents.TriggerTurnEnd();
                 });
 
@@ -156,7 +156,7 @@ namespace facingfate
                     break;
 
                 default:
-                    Debug.LogWarning($"[NonPlayerScript] Unhandled ActionType: {action.Type} — skipping action.");
+                    //Debug.LogWarning($"[NonPlayerScript] Unhandled ActionType: {action.Type} — skipping action.");
                     ExecuteNextAction(plan, actionIndex + 1, onAllActionsComplete);
                     break;
             }
@@ -168,14 +168,14 @@ namespace facingfate
         /// </summary>
         private void EnqueueMoveAction(PlannedAction action, Action onActionComplete)
         {
-            Debug.Log($"[NpcAI] {name} moving to {action.PathData.End}");
+            //Debug.Log($"[NpcAI] {name} moving to {action.PathData.End}");
 
             // Deduct movement cost from stamina before executing movement
             if (action.PathData != null && action.PathData.PathCost > 0)
             {
                 if (entityStats.CurrentStamina < action.PathData.PathCost)
                 {
-                    Debug.LogWarning($"[NpcAI] {name} does not have enough stamina for movement. Required: {action.PathData.PathCost}, Available: {entityStats.CurrentStamina}");
+                    //Debug.LogWarning($"[NpcAI] {name} does not have enough stamina for movement. Required: {action.PathData.PathCost}, Available: {entityStats.CurrentStamina}");
                     onActionComplete?.Invoke();
                     return;
                 }
@@ -192,7 +192,7 @@ namespace facingfate
                 // Update stats after movement completes
                 entityStats.UpdateStats();
 
-                Debug.Log($"[NpcAI] {name} finished moving");
+                //Debug.Log($"[NpcAI] {name} finished moving");
                 onActionComplete?.Invoke();
             });
         }
@@ -202,7 +202,7 @@ namespace facingfate
         /// </summary>
         private void EnqueueCardAction(PlannedAction action, Action onActionComplete)
         {
-            Debug.Log($"[NpcAI] {name} playing card {action.Name}");
+            //Debug.Log($"[NpcAI] {name} playing card {action.Name}");
 
             // Deduct card cost from stamina before executing the card
             if (action.Card?.cardData != null)
@@ -210,7 +210,7 @@ namespace facingfate
                 int cardCost = action.Card.cardData.Cost;
                 if (entityStats.CurrentStamina < cardCost)
                 {
-                    Debug.LogWarning($"[NpcAI] {name} does not have enough stamina for card. Required: {cardCost}, Available: {entityStats.CurrentStamina}");
+                    //Debug.LogWarning($"[NpcAI] {name} does not have enough stamina for card. Required: {cardCost}, Available: {entityStats.CurrentStamina}");
                     onActionComplete?.Invoke();
                     return;
                 }
@@ -221,7 +221,7 @@ namespace facingfate
             // Enqueue card effects with callback to signal completion
             ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData, null, 0.25f, () =>
             {
-                Debug.Log($"[NpcAI] {name} finished playing card");
+                //Debug.Log($"[NpcAI] {name} finished playing card");
                 onActionComplete?.Invoke();
             });
         }

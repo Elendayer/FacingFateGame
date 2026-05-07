@@ -19,30 +19,20 @@ namespace facingfate
 				Debug.LogWarning($"Duplicate card ID detected: {Modifier.ModifierName}");
 			}
 		}
-		public static EntityModifier GetEffectByName(
-			string name,
-			CloneMode mode,
-			CardData data,
-			ThroughputSource source,
-			EntityScript owner)
+		public static EntityModifier GetEffectByName(string name, CardData cardData, ThroughputSource source, EntityScript owner)
 		{
 			if (!effectLookup.TryGetValue(name, out var blueprint) || blueprint == null)
 				return null;
 
-			switch (mode)
-			{
-				case CloneMode.Defaults:
-					return blueprint.CloneDefaults(
-						data,
-						source,
-						owner);
-				case CloneMode.OverrideFromData:
-					return blueprint.CloneOverrideFromData(
-						data,
-						source,
-						owner);
-			}
-			return null;
+			return blueprint.CloneDefaults(cardData, source, owner);
+		}
+
+		public static EntityModifier GetEffectByNameWithDataOverride(string name, CardData cardData, ThroughputSource source)
+		{
+			if (!effectLookup.TryGetValue(name, out var blueprint) || blueprint == null)
+				return null;
+
+			return blueprint.CloneOverrideFromData(cardData, source, null);
 		}
 
 		public static List<EntityModifier> GetAllEffects()
@@ -102,9 +92,8 @@ icon: null,
                 description: "Deals damage at the end of turn. Stacks increase damage dealt.",
 icon: null,
                 owner: null,
-				duration: 2,
-				// toTriggerRefs intentionally omitted: ApplyEffectDamage already fires GameplayRef.onPoison
-				// via HandlePostCombatTrigger — including it here caused a double-fire each poison tick.
+				duration: 3,
+				toTriggerRefs: new() { GameplayRef.onPoison },
 				onRef_Trigger: new RelevantTriggerCheck
 				{
 					OnTriggerReference = new() { GameplayRef.onTurnStart },

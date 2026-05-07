@@ -31,7 +31,7 @@ namespace facingfate
 
                 cost_u = 40,
                 damage_u = 130,
-                range_u = 3f,
+                range_u = 5f,
 
                 targetingData = new()
                 {
@@ -439,7 +439,7 @@ namespace facingfate
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Mystic_Spell_Toxic_Hex",
-                cardName = "Venom Hex",
+                cardName = "Toxic Hex",
                 cardType = CardType.Spell,
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Poison },

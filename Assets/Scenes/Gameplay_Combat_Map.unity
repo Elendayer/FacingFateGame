@@ -7531,7 +7531,7 @@ PrefabInstance:
     - target: {fileID: 1863909755944675337, guid: 0b5b7477380975d4ca41a00356d2cc8f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: -876546973899608171, guid: 6f99323ca4453d24c94db003cefacc5a, type: 3}
+      objectReference: {fileID: -876546973899608171, guid: ddc5c69fa029cb74abb0c0bb472feae5, type: 3}
     - target: {fileID: 2003721692398901305, guid: 0b5b7477380975d4ca41a00356d2cc8f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -7642,11 +7642,7 @@ PrefabInstance:
       objectReference: {fileID: 6604927694719916108, guid: 28245d7b0fa89914a9499634d428f322, type: 3}
     - target: {fileID: 3848091005685883373, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
       propertyPath: m_Name
-      value: Juan - The Mystic
-      objectReference: {fileID: 0}
-    - target: {fileID: 3848091005685883373, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
-      propertyPath: m_IsActive
-      value: 1
+      value: The Mystic
       objectReference: {fileID: 0}
     - target: {fileID: 4617815525795551458, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7701,8 +7697,8 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -876546973899608171, guid: 6f99323ca4453d24c94db003cefacc5a, type: 3}
     - target: {fileID: 9022245669738801197, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
-      propertyPath: playerClass
-      value: 2
+      propertyPath: 'deckCardIDs.Array.data[23]'
+      value: Mystic_Abil_Dancing_Shadow
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2590310657287207681, guid: 0e685bbe40645634dbc83dcd14f9ab6c, type: 3}
@@ -7731,7 +7727,7 @@ PrefabInstance:
     - target: {fileID: 249770881578455153, guid: 646c6306c088cf4499f5ebebc78dff26, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: -876546973899608171, guid: 6f99323ca4453d24c94db003cefacc5a, type: 3}
+      objectReference: {fileID: -876546973899608171, guid: ddc5c69fa029cb74abb0c0bb472feae5, type: 3}
     - target: {fileID: 303180071409654573, guid: 646c6306c088cf4499f5ebebc78dff26, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -7825,8 +7821,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -876546973899608171, guid: 6f99323ca4453d24c94db003cefacc5a, type: 3}
     - target: {fileID: 715858503122721031, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
-      propertyPath: playerClass
-      value: 3
+      propertyPath: 'deckCardIDs.Array.data[33]'
+      value: Physician_Abil_Doctors_Footwork
+      objectReference: {fileID: 0}
+    - target: {fileID: 715858503122721031, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
+      propertyPath: 'deckCardIDs.Array.data[34]'
+      value: Physician_Abil_Doctors_Footwork
+      objectReference: {fileID: 0}
+    - target: {fileID: 715858503122721031, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
+      propertyPath: 'deckCardIDs.Array.data[35]'
+      value: Physician_Abil_Doctors_Footwork
       objectReference: {fileID: 0}
     - target: {fileID: 1925559665963277622, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
       propertyPath: m_Mesh
@@ -7886,11 +7890,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4737051542883700935, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
       propertyPath: m_Name
-      value: Tony - The Physician
-      objectReference: {fileID: 0}
-    - target: {fileID: 4737051542883700935, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
-      propertyPath: m_IsActive
-      value: 1
+      value: The Physician
       objectReference: {fileID: 0}
     - target: {fileID: 7144673238572074404, guid: dcfb725c9a8715849b188e59516cfcf1, type: 3}
       propertyPath: m_LocalScale.x
@@ -7976,21 +7976,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7204977300209404337, guid: 3d8c6ec03efee694da94d565e5070e8a, type: 3}
-      propertyPath: effectAssets.Array.size
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 7204977300209404337, guid: 3d8c6ec03efee694da94d565e5070e8a, type: 3}
-      propertyPath: effectAssets.Array.data[18].name
-      value: vfx_targeting_cone
-      objectReference: {fileID: 0}
-    - target: {fileID: 7204977300209404337, guid: 3d8c6ec03efee694da94d565e5070e8a, type: 3}
-      propertyPath: effectAssets.Array.data[19].name
-      value: vfx_targeting_default
-      objectReference: {fileID: 0}
-    - target: {fileID: 7204977300209404337, guid: 3d8c6ec03efee694da94d565e5070e8a, type: 3}
-      propertyPath: effectAssets.Array.data[18].visualEffectAsset
+      propertyPath: rangeIndicator
       value: 
-      objectReference: {fileID: 8926484042661614526, guid: 8365e70ec03fef44ba59daec82491a9d, type: 3}
+      objectReference: {fileID: 6768860565510122168, guid: d36eb393f079d6e44ba53b2443b80bef, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8062,7 +8050,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6670376024510000568, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
       propertyPath: m_Name
-      value: Carlos - The Spearman
+      value: The Spearman
       objectReference: {fileID: 0}
     - target: {fileID: 6670376024510000568, guid: f3b15ce69ec7b3d4288b8aa8c466091b, type: 3}
       propertyPath: m_IsActive
@@ -8129,7 +8117,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4293204113833952188, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
       propertyPath: m_Name
-      value: Marcus - The Assassin
+      value: The Assassin
       objectReference: {fileID: 0}
     - target: {fileID: 4293204113833952188, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
       propertyPath: m_IsActive
@@ -8183,18 +8171,6 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: 6f99323ca4453d24c94db003cefacc5a, type: 3}
-    - target: {fileID: 8342593571069594236, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
-      propertyPath: playerClass
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8342593571069594236, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[11]'
-      value: Assassin_Abil_Apply_Scorching_Blood_Venom
-      objectReference: {fileID: 0}
-    - target: {fileID: 8342593571069594236, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
-      propertyPath: 'deckCardIDs.Array.data[23]'
-      value: Assassin_Tech_Crimson_Thorn_Array
-      objectReference: {fileID: 0}
     - target: {fileID: 8841098229491568991, guid: b97f6f25600fdc9459f04ededa369250, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -8397,6 +8373,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5912866678343564069, guid: ed5aa643bcc7986438ca6e52efa8a57f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 271131481203588390, guid: c9502205d30b7034487684abb693b63c, type: 3}
     - target: {fileID: 6146561415920005241, guid: ed5aa643bcc7986438ca6e52efa8a57f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -8478,6 +8458,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2088209277634416101, guid: 549d340176dfa0d4e888e0e66d765679, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 271131481203588390, guid: c9502205d30b7034487684abb693b63c, type: 3}
     - target: {fileID: 4127617777182778652, guid: 549d340176dfa0d4e888e0e66d765679, type: 3}
       propertyPath: m_Name
       value: Enemy Jolf

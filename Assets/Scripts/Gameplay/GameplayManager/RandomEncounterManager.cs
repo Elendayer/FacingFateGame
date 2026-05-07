@@ -100,7 +100,9 @@ namespace facingfate
 
         private void SpawnEnemy(string npcId, Vector3 position)
         {
-            CombatUtility.SpawnEntity(position, npcId, EntityAffiliation.Enemy, hasTurn: true);
+           NonPlayerScript npc =  CombatUtility.SpawnEntity(position, npcId, EntityAffiliation.Enemy, hasTurn: true);
+
+            npc.EntityVisual.meshRenderer.material = AssetManager.Instance.EnemyMaterial;
         }
     }
 }

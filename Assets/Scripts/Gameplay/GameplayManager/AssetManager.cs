@@ -29,6 +29,9 @@ namespace facingfate
 
         public GameObject groundEffectPrefab;
 
+        public GameObject rangeIndicator;
+
+        public Material EnemyMaterial;
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -219,6 +222,52 @@ namespace facingfate
             {
                 Debug.LogWarning("VFX Asset is not assigned.");
                 return (null, null);
+            }
+        }
+
+        private VisualEffect activeRangeIndicator;
+
+        public void ShowRangeIndicator(CardData cardData)
+        {
+            if (cardData == null || cardData.Owner == null || rangeIndicator == null)
+            {
+                HideRangeIndicator();
+                return;
+            }
+
+            // Reuse existing instance or create new one
+            if (activeRangeIndicator == null)
+            {
+                GameObject instance = Instantiate(rangeIndicator);
+                activeRangeIndicator = instance.GetComponent<VisualEffect>();
+                if (activeRangeIndicator == null)
+                {
+                    activeRangeIndicator = instance.AddComponent<VisualEffect>();
+                }
+            }
+
+            // Position at card user and set range
+            Vector3 userPosition = cardData.Owner.transform.position;
+            activeRangeIndicator.transform.position = userPosition;
+
+            if (activeRangeIndicator.HasVector3("Start"))
+            {
+                activeRangeIndicator.SetVector3("Start", userPosition);
+            }
+
+            if (activeRangeIndicator.HasFloat("Range"))
+            {
+                activeRangeIndicator.SetFloat("Range", cardData.Range);
+            }
+
+            activeRangeIndicator.gameObject.SetActive(true);
+        }
+
+        public void HideRangeIndicator()
+        {
+            if (activeRangeIndicator != null)
+            {
+                activeRangeIndicator.gameObject.SetActive(false);
             }
         }
     }

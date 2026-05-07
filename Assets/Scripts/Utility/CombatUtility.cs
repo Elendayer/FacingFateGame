@@ -7,6 +7,12 @@ using facingfate;
 
 public static class CombatUtility
 {
+    #if UNITY_EDITOR
+    private const bool ENABLE_COMBAT_LOGGING = false;
+    #else
+    private const bool ENABLE_COMBAT_LOGGING = false;
+    #endif
+
     // Damage that bypasses mitigation, armour, and block. Used for DOT effects and other similar cases.
     // Does not trigger onHitLanded or any related triggers, but does trigger onDamageRecieved and related triggers.
     public static void ApplyEffectDamage(float rawDamage, EntityScript target, GameplayRef dotType, VFXData vfxData)
@@ -45,7 +51,9 @@ public static class CombatUtility
             damage = rawDamage;
         }
 
-        Debug.Log($"Applying {damage} damage to {target.name}");
+        #if UNITY_EDITOR
+        if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applying {damage} damage to {target.name}");
+        #endif
 
         // 1) Pre-Mitigation
         damage = target.entityStats.ApplyStatModifiers(damage, target.entityStats.DamageTakenModifier_Flat, target.entityStats.DamageTakenModifier_Increase, target.entityStats.DamageTakenModifier_Multiplier);
@@ -134,7 +142,9 @@ public static class CombatUtility
 
         mod.Stat.AddModifier(mod);
 
-        Debug.Log($"Applied Buff {mod.ModifierName} to {target.name}");
+        #if UNITY_EDITOR
+        if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Buff {mod.ModifierName} to {target.name}");
+        #endif
         HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, (int)mod.BaseValue);
     }
 
@@ -144,7 +154,9 @@ public static class CombatUtility
 
         mod.Stat.AddModifier(mod);
 
-        Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
+        #if UNITY_EDITOR
+        if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
+        #endif
         HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);
     }
 
@@ -180,7 +192,9 @@ public static class CombatUtility
         EffectOwner.AddModifier(mod);
         DamageNumberSpawner.Instance?.SpawnDamage(EffectOwner, 0, DamageNumberSpawner.NumberType.Modifier);
 
-        Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
+        #if UNITY_EDITOR
+        if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
+        #endif
         HandlePostCombatTrigger(refs, cardData.Owner, EffectOwner, cardData);
     }
 

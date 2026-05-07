@@ -277,7 +277,9 @@ namespace facingfate
             int baseValue = source switch
             {
                 ThroughputSource.Damage => cd.Damage,
+                ThroughputSource.SecondaryDamage => cd.SecondaryDamage,
                 ThroughputSource.Heal => cd.Healing,
+                ThroughputSource.SecondaryHealing => cd.SecondaryHealing,
                 ThroughputSource.Power => cd.Power,
                 _ => 0
             };
@@ -309,7 +311,9 @@ namespace facingfate
             int baseValue = source switch
             {
                 ThroughputSource.Damage => cd.Damage,
+                ThroughputSource.SecondaryDamage => cd.SecondaryDamage,
                 ThroughputSource.Heal => cd.Healing,
+                ThroughputSource.SecondaryHealing => cd.SecondaryHealing,
                 ThroughputSource.Power => cd.Power,
                 _ => 0
             };
@@ -343,7 +347,9 @@ namespace facingfate
     public enum ThroughputSource
     {
         Damage,
+        SecondaryDamage,
         Heal,
+        SecondaryHealing,
         Power,
         None,
     }

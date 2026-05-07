@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.VFX;
 using DG.Tweening;
 
 namespace facingfate
@@ -22,6 +23,9 @@ namespace facingfate
 
         private CanvasGroup canvasGroup;
         private bool        isPreviewEnabled = true;
+
+        private GameObject rangeIndicatorVFX;
+        private VisualEffect rangeIndicatorEffect;
 
         // ── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -93,6 +97,9 @@ namespace facingfate
             // Only block raycasts during active drag so tooltip triggers behind the panel
             // remain reachable when the player is just hovering or has a card selected.
             canvasGroup.blocksRaycasts = DraggableCard.ActiveDraggingCard != null;
+
+            // Display range indicator
+            ShowRangeIndicator(source.cardData);
         }
 
         public void Hide()
@@ -126,6 +133,9 @@ namespace facingfate
             canvasGroup.DOFade(0f, fadeDuration)
                 .SetUpdate(true)
                 .OnComplete(() => previewRoot.SetActive(false));
+
+            // Hide range indicator
+            HideRangeIndicator();
         }
 
         // ── Pointer: cancel targeting on click ────────────────────────────────
@@ -156,6 +166,53 @@ namespace facingfate
             GameObject selected = HandManager.Instance?.GetSelectedCard();
             if (selected == null) return;
             ExecuteEvents.Execute<IEndDragHandler>(selected, eventData, ExecuteEvents.endDragHandler);
+        }
+
+        // ── Range Indicator ────────────────────────────────────────────────────
+
+        private void ShowRangeIndicator(CardData cardData)
+        {
+            // Hide any existing range indicator
+            HideRangeIndicator();
+
+            // Get the player entity
+            PlayerScript player = Object.FindObjectOfType<PlayerScript>();
+            if (player == null) return;
+
+            // Get the range indicator prefab from AssetManager
+            AssetManager assetManager = AssetManager.Instance;
+            if (assetManager == null || assetManager.rangeIndicator == null) return;
+
+            // Clone the range indicator
+            rangeIndicatorVFX = Instantiate(assetManager.rangeIndicator.gameObject);
+            rangeIndicatorEffect = rangeIndicatorVFX.GetComponent<VisualEffect>();
+
+            if (rangeIndicatorEffect == null) return;
+
+            // Set the position to the player's position
+            rangeIndicatorVFX.transform.position = player.transform.position;
+
+            // Set the Radius property to the card's range
+            if (rangeIndicatorEffect.HasFloat("Radius"))
+            {
+                rangeIndicatorEffect.SetFloat("Radius", cardData.Range);
+            }
+
+            // Set the Start property to the player's position
+            if (rangeIndicatorEffect.HasVector3("Start"))
+            {
+                rangeIndicatorEffect.SetVector3("Start", player.transform.position);
+            }
+        }
+
+        private void HideRangeIndicator()
+        {
+            if (rangeIndicatorVFX != null)
+            {
+                Destroy(rangeIndicatorVFX);
+                rangeIndicatorVFX = null;
+                rangeIndicatorEffect = null;
+            }
         }
     }
 }

@@ -155,7 +155,7 @@ namespace facingfate
                 Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, npcScript.npcData.baseEndurance, ModifierMergeStrategy.Override));
                 Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, npcScript.npcData.baseTenacity, ModifierMergeStrategy.Override));
 
-                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f, modifierMergeStrategy: ModifierMergeStrategy.Override));
+                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 25f, modifierMergeStrategy: ModifierMergeStrategy.Override));
                 MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f, modifierMergeStrategy: ModifierMergeStrategy.Override));
             }
             else
@@ -171,7 +171,7 @@ namespace facingfate
                 Endurance_Flat.AddModifier(new StatModifier("BaseValue", Endurance_Flat, pd.baseEndurance, ModifierMergeStrategy.Override));
                 Tenacity_Flat.AddModifier(new StatModifier("BaseValue", Tenacity_Flat, pd.baseTenacity, ModifierMergeStrategy.Override));
 
-                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 50f, modifierMergeStrategy: ModifierMergeStrategy.Override));
+                MaxHealth_Flat.AddModifier(new StatModifier("BaseValue", MaxHealth_Flat, value: () => CurrentTenacity * 25f, modifierMergeStrategy: ModifierMergeStrategy.Override));
                 MaxStamina_Flat.AddModifier(new StatModifier("BaseValue", MaxStamina_Flat, value: () => CurrentEndurance * 5f, modifierMergeStrategy: ModifierMergeStrategy.Override));
             }
 
@@ -257,11 +257,9 @@ namespace facingfate
                 CombatUIController.Instance.RefreshAll();
             }
 
-            Debug.Log($"Checking death for {Owner.name}", Owner);
             // Handle death condition - only process once per entity
             if (CurrentHealth <= 0 && !deathProcessed && Owner != null && isInitialized)
             {
-                Debug.Log($"Death for {Owner.name}", Owner);
 
                 deathProcessed = true;
                 HandleEntityDeath();
