@@ -36,8 +36,11 @@ namespace facingfate
 
         public static void GameplayReferenceCall() => OnGameplayReference?.Invoke(new());
 
+        public static ToSendTriggerReference LastGameplayTrigger;
+
         public static void TriggerRefEvent(ToSendTriggerReference grs)
         {
+            LastGameplayTrigger = grs;
             TimelineManager.AddToTimeline(grs);
             OnGameplayReference?.Invoke(grs);
         }

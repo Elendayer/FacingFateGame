@@ -111,7 +111,7 @@ namespace facingfate
         {
             for (int i = 0; i < toDiscard; i++)
             {
-                npcAIController.DiscardCard(toDiscard); 
+                npcAIController.DiscardCard(1);
                 GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onCardDiscarded }, this , affectedEntities: new() { this }));
             }
         }

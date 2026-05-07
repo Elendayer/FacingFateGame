@@ -66,8 +66,8 @@ namespace facingfate
 
         private void Show(bool playerWon)
         {
-            // Suppress mid-tutorial intermediate combat-ends; tutorial calls TriggerCombatEnd itself when done.
-            if (TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
+            // Suppress mid-tutorial intermediate WINS only; always show player death.
+            if (playerWon && TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
                 return;
 
             // Kill any in-flight tweens so a re-triggered Show doesn't stack sequences.

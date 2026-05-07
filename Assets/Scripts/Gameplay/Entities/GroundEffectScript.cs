@@ -53,7 +53,6 @@ namespace facingfate
             {
                 RefreshEntitiesInZone();
                 TickDuration();
-                return;
             }
 
             // Fire OnRef for every valid entity inside the zone

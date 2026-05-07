@@ -1603,6 +1603,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8838467494662396084, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
+      propertyPath: loadAsynchronous
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8838467494662396084, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
+      propertyPath: overrideLoadSetting
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8838467494662396084, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
       propertyPath: triggerList.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -2476,92 +2484,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 135.3}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &764663073
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 764663075}
-  - component: {fileID: 764663077}
-  - component: {fileID: 764663078}
-  m_Layer: 0
-  m_Name: TS BG Audio
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &764663075
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 764663073}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 922.3671, y: 749.8509, z: -12.879459}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &764663077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 764663073}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c658bed3a028d6c4bb614c0b905e2106, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: AK.Wwise.Unity.MonoBehaviour::AkGameObj
-  m_listeners:
-    initialListenerList: []
-    useDefaultListeners: 1
-  isEnvironmentAware: 1
-  isStaticObject: 0
-  usePositionOffsetData: 0
-  m_positionOffsetData:
-    KeepMe: 0
-    positionOffset: {x: 0, y: 0, z: 0}
-  scalingFactor: 1
-  m_posOffsetData: {fileID: 0}
-  listenerMask: 1
---- !u!114 &764663078
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 764663073}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85e45073f9ead88468f9870e73c575b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: AK.Wwise.Unity.MonoBehaviour::AkEvent
-  triggerList: f7e1664c
-  useOtherObject: 0
-  actionOnEventType: 0
-  curveInterpolation: 4
-  enableActionOnEvent: 0
-  data:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: 23d16afa41f320847b18279854ccbe9c, type: 2}
-  useCallbacks: 0
-  stopSoundOnDestroy: 1
-  Callbacks: []
-  soundEmitterObject: {fileID: 0}
-  transitionDuration: 0
-  eventIdInternal: 0
-  valueGuidInternal: 
-  m_callbackDataInternal: {fileID: 0}
 --- !u!1001 &793352271
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5035,7 +4957,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85e45073f9ead88468f9870e73c575b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: AK.Wwise.Unity.MonoBehaviour::AkEvent
-  triggerList: f7e1664c
+  triggerList: 
   useOtherObject: 0
   actionOnEventType: 0
   curveInterpolation: 4
@@ -7482,6 +7404,10 @@ PrefabInstance:
       propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5789251061706322457, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
+      propertyPath: m_Alpha
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6346651942636122193, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7509,6 +7435,10 @@ PrefabInstance:
     - target: {fileID: 6996711119902538535, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: ToggleOptions
+      objectReference: {fileID: 0}
+    - target: {fileID: 7117502258273213516, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
+      propertyPath: m_Alpha
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7132888006972342237, guid: 897d22fb96e95b4439cacd04e697fb3f, type: 3}
       propertyPath: m_AnchorMax.y
@@ -7707,13 +7637,12 @@ RectTransform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 311276730}
   - {fileID: 1347565871}
   - {fileID: 645617314}
   - {fileID: 171985014}
   - {fileID: 2118469196}
   - {fileID: 2004923708}
   - {fileID: 1445213764}
-  - {fileID: 764663075}
   - {fileID: 2072126563}
   - {fileID: 1886069729}
-  - {fileID: 311276730}

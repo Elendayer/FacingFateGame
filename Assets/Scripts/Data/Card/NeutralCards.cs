@@ -381,7 +381,16 @@ namespace facingfate
                         delayBetween: 0f,
                         coroutine: (caster, targetingData, cardData) =>
                         {
-                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 3f, caster);
+                            EntityScript nearestEnemy = null;
+                            float minDist = float.MaxValue;
+                            foreach (var entity in TurnManager.Instance.TurnOrder)
+                            {
+                                if (!TargetingUtility.isEnemyOf(caster, entity)) continue;
+                                float dist = Vector3.Distance(caster.transform.position, entity.transform.position);
+                                if (dist < minDist) { minDist = dist; nearestEnemy = entity; }
+                            }
+                            var refPos = nearestEnemy != null ? nearestEnemy.transform.position : caster.transform.position;
+                            var pushPath = MovementUtility.GetFurtherPosition(refPos, 3f, caster);
                             return caster.EntityOnMap.StartMoveRoutine(pushPath.End);
                         }
                     )
@@ -744,13 +753,17 @@ namespace facingfate
                         {
                             if (target is PlayerScript player)
                             {
-                                DeckManager.Instance.Player_DiscardRandomCardFromHand();
-                                DeckManager.Instance.Player_DrawTopCard();
+                                int count = HandManager.Instance.cardsInHand.Count;
+                                for (int i = 0; i < count; i++)
+                                    DeckManager.Instance.Player_DiscardRandomCardFromHand();
+                                for (int i = 0; i < count; i++)
+                                    DeckManager.Instance.Player_DrawTopCard();
                             }
                             else if (target is NonPlayerScript npc)
                             {
-                                npc.DiscardCards(1);
-                                npc.DrawCards(1);
+                                int count = npc.npcAIController.hand.Count;
+                                npc.DiscardCards(count);
+                                npc.DrawCards(count);
                             }
                         }
                     )

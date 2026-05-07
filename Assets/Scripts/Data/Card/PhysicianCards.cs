@@ -562,6 +562,16 @@ namespace facingfate
                         {
                             CombatUtility.ApplyHealing(cardData, target, cardData.Healing);
                         }
+                    ),
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Caster,
+                        delayBefore: 0f,
+                        delayBetween: 0f,
+                        action: (caster, cardData) =>
+                        {
+                            CombatUtility.ApplyHealing(cardData, caster, cardData.Healing);
+                        }
                     )
                 }
             });
@@ -848,7 +858,26 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
                         {
-                            // TODO Stamina
+                            target.entityStats.CurrentStamina += cardData.Power;
+
+                            var mod = new EntityModifier(
+                                modifierName: "CrimsonRejuvenationBrewOverheal",
+                                owner: target,
+                                baseValue: cardData.Power,
+                                duration: 1,
+                                onRef_Trigger: new RelevantTriggerCheck
+                                {
+                                    OnTriggerReference = new() { GameplayRef.onTurnStart },
+                                    CheckType = CheckEntityType.User,
+                                    CheckEntity = target,
+                                },
+                                onRemove_Action: (entity, cd, value) =>
+                                {
+                                    entity.entityStats.CurrentStamina = Mathf.Min(
+                                        entity.entityStats.CurrentStamina, entity.entityStats.MaxStamina);
+                                }
+                            );
+                            target.AddModifier(mod);
                         })
                     )
                 }

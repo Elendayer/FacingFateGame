@@ -1,5 +1,6 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace facingfate
 {
@@ -603,7 +604,7 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) =>
                 {
-                    d.cardDescription = "On next hit taken this round, counter for {Damage}.";
+                    d.cardDescription = "Counter all melee hits until your next turn for {Damage}.";
                 },
 
                 cardActionSequence = new()
@@ -615,13 +616,14 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            var mod = new EntityModifier(
+                            EntityModifier counterMod = null;
+                            counterMod = new EntityModifier(
                                 modifierName: "SpearmanIronWallReversalCounter",
                                 owner: target,
                                 baseValue: cardData.Damage,
                                 toTriggerRefs: new(),
-                                duration: 1,
-                                charges: 1,
+                                duration: 9999,
+                                charges: 9999,
                                 modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
@@ -631,11 +633,27 @@ namespace facingfate
                                 },
                                 onRef_Action: (targetEntity, cd, value) =>
                                 {
-                                    Debug.Log($"[Counter] Spearman Iron Wall Reversal counter triggered for {value} damage.");
-                                    CombatUtility.ApplyEffectDamage(value, cd.Owner, GameplayRef.onCounterRecieved, new VFXData("Impact"));
+                                    var lastTrigger = GameEvents.LastGameplayTrigger;
+                                    if (lastTrigger.CardData?.cardIdentities == null ||
+                                        !lastTrigger.CardData.cardIdentities.Contains(CardIdentity.Melee))
+                                        return;
+                                    var attacker = lastTrigger.UserEntity;
+                                    if (attacker == null) return;
+                                    Debug.Log($"[Counter] Iron Wall Reversal triggered for {value} damage.");
+                                    CombatUtility.ApplyEffectDamage(value, attacker, GameplayRef.onCounterRecieved, new VFXData("Impact"));
                                 }
                             );
-                            CombatUtility.ApplyEntityModifier(cardData, target, mod);
+                            CombatUtility.ApplyEntityModifier(cardData, target, counterMod);
+
+                            Action<ToSendTriggerReference> expireHandler = null;
+                            expireHandler = (trigger) =>
+                            {
+                                if (trigger.UserEntity != caster) return;
+                                if (trigger.OnTriggerReference == null || !trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart)) return;
+                                counterMod?.OnRemove();
+                                GameEvents.OnGameplayReference -= expireHandler;
+                            };
+                            GameEvents.OnGameplayReference += expireHandler;
                         }
                     ),
                     new CardAction(
@@ -817,7 +835,7 @@ namespace facingfate
 
                 cardDescriptionAction = (User, d) =>
                 {
-                    d.cardDescription = "On next hit received this turn, counter for {Damage}.";
+                    d.cardDescription = "Counter all melee hits until your next turn for {Damage}.";
                 },
 
                 cardActionSequence = new()
@@ -829,13 +847,14 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            var mod = new EntityModifier(
+                            EntityModifier counterMod = null;
+                            counterMod = new EntityModifier(
                                 modifierName: "SpearmanSkyRendingReversalCounter",
                                 owner: target,
                                 baseValue: cardData.Damage,
-                                toTriggerRefs: new() { },
-                                duration: cardData.Duration,
-                                charges: cardData.Charges,
+                                toTriggerRefs: new(),
+                                duration: 9999,
+                                charges: 9999,
                                 modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
                                 {
@@ -845,10 +864,27 @@ namespace facingfate
                                 },
                                 onRef_Action: (targetEntity, cd, value) =>
                                 {
-                                    CombatUtility.ApplyEffectDamage(cardData.Damage, cd.Owner, dotType: GameplayRef.onCounterRecieved, new VFXData("Impact"));
+                                    var lastTrigger = GameEvents.LastGameplayTrigger;
+                                    if (lastTrigger.CardData?.cardIdentities == null ||
+                                        !lastTrigger.CardData.cardIdentities.Contains(CardIdentity.Melee))
+                                        return;
+                                    var attacker = lastTrigger.UserEntity;
+                                    if (attacker == null) return;
+                                    Debug.Log($"[Counter] Sky-Rending Reversal triggered for {value} damage.");
+                                    CombatUtility.ApplyEffectDamage(value, attacker, dotType: GameplayRef.onCounterRecieved, new VFXData("Impact"));
                                 }
                             );
-                            CombatUtility.ApplyEntityModifier(cardData, target, mod);
+                            CombatUtility.ApplyEntityModifier(cardData, target, counterMod);
+
+                            Action<ToSendTriggerReference> expireHandler = null;
+                            expireHandler = (trigger) =>
+                            {
+                                if (trigger.UserEntity != caster) return;
+                                if (trigger.OnTriggerReference == null || !trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart)) return;
+                                counterMod?.OnRemove();
+                                GameEvents.OnGameplayReference -= expireHandler;
+                            };
+                            GameEvents.OnGameplayReference += expireHandler;
                         }
                     )
                 }
