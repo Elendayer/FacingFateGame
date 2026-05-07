@@ -285,7 +285,11 @@ namespace facingfate
                         delayBetween: 0f,
                         coroutine: (caster, targetingData, cardData) =>
                         {
+                            if (targetingData.targetedEntities == null || targetingData.targetedEntities.Count == 0)
+                                return null;
                             var target = targetingData.targetedEntities[0];
+                            if (target == null || !target.enabled || target.EntityOnMap == null)
+                                return null;
                             var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 1f, target);
                             return target.EntityOnMap.StartMoveRoutine(pushPath.End);
                         }
@@ -800,11 +804,11 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            var stat = target.entityStats.DamageOutModifier_Increase;
+                            var stat = target.entityStats.DamageOutModifier_Multiplier;
                             var mod = new StatModifier(
                                 name: "Focus",
                                 stat: stat,
-                                value: cardData.Power,
+                                value: 1f + cardData.Power / 100f,
                                 duration: cardData.Duration,
                                 modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge
                             );

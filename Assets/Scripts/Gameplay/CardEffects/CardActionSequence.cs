@@ -156,7 +156,9 @@ namespace facingfate
                 if (coroutine == null)
                     yield break;
 
-                yield return TimelineManager.GlobalActionQueue.StartCoroutine(coroutine(caster, targetingData, cardData));
+                var result = coroutine(caster, targetingData, cardData);
+                if (result != null)
+                    yield return TimelineManager.GlobalActionQueue.StartCoroutine(result);
                 yield break;
             }
 

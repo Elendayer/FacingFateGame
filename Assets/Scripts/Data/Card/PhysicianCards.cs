@@ -329,11 +329,46 @@ namespace facingfate
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, target, cardData) =>
                         {
-                            // TODO: Reaktiven Modifier auf den User legen:
-                            // On 'onHitTaken' -> füge fixen Thorns-Schaden zu & apply Poison-DoT auf den Angreifer.
-                        })
+                            EntityModifier barbs = null;
+                            barbs = new EntityModifier(
+                                modifierName: "PoisonBarbs",
+                                owner: target,
+                                baseValue: cardData.Power,
+                                duration: 9999,
+                                charges: 9999,
+                                onRef_Trigger: new RelevantTriggerCheck
+                                {
+                                    OnTriggerReference = new() { GameplayRef.onHitLanded },
+                                    CheckType = CheckEntityType.Target,
+                                    CheckEntity = target,
+                                },
+                                onRef_Action: (entity, cd, value) =>
+                                {
+                                    var attacker = GameEvents.LastGameplayTrigger.UserEntity;
+                                    if (attacker == null) return;
+                                    CombatUtility.ApplyEffectDamage(value, attacker, GameplayRef.onCounterRecieved, new VFXData("Impact"));
+                                    var poison = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, cd, ThroughputSource.Damage, attacker);
+                                    if (poison != null)
+                                    {
+                                        poison.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                                        CombatUtility.ApplyEntityModifier(cd, attacker, poison);
+                                    }
+                                }
+                            );
+                            CombatUtility.ApplyEntityModifier(cardData, target, barbs);
+
+                            Action<ToSendTriggerReference> expireHandler = null;
+                            expireHandler = (trigger) =>
+                            {
+                                if (trigger.UserEntity != target) return;
+                                if (trigger.OnTriggerReference == null || !trigger.OnTriggerReference.Contains(GameplayRef.onTurnStart)) return;
+                                barbs?.OnRemove();
+                                GameEvents.OnGameplayReference -= expireHandler;
+                            };
+                            GameEvents.OnGameplayReference += expireHandler;
+                        }
                     )
                 }
             });
@@ -474,6 +509,7 @@ namespace facingfate
                             deckCS.SetHidden();
                             TransformUtility.ZeroLocalRectTransform(deckGO.transform as RectTransform);
                             DeckManager.Instance.cardStack.Push(deckGO);
+                            DeckManager.Instance.deckParent.GetComponent<facingfate.DiscardPileVisualizer>()?.Refresh();
                         })
                     )
                 }

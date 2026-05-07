@@ -369,6 +369,7 @@ namespace facingfate
             foreach (GameObject card in cards)
                 cardStack.Push(card);
 
+            deckParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
             Debug.Log("[DeckManager] Deck shuffled.");
         }
 
@@ -387,6 +388,21 @@ namespace facingfate
 
             foreach (GameObject card in cards)
                 cardStack.Push(card);
+
+            // Cards were in discardParent; move them to deckParent for correct pile display
+            if (deckParent != null)
+            {
+                foreach (var card in cards)
+                {
+                    if (card != null)
+                    {
+                        card.transform.SetParent(deckParent);
+                        TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
+                    }
+                }
+                deckParent.GetComponent<DiscardPileVisualizer>()?.Refresh();
+            }
+            discardParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
 
             Debug.Log($"[DeckManager] Shuffled {cards.Count} discarded cards back into the deck.");
         }

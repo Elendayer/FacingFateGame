@@ -46,10 +46,10 @@ namespace facingfate
                 cardActionSequence = new()
                 {
                     new CardAction(
-                        ExecutionMode.Once,
+                        ExecutionMode.EachIndividual,
                         TargetingMode.Entities,
                         delayBefore: 0f,
-                        delayBetween: 0f,
+                        delayBetween: 0.1f,
                         action: (caster, target, cardData) =>
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"));
@@ -743,37 +743,29 @@ namespace facingfate
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, target, cardData) =>
                         {
-                            new CardAction(
-                                ExecutionMode.Once,
-                                TargetingMode.Caster,
-                                delayBefore: 0f,
-                                delayBetween: 0f,
-                                action: (caster, cardData) =>
-                                {
-                                    CombatUtility.ApplyEntityModifier(cardData, caster,
-                                        new EntityModifier(
-                                            modifierName: "BurningVenom",
-                                            owner: caster,
-                                            toTriggerRefs: new() { },
-                                            charges: cardData.Charges,
-                                            modifierMergeStrategy: ModifierMergeStrategy.Override,
-                                            onRef_Trigger: new RelevantTriggerCheck
-                                            {
-                                                OnTriggerReference = new() { GameplayRef.onHitLanded },
-                                                CheckType = CheckEntityType.User,
-                                                CheckEntity = caster,
-                                            },
-                                            actionTargetType: EntityModifier.ActionTargetType.Affected,
-                                            onRef_Action: (t, d, value) =>
-                                            {
-                                                var poisonEffect = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, t);
-                                                poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
-                                                CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
-                                            }));
-                                });
-                        })
+                            CombatUtility.ApplyEntityModifier(cardData, caster,
+                                new EntityModifier(
+                                    modifierName: "BurningVenom",
+                                    owner: caster,
+                                    toTriggerRefs: new() { },
+                                    charges: cardData.Charges,
+                                    modifierMergeStrategy: ModifierMergeStrategy.Override,
+                                    onRef_Trigger: new RelevantTriggerCheck
+                                    {
+                                        OnTriggerReference = new() { GameplayRef.onHitLanded },
+                                        CheckType = CheckEntityType.User,
+                                        CheckEntity = caster,
+                                    },
+                                    actionTargetType: EntityModifier.ActionTargetType.Affected,
+                                    onRef_Action: (t, d, value) =>
+                                    {
+                                        var poisonEffect = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, d, ThroughputSource.Damage, t);
+                                        poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                                        CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
+                                    }));
+                        }
                     )
                 }
             });

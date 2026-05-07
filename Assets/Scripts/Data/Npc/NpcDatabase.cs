@@ -148,7 +148,7 @@ namespace facingfate
             {
                 id = "Npc_Bandit_Archer",
                 name = "Bandit Archer",
-                aiBias = AiBiasDatabase.GetBiasById("Aggressive_Ranged"),
+                aiBias = AiBiasDatabase.GetBiasById("Aggressive_Ranged_Circling"),
 
                 cardIds = new List<string>()
                 {

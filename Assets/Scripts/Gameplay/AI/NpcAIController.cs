@@ -1191,6 +1191,25 @@ namespace facingfate
                     }
 
                     break;
+
+                case RepositionCondition.always:
+
+                    moveOption = DetermineRepositionTarget(
+                        virtualPosition,
+                        npcScript,
+                        remainingStamina);
+
+                    if (moveOption != null && moveOption.pathData != null && moveOption.pathData.PathCost > 0)
+                    {
+                        moveOption.score = 1;
+                        moveOption.pseudoName = "Reposition";
+                    }
+                    else
+                    {
+                        moveOption = null;
+                    }
+
+                    break;
             }
 
             return moveOption;

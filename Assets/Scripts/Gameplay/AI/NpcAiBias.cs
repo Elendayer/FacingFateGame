@@ -34,5 +34,6 @@ namespace facingfate
         surrounded,
         lowHealth,
         preferRanged,
+        always,
     }
 }

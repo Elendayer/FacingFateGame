@@ -84,6 +84,17 @@ namespace facingfate
 
             RegisterBias(new NpcAiBias()
             {
+                id = "Aggressive_Ranged_Circling",
+                cardReferenceBias = new Dictionary<GameplayRef, float>(),
+                identityBias = new Dictionary<CardIdentity, float>()
+                {
+                    { CardIdentity.Ranged, 1.5f }
+                },
+                RepositionCondition = RepositionCondition.always
+            });
+
+            RegisterBias(new NpcAiBias()
+            {
                 id = "Aggressive_Melee",
                 cardReferenceBias = new Dictionary<GameplayRef, float>(),
                 identityBias = new Dictionary<CardIdentity, float>()

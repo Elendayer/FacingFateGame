@@ -118,23 +118,36 @@ namespace facingfate
                 return;
             }
 
-            //Trigger Reference Event
+            //Trigger Reference Event — may enqueue DoT/poison actions that kill the entity
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
             GameEvents.TriggerTurnEntityChanged(TurnOrder[CurrentTurnIndex]);
 
             if (TurnOrder[CurrentTurnIndex].GetComponent<PlayerScript>() != null)
                 GameEvents.TriggerActivePlayerChanged(TurnOrder[CurrentTurnIndex]);
 
-            // Start the Turn for the Current Entity - use coroutine for player, direct call for others
-            var startTurnCoroutine = DeckManager.Instance.StartTurn(TurnOrder[CurrentTurnIndex]);
-            if (startTurnCoroutine != null)
+            // Defer StartTurn into the action queue so all turn-start effects (DoT etc.) resolve first.
+            // If the entity died from those effects, skip its turn rather than starting it dead.
+            ActionQueueUtility.EnqueueAction(() =>
             {
-                StartCoroutine(WaitForTurnStartThenContinue(TurnOrder[CurrentTurnIndex], startTurnCoroutine));
-            }
-            else
-            {
-                TurnOrder[CurrentTurnIndex].StartTurn();
-            }
+                if (combatEnded || TurnOrder.Count == 0) return;
+
+                var entity = CurrentTurnIndex < TurnOrder.Count ? TurnOrder[CurrentTurnIndex] : null;
+                if (entity == null || !entity.enabled || !entity.gameObject.activeInHierarchy
+                    || (entity.entityStats != null && entity.entityStats.CurrentHealth <= 0))
+                {
+                    if (entity != null) TurnOrder.Remove(entity);
+                    if (CurrentTurnIndex >= TurnOrder.Count) CurrentTurnIndex = 0;
+                    if (TurnOrder.Count > 0)
+                        ActionQueueUtility.EnqueueAction(GameEvents.TriggerTurnStart, 0.1f);
+                    return;
+                }
+
+                var startTurnCoroutine = DeckManager.Instance.StartTurn(entity);
+                if (startTurnCoroutine != null)
+                    StartCoroutine(WaitForTurnStartThenContinue(entity, startTurnCoroutine));
+                else
+                    entity.StartTurn();
+            });
         }
 
         private IEnumerator WaitForTurnStartThenContinue(EntityScript entity, Coroutine deckCoroutine)
