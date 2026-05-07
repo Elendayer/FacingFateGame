@@ -59,26 +59,31 @@ namespace facingfate
         {
             var existing = entityModifiers.FirstOrDefault(m => m.ModifierName == modifier.ModifierName);
             var strategy = modifier.ModifierMergeStrategy;
+            bool modifierAdded = false;
 
             switch (strategy)
             {
                 case ModifierMergeStrategy.AddUnique:
                     entityModifiers.Add(modifier);
+                    modifierAdded = true;
                     break;
 
                 case ModifierMergeStrategy.Override:
                     if (existing != null) entityModifiers.Remove(existing);
                     entityModifiers.Add(modifier);
+                    modifierAdded = true;
                     break;
 
                 case ModifierMergeStrategy.Merge:
                     if (existing is EntityModifier existingMod && modifier is EntityModifier newMod)
                     {
                         existingMod.BaseValue += newMod.BaseValue;
+                        // modifierAdded stays false — merged into existing, no new subscription needed
                     }
                     else
                     {
                         entityModifiers.Add(modifier);
+                        modifierAdded = true;
                     }
                     break;
 
@@ -87,10 +92,12 @@ namespace facingfate
                     {
                         existingRefresh.BaseValue += newRefresh.BaseValue;
                         existingRefresh.Duration = Math.Max(existingRefresh.GetRemainingDuration(), newRefresh.GetRemainingDuration());
+                        // modifierAdded stays false
                     }
                     else
                     {
                         entityModifiers.Add(modifier);
+                        modifierAdded = true;
                     }
                     break;
 
@@ -99,15 +106,21 @@ namespace facingfate
                     {
                         existingRefreshDuration.BaseValue = Mathf.Max(existingRefreshDuration.BaseValue, newRefreshDuration.BaseValue);
                         existingRefreshDuration.Duration = Math.Max(existingRefreshDuration.GetRemainingDuration(), newRefreshDuration.GetRemainingDuration());
+                        // modifierAdded stays false
                     }
                     else
                     {
                         entityModifiers.Add(modifier);
+                        modifierAdded = true;
                     }
                     break;
             }
 
-            modifier.AddListener();
+            // Only subscribe if modifier was actually added to entityModifiers.
+            // Calling AddListener() on merged modifiers leaks an OnGameplayReference
+            // subscription — the action fires an extra time every trigger.
+            if (modifierAdded)
+                modifier.AddListener();
 
             ToSendTriggerReference OnApplyTrigger = new ToSendTriggerReference
             {

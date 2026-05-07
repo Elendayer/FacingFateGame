@@ -416,6 +416,10 @@ namespace facingfate
             yield return StartCoroutine(MoveCardsToTransform_Coroutine(discardCards, dockDiscard));
             discardStack.Clear();
 
+            // Refresh pile visuals to reflect empty state now that cards moved to dock storage
+            deckParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
+            discardParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
+
             // Wait for UI layout to update
             yield return new WaitForEndOfFrame();
         }
@@ -589,6 +593,35 @@ namespace facingfate
 
             // Restore deck and discard order from saved data
             RestoreDeckOrder(entity, dockDeck, dockDiscard);
+
+            // Move deck cards into the visual pile parent so DiscardPileVisualizer can show them
+            if (deckParent != null)
+            {
+                foreach (var card in cardStack)
+                {
+                    if (card != null)
+                    {
+                        card.transform.SetParent(deckParent);
+                        TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
+                    }
+                }
+                deckParent.GetComponent<DiscardPileVisualizer>()?.Refresh();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(deckParent);
+            }
+
+            // Move discard cards into the visual discard parent
+            if (discardParent != null)
+            {
+                foreach (var card in discardStack)
+                {
+                    if (card != null)
+                    {
+                        card.transform.SetParent(discardParent);
+                        TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
+                    }
+                }
+                discardParent.GetComponent<DiscardPileVisualizer>()?.Refresh();
+            }
 
             // Wait for UI layout to update
             yield return new WaitForEndOfFrame();

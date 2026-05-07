@@ -614,7 +614,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17.5
+  m_fontSize: 17.2
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1245,7 +1245,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 261.14685, y: 350.93747}
+  m_SizeDelta: {x: 230, y: 350}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8156153666755951239
 MonoBehaviour:
@@ -1264,6 +1264,7 @@ MonoBehaviour:
     cardName: 
     Owner: {fileID: 0}
     playSfxEvent: 
+    soundSwitches: []
     cardArtwork: {fileID: 0}
     cardDescription: 
     cardType: 0
@@ -1291,6 +1292,7 @@ MonoBehaviour:
       cardTargetingMode: 0
     EffectTargetTypes: 
     TargetCard: {fileID: 0}
+    cardActionSequence: []
   artworkRenderer: {fileID: 495126768511456495}
   cardBack: {fileID: 8145338627900302588}
   cardFront: {fileID: 2062310199448426213}
@@ -1316,10 +1318,6 @@ MonoBehaviour:
   lineRenderer: {fileID: 5920910117801388206}
   curveResolution: 20
   cardScript: {fileID: 0}
-  hoverSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
 --- !u!120 &5920910117801388206
 LineRenderer:
   serializedVersion: 3
@@ -1643,7 +1641,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 8.55
+  m_fontSize: 8
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

@@ -4966,6 +4966,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec9451bd6aac2994fbe52b5db032eb4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  atmoEvent:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: 23d16afa41f320847b18279854ccbe9c, type: 2}
+  musicEvent:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: 23d16afa41f320847b18279854ccbe9c, type: 2}
   stateGroup: LVL_State
   playerStateGroup: Player_State
   playerAliveState: PlayerAlive_State

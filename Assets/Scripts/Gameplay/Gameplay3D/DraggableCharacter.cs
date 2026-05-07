@@ -64,18 +64,32 @@ namespace facingfate
             if (TimelineManager.isPaused) return;
             if (characterEntity.entityStats.IsRooted) return;
 
-            // FIX: Guard against TurnManager having an empty / uninitialised TurnOrder.
-            EntityScript currentTurn = TurnManager.Instance?.CurrentTurnEntity;
-            if (currentTurn == null || currentTurn != characterEntity) return;
-
-            // Tutorial: block movement if the current step has lockMovement enabled
-            // (except when condition = MovedToTarget, which always needs movement).
             if (TutorialCombatManager.Instance != null && TutorialCombatManager.Instance.IsActive)
             {
                 var tutStep = TutorialCombatManager.Instance.CurrentStep;
                 bool isMovedToTarget = tutStep != null && tutStep.condition == CompletionCondition.MovedToTarget;
-                bool shouldLock = tutStep == null || (tutStep.lockMovement && !isMovedToTarget);
-                if (shouldLock) return;
+
+                if (isMovedToTarget)
+                {
+                    // Tutorial is directing the player to walk to a target.
+                    // Bypass the turn-ownership check — movement must work regardless of
+                    // whose turn it currently is (step may activate between turns or mid-wave reset).
+                }
+                else
+                {
+                    // All other tutorial steps: enforce turn ownership.
+                    EntityScript currentTurn = TurnManager.Instance?.CurrentTurnEntity;
+                    if (currentTurn == null || currentTurn != characterEntity) return;
+
+                    // Block drag if the step explicitly locks movement.
+                    if (tutStep != null && tutStep.lockMovement) return;
+                }
+            }
+            else
+            {
+                // No tutorial active — standard turn-ownership check.
+                EntityScript currentTurn = TurnManager.Instance?.CurrentTurnEntity;
+                if (currentTurn == null || currentTurn != characterEntity) return;
             }
 
             entityStats = characterEntity.entityStats;

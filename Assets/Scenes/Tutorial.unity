@@ -3656,29 +3656,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 903386714965347549, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 903386714965347549, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 903386714965347549, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 1228.7999
-      objectReference: {fileID: 0}
-    - target: {fileID: 903386714965347549, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 903386714965347549, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 614.39996
-      objectReference: {fileID: 0}
-    - target: {fileID: 903386714965347549, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -388.80002
-      objectReference: {fileID: 0}
     - target: {fileID: 954571475513794555, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3718,26 +3698,6 @@ PrefabInstance:
     - target: {fileID: 1000650263974808359, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1004679887871860668, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1004679887871860668, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1004679887871860668, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 409.59998
-      objectReference: {fileID: 0}
-    - target: {fileID: 1004679887871860668, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 614.39996
-      objectReference: {fileID: 0}
-    - target: {fileID: 1004679887871860668, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 1156177879599890419, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
       propertyPath: m_AnchorMax.x
@@ -3911,10 +3871,6 @@ PrefabInstance:
       propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2772937173017935427, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_SortingOrder
-      value: 100
-      objectReference: {fileID: 0}
     - target: {fileID: 3031672899076406031, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -3927,10 +3883,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PauseCanvas
       objectReference: {fileID: 0}
-    - target: {fileID: 3824081700285593561, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4195308115960058141, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3989,22 +3941,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5788103572253366825, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6444448653312080624, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6526398265185208615, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: pauseOpenSfx.WwiseObjectReference
-      value: 
-      objectReference: {fileID: 11400000, guid: bbd410cedbd0ea4488d6b2eddbbdda18, type: 2}
-    - target: {fileID: 6526398265185208615, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: pauseCloseSfx.WwiseObjectReference
-      value: 
-      objectReference: {fileID: 11400000, guid: e27d15c8957421f40bbca6f8fade4cc0, type: 2}
-    - target: {fileID: 6739598370246715360, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6934329578050808864, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
@@ -4105,10 +4041,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8745888466494231628, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8747338998319658973, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
-      propertyPath: m_Alpha
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9155323334330914101, guid: 43f99acd15d9f5e43a2e3332512fcbb6, type: 3}
@@ -5149,34 +5081,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e33ef114b1b901747886a1f642b724cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::facingfate.CombatAudioController
-  combatStartSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  turnStartSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  roundStartSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  victorySfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  defeatSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
-  drawCardSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
-  discardCardSfx:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
 --- !u!1001 &1362103529
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8143,7 +8047,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[6].unlockAll
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[7].condition
@@ -8159,7 +8063,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[11].unlockAll
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[12].condition
@@ -8171,7 +8075,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[11].lockEndTurn
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[1].lockMovement
@@ -8192,6 +8096,10 @@ PrefabInstance:
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[5].lockMovement
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
+      propertyPath: steps.Array.data[6].lockMovement
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[7].lockMovement

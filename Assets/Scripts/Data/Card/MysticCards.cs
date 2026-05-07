@@ -427,12 +427,9 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            if (target.HasModifier("Bleed"))
-                            {
-                                var bleed = target.GetModifierByName("Bleed");
-
-                                CombatUtility.ApplyEffectDamage(bleed.BaseValue, target, GameplayRef.onBleed, new VFXData("BleedEffect"));
-                            }
+                            var bleed = target.GetModifierByName("Bleed");
+                            if (bleed != null)
+                                CombatUtility.ApplyEffectDamage(bleed.BaseValue, target, GameplayRef.onBleed, new VFXData("BleedEffect", true));
                         }
                     )
                 }
@@ -466,12 +463,9 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            if (target.HasModifier("Poison"))
-                            {
-                                var poison = target.GetModifierByName("Poison");
-
-                                CombatUtility.ApplyEffectDamage(poison.BaseValue, target, GameplayRef.onPoison, new VFXData("PoisonEffect"));
-                            }
+                            var poison = target.GetModifierByName("Poison");
+                            if (poison != null)
+                                CombatUtility.ApplyEffectDamage(poison.BaseValue, target, GameplayRef.onPoison, new VFXData("PoisonEffect", true));
                         }
                     )
                 }
@@ -506,12 +500,9 @@ namespace facingfate
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
-                            if (target.HasModifier("Burn"))
-                            {
-                                var burn = target.GetModifierByName("Burn");
-                                
-                                CombatUtility.ApplyEffectDamage(burn.BaseValue, target, GameplayRef.onBurn, new VFXData("BurnEffect"));
-                            }
+                            var burn = target.GetModifierByName("Burn");
+                            if (burn != null)
+                                CombatUtility.ApplyEffectDamage(burn.BaseValue, target, GameplayRef.onBurn, new VFXData("BurnEffect", true));
                         }
                     )
                 }

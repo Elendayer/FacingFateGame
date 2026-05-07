@@ -96,6 +96,7 @@ namespace facingfate
             if (deckManager == null) deckManager = DeckManager.Instance;
 
             CacheEntities();
+            InitActiveEntityFallback();
             MarkDirty(DirtyFlags.All);
         }
 
@@ -301,9 +302,26 @@ namespace facingfate
             dirty |= flags;
         }
 
+        // Sets currentActiveEntity to the first player in turn order when no player turn has started yet.
+        // Ensures the player stat panel is populated from frame 1 even when enemies go first.
+        private void InitActiveEntityFallback()
+        {
+            if (currentActiveEntity != null) return;
+            if (turnManager?.TurnOrder == null) return;
+            foreach (var e in turnManager.TurnOrder)
+            {
+                if (e != null && e.GetComponent<PlayerScript>() != null)
+                {
+                    currentActiveEntity = e;
+                    return;
+                }
+            }
+        }
+
         private void HandleCombatStart()
         {
             CacheEntities();
+            InitActiveEntityFallback();
             MarkDirty(DirtyFlags.All);
         }
 

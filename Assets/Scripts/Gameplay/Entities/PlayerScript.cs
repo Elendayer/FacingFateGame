@@ -36,6 +36,11 @@ namespace facingfate
 
             // Refresh hand locks after stamina reset so existing cards dim/undim correctly.
             HandUI.RefreshHandLocks(this);
+
+            // CombatUIController.HandleTurnStart fires on the OnTurnStart event, which fires
+            // BEFORE entity.StartTurn() — so the UI panel may read stale (0) stamina.
+            // Refresh again here now that stamina is correct.
+            CombatUIController.Instance?.RefreshAll();
         }
 
 

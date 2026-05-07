@@ -79,7 +79,7 @@ namespace facingfate
             {
                 effect.SetInt("Count", overrides.activationCount);
             }
-            if (effect.HasMesh("Mesh"))
+            if (effect.HasMesh("Mesh") && overrides.mesh != null)
             {
                 effect.SetMesh("Mesh", overrides.mesh);
             }

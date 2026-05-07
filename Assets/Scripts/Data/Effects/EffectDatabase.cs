@@ -83,7 +83,8 @@ namespace facingfate
 icon: null,
                 owner: null,
 				duration: 3,
-				toTriggerRefs: new() { GameplayRef.onBleed },
+				// toTriggerRefs intentionally omitted: ApplyEffectDamage already fires GameplayRef.onBleed
+				// via HandlePostCombatTrigger — including it here caused a double-fire each bleed tick.
 				onRef_Trigger: new RelevantTriggerCheck
 				{
 					OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -102,7 +103,8 @@ icon: null,
 icon: null,
                 owner: null,
 				duration: 2,
-				toTriggerRefs: new() { GameplayRef.onPoison },
+				// toTriggerRefs intentionally omitted: ApplyEffectDamage already fires GameplayRef.onPoison
+				// via HandlePostCombatTrigger — including it here caused a double-fire each poison tick.
 				onRef_Trigger: new RelevantTriggerCheck
 				{
 					OnTriggerReference = new() { GameplayRef.onTurnStart },
@@ -121,7 +123,8 @@ icon: null,
 icon: null,
                 owner: null,
 				duration: 2,
-				toTriggerRefs: new() { GameplayRef.onBurn },
+				// toTriggerRefs intentionally omitted: ApplyEffectDamage already fires GameplayRef.onBurn
+				// via HandlePostCombatTrigger — including it here caused a double-fire each burn tick.
 				onRef_Trigger: new RelevantTriggerCheck
 				{
 					OnTriggerReference = new() { GameplayRef.onTurnStart },

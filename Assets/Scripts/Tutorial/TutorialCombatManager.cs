@@ -157,6 +157,12 @@ namespace facingfate
             _currentTurnEntity = TurnManager.Instance?.CurrentTurnEntity;
 
             if (!_isActive || _currentStepIndex >= steps.Length) return;
+
+            // Only re-lock hand on the player's turn. Enemy turns must NOT run LockHandForStep:
+            // ApplyLock resets allowed cards to enabled + alpha=1f, undoing any stamina-based
+            // dimming/locking the player accumulated during their turn.
+            if (_currentTurnEntity == null || _currentTurnEntity.GetComponent<PlayerScript>() == null) return;
+
             if (_lockRoutine != null) StopCoroutine(_lockRoutine);
             _lockRoutine = StartCoroutine(LockHandNextFrame());
         }
