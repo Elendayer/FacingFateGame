@@ -47,10 +47,10 @@ namespace facingfate
                 cardActionSequence = new()
                 {
                     new CardAction(
-                        ExecutionMode.EachIndividual,
+                        ExecutionMode.Once,
                         TargetingMode.Entities,
                         delayBefore: 0f,
-                        delayBetween: 0.1f,
+                        delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
                             CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"));
@@ -778,7 +778,7 @@ namespace facingfate
                         TargetingMode.Entities,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (caster, target, cardData) =>
+                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
                         {
                             new CardAction(
                                 ExecutionMode.Once,

@@ -349,7 +349,7 @@ namespace facingfate
                                     var attacker = GameEvents.LastGameplayTrigger.UserEntity;
                                     if (attacker == null) return;
                                     CombatUtility.ApplyEffectDamage(value, attacker, GameplayRef.onCounterRecieved, new VFXData("Impact"));
-                                    var poison = EffectDatabase.GetEffectByName("Poison", CloneMode.Defaults, cd, ThroughputSource.Damage, attacker);
+                                    var poison = EffectDatabase.GetEffectByName("Poison", cd, ThroughputSource.Damage, attacker);
                                     if (poison != null)
                                     {
                                         poison.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
