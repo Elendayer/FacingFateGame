@@ -22,15 +22,6 @@ namespace facingfate
         public EntityVisualScript EntityVisual;
         public EntityOnMap EntityOnMap;
 
-        [Header("Audio")]
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event attackSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event damageSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event blockSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event healSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event deathSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event statusAppliedSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event modifierExpiredSfx;
-
         [HideInInspector]
         public bool isDead = false;
 

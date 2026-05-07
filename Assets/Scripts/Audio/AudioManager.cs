@@ -32,6 +32,7 @@ namespace facingfate
         [Tooltip("Default card effect sound")] public AK.Wwise.Event playCardSFX;
         [Tooltip("Card draw/hand management sound")] public AK.Wwise.Event playCardDrawSound;
         [Tooltip("Card discard sound")] public AK.Wwise.Event playCardDiscardSound;
+        [Tooltip("Card hover sound")] public AK.Wwise.Event cardHoverSfx;
 
         [Header("Common Combat Events")]
         [Tooltip("Combat start sound")] public AK.Wwise.Event combatStartSfx;
@@ -44,6 +45,19 @@ namespace facingfate
         [Tooltip("Generic attack/strike sound")] public AK.Wwise.Event playAttackSound;
         [Tooltip("Hit/impact sound")] public AK.Wwise.Event playHitSound;
         [Tooltip("Damage taken sound")] public AK.Wwise.Event playDamageSound;
+
+        [Header("Entity Action Events")]
+        [Tooltip("Entity block sound")] public AK.Wwise.Event blockSfx;
+        [Tooltip("Entity heal sound")] public AK.Wwise.Event healSfx;
+        [Tooltip("Entity death sound")] public AK.Wwise.Event deathSfx;
+        [Tooltip("Status/modifier applied sound")] public AK.Wwise.Event statusAppliedSfx;
+        [Tooltip("Modifier expired sound")] public AK.Wwise.Event modifierExpiredSfx;
+
+        [Header("UI Audio Events")]
+        [Tooltip("UI panel open sound")] public AK.Wwise.Event uiOpenSfx;
+        [Tooltip("UI panel close sound")] public AK.Wwise.Event uiCloseSfx;
+        [Tooltip("UI hover sound")] public AK.Wwise.Event uiHoverSfx;
+        [Tooltip("UI click sound")] public AK.Wwise.Event uiClickSfx;
 
         [Header("Wwise Events Registry")]
         [SerializeField] private List<WwiseEventEntry> registeredEvents = new();
@@ -68,6 +82,7 @@ namespace facingfate
             RegisterEvent("PlayCardSFX", playCardSFX);
             RegisterEvent("PlayCardDrawSound", playCardDrawSound);
             RegisterEvent("PlayCardDiscardSound", playCardDiscardSound);
+            RegisterEvent("CardHoverSfx", cardHoverSfx);
 
             // Register common combat flow events
             RegisterEvent("CombatStartSfx", combatStartSfx);
@@ -80,6 +95,19 @@ namespace facingfate
             RegisterEvent("PlayAttackSound", playAttackSound);
             RegisterEvent("PlayHitSound", playHitSound);
             RegisterEvent("PlayDamageSound", playDamageSound);
+
+            // Register entity action events
+            RegisterEvent("BlockSfx", blockSfx);
+            RegisterEvent("HealSfx", healSfx);
+            RegisterEvent("DeathSfx", deathSfx);
+            RegisterEvent("StatusAppliedSfx", statusAppliedSfx);
+            RegisterEvent("ModifierExpiredSfx", modifierExpiredSfx);
+
+            // Register UI audio events
+            RegisterEvent("UiOpenSfx", uiOpenSfx);
+            RegisterEvent("UiCloseSfx", uiCloseSfx);
+            RegisterEvent("UiHoverSfx", uiHoverSfx);
+            RegisterEvent("UiClickSfx", uiClickSfx);
 
             // Register any additional custom events from the list
             foreach (var entry in registeredEvents)

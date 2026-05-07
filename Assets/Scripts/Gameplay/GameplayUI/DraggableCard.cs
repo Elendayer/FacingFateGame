@@ -16,9 +16,6 @@ namespace facingfate
         public CardScript cardScript;
         private static readonly Vector3 InvalidPosition = new Vector3(9999, 9999, 9999);
 
-        [Header("Wwise UI SFX")]
-        [Tooltip("Optional, empty = silent")] [SerializeField] private AK.Wwise.Event hoverSfx;
-
         // Shared across all card instances — prevents rapid-fire when hovering over multiple cards
         private static float _lastHoverSfxTime = -1f;
         private const float HoverSfxCooldown = 0.1f;
@@ -56,7 +53,7 @@ namespace facingfate
         {
             if (Time.unscaledTime - _lastHoverSfxTime >= HoverSfxCooldown)
             {
-                WwiseAudioHelper.PlayGlobal(hoverSfx, gameObject);
+                AudioManager.Instance?.PostEvent("CardHoverSfx", gameObject);
                 _lastHoverSfxTime = Time.unscaledTime;
             }
 

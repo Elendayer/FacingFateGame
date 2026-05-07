@@ -9,19 +9,6 @@ namespace facingfate
     /// </summary>
     public class CombatAudioController : MonoBehaviour
     {
-        [Header("Turn Flow")]
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event combatStartSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event turnStartSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event roundStartSfx;
-
-        [Header("Game End")]
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event victorySfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event defeatSfx;
-
-        [Header("Cards")]
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event drawCardSfx;
-        [Tooltip("Optional, empty = silent")] public AK.Wwise.Event discardCardSfx;
-
         private void OnEnable()
         {
             GameEvents.OnCombatStart       += HandleCombatStart;
@@ -40,12 +27,12 @@ namespace facingfate
             GameEvents.OnGameplayReference -= HandleGameplayReference;
         }
 
-        private void HandleCombatStart() => PlayGlobal(combatStartSfx);
-        private void HandleTurnStart()   => PlayGlobal(turnStartSfx);
-        private void HandleRoundStart()  => PlayGlobal(roundStartSfx);
+        private void HandleCombatStart() => PlayGlobal("CombatStartSfx");
+        private void HandleTurnStart()   => PlayGlobal("TurnStartSfx");
+        private void HandleRoundStart()  => PlayGlobal("RoundStartSfx");
 
         private void HandleCombatEnd(bool playerWon) =>
-            PlayGlobal(playerWon ? victorySfx : defeatSfx);
+            PlayGlobal(playerWon ? "VictorySfx" : "DefeatSfx");
 
         private void HandleGameplayReference(ToSendTriggerReference refData)
         {
@@ -58,31 +45,31 @@ namespace facingfate
                 switch (r)
                 {
                     case GameplayRef.onHitLanded:
-                        PlayEntitySfx(refData.UserEntity, refData.UserEntity?.attackSfx);
+                        PlayEntitySfx(refData.UserEntity, "PlayAttackSound");
                         break;
                     case GameplayRef.onDamageRecieved:
-                        PlayEntitySfx(affected, affected?.damageSfx);
+                        PlayEntitySfx(affected, "PlayDamageSound");
                         break;
                     case GameplayRef.onBlocking:
-                        PlayEntitySfx(affected, affected?.blockSfx);
+                        PlayEntitySfx(affected, "BlockSfx");
                         break;
                     case GameplayRef.onHealRecieved:
-                        PlayEntitySfx(affected, affected?.healSfx);
+                        PlayEntitySfx(affected, "HealSfx");
                         break;
                     case GameplayRef.onDeath:
-                        PlayEntitySfx(affected, affected?.deathSfx);
+                        PlayEntitySfx(affected, "DeathSfx");
                         break;
                     case GameplayRef.onModifierApplied:
-                        PlayEntitySfx(affected, affected?.statusAppliedSfx);
+                        PlayEntitySfx(affected, "StatusAppliedSfx");
                         break;
                     case GameplayRef.onModifierExpired:
-                        PlayEntitySfx(affected, affected?.modifierExpiredSfx);
+                        PlayEntitySfx(affected, "ModifierExpiredSfx");
                         break;
                     case GameplayRef.onCardDrawn:
-                        PlayGlobal(drawCardSfx);
+                        PlayGlobal("PlayCardDrawSound");
                         break;
                     case GameplayRef.onCardDiscarded:
-                        PlayGlobal(discardCardSfx);
+                        PlayGlobal("PlayCardDiscardSound");
                         break;
                     case GameplayRef.onCardPlayed:
                         // Card SFX plays via CardSoundHelper.PlayCardEffect() instead
@@ -91,18 +78,15 @@ namespace facingfate
             }
         }
 
-        private void PlayGlobal(AK.Wwise.Event sfx)
+        private void PlayGlobal(string eventName)
         {
-            if (sfx != null && sfx.IsValid())
-            {
-                sfx.Post(gameObject);
-            }
+            AudioManager.Instance?.PostEvent(eventName, gameObject);
         }
 
-        private static void PlayEntitySfx(EntityScript entity, AK.Wwise.Event sfx)
+        private static void PlayEntitySfx(EntityScript entity, string eventName)
         {
-            if (entity == null || sfx == null || !sfx.IsValid()) return;
-            sfx.Post(entity.gameObject);
+            if (entity == null) return;
+            AudioManager.Instance?.PostEvent(eventName, entity.gameObject);
         }
 
         private static EntityScript FirstAffected(ToSendTriggerReference refData) =>
