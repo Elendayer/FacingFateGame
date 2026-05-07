@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using facingfate;
 
@@ -8,16 +9,14 @@ using facingfate;
 /// </summary>
 public class DebugCombatTools : MonoBehaviour
 {
-    [Header("Keybindings")]
-    [SerializeField] private KeyCode killEnemiesKey = KeyCode.F1;
-    [SerializeField] private KeyCode killPlayersKey = KeyCode.F2;
-    [SerializeField] private KeyCode resetSceneKey  = KeyCode.F3;
-
     private void Update()
     {
-        if (Input.GetKeyDown(killEnemiesKey)) KillAllEnemies();
-        if (Input.GetKeyDown(killPlayersKey)) KillAllPlayers();
-        if (Input.GetKeyDown(resetSceneKey))  ResetScene();
+        var kb = Keyboard.current;
+        if (kb == null) return;
+
+        if (kb.f1Key.wasPressedThisFrame) KillAllEnemies();
+        if (kb.f2Key.wasPressedThisFrame) KillAllPlayers();
+        if (kb.f3Key.wasPressedThisFrame) ResetScene();
     }
 
     private static void KillAllEnemies()

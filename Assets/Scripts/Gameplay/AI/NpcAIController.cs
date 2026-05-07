@@ -1327,11 +1327,13 @@ namespace facingfate
                     moveOption = DetermineRepositionTarget(
                         virtualPosition,
                         npcScript,
-                        remainingStamina);
+                        remainingStamina,
+                        preferLongMoves: true);
 
                     if (moveOption != null && moveOption.pathData != null && moveOption.pathData.PathCost > 0)
                     {
-                        moveOption.score = 1;
+                        // High score so movement beats card plays — archer prioritises circling
+                        moveOption.score = 500;
                         moveOption.pseudoName = "Reposition";
                     }
                     else
@@ -1457,7 +1459,7 @@ namespace facingfate
             return bestChaseTarget;
         }
 
-        private ScoredCard DetermineRepositionTarget(Vector3 realPosition, EntityScript entity, float realStamina)
+        private ScoredCard DetermineRepositionTarget(Vector3 realPosition, EntityScript entity, float realStamina, bool preferLongMoves = false)
         {
             var allEntities = TargetingUtility.AllEntitiesCache();
             var enemies = allEntities.Where(e => e.entityAffiliation != entity.entityAffiliation).ToList();
@@ -1465,11 +1467,10 @@ namespace facingfate
             if (enemies.Count == 0)
                 return CreateStayInPlaceMove(realPosition, "No Enemies Move");
 
-            // Cap flee distance by number of hostiles (but not above remaining stamina)
-            int maxFleeDistance = Mathf.Min(Mathf.RoundToInt(realStamina), enemies.Count);
+            int maxFleeDistance = Mathf.RoundToInt(realStamina);
 
             // Delegate the search and scoring
-            ScoredCard bestTarget = EvaluateRepositionCandidates(realPosition, entity, maxFleeDistance, enemies, realStamina);
+            ScoredCard bestTarget = EvaluateRepositionCandidates(realPosition, entity, maxFleeDistance, enemies, realStamina, preferLongMoves);
 
             return bestTarget ?? CreateStayInPlaceMove(realPosition, "No Move");
         }
@@ -1484,20 +1485,20 @@ namespace facingfate
                 score = 0
             };
         }
-        private ScoredCard EvaluateRepositionCandidates(Vector3 realPosition, EntityScript entity, int maxFleeDistance, List<EntityScript> enemies, float realStamina)
+        private ScoredCard EvaluateRepositionCandidates(Vector3 realPosition, EntityScript entity, int maxFleeDistance, List<EntityScript> enemies, float realStamina, bool preferLongMoves = false)
         {
             ScoredCard bestTarget = null;
             float bestScore = float.MinValue;
 
-            // OPTIMIZATION: Use adaptive search instead of full grid
-            // Instead of testing all positions in a square grid (O(n²)), use spiral search with early termination
             int searchRadius = Mathf.Max(maxFleeDistance, Mathf.RoundToInt(realStamina));
-            const int MAX_FLEE_POSITIONS = 12; // Test max 12 positions instead of searchRadius² (could be 400+)
+            const int MAX_FLEE_POSITIONS = 12;
             const int ANGLES_PER_RING = 8;
             int positionsEvaluated = 0;
 
-            // Spiral outward from current position
-            for (float distance = 1f; distance <= searchRadius && positionsEvaluated < MAX_FLEE_POSITIONS; distance += 2f)
+            // When circling, start search from the middle of the stamina range to bias toward long moves
+            float startDistance = preferLongMoves ? Mathf.Max(2f, realStamina * 0.4f) : 1f;
+
+            for (float distance = startDistance; distance <= searchRadius && positionsEvaluated < MAX_FLEE_POSITIONS; distance += 2f)
             {
                 for (int angleIndex = 0; angleIndex < ANGLES_PER_RING; angleIndex++)
                 {
@@ -1521,7 +1522,9 @@ namespace facingfate
                         continue;
 
                     int moveCost = pathData.PathCost;
-                    if (moveCost == 0 || moveCost > realStamina)
+                    // When circling, reserve ~40% stamina for card plays
+                    int moveBudget = preferLongMoves ? Mathf.Max(1, Mathf.RoundToInt(realStamina * 0.2f)) : Mathf.RoundToInt(realStamina);
+                    if (moveCost == 0 || moveCost > moveBudget)
                         continue;
 
                     // Calculate average and minimum distance to hostiles for better evaluation
@@ -1550,7 +1553,8 @@ namespace facingfate
 
                     // Scoring formula prioritizing average distance and minimum safety distance
                     float averageEnemyDist = totalEnemyDist / validEnemyCount;
-                    float score = (averageEnemyDist * 1.5f) + (minEnemyDist * 1f) - (moveCost * 0.5f);
+                    float moveCostMod = preferLongMoves ? moveCost * 1.5f : -moveCost * 0.5f;
+                    float score = (averageEnemyDist * 1.5f) + (minEnemyDist * 1f) + moveCostMod;
 
                     // Heavy penalty for being too close to any enemy
                     if (minEnemyDist < 2f)
