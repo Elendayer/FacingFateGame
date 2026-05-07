@@ -153,26 +153,33 @@ namespace facingfate
             // Reverse the list to have them in ascending order for display
             uniqueResolutions.Reverse();
 
-            var currentResolutionIndex = 0;
             for (var i = 0; i < uniqueResolutions.Count; i++)
             {
                 var res = uniqueResolutions[i];
                 resolutionDropdown.options.Add(
                     new TMP_Dropdown.OptionData(res.width + "x" + res.height));
-
-                if (res.width == Screen.currentResolution.width &&
-                    res.height == Screen.currentResolution.height)
-                {
-                    currentResolutionIndex = i;
-                }
             }
 
             // Update the internal resolutions array to match the filtered list
             _resolutions = uniqueResolutions.ToArray();
 
             resolutionDropdown.RefreshShownValue();
-            if (_dataManager != null)
-                resolutionDropdown.SetValueWithoutNotify(_dataManager.ResolutionIndex);
+            SetDropdownToCurrentResolution();
+        }
+
+        private void SetDropdownToCurrentResolution()
+        {
+            if (_dataManager == null || resolutionDropdown == null || _resolutions == null) return;
+            int w = _dataManager.WindowWidth;
+            int h = _dataManager.WindowHeight;
+            for (int i = 0; i < _resolutions.Length; i++)
+            {
+                if (_resolutions[i].width == w && _resolutions[i].height == h)
+                {
+                    resolutionDropdown.SetValueWithoutNotify(i);
+                    return;
+                }
+            }
         }
 
         public void SetFullscreen(bool isFullscreen)
@@ -180,9 +187,12 @@ namespace facingfate
             if (_dataManager != null) _dataManager.SetFullscreen(isFullscreen);
         }
 
-        public void SetResolution(int resolutionIndex)
+        public void SetResolution(int dropdownIndex)
         {
-            if(_dataManager != null) _dataManager.SetResolution(resolutionIndex);
+            if (_dataManager == null) return;
+            if (dropdownIndex < 0 || dropdownIndex >= _resolutions.Length) return;
+            var r = _resolutions[dropdownIndex];
+            _dataManager.SetResolution(r.width, r.height);
         }
 
         private void LoadSettingsIntoUI()
@@ -200,7 +210,7 @@ namespace facingfate
                 fullscreenToggle.SetIsOnWithoutNotify(_dataManager.FullscreenMode != FullScreenMode.Windowed);
 
             if (resolutionDropdown != null)
-                resolutionDropdown.SetValueWithoutNotify(_dataManager.ResolutionIndex);
+                SetDropdownToCurrentResolution();
         }
 
         private void SetupLanguageDropdown()

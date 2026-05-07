@@ -20,7 +20,6 @@ namespace facingfate
         [SerializeField, Range(0f, 1f)] private float atmoSlider01 = 0.8f;
         [SerializeField] private bool isMuted = false;
         [SerializeField] private FullScreenMode fullscreenMode = FullScreenMode.FullScreenWindow;
-        [SerializeField] private int resolutionIndex;
         [SerializeField] private int windowWidth = 1920;
         [SerializeField] private int windowHeight = 1080;
         public string selectedLanguageCode = "en"; // Standard auf Englisch
@@ -43,12 +42,11 @@ namespace facingfate
         private const string PREF_DIALOGUE = "opt_dialogue_01";
         private const string PREF_MUTED = "opt_muted";
         private const string PREF_FULLSCREEN_MODE = "opt_fullscreen_mode";
-        private const string PREF_RESOLUTION = "opt_resolution_index";
         private const string PREF_WINDOW_WIDTH = "opt_window_width";
         private const string PREF_WINDOW_HEIGHT = "opt_window_height";
         private const string PREF_LANGUAGE = "opt_language_code";
         private const string PREF_SETTINGS_VERSION = "opt_settings_version";
-        private const int SETTINGS_VERSION = 4;
+        private const int SETTINGS_VERSION = 5;
 
         public float Master01 => masterSlider01;
         public float Music01 => musicSlider01;
@@ -57,7 +55,6 @@ namespace facingfate
         public float Dialogue01 => dialogueSlider01;
         public bool IsMuted => isMuted;
         public FullScreenMode FullscreenMode => fullscreenMode;
-        public int ResolutionIndex => resolutionIndex;
         public int WindowWidth => windowWidth;
         public int WindowHeight => windowHeight;
         public string SelectedLanguageCode => selectedLanguageCode;
@@ -168,17 +165,14 @@ namespace facingfate
             }
         }
 
-        public void SetResolution(int index)
+        public void SetResolution(int width, int height)
         {
-            var res = Screen.resolutions;
-            if (res == null || res.Length == 0) return;
-
-            resolutionIndex = Mathf.Clamp(index, 0, res.Length - 1);
-            PlayerPrefs.SetInt(PREF_RESOLUTION, resolutionIndex);
+            windowWidth = Mathf.Max(640, width);
+            windowHeight = Mathf.Max(480, height);
+            PlayerPrefs.SetInt(PREF_WINDOW_WIDTH, windowWidth);
+            PlayerPrefs.SetInt(PREF_WINDOW_HEIGHT, windowHeight);
             PlayerPrefs.Save();
-
-            var r = res[resolutionIndex];
-            Screen.SetResolution(r.width, r.height, fullscreenMode);
+            ApplyDisplaySettings();
         }
 
         public void SetLanguage(string localeCode)
@@ -199,12 +193,10 @@ namespace facingfate
 
         private void ApplyDisplaySettings()
         {
-            if (fullscreenMode == FullScreenMode.Windowed)
-                Screen.SetResolution(windowWidth, windowHeight, FullScreenMode.Windowed);
+            if (fullscreenMode == FullScreenMode.FullScreenWindow)
+                Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.FullScreenWindow);
             else
-                Screen.SetResolution(Screen.resolutions[Mathf.Clamp(resolutionIndex, 0, Screen.resolutions.Length - 1)].width,
-                    Screen.resolutions[Mathf.Clamp(resolutionIndex, 0, Screen.resolutions.Length - 1)].height,
-                    fullscreenMode);
+                Screen.SetResolution(windowWidth, windowHeight, fullscreenMode);
         }
 
         private void ApplyLanguageSetting()
@@ -253,11 +245,9 @@ namespace facingfate
             if (resetDisplay)
             {
                 fullscreenMode = FullScreenMode.FullScreenWindow;
-                resolutionIndex = FindClosestResolutionIndex();
-                windowWidth = 1920;
-                windowHeight = 1080;
+                windowWidth = Screen.currentResolution.width;
+                windowHeight = Screen.currentResolution.height;
                 PlayerPrefs.SetInt(PREF_FULLSCREEN_MODE, (int)fullscreenMode);
-                PlayerPrefs.SetInt(PREF_RESOLUTION, resolutionIndex);
                 PlayerPrefs.SetInt(PREF_WINDOW_WIDTH, windowWidth);
                 PlayerPrefs.SetInt(PREF_WINDOW_HEIGHT, windowHeight);
                 PlayerPrefs.SetInt(PREF_SETTINGS_VERSION, SETTINGS_VERSION);
@@ -266,9 +256,8 @@ namespace facingfate
             else
             {
                 fullscreenMode = (FullScreenMode)PlayerPrefs.GetInt(PREF_FULLSCREEN_MODE, (int)FullScreenMode.FullScreenWindow);
-                resolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION, FindClosestResolutionIndex());
-                windowWidth = PlayerPrefs.GetInt(PREF_WINDOW_WIDTH, 1920);
-                windowHeight = PlayerPrefs.GetInt(PREF_WINDOW_HEIGHT, 1080);
+                windowWidth = PlayerPrefs.GetInt(PREF_WINDOW_WIDTH, Screen.currentResolution.width);
+                windowHeight = PlayerPrefs.GetInt(PREF_WINDOW_HEIGHT, Screen.currentResolution.height);
             }
 
             masterSlider01 = Mathf.Clamp01(masterSlider01);
@@ -280,13 +269,5 @@ namespace facingfate
             windowHeight = Mathf.Max(480, windowHeight);
         }
 
-        private int FindClosestResolutionIndex()
-        {
-            var resolutions = Screen.resolutions;
-            if (resolutions == null || resolutions.Length == 0) return 0;
-
-            // Use the native resolution (typically the last in the list)
-            return resolutions.Length - 1;
-        }
     }
 }
