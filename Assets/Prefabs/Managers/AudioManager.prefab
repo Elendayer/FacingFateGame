@@ -59,7 +59,7 @@ MonoBehaviour:
   cardHoverSfx:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: 391c4942295e36148bd0a365f75c2f55, type: 2}
+    WwiseObjectReference: {fileID: 11400000, guid: bfd791775144ce24d97198ca4b904071, type: 2}
   combatStartSfx:
     idInternal: 0
     valueGuidInternal: 
