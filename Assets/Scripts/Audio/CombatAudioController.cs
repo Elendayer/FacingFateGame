@@ -66,10 +66,10 @@ namespace facingfate
                         PlayEntitySfx(affected, "ModifierExpiredSfx");
                         break;
                     case GameplayRef.onCardDrawn:
-                        PlayGlobal("PlayCardDrawSound");
+                        // Card draw sound now plays in DeckManager.Player_DrawTopCard()
                         break;
                     case GameplayRef.onCardDiscarded:
-                        PlayGlobal("PlayCardDiscardSound");
+                        // Card discard sound now plays in DeckManager.Player_DiscardRandomCardFromHand()
                         break;
                     case GameplayRef.onCardPlayed:
                         // Card SFX plays via CardSoundHelper.PlayCardEffect() instead

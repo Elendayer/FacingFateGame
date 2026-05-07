@@ -327,6 +327,7 @@ namespace facingfate
         public void Player_DrawTopCard()
         {
             HandUtility.Draw(GameplayRef.onCardDrawn);
+            AudioManager.Instance?.PostEvent(AudioManager.Instance.playCardDrawSound, gameObject);
         }
 
         public void Player_DiscardRandomCardFromHand()
@@ -335,11 +336,13 @@ namespace facingfate
 
             GameObject cardObject = HandManager.Instance.cardsInHand[UnityEngine.Random.Range(0, HandManager.Instance.cardsInHand.Count)];
             DiscardCardInternal(cardObject, GameplayRef.onCardDiscarded);
+            AudioManager.Instance?.PostEvent(AudioManager.Instance.playCardDiscardSound, gameObject);
         }
 
         public void Player_DiscardCardFromHand(GameObject cardObject)
         {
             DiscardCardInternal(cardObject, GameplayRef.onCardPlayed);
+            AudioManager.Instance?.PostEvent(AudioManager.Instance.playCardDiscardSound, gameObject);
         }
 
         /// <summary>
