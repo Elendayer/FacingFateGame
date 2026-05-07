@@ -109,18 +109,22 @@ namespace facingfate
             cardStack.Clear();
             discardStack.Clear();
 
-            // Optionally, also clear the visual elements in the deck and discard parents
+            // Clear the visual elements in the deck and discard parents
             foreach (Transform child in deckParent)
-            {
                 Destroy(child.gameObject);
-            }
             foreach (Transform child in discardParent)
-            {
                 Destroy(child.gameObject);
-            }
+
+            // Destroy all deck dock objects parented to this DeckManager (created by BuildDeckFromIDs).
+            // Without this they persist across scenes — cards keep their DescriptionUpdate coroutines
+            // running with a destroyed Owner, causing NullReferenceException spam.
+            var docks = new List<Transform>();
+            foreach (Transform child in transform) docks.Add(child);
+            foreach (var dock in docks) Destroy(dock.gameObject);
 
             // Clear deck management storage
             DeckManagement.Clear();
+            DeckOrderManagement.Clear();
         }
 
         /// <summary>

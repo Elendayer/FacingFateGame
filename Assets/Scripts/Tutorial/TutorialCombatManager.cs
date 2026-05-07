@@ -35,6 +35,10 @@ namespace facingfate
         private bool _isActive;
         public bool IsActive => _isActive;
 
+        private Coroutine _lockRoutine;
+        // Cached so OnTurnEnd knows whose turn just ended, independent of TurnManager index timing.
+        private EntityScript _currentTurnEntity;
+
         // ── Lifecycle ──────────────────────────────────────────────────────────
 
         private void Awake()
@@ -124,6 +128,7 @@ namespace facingfate
         {
             if (!_isActive) return;
 
+            if (_lockRoutine != null) { StopCoroutine(_lockRoutine); _lockRoutine = null; }
             UnlockAll();
             _currentStepIndex++;
 
@@ -148,21 +153,32 @@ namespace facingfate
 
         private void OnTurnStart()
         {
+            // Always cache before the guard — needed by OnTurnEnd even when tutorial is not yet active.
+            _currentTurnEntity = TurnManager.Instance?.CurrentTurnEntity;
+
             if (!_isActive || _currentStepIndex >= steps.Length) return;
-            StartCoroutine(LockHandNextFrame(steps[_currentStepIndex]));
+            if (_lockRoutine != null) StopCoroutine(_lockRoutine);
+            _lockRoutine = StartCoroutine(LockHandNextFrame());
         }
 
-        private IEnumerator LockHandNextFrame(TutorialStepData step)
+        private IEnumerator LockHandNextFrame()
         {
             yield return null; // wait one frame so DeckManager draws cards first
-            LockHandForStep(step);
+            _lockRoutine = null;
+            if (_isActive && _currentStepIndex < steps.Length)
+                LockHandForStep(steps[_currentStepIndex]);
         }
 
         private void OnTurnEnd()
         {
             if (!_isActive || _currentStepIndex >= steps.Length) return;
-            if (steps[_currentStepIndex].condition == CompletionCondition.EndTurnPressed)
-                AdvanceStep();
+            if (steps[_currentStepIndex].condition != CompletionCondition.EndTurnPressed) return;
+
+            // Use the entity cached at TurnStart — CurrentTurnEntity in TurnManager may already
+            // point to the NEXT entity by the time this handler fires (TurnManager subscribed first).
+            if (_currentTurnEntity == null || _currentTurnEntity.GetComponent<PlayerScript>() == null) return;
+
+            AdvanceStep();
         }
 
         private void OnCombatEnd(bool playerWon)

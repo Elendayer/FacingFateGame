@@ -7,6 +7,7 @@ namespace facingfate
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
+            /*
             if (Object.FindFirstObjectByType<AkInitializer>() != null) return;
 
             var prefab = Resources.Load<GameObject>("WwiseGlobal");
@@ -17,6 +18,7 @@ namespace facingfate
             }
 
             Object.DontDestroyOnLoad(Object.Instantiate(prefab));
+            */
         }
     }
 }

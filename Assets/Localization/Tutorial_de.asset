@@ -52,8 +52,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62958120960
-    m_Localized: "Spiele Heavens Spear! Diese Karte muss mehrere Gegner anvisieren.
-      \nKlicke auf drei Gegner in Reichweite, um sie zu spielen."
+    m_Localized: "Spiele Heavens Spear! Diese Karte kann mehrere Gegner mit der rechten
+      Maustaste anvisieren. \nKlicke auf bis zu drei Gegner in Reichweite, um sie
+      zu spielen."
     m_Metadata:
       m_Items: []
   - m_Id: 64614871040

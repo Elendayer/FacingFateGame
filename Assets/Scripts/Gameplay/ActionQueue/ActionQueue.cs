@@ -218,18 +218,46 @@ namespace facingfate
 
                 if (item.IsCoroutine)
                 {
-                    // Run the coroutine and wait for it to finish
-                    yield return StartCoroutine(item.CoroutineAction());
+                    IEnumerator cr = null;
+                    try { cr = item.CoroutineAction(); }
+                    catch (Exception e) { Debug.LogError($"[ActionQueue] Coroutine factory threw: {e}"); }
+                    if (cr != null)
+                        yield return StartCoroutine(SafeCoroutine(cr));
                 }
                 else
                 {
-                    // Execute the action
-                    item.Action?.Invoke();
+                    try { item.Action?.Invoke(); }
+                    catch (Exception e) { Debug.LogError($"[ActionQueue] Exception in queued action: {e}"); }
                     yield return null; // yield a frame to avoid locking
                 }
             }
 
             isProcessing = false;
+        }
+
+        /// <summary>
+        /// Wraps a coroutine so that exceptions inside it are caught and logged
+        /// instead of propagating up and killing ProcessQueue permanently.
+        /// </summary>
+        private IEnumerator SafeCoroutine(IEnumerator inner)
+        {
+            while (true)
+            {
+                bool moveNext;
+                object current;
+                try
+                {
+                    moveNext = inner.MoveNext();
+                    current  = inner.Current;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[ActionQueue] Exception inside coroutine: {e}");
+                    yield break;
+                }
+                if (!moveNext) yield break;
+                yield return current;
+            }
         }
 
         /// <summary>

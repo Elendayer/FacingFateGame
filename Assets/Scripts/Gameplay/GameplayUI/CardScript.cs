@@ -62,6 +62,10 @@ namespace facingfate
         {
             while (true)
             {
+                // Stop if card data or owner is gone (e.g. entity destroyed on scene transition).
+                if (cardData == null || cardData.Owner == null)
+                    yield break;
+
                 descriptionText.text = FormatCardDescription(cardData);
                 range.text = FormatCardRange(cardData);
 

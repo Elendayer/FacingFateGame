@@ -104,6 +104,20 @@ namespace facingfate
         {
             if (combatEnded || TurnOrder.Count == 0) return;
 
+            // Skip dead or disabled entities — they may still be in TurnOrder if RemoveTurn
+            // hasn't fired yet (e.g. death processed mid-queue, turn already scheduled).
+            var entity = TurnOrder[CurrentTurnIndex];
+            if (entity == null || !entity.enabled || !entity.gameObject.activeInHierarchy
+                || (entity.entityStats != null && entity.entityStats.CurrentHealth <= 0))
+            {
+                Debug.Log($"[TurnManager] Skipping turn for dead/inactive entity '{entity?.name}'. Advancing.");
+                TurnOrder.RemoveAt(CurrentTurnIndex);
+                if (CurrentTurnIndex >= TurnOrder.Count) CurrentTurnIndex = 0;
+                if (TurnOrder.Count > 0)
+                    ActionQueueUtility.EnqueueAction(GameEvents.TriggerTurnStart, 0.1f);
+                return;
+            }
+
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnStart }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
             GameEvents.TriggerTurnEntityChanged(TurnOrder[CurrentTurnIndex]);
@@ -208,14 +222,17 @@ namespace facingfate
             // Adjust CurrentTurnIndex if needed
             if (indexToRemove < CurrentTurnIndex)
             {
-                // Entity was before current, shift index back
+                // Entity was before current — shift index back so current entity is unchanged
                 CurrentTurnIndex--;
             }
-            else if (indexToRemove == CurrentTurnIndex && CurrentTurnIndex >= TurnOrder.Count && TurnOrder.Count > 0)
+            else if (indexToRemove == CurrentTurnIndex)
             {
-                // We removed the current entity and it was the last one, wrap to beginning
-                CurrentTurnIndex = 0;
+                // The active entity was removed. After RemoveAt, CurrentTurnIndex either points
+                // to the next entity (correct) or is out-of-range (wrap to 0).
+                if (CurrentTurnIndex >= TurnOrder.Count)
+                    CurrentTurnIndex = 0;
             }
+            // indexToRemove > CurrentTurnIndex: entity was after current — no adjustment needed
         }
     }
 }

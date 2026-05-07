@@ -53,8 +53,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62958120960
-    m_Localized: "Play Heavens Spear! This card must target multiple Eniemies. \nClick
-      three Enemies in Range to play the card"
+    m_Localized: "Play Heavens Spear! This card can target multiple Eniemies with
+      right click. \nClick on up to three Enemies in Range to play the card"
     m_Metadata:
       m_Items: []
   - m_Id: 64614871040
