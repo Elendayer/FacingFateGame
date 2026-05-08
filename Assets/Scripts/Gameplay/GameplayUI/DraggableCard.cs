@@ -75,6 +75,12 @@ namespace facingfate
             }
             lastHighlightedEntities.Clear();
             HandManager.Instance?.HoverCard(null);
+
+            // Hide range indicator when not dragging
+            if (!isDragging)
+            {
+                AssetManager.Instance?.HideRangeIndicator();
+            }
         }
 
         private void Update()
@@ -130,6 +136,12 @@ namespace facingfate
             ActiveDraggingCard = this;
 
             CreateDragVFX();
+
+            // Show range indicator when dragging
+            if (cardScript?.cardData != null)
+            {
+                AssetManager.Instance?.ShowRangeIndicator(cardScript.cardData);
+            }
         }
 
         public override void OnDrag(PointerEventData eventData)
@@ -234,6 +246,9 @@ namespace facingfate
 
             canvasGroup.blocksRaycasts = true;
 
+            // Hide range indicator when cancelling drag
+            AssetManager.Instance?.HideRangeIndicator();
+
             // Deselect only if we highlighted the card ourselves; otherwise leave it selected
             if (!wasSelectedBeforeDrag)
                 HandManager.Instance?.SelectCard(null);
@@ -246,6 +261,9 @@ namespace facingfate
             wasRightMouseDown  = false;
 
             if (dragVFX != null) { Destroy(dragVFX); dragVFX = null; }
+
+            // Hide range indicator when ending drag
+            AssetManager.Instance?.HideRangeIndicator();
 
             // Clear entity highlights
             foreach (var entity in lastHighlightedEntities)

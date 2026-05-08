@@ -246,10 +246,11 @@ namespace facingfate
                 }
             }
 
-            // Position at card user and set range
-            Vector3 userPosition = cardData.Owner.transform.position;
-            activeRangeIndicator.transform.position = userPosition;
+            // Attach VFX to the card owner entity
+            activeRangeIndicator.transform.SetParent(cardData.Owner.transform);
+            activeRangeIndicator.transform.localPosition = Vector3.zero;
 
+            Vector3 userPosition = cardData.Owner.transform.position;
             if (activeRangeIndicator.HasVector3("Start"))
             {
                 activeRangeIndicator.SetVector3("Start", userPosition);
@@ -258,6 +259,14 @@ namespace facingfate
             if (activeRangeIndicator.HasFloat("Range"))
             {
                 activeRangeIndicator.SetFloat("Range", cardData.Range);
+            }
+
+            // Check if targeting mode is self-targeting
+            bool isSelfTargeting = cardData.targetingData.CardTargetAffiliation == CardTargetAffiliation.Self;
+
+            if (activeRangeIndicator.HasBool("isSelfTargeting"))
+            {
+                activeRangeIndicator.SetBool("isSelfTargeting", isSelfTargeting);
             }
 
             activeRangeIndicator.gameObject.SetActive(true);

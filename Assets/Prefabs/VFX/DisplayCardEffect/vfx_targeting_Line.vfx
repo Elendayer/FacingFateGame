@@ -2501,7 +2501,7 @@ MonoBehaviour:
   index: 0
   writePosition: 1
   writeTargetPosition: 0
-  mode: 1
+  mode: 0
 --- !u!114 &114350483966676425
 MonoBehaviour:
   m_ObjectHideFlags: 0
