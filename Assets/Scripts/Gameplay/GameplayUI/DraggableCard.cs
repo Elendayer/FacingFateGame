@@ -409,7 +409,7 @@ namespace facingfate
         {
             if (cardScript == null) return;
 
-            string vfxName = GetVFXNameForTargetingMode(); 
+            string vfxName = GetVFXNameForTargetingMode();
 
             VFXData vfxData = new VFXData(vfxName)
             {
@@ -427,9 +427,34 @@ namespace facingfate
 
             (GameObject obj, VisualEffect effect) vfx = AssetManager.Instance.CreateVFX(vfxName, vfxData);
             if (vfx.obj == null) return;
-   
+
             dragVFX = vfx.obj;
             dragVFXEffect = vfx.effect;
+
+            if (dragVFXEffect.HasVector4("Color"))
+                dragVFXEffect.SetVector4("Color", GetTargetingColor(cardScript.cardData));
+        }
+
+        private static Vector4 GetTargetingColor(CardData cardData)
+        {
+            var affiliation = cardData.targetingData.CardTargetAffiliation;
+
+            if (affiliation == CardTargetAffiliation.Self || affiliation == CardTargetAffiliation.Ally)
+                return Color.green;
+
+            if (affiliation == CardTargetAffiliation.Enemy)
+            {
+                bool isDamaging = cardData.damage_u > 0
+                    || cardData.damageFunc != null
+                    || (cardData.cardIdentities != null && (
+                        cardData.cardIdentities.Contains(CardIdentity.Melee) ||
+                        cardData.cardIdentities.Contains(CardIdentity.Physical) ||
+                        cardData.cardIdentities.Contains(CardIdentity.Ranged)));
+                // Damage → red, CC/debuff → magenta
+                return isDamaging ? Color.red : new Color(1f, 0f, 1f, 1f);
+            }
+
+            return Color.white;
         }
 
         private string GetVFXNameForTargetingMode()

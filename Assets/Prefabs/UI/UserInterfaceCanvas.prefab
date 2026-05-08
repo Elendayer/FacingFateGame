@@ -782,7 +782,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3196521068321039148}
-  - component: {fileID: 5445509809776549976}
+  - component: {fileID: 4353340101107982267}
   m_Layer: 5
   m_Name: CardPreviewPanel
   m_TagString: Untagged
@@ -811,7 +811,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5445509809776549976
+--- !u!114 &4353340101107982267
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -820,10 +820,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1486940322286173220}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9bb05e42612d604ebe7f562adb51dd6, type: 3}
+  m_Script: {fileID: 11500000, guid: 976c8fac30d760442bd1c0215f46e340, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::facingfate.CardPreviewPanel
-  previewRoot: {fileID: 1675350260741824438}
+  previewRoot: {fileID: 1486940322286173220}
   previewCardScript: {fileID: 4600639432419428385}
   fadeDuration: 0.15
   scaleDuration: 0.15
@@ -3310,7 +3310,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5445509809776549976}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: facingfate.CardPreviewPanel, Assembly-CSharp
         m_MethodName: TogglePreview
         m_Mode: 1

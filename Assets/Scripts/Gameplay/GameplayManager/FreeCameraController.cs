@@ -44,6 +44,15 @@ namespace facingfate
         [Tooltip("Edge scroll speed in world units per second.")]
         [SerializeField] private float edgeScrollSpeed = 12f;
 
+        // ── Scroll Zoom ────────────────────────────────────────────────────────
+        [Header("Scroll Zoom")]
+        [Tooltip("World-units of zoom per scroll notch.")]
+        [SerializeField] private float scrollZoomSpeed = 3f;
+        [Tooltip("Minimum camera distance — prevents clipping into mesh.")]
+        [SerializeField] private float minCameraDistance = 8f;
+        [Tooltip("Maximum camera distance.")]
+        [SerializeField] private float maxCameraDistance = 40f;
+
         // ── Middle-Mouse Drag ──────────────────────────────────────────────────
         [Header("Middle-Mouse Drag")]
         [Tooltip("Drag sensitivity multiplier. 1 = natural 1:1 map grab.")]
@@ -126,6 +135,7 @@ namespace facingfate
                 HandleKeyboardPan();
                 HandleEdgeScroll();
                 HandleDragPan();
+                HandleScrollZoom();
             }
 
             HandleSpacebarSnap();
@@ -218,9 +228,12 @@ namespace facingfate
                 if (edgeScrollEnabled)
                 {
                     Vector2 pos = mouse.position.ReadValue();
-                    if (pos.x < edgeScrollMargin || pos.x > Screen.width  - edgeScrollMargin ||
-                        pos.y < edgeScrollMargin || pos.y > Screen.height - edgeScrollMargin)
-                        return true;
+                    if (pos.x >= 0 && pos.x <= Screen.width && pos.y >= 0 && pos.y <= Screen.height)
+                    {
+                        if (pos.x < edgeScrollMargin || pos.x > Screen.width  - edgeScrollMargin ||
+                            pos.y < edgeScrollMargin || pos.y > Screen.height - edgeScrollMargin)
+                            return true;
+                    }
                 }
             }
 
@@ -249,6 +262,10 @@ namespace facingfate
             if (mouse == null) return;
 
             Vector2 pos = mouse.position.ReadValue();
+
+            // Mouse outside window — stop scrolling
+            if (pos.x < 0 || pos.x > Screen.width || pos.y < 0 || pos.y > Screen.height) return;
+
             Vector2 dir = Vector2.zero;
 
             if (pos.x < edgeScrollMargin)                  dir.x -= 1f;
@@ -281,6 +298,20 @@ namespace facingfate
             Vector3 delta = (dragLastWorldPos - current) * dragSensitivity; // natural grab feel
             dragLastWorldPos = current;
             targetFocusPoint = ClampFocusPoint(targetFocusPoint + delta);
+        }
+
+        private void HandleScrollZoom()
+        {
+            Mouse mouse = Mouse.current;
+            if (mouse == null) return;
+
+            float scroll = mouse.scroll.ReadValue().y;
+            if (Mathf.Approximately(scroll, 0f)) return;
+
+            cameraDistance = Mathf.Clamp(
+                cameraDistance - scroll * scrollZoomSpeed * Time.deltaTime,
+                minCameraDistance,
+                maxCameraDistance);
         }
 
         private void HandleSpacebarSnap()

@@ -1564,11 +1564,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6586919796703142417, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 985.93915
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6586919796703142417, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 360.21677
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6586919796703142417, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4865,7 +4865,6 @@ MonoBehaviour:
   atmoSlider01: 0.8
   isMuted: 0
   fullscreenMode: 0
-  resolutionIndex: 0
   windowWidth: 1920
   windowHeight: 1080
   selectedLanguageCode: en

@@ -611,7 +611,7 @@ namespace facingfate
                                 modifierName: "Burn",
                                 owner: target,
                                 baseValue: cardData.Damage,
-                                toTriggerRefs: new() { GameplayRef.onBurn },
+                                // toTriggerRefs omitted: ApplyEffectDamage already fires onBurn via HandlePostCombatTrigger
                                 duration: cardData.Duration,
                                 modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
                                 onRef_Trigger: new RelevantTriggerCheck
@@ -622,7 +622,7 @@ namespace facingfate
                                 },
                                 onRef_Action: (targetEntity, cd, value) =>
                                 {
-                                    CombatUtility.ApplyDamage(null, targetEntity, new VFXData("Impact"), value);
+                                    CombatUtility.ApplyEffectDamage(value, targetEntity, GameplayRef.onBurn, new VFXData("BurnEffect", true));
                                 });
                             CombatUtility.ApplyEntityModifier(cardData, target, ignite);
                         })

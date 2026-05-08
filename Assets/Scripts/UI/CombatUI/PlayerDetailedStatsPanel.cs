@@ -142,17 +142,17 @@ namespace facingfate
             new("Attributes", StatCategory.Attribute),
 
             new("Strength",     s => $"{s.CurrentStrength:0.0}",
-                "Strength",  "Final calculated Strength value including all modifiers.", s => s.Strength_Flat),
+                "Strength",  "Scales Melee and Physical card damage.", s => s.Strength_Flat),
             new("Dexterity",     s => $"{s.CurrentDexterity:0.0}",
-                "Dexterity",  "Final calculated Dexterity value including all modifiers.", s => s.Dexterity_Flat),
+                "Dexterity",  "Scales Ranged, Poison, and Shadow card damage.", s => s.Dexterity_Flat),
             new("Wisdom",       s => $"{s.CurrentWisdom:0.0}",
-                "Wisdom",  "Final calculated Wisdom value including all modifiers.", s => s.Wisdom_Flat),
+                "Wisdom",  "Scales Healing and support card effects. Determines cards drawn per turn (Wisdom ÷ 2, min. 1).", s => s.Wisdom_Flat),
             new("Foresight",    s => $"{s.CurrentIntelligence:0.0}",
-                "Foresight",  "Final calculated Foresight value including all modifiers.", s => s.Intelligence_Flat),
+                "Foresight",  "Scales Fire, Ice, Arcane, and Magic card damage.", s => s.Intelligence_Flat),
             new("Endurance",    s => $"{s.CurrentEndurance:0.0}",
-                "Endurance",  "Final calculated Endurance value including all modifiers.", s => s.Endurance_Flat),
+                "Endurance",  "Determines maximum Stamina. Each point grants 5 Stamina.", s => s.Endurance_Flat),
             new("Tenacity",     s => $"{s.CurrentTenacity:0.0}",
-                "Tenacity",  "Final calculated Tenacity value including all modifiers.", s => s.Tenacity_Flat),
+                "Tenacity",  "Determines maximum Health. Each point grants 50 HP.", s => s.Tenacity_Flat),
 
             // ── Combat Modifiers ──────────────────────────────────────────────
             new("── Combat ──"),

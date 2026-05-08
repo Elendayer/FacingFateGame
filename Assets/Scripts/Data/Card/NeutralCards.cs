@@ -65,6 +65,7 @@ namespace facingfate
                 },
 
                 cost_u = 10,
+                range_u = 2f,
 
                 damageFunc = card =>
                 {
@@ -104,6 +105,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 20,
+                range_u = 2f,
 
                 duration_u = 2,
 
@@ -218,6 +220,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 30,
+                range_u = 2f,
                 damage_u = 50,
                 repeats_u = 2,
 
@@ -355,7 +358,7 @@ namespace facingfate
                 }
             });
 
-            // 100107 – Step Back – disengage after attack (Self)
+            // 100107 – Step Back – player-directed disengage move
             CardDatabase.RegisterCard(new CardData()
             {
                 cardID = "Neutral_Tech_Step_Back",
@@ -365,15 +368,16 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 2,
+                range_u = 3f,
 
                 targetingData = new()
                 {
-                    CardTargetType = CardTargetType.Entity,
+                    CardTargetType = CardTargetType.Ground,
                     CardTargetAffiliation = CardTargetAffiliation.Self,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Disengage by 3 meters.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Move up to 3 meters without triggering Opportunity Attacks.",
                 cardActionSequence = new()
                 {
                     new CardAction(
@@ -383,17 +387,9 @@ namespace facingfate
                         delayBetween: 0f,
                         coroutine: (caster, targetingData, cardData) =>
                         {
-                            EntityScript nearestEnemy = null;
-                            float minDist = float.MaxValue;
-                            foreach (var entity in TurnManager.Instance.TurnOrder)
-                            {
-                                if (!TargetingUtility.isEnemyOf(caster, entity)) continue;
-                                float dist = Vector3.Distance(caster.transform.position, entity.transform.position);
-                                if (dist < minDist) { minDist = dist; nearestEnemy = entity; }
-                            }
-                            var refPos = nearestEnemy != null ? nearestEnemy.transform.position : caster.transform.position;
-                            var pushPath = MovementUtility.GetFurtherPosition(refPos, 3f, caster);
-                            return caster.EntityOnMap.StartMoveRoutine(pushPath.End);
+                            var disengage = EffectDatabase.GetEffectByName("Disengaged", cardData, ThroughputSource.None, caster);
+                            CombatUtility.ApplyEntityModifier(cardData, caster, disengage);
+                            return caster.EntityOnMap.StartMoveRoutine(targetingData.targetedPositions[0]);
                         }
                     )
                 }

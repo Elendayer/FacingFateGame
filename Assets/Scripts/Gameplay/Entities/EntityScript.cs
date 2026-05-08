@@ -200,15 +200,15 @@ namespace facingfate
         {
             EntityVisual.HighlightTurn();
             entityStats.CurrentStamina = entityStats.MaxStamina;
+        }
+        public virtual void EndTurn()
+        {
+            EntityVisual.ClearHighlight();
 
             ActionQueueUtility.EnqueueAction(() =>
             {
                 entityStats.TickAllStats();
             });
-        }
-        public virtual void EndTurn()
-        {
-            EntityVisual.ClearHighlight ();
         }
 
         public virtual void DrawCards(int toDraw) { }

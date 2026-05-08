@@ -194,7 +194,31 @@ namespace facingfate
             }
 
             // Final join
-            return string.Join("", parts);
+            string rangeText = string.Join("", parts);
+            string scalingStat = GetScalingStatLabel(cardData);
+            if (!string.IsNullOrEmpty(scalingStat))
+                rangeText += $"\n{scalingStat}";
+            return rangeText;
+        }
+
+        public static string GetScalingStatLabel(CardData cardData)
+        {
+            if (cardData.cardIdentities == null || cardData.cardIdentities.Count == 0) return null;
+
+            var ids = cardData.cardIdentities;
+
+            if (ids.Contains(CardIdentity.Melee) || ids.Contains(CardIdentity.Physical))
+                return "Strength";
+            if (ids.Contains(CardIdentity.Ranged) || ids.Contains(CardIdentity.Poison) || ids.Contains(CardIdentity.Shadow))
+                return "Dexterity";
+            if (ids.Contains(CardIdentity.Healing))
+                return "Wisdom";
+            if (ids.Contains(CardIdentity.Magic) || ids.Contains(CardIdentity.Fire) ||
+                ids.Contains(CardIdentity.Ice)   || ids.Contains(CardIdentity.Air)  ||
+                ids.Contains(CardIdentity.Earth) || ids.Contains(CardIdentity.Arcane))
+                return "Foresight";
+
+            return null;
         }
 
         public interface IStatResolver

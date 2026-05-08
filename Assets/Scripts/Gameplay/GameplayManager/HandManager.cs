@@ -80,14 +80,14 @@ namespace facingfate
 
             // Update layout whenever a card is hovered
             if (hoveredCard == null) return;
-            
+
             UpdateHandLayout(hoveredCard);
 
             if (selectedCard != null)
             {
                 CardPreviewPanel.Instance?.Show(selectedCard.GetComponent<CardScript>());
             }
-            else if(hoveredCard != null) 
+            else if(hoveredCard != null)
             {
                 CardPreviewPanel.Instance?.Show(hoveredCard.GetComponent<CardScript>());
             }

@@ -235,7 +235,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
 
                 cost_u = 30,
-                damage_u = 45,
+                damage_u = 30,
                 range_u = 8f,
 
                 targetingData = new()

@@ -611,13 +611,18 @@ namespace facingfate
             float validScore = 0f;
             float invalidScore = 0f;
 
+            // None means no override — fall back to the card's own targeting affiliation
+            CardTargetAffiliation effectiveAffiliation = AffiliationBiasOverride == CardTargetAffiliation.None
+                ? cardData.targetingData.CardTargetAffiliation
+                : AffiliationBiasOverride;
+
             foreach (var t in targets)
             {
                 if (t == null) continue;
                 if (!triggerConditionTargets(t)) continue;
 
                 // Check affiliation validity and apply biases or penalties accordingly
-                bool isValid = IsValidAffiliationTarget(t, cardData.Owner, AffiliationBiasOverride);
+                bool isValid = IsValidAffiliationTarget(t, cardData.Owner, effectiveAffiliation);
 
                 if (isValid)
                 {

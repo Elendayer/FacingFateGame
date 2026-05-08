@@ -895,6 +895,7 @@ namespace facingfate
                         action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
                         {
                             target.entityStats.CurrentStamina += cardData.Power;
+                            HandUI.RefreshHandLocks(target);
 
                             var mod = new EntityModifier(
                                 modifierName: "CrimsonRejuvenationBrewOverheal",
@@ -911,6 +912,7 @@ namespace facingfate
                                 {
                                     entity.entityStats.CurrentStamina = Mathf.Min(
                                         entity.entityStats.CurrentStamina, entity.entityStats.MaxStamina);
+                                    HandUI.RefreshHandLocks(entity);
                                 }
                             );
                             target.AddModifier(mod);
