@@ -1882,6 +1882,9 @@ MonoBehaviour:
   edgeScrollEnabled: 1
   edgeScrollMargin: 30
   edgeScrollSpeed: 12
+  scrollZoomSpeed: 50
+  minCameraDistance: 8
+  maxCameraDistance: 40
   dragSensitivity: 1
   navMeshClampRadius: 50
 --- !u!1 &832472088
@@ -4927,7 +4930,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3146732363807703015, guid: 61ec945f219ede340a372b0bd1aed5da, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9202726496087870737, guid: 61ec945f219ede340a372b0bd1aed5da, type: 3}
       propertyPath: m_Enabled

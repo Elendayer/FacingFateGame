@@ -25,6 +25,7 @@ public static class CombatUtility
 
         target.entityStats.CurrentHealth -= rawDamage;
         DamageNumberSpawner.Instance?.SpawnDamage(target, Mathf.RoundToInt(rawDamage), DamageNumberSpawner.NumberType.Dot);
+        target.entityStats.UpdateStats();
 
         HandleOnDamageVFX(vfxData, target);
 
