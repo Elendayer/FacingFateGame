@@ -601,6 +601,108 @@ namespace facingfate
             onComplete?.Invoke(plan);
         }
 
+        /// <summary>
+        /// Executes a list of planned actions through the ActionQueue system in order.
+        /// Ensures proper state switching and serialization of movements and card plays.
+        /// 
+        /// EXECUTION SEQUENCE:
+        /// 1. Move to get in range (if movement was planned)
+        /// 2. Cast card at that position (which may include additional movement as part of the card effect)
+        /// 
+        /// The ActionQueue guarantees sequential execution - each action must complete
+        /// before the next one starts. This is enforced by enqueueing actions one at a time,
+        /// waiting for each to complete via callback before enqueueing the next.
+        /// </summary>
+        public void ExecutePlannedActions(List<PlannedAction> plan, Action onComplete = null)
+        {
+            npcScript.StartCoroutine(ExecutePlannedActionsCoroutine(plan, onComplete));
+        }
+
+        private IEnumerator ExecutePlannedActionsCoroutine(List<PlannedAction> plan, Action onComplete)
+        {
+            if (plan == null || plan.Count == 0)
+            {
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: ExecutePlannedActionsCoroutine - empty plan, completing immediately");
+                onComplete?.Invoke();
+                yield break;
+            }
+
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: ExecutePlannedActionsCoroutine starting with {plan.Count} actions");
+
+            int actionsCompleted = 0;
+
+            // Execute actions in the order they were planned (Move → Card → Move → Card, etc.)
+            // Enqueue one action at a time to ensure strict ordering
+            foreach (var action in plan)
+            {
+                // Create a callback that this action will invoke when complete
+                bool actionDone = false;
+                Action actionCallback = () => { actionDone = true; };
+
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Processing action {actionsCompleted + 1}/{plan.Count}: {action.Type} - {action.Name}");
+
+                switch (action.Type)
+                {
+                    case PlannedAction.ActionType.Move:
+                        // STEP 1: Move to get in range
+                        // This transitions the entity from IDLE → MOVING state and uses the cached NavMeshPath
+                        if (action.PathData != null && action.PathData.CachedNavMeshPath != null && action.PathData.CachedNavMeshPath.corners.Length > 0)
+                        {
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: About to enqueue movement action");
+                            ActionQueueUtility.EnqueueMovement(mover, action.PathData, actionCallback);
+                        }
+                        else
+                        {
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Skipping movement action - invalid path");
+                            actionDone = true;
+                        }
+                        break;
+
+                    case PlannedAction.ActionType.PlayCard:
+                        // STEP 2: Cast card from the current position (which was set by a preceding Move action)
+                        // The card effect may include additional movement as part of its sequence
+                        if (action.Card != null && action.Card.cardData != null)
+                        {
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: About to enqueue card execution");
+                            ActionQueueUtility.EnqueueCardExecution(
+                                npcScript,
+                                action.Card.cardData,
+                                action.TargetingModeData,
+                                action.Card.gameObject,
+                                0.25f,
+                                actionCallback
+                            );
+                        }
+                        else
+                        {
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Skipping card action - card or cardData is null");
+                            actionDone = true;
+                        }
+                        break;
+
+                    default:
+                        actionDone = true;
+                        break;
+                }
+
+                // CRITICAL: Block and wait for this action to complete before enqueueing the next one
+                // This ensures strict ordering: Move completes → Card enqueued → Card completes → Next action
+                // Without this wait, multiple actions could be enqueued to the GlobalActionQueue before any complete,
+                // potentially allowing them to execute out of order.
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Waiting for action to complete...");
+                while (!actionDone)
+                {
+                    yield return null;
+                }
+
+                actionsCompleted++;
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Action {actionsCompleted}/{plan.Count} completed: {action.Name}");
+            }
+
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: All planned actions executed ({actionsCompleted} total), invoking onComplete");
+            onComplete?.Invoke();
+        }
+
         private IEnumerator ExecuteTurnPlanning(List<PlannedAction> plan, HashSet<CardScript> playedCards)
         {
             float startTime = Time.realtimeSinceStartup;
@@ -800,7 +902,8 @@ namespace facingfate
                 if (bestAction.pathData != null && bestAction.pathData.CachedNavMeshPath != null && bestAction.pathData.CachedNavMeshPath.corners.Length > 0 && bestAction.pathData.PathCost > 0)
                 {
                     // For movement-only actions (chase/reposition), record the full action with cost
-                    // For card actions with movement, record the movement separately
+                    // For card actions with movement, record the movement separately BEFORE the card
+                    // This ensures: MOVE TO RANGE → THEN CAST CARD
                     bool isCardAction = bestAction.executionOption == CardExecutionOption.PlayCard && bestAction.card != null;
 
                     plan.Add(new PlannedAction
@@ -820,6 +923,8 @@ namespace facingfate
                 }
 
                 // Record card action if chosen
+                // EXECUTION ORDER: Movement (if any) has already been recorded above
+                // Now we record the card effect, which will execute AFTER the movement is complete
                 if (bestAction.executionOption == CardExecutionOption.PlayCard && bestAction.card != null)
                 {
                     // Track card as played to prevent re-selection

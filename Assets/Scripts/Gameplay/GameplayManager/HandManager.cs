@@ -30,6 +30,7 @@ namespace facingfate
         public GameObject GetSelectedCard() => selectedCard;
 
         private bool listenersAdded = false;
+        private GameObject lastPreviewedCard = null;
 
         private void Awake()
         {
@@ -72,28 +73,34 @@ namespace facingfate
                 }
             }
             cardsInHand.Clear();
+            lastPreviewedCard = null;
         }
 
         private void Update()
         {
             if (cardsInHand.Count == 0) return;
 
-            // Update layout whenever a card is hovered
-            if (hoveredCard == null) return;
+            GameObject currentCardToPreview = selectedCard ?? hoveredCard;
 
-            UpdateHandLayout(hoveredCard);
+            // Only update preview if the card changed
+            if (currentCardToPreview != lastPreviewedCard)
+            {
+                lastPreviewedCard = currentCardToPreview;
 
-            if (selectedCard != null)
-            {
-                CardPreviewPanel.Instance?.Show(selectedCard.GetComponent<CardScript>());
+                if (currentCardToPreview != null)
+                {
+                    CardPreviewPanel.Instance?.Show(currentCardToPreview.GetComponent<CardScript>());
+                }
+                else
+                {
+                    CardPreviewPanel.Instance?.Hide();
+                }
             }
-            else if(hoveredCard != null)
+
+            // Update layout when hovering
+            if (hoveredCard != null)
             {
-                CardPreviewPanel.Instance?.Show(hoveredCard.GetComponent<CardScript>());
-            }
-            else
-            {
-                CardPreviewPanel.Instance?.Hide();
+                UpdateHandLayout(hoveredCard);
             }
         }
 
@@ -248,6 +255,7 @@ namespace facingfate
                 {
                     selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
                     selectedCard = null;
+                    lastPreviewedCard = null;
                 }
                 AssetManager.Instance?.HideRangeIndicator();
                 UpdateHandLayout(hoveredCard);
@@ -277,6 +285,7 @@ namespace facingfate
             hoveredCard = card;
             if (hoveredCard == null)
             {
+                lastPreviewedCard = null;
                 CardPreviewPanel.Instance?.Hide();
                 if (selectedCard == null)
                 {

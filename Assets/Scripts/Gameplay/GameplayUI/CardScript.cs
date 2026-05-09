@@ -119,11 +119,11 @@ namespace facingfate
             {
                 if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
                 {
-                    parts.Add("Allies");
+                    parts.Add($"Allies, {cardData.Range}m,");
                 }
                 else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
                 {
-                    parts.Add("Enemies");
+                    parts.Add($"Enemies, {cardData.Range}m,");
                 }
                 else
                 {
@@ -138,10 +138,8 @@ namespace facingfate
             }
             else
             {
-                parts.Add("Self");
+                parts.Add("Self, ");
             }
-
-            parts.Add($"{cardData.Range}m,");
 
             switch (t.cardTargetingMode)
             {
@@ -153,14 +151,14 @@ namespace facingfate
                     parts.Add($"Ring, {cardData.Radius}m by {cardData.Area}m");
                     break;
                 case CardTargetingMode.RingSelf:
-                    parts.Add($"Ring Self, {cardData.Radius}m by {cardData.Area}m");
+                    parts.Add($"Ring, {cardData.Radius}m by {cardData.Area}m");
                     break;
                 case CardTargetingMode.Sphere:
                     parts.Add($"Radius, {cardData.Radius}m");
                     break;
 
                 case CardTargetingMode.LineFree:
-                    parts.Add($"Line Draw,{cardData.Area}m");
+                    parts.Add($"Line, {cardData.Area}m");
                     break;
 
                 case CardTargetingMode.LineSelf:
@@ -200,7 +198,7 @@ namespace facingfate
                 rangeText += $"\n{scalingStat}";
             return rangeText;
         }
-
+       
         public static string GetScalingStatLabel(CardData cardData)
         {
             if (cardData.cardIdentities == null || cardData.cardIdentities.Count == 0) return null;

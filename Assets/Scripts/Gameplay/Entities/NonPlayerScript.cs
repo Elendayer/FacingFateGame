@@ -90,7 +90,8 @@ namespace facingfate
                     plan = builtPlan;
 
                     // Step 2: Execute plan AFTER planning finishes
-                    ExecutePlanSequentially(plan, () =>
+                    // Use NpcAIController's coroutine-based execution to ensure strict sequential ordering
+                    npcAIController.ExecutePlannedActions(plan, () =>
                     {
                         // Step 3: End turn after plan finishes
                         ActionQueueUtility.EnqueueAction(() =>{ GameEvents.TriggerTurnEnd(); }, 1f);
@@ -168,31 +169,35 @@ namespace facingfate
         /// </summary>
         private void EnqueueMoveAction(PlannedAction action, Action onActionComplete)
         {
-            //Debug.Log($"[NpcAI] {name} moving to {action.PathData.End}");
+            Debug.Log($"[NpcAI] {name}: EnqueueMoveAction called");
 
             // Deduct movement cost from stamina before executing movement
             if (action.PathData != null && action.PathData.PathCost > 0)
             {
                 if (entityStats.CurrentStamina < action.PathData.PathCost)
                 {
-                    //Debug.LogWarning($"[NpcAI] {name} does not have enough stamina for movement. Required: {action.PathData.PathCost}, Available: {entityStats.CurrentStamina}");
+                    Debug.LogWarning($"[NpcAI] {name}: Not enough stamina for movement. Required: {action.PathData.PathCost}, Available: {entityStats.CurrentStamina}");
                     onActionComplete?.Invoke();
                     return;
                 }
 
                 entityStats.CurrentStamina -= action.PathData.PathCost;
+                Debug.Log($"[NpcAI] {name}: Stamina deducted for movement. Remaining: {entityStats.CurrentStamina}");
             }
 
             Vector3 startPos = EntityOnMap.transform.position;
+            Debug.Log($"[NpcAI] {name}: Enqueueing movement from {startPos} to {action.PathData?.End}");
+
             ActionQueueUtility.EnqueueActionRoutine(this, () =>
                 EntityOnMap.StartMoveRoutineWithPath(action.PathData), () =>
             {
+                Debug.Log($"[NpcAI] {name}: Movement callback invoked, movement is complete");
                 OpportunityAttackSystem.CheckAndFireOA(this, startPos, EntityOnMap.transform.position);
 
                 // Update stats after movement completes
                 entityStats.UpdateStats();
 
-                //Debug.Log($"[NpcAI] {name} finished moving");
+                Debug.Log($"[NpcAI] {name}: About to invoke onActionComplete callback");
                 onActionComplete?.Invoke();
             });
         }
@@ -202,7 +207,7 @@ namespace facingfate
         /// </summary>
         private void EnqueueCardAction(PlannedAction action, Action onActionComplete)
         {
-            //Debug.Log($"[NpcAI] {name} playing card {action.Name}");
+            Debug.Log($"[NpcAI] {name}: EnqueueCardAction called for card: {action.Card?.cardData?.cardName}");
 
             // Deduct card cost from stamina before executing the card
             if (action.Card?.cardData != null)
@@ -210,18 +215,22 @@ namespace facingfate
                 int cardCost = action.Card.cardData.Cost;
                 if (entityStats.CurrentStamina < cardCost)
                 {
-                    //Debug.LogWarning($"[NpcAI] {name} does not have enough stamina for card. Required: {cardCost}, Available: {entityStats.CurrentStamina}");
+                    Debug.LogWarning($"[NpcAI] {name}: Not enough stamina for card. Required: {cardCost}, Available: {entityStats.CurrentStamina}");
                     onActionComplete?.Invoke();
                     return;
                 }
 
                 entityStats.CurrentStamina -= cardCost;
+                Debug.Log($"[NpcAI] {name}: Stamina deducted for card. Remaining: {entityStats.CurrentStamina}");
             }
+
+            Debug.Log($"[NpcAI] {name}: Enqueueing card execution");
 
             // Enqueue card effects with callback to signal completion
             ActionQueueUtility.EnqueueCardExecution(this, action.Card.cardData, action.TargetingModeData, null, 0.25f, () =>
             {
-                //Debug.Log($"[NpcAI] {name} finished playing card");
+                Debug.Log($"[NpcAI] {name}: Card execution callback invoked, card effect is complete");
+                Debug.Log($"[NpcAI] {name}: About to invoke onActionComplete callback");
                 onActionComplete?.Invoke();
             });
         }

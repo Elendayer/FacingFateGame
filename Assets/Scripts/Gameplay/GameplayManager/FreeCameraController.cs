@@ -217,8 +217,15 @@ namespace facingfate
             Mouse mouse = Mouse.current;
 
             if (kb != null &&
-                (kb.upArrowKey.isPressed || kb.downArrowKey.isPressed ||
-                 kb.leftArrowKey.isPressed || kb.rightArrowKey.isPressed))
+                (
+                kb.upArrowKey.isPressed 
+                || kb.downArrowKey.isPressed 
+                ||kb.leftArrowKey.isPressed 
+                || kb.rightArrowKey.isPressed
+                || kb.wKey.isPressed
+                || kb.sKey.isPressed
+                || kb.aKey.isPressed
+                || kb.dKey.isPressed))
                 return true;
 
             if (mouse != null)
@@ -250,6 +257,10 @@ namespace facingfate
             if (kb.downArrowKey.isPressed)  input.y -= 1f;
             if (kb.leftArrowKey.isPressed)  input.x -= 1f;
             if (kb.rightArrowKey.isPressed) input.x += 1f;
+            if (kb.wKey.isPressed)          input.y += 1f;
+            if (kb.sKey.isPressed)          input.y -= 1f;
+            if (kb.aKey.isPressed)          input.x -= 1f;
+            if (kb.dKey.isPressed)          input.x += 1f;
             if (input == Vector2.zero) return;
 
             ApplyPanDelta(input.normalized, arrowPanSpeed);

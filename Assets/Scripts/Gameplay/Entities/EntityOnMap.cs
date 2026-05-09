@@ -69,6 +69,7 @@ namespace facingfate
         {
             if (navMeshAgent != null) navMeshAgent.enabled = false;
             if (navMeshObstacle != null) navMeshObstacle.enabled = true;
+            Debug.Log($"[EntityOnMap] {name}: SetIdleState called (Obstacle ON, Agent OFF)");
         }
 
         /// <summary>Disables the NavMeshObstacle for dragging interaction.</summary>
@@ -108,19 +109,26 @@ namespace facingfate
             yield return moveRoutine;
         }
 
-        public IEnumerator StartMoveRoutine(Vector3 target)
-        {
-            if (moveRoutine != null) StopCoroutine(moveRoutine);
-            moveRoutine = StartCoroutine(FollowPath(target));
-            yield return moveRoutine;
-        }
-
         public IEnumerator StartMoveRoutineWithPath(NavMeshPathData pathData)
         {
-            if (pathData?.CachedNavMeshPath == null || pathData.CachedNavMeshPath.corners.Length == 0) yield break;
+            if (pathData?.CachedNavMeshPath == null || pathData.CachedNavMeshPath.corners.Length == 0) 
+            {
+                Debug.LogWarning($"[EntityOnMap] {name}: StartMoveRoutineWithPath called with invalid path data");
+                yield break;
+            }
+
+            Debug.Log($"[EntityOnMap] {name}: StartMoveRoutineWithPath called, destination: {pathData.End}, path corners: {pathData.CachedNavMeshPath.corners.Length}");
+
+            // Debug path corners
+            Debug.Log($"[EntityOnMap] {name}: Path corners:");
+            for (int i = 0; i < pathData.CachedNavMeshPath.corners.Length; i++)
+            {
+                Debug.Log($"  Corner {i}: {pathData.CachedNavMeshPath.corners[i]}");
+            }
+            Debug.Log($"[EntityOnMap] {name}: Current position: {transform.position}");
 
             if (moveRoutine != null) StopCoroutine(moveRoutine);
-            moveRoutine = StartCoroutine(FollowPath(pathData.End));
+            moveRoutine = StartCoroutine(FollowPath(pathData));
             yield return moveRoutine;
         }
 
@@ -128,67 +136,122 @@ namespace facingfate
         // Movement coroutine
         // ─────────────────────────────────────────────────────────────────
 
-        private IEnumerator FollowPath(Vector3 target)
+        private IEnumerator FollowPath(NavMeshPathData pathData)
         {
             // ── MOVING state: disable obstacle so the carved hole closes ──
-            if (navMeshObstacle != null) navMeshObstacle.enabled = false;
+            if (navMeshObstacle != null) 
+            {
+                navMeshObstacle.enabled = false;
+                Debug.Log($"[EntityOnMap] {name}: State → MOVING (Obstacle OFF, carving hole closes)");
+            }
 
             // Two frames for the NavMesh to finish rebuilding
             yield return null;
             yield return null;
 
-            if (navMeshAgent == null) { SetIdleState(); yield break; }
+            if (navMeshAgent == null) 
+            { 
+                Debug.LogWarning($"[EntityOnMap] {name}: NavMeshAgent is null, reverting to IDLE");
+                SetIdleState(); 
+                yield break; 
+            }
 
             navMeshAgent.enabled = true;
             navMeshAgent.velocity = Vector3.zero;
+            Debug.Log($"[EntityOnMap] {name}: NavMeshAgent enabled, velocity reset. Current position: {navMeshAgent.transform.position}");
 
-            TrySnapToNavMesh();
-            if (!navMeshAgent.isOnNavMesh) { SetIdleState(); yield break; }
-
-            // Always calculate a fresh path here.
-            // The cached PathData path was built during drag-preview; by now
-            // other entities may have moved and the NavMesh has changed.
-            var fresh = new NavMeshPath();
-            bool ok = navMeshAgent.CalculatePath(target, fresh) &&
-                      (fresh.status == NavMeshPathStatus.PathComplete ||
-                       fresh.status == NavMeshPathStatus.PathPartial);   // partial = walk as close as possible
-
-            if (!ok)
+            // CRITICAL: Snap the agent to the NavMesh BEFORE assigning any path
+            // The agent must be on a valid NavMesh position for the path to be accepted
+            if (!TrySnapToNavMeshAggressive())
             {
-                Debug.Log($"[EntityOnMap] {name}: no path to {target} (status={fresh.status})");
-                SetIdleState();
-                yield break;
+                Debug.LogError($"[EntityOnMap] {name}: Failed to snap agent to NavMesh, reverting to IDLE. Current pos: {transform.position}");
+                SetIdleState(); 
+                yield break; 
             }
+
+            if (!navMeshAgent.isOnNavMesh) 
+            { 
+                Debug.LogError($"[EntityOnMap] {name}: Agent not on NavMesh after aggressive snap, reverting to IDLE. isOnNavMesh={navMeshAgent.isOnNavMesh}");
+                SetIdleState(); 
+                yield break; 
+            }
+
+            Debug.Log($"[EntityOnMap] {name}: Agent successfully snapped to NavMesh. Position: {navMeshAgent.transform.position}, isOnNavMesh={navMeshAgent.isOnNavMesh}");
 
             // Disable auto-replanning: prevents the agent changing direction
             // mid-move when another entity switches obstacle state
             navMeshAgent.autoRepath = false;
-            navMeshAgent.path = fresh;
 
-            // Two frames so remainingDistance is valid before the loop starts
+            // CRITICAL FIX: The cached path may be stale because the NavMesh was rebuilt
+            // after the obstacle was disabled. Recalculate the path with the current NavMesh state.
+            NavMeshPath freshPath = new NavMeshPath();
+            bool pathCalculated = NavMesh.CalculatePath(navMeshAgent.transform.position, pathData.End, NavMesh.AllAreas, freshPath);
+
+            if (!pathCalculated || freshPath.status != NavMeshPathStatus.PathComplete)
+            {
+                Debug.LogError($"[EntityOnMap] {name}: Failed to calculate fresh path! pathCalculated={pathCalculated}, status={freshPath.status}, destination={pathData.End}. Reverting to IDLE.");
+                SetIdleState(); 
+                yield break; 
+            }
+
+            Debug.Log($"[EntityOnMap] {name}: Fresh path calculated with {freshPath.corners.Length} corners (cached had {pathData.CachedNavMeshPath.corners.Length})");
+
+            // Assign the freshly calculated path
+            navMeshAgent.path = freshPath;
+            Debug.Log($"[EntityOnMap] {name}: Fresh path assigned, destination: {pathData.End}");
+
+            // CRITICAL: Give NavMeshAgent several frames to process the path assignment
+            // If we check hasPath immediately, it may still be false even though the path is valid
             yield return null;
             yield return null;
+            yield return null;
+            yield return null;
+
+            Debug.Log($"[EntityOnMap] {name}: After path settling - hasPath: {navMeshAgent.hasPath}, remainingDistance: {navMeshAgent.remainingDistance}, stoppingDistance: {navMeshAgent.stoppingDistance}");
+
+            if (!navMeshAgent.hasPath)
+            {
+                Debug.LogError($"[EntityOnMap] {name}: Path failed to set on NavMeshAgent! Reverting to IDLE. Path status: pathPending={navMeshAgent.pathPending}, fresh path corners={freshPath.corners.Length}");
+                SetIdleState(); 
+                yield break; 
+            }
 
             float elapsed = 0f;
+            int frameCount = 0;
+
+            Debug.Log($"[EntityOnMap] {name}: Starting movement loop - remainingDistance: {navMeshAgent.remainingDistance}, stoppingDistance: {navMeshAgent.stoppingDistance}");
+
             while (navMeshAgent.hasPath &&
                    navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance)
             {
                 if ((elapsed += Time.deltaTime) > 15f)
                 {
-                    Debug.LogWarning($"[EntityOnMap] {name}: movement timed out.");
+                    Debug.LogWarning($"[EntityOnMap] {name}: movement timed out after {frameCount} frames.");
                     break;
                 }
+                frameCount++;
+
+                if (frameCount % 10 == 0) // Log every 10 frames to avoid spam
+                    Debug.Log($"[EntityOnMap] {name}: Frame {frameCount} - pos: {navMeshAgent.transform.position}, remaining: {navMeshAgent.remainingDistance}");
+
                 yield return null;
             }
+
+            Debug.Log($"[EntityOnMap] {name}: Movement complete (traveled {frameCount} frames). Final position: {navMeshAgent.transform.position}");
 
             // ── Back to IDLE state ────────────────────────────────────────
             navMeshAgent.velocity = Vector3.zero;
             navMeshAgent.autoRepath = true;
             navMeshAgent.ResetPath();
             navMeshAgent.enabled = false;
+            Debug.Log($"[EntityOnMap] {name}: NavMeshAgent disabled");
 
             yield return null; // let position settle before re-carving
-            if (navMeshObstacle != null) navMeshObstacle.enabled = true;
+            if (navMeshObstacle != null) 
+            {
+                navMeshObstacle.enabled = true;
+                Debug.Log($"[EntityOnMap] {name}: State → IDLE (Obstacle ON, entity re-carves NavMesh). Final position: {transform.position}");
+            }
 
             moveRoutine = null;
         }
@@ -248,6 +311,54 @@ namespace facingfate
             }
             else
                 Debug.LogWarning($"[EntityOnMap] Could not snap {name} near {transform.position}");
+        }
+
+        /// <summary>
+        /// Aggressively snaps the agent to the NavMesh with multiple attempts and verification.
+        /// Returns true if the agent ends up on the NavMesh, false otherwise.
+        /// </summary>
+        private bool TrySnapToNavMeshAggressive()
+        {
+            if (navMeshAgent == null)
+            {
+                Debug.LogError($"[EntityOnMap] {name}: NavMeshAgent is null in TrySnapToNavMeshAggressive");
+                return false;
+            }
+
+            Vector3 startPos = transform.position;
+            Debug.Log($"[EntityOnMap] {name}: Starting aggressive snap from {startPos}, isOnNavMesh={navMeshAgent.isOnNavMesh}");
+
+            // Try 1: Direct sample at current position with larger search radius
+            if (NavMesh.SamplePosition(startPos, out NavMeshHit hit1, 5f, NavMesh.AllAreas))
+            {
+                navMeshAgent.Warp(hit1.position);
+                Debug.Log($"[EntityOnMap] {name}: Attempt 1 - Warped to {hit1.position}, isOnNavMesh={navMeshAgent.isOnNavMesh}");
+                if (navMeshAgent.isOnNavMesh)
+                    return true;
+            }
+
+            // Try 2: Sample at a slightly raised position (common issue with Y=0)
+            Vector3 raisedPos = startPos + Vector3.up * 0.5f;
+            if (NavMesh.SamplePosition(raisedPos, out NavMeshHit hit2, 5f, NavMesh.AllAreas))
+            {
+                navMeshAgent.Warp(hit2.position);
+                Debug.Log($"[EntityOnMap] {name}: Attempt 2 - Warped to raised position {hit2.position}, isOnNavMesh={navMeshAgent.isOnNavMesh}");
+                if (navMeshAgent.isOnNavMesh)
+                    return true;
+            }
+
+            // Try 3: Sample at the path's destination if available (entities might need to snap to target area)
+            if (NavMesh.SamplePosition(startPos + Vector3.forward * 2f, out NavMeshHit hit3, 5f, NavMesh.AllAreas))
+            {
+                navMeshAgent.Warp(hit3.position);
+                Debug.Log($"[EntityOnMap] {name}: Attempt 3 - Warped to forward position {hit3.position}, isOnNavMesh={navMeshAgent.isOnNavMesh}");
+                if (navMeshAgent.isOnNavMesh)
+                    return true;
+            }
+
+            // All attempts failed
+            Debug.LogError($"[EntityOnMap] {name}: All snap attempts failed. Original pos: {startPos}, Final isOnNavMesh: {navMeshAgent.isOnNavMesh}");
+            return false;
         }
     }
 }

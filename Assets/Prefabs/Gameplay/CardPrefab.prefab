@@ -1616,8 +1616,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Enemy, 5.1m Range, 2.5 Meter Sphere
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e5017fb9ea3620945a4f87c62b1db315, type: 2}
-  m_sharedMaterial: {fileID: -1629756127934925927, guid: e5017fb9ea3620945a4f87c62b1db315, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3eb9d4a40d75b37428b89e716638d736, type: 2}
+  m_sharedMaterial: {fileID: 575644227078918131, guid: 3eb9d4a40d75b37428b89e716638d736, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

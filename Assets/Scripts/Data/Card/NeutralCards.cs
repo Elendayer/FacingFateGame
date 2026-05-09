@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.AI;
+using static PixelCrushers.DiskSavedGameDataStorer;
 
 namespace facingfate
 {
@@ -281,8 +283,8 @@ namespace facingfate
                             var target = targetingData.targetedEntities[0];
                             if (target == null || !target.enabled || target.EntityOnMap == null)
                                 return null;
-                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 1f, target);
-                            return target.EntityOnMap.StartMoveRoutine(pushPath.End);
+                            var pushPath = MovementUtility.GetPathDataToFurtherPosition(caster.transform.position, 1f, target);
+                            return target.EntityOnMap.StartMoveRoutineWithPath(pushPath);
                         }
                     ),                    
                     new CardAction(
@@ -329,15 +331,14 @@ namespace facingfate
                         delayBetween: 0f,
                         coroutine: (caster, targetingData, cardData) =>
                         {
-                            var target = targetingData.targetedEntities[0];
-                            var dashPath = MovementUtility.GetPathDataToCloserPosition(target.transform.position, cardData.Range, caster);
-                            return caster.EntityOnMap.StartMoveRoutine(dashPath.End);
+                            var dashPath = MovementUtility.GetPathDataToCloserPosition(targetingData.aimPosition, 999, caster);
+                            return caster.EntityOnMap.StartMoveRoutineWithPath(dashPath);
                         }
                     ),
                     new CardAction(
                         ExecutionMode.AllAtOnce,
                         TargetingMode.Entities,
-                        delayBefore: 0.1f,
+                        delayBefore: 0f,
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
@@ -352,8 +353,10 @@ namespace facingfate
                         coroutine: (caster, targetingData, cardData) =>
                         {
                             var target = targetingData.targetedEntities[0];
-                            var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 1f, target);
-                            return target.EntityOnMap.StartMoveRoutine(pushPath.End);
+                            var pushPath = MovementUtility.GetPathDataToFurtherPosition(caster.transform.position, 1f, target);
+                            
+                            return target.EntityOnMap.StartMoveRoutineWithPath(pushPath);
+
                         }
                     )
                 }
@@ -388,6 +391,7 @@ namespace facingfate
                         delayBetween: 0f,
                         coroutine: (caster, targetingData, cardData) =>
                         {
+                            NavMeshPathData retreatPath = new();
                             var disengage = EffectDatabase.GetEffectByName("Disengaged", cardData, ThroughputSource.None, caster);
                             CombatUtility.ApplyEntityModifier(cardData, caster, disengage);
 
@@ -407,11 +411,10 @@ namespace facingfate
                                     if (dist < minDist) { minDist = dist; nearestEnemy = entity; }
                                 }
                                 var refPos = nearestEnemy != null ? nearestEnemy.transform.position : caster.transform.position;
-                                var retreatPath = MovementUtility.GetFurtherPosition(refPos, cardData.Range, caster);
-                                moveTarget = retreatPath.End;
+                                retreatPath = MovementUtility.GetPathDataToFurtherPosition(refPos, cardData.Range, caster);
                             }
 
-                            return caster.EntityOnMap.StartMoveRoutine(moveTarget);
+                            return caster.EntityOnMap.StartMoveRoutineWithPath(retreatPath);
                         }
                     )
                 }

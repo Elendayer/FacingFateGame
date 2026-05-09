@@ -149,13 +149,17 @@ namespace facingfate
                 float truncatedDistance = CalculateDistanceAlongPath(start, truncatedPath);
                 int truncatedCost = Mathf.Max(1, Mathf.RoundToInt(truncatedDistance * 4f));
 
-                // Return truncated path with cleared cache (since it no longer matches the original NavMeshPath)
+                // Create a new NavMeshPath for the truncated route
+                NavMeshPath truncatedNavMeshPath = new NavMeshPath();
+                NavMesh.CalculatePath(start, truncatedEnd, NavMesh.AllAreas, truncatedNavMeshPath);
+
+                // Return truncated path with the recalculated NavMeshPath
                 return new NavMeshPathData
                 {
                     Start = start,
                     End = truncatedEnd,
                     PathCost = truncatedCost,
-                    CachedNavMeshPath = null
+                    CachedNavMeshPath = truncatedNavMeshPath
                 };
             }
 
@@ -219,7 +223,7 @@ namespace facingfate
         /// <summary>
         /// Finds a line path limited by maximum length. Truncates if it exceeds maxLength.
         /// Cost is calculated as 4 stamina per meter of actual path length.
-        /// Note: CachedNavMeshPath is cleared when path is truncated since it no longer matches waypoints.
+        /// Note: CachedNavMeshPath is recalculated when path is truncated to ensure valid navigation.
         /// </summary>
         public static NavMeshPathData FindLineFromToWithLength(Vector3 start, Vector3 goal, int maxLength)
         {
@@ -244,13 +248,17 @@ namespace facingfate
             float truncatedDistance = CalculateDistanceAlongPath(start, truncatedWaypoints);
             int truncatedCost = Mathf.Max(1, Mathf.RoundToInt(truncatedDistance * 4f));
 
-            // Return truncated path with cleared cache (since it no longer matches the original NavMeshPath)
+            // Create a new NavMeshPath for the truncated route and recalculate it
+            NavMeshPath truncatedPath = new NavMeshPath();
+            NavMesh.CalculatePath(start, truncatedEnd, NavMesh.AllAreas, truncatedPath);
+
+            // Return truncated path with the recalculated NavMeshPath
             return new NavMeshPathData
             {
                 Start = start,
                 End = truncatedEnd,
                 PathCost = truncatedCost,
-                CachedNavMeshPath = null
+                CachedNavMeshPath = truncatedPath
             };
         }
 
@@ -317,7 +325,7 @@ namespace facingfate
                     pathData = GetFleePosition(Distance, entityOnMap, entity);
                     break;
                 case ForcedMovementType.Push:
-                    pathData = GetFurtherPosition(ReferencePos, Distance, entity);
+                    pathData = GetPathDataToFurtherPosition(ReferencePos, Distance, entity);
                     break;
                 case ForcedMovementType.Pull:
                     pathData = GetPathDataToCloserPosition(ReferencePos, Distance, entity);
@@ -424,43 +432,43 @@ namespace facingfate
 
 
         /// <summary>
-        /// Gets the furthest reachable position from a reference point.
-        /// Prioritizes positions in the direction away from the reference point.
+        /// Gets a path to a further position away from a reference point.
+        /// Tries to move in the direction away from the reference. If blocked, tries sides.
         /// </summary>
-        public static NavMeshPathData GetFurtherPosition(Vector3 referencePos, float distance, EntityScript entity)
+        public static NavMeshPathData GetPathDataToFurtherPosition(Vector3 referencePos, float distance, EntityScript entity)
         {
-            List<Vector3> targets = new List<Vector3>();
+            var entityPos = entity.transform.position;
+            var directionAwayFromReference = (entityPos - referencePos).normalized;
 
-            var entityOriginalPos = entity.transform.position;
-            var directionAwayFromReference = (entityOriginalPos - referencePos).normalized;
+            // Try main position in the direction away from reference
+            Vector3 targetPosition = entityPos + (directionAwayFromReference * distance);
 
-            for (float x = entityOriginalPos.x - distance; x <= entityOriginalPos.x + distance; x++)
+            if (IsPositionOnNavMesh(targetPosition))
             {
-                for (float z = entityOriginalPos.z - distance; z <= entityOriginalPos.z + distance; z++)
+                NavMeshPathData path = FindPath(entityPos, targetPosition, entity.entityStats);
+                if (HasValidPath(path))
+                    return path;
+            }
+
+            // If main position isn't on navmesh, try positions to the sides
+            Vector3 perpendicular = new Vector3(-directionAwayFromReference.z, 0, directionAwayFromReference.x);
+
+            // Try offset positions to the left and right
+            float[] offsets = { -distance * 0.5f, distance * 0.5f, -distance, distance };
+
+            foreach (float offset in offsets)
+            {
+                Vector3 sidePosition = targetPosition + (perpendicular * offset);
+                if (IsPositionOnNavMesh(sidePosition))
                 {
-                    Vector3 candidate = new Vector3(x, entityOriginalPos.y, z);
-                    if (Vector3.Distance(candidate, entity.transform.position) <= distance && IsPositionOnNavMesh(candidate))
-                    {
-                        targets.Add(GetNavMeshPosition(candidate));
-                    }
+                    NavMeshPathData path = FindPath(entityPos, sidePosition, entity.entityStats);
+                    if (HasValidPath(path))
+                        return path;
                 }
             }
 
-            if (targets.Count == 0)
-                return new NavMeshPathData();
-
-            Vector3 furthest = targets
-                .OrderByDescending(pos =>
-                {
-                    float distFromReference = Vector3.Distance(pos, referencePos);
-                    float directionAlignment = Vector3.Dot((pos - entityOriginalPos).normalized, directionAwayFromReference);
-                    return (distFromReference * 2f) + (directionAlignment * distance);
-                })
-                .First();
-
-            NavMeshPathData path = FindPath(entity.transform.position, furthest, entity.entityStats);
-
-            return path;
+            // If no valid position found, return empty path
+            return new NavMeshPathData();
         }
 
         /// <summary>
