@@ -52,6 +52,32 @@ namespace facingfate
                     effectAssetDict.Add(entry.name, entry.visualEffectAsset);
                 }
             }
+
+            // Create the persistent range indicator instance
+            if (rangeIndicator != null)
+            {
+                activeRangeIndicatorObject = Instantiate(rangeIndicator);
+                activeRangeIndicator = activeRangeIndicatorObject.GetComponent<VisualEffect>();
+
+                if (activeRangeIndicator != null)
+                {
+                    // Remove DestroyVFXAfterEffect if it exists, since this is a persistent indicator
+                    DestroyVFXAfterEffect destroyComponent = activeRangeIndicatorObject.GetComponent<DestroyVFXAfterEffect>();
+                    if (destroyComponent != null)
+                    {
+                        Destroy(destroyComponent);
+                    }
+
+                    // Remove any existing Canvas or RectTransform that might conflict
+                    RectTransform rectTransform = activeRangeIndicatorObject.GetComponent<RectTransform>();
+                    if (rectTransform != null)
+                    {
+                        Destroy(rectTransform);
+                    }
+
+                    activeRangeIndicatorObject.SetActive(false);
+                }
+            }
         }
         public VisualEffectAsset GetEffectAsset(string name)
         {
@@ -226,58 +252,88 @@ namespace facingfate
         }
 
         private VisualEffect activeRangeIndicator;
+        private GameObject activeRangeIndicatorObject;
+        private CardData currentRangeIndicatorCard;
 
         public void ShowRangeIndicator(CardData cardData)
         {
-            if (cardData == null || cardData.Owner == null || rangeIndicator == null)
+            if (cardData == null || cardData.Owner == null || activeRangeIndicatorObject == null)
             {
                 HideRangeIndicator();
                 return;
             }
 
-            // Reuse existing instance or create new one
-            if (activeRangeIndicator == null)
+            // If a drag is active, only allow showing the dragging card's range indicator
+            DraggableCard activeDrag = DraggableCard.ActiveDraggingCard;
+            if (activeDrag != null)
             {
-                GameObject instance = Instantiate(rangeIndicator);
-                activeRangeIndicator = instance.GetComponent<VisualEffect>();
-                if (activeRangeIndicator == null)
+                CardScript dragCardScript = activeDrag.GetComponent<CardScript>();
+                if (dragCardScript == null || dragCardScript.cardData != cardData)
                 {
-                    activeRangeIndicator = instance.AddComponent<VisualEffect>();
+                    // Reject this call - a different card is being dragged
+                    return;
                 }
             }
 
-            // Attach VFX to the card owner entity
-            activeRangeIndicator.transform.SetParent(cardData.Owner.transform);
-            activeRangeIndicator.transform.localPosition = Vector3.zero;
+            bool isSelfTargeting = cardData.targetingData.CardTargetAffiliation == CardTargetAffiliation.Self;
 
-            Vector3 userPosition = cardData.Owner.transform.position;
-            if (activeRangeIndicator.HasVector3("Start"))
+            // If already showing range indicator for this card, just update properties
+            if (currentRangeIndicatorCard == cardData && activeRangeIndicatorObject.activeSelf)
             {
-                activeRangeIndicator.SetVector3("Start", userPosition);
+                // Update Range property in case it changed
+                if (activeRangeIndicator.HasFloat("Range"))
+                {
+                    activeRangeIndicator.SetFloat("Range", cardData.Range);
+                }
+
+                // Update isSelfTargeting
+                if (activeRangeIndicator.HasBool("isSelfTargeting"))
+                {
+                    activeRangeIndicator.SetBool("isSelfTargeting", isSelfTargeting);
+                }
+
+                activeRangeIndicator.Reinit();
+                activeRangeIndicator.Play();
+                return;
             }
 
+            // Parent to caster
+            activeRangeIndicatorObject.transform.SetParent(cardData.Owner.transform);
+            activeRangeIndicatorObject.transform.localPosition = Vector3.zero;
+            activeRangeIndicatorObject.transform.localRotation = Quaternion.identity;
+
+            // Set the Range property
             if (activeRangeIndicator.HasFloat("Range"))
             {
                 activeRangeIndicator.SetFloat("Range", cardData.Range);
             }
 
-            // Check if targeting mode is self-targeting
-            bool isSelfTargeting = cardData.targetingData.CardTargetAffiliation == CardTargetAffiliation.Self;
-
+            // Set isSelfTargeting based on card's target affiliation
             if (activeRangeIndicator.HasBool("isSelfTargeting"))
             {
                 activeRangeIndicator.SetBool("isSelfTargeting", isSelfTargeting);
             }
 
-            activeRangeIndicator.gameObject.SetActive(true);
+            currentRangeIndicatorCard = cardData;
+            activeRangeIndicatorObject.SetActive(true);
+            activeRangeIndicator.Reinit();
+            activeRangeIndicator.Play();
         }
 
         public void HideRangeIndicator()
         {
-            if (activeRangeIndicator != null)
+            // If a drag is active, don't hide the indicator
+            DraggableCard activeDrag = DraggableCard.ActiveDraggingCard;
+            if (activeDrag != null)
             {
-                activeRangeIndicator.gameObject.SetActive(false);
+                return;
             }
+
+            if (activeRangeIndicatorObject != null)
+            {
+                activeRangeIndicatorObject.SetActive(false);
+            }
+            currentRangeIndicatorCard = null;
         }
     }
     public class VFXData

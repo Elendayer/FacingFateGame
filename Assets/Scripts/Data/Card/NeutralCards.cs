@@ -269,16 +269,6 @@ namespace facingfate
                 cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} and push enemy 1 meter.",
                 cardActionSequence = new()
                 {
-                    new CardAction(
-                        ExecutionMode.Once,
-                        TargetingMode.Entities,
-                        delayBefore: 0f,
-                        delayBetween: 0.0f,
-                        action: (caster, target, cardData) =>
-                        {
-                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
-                        }
-                    ),
                   new CardAction(
                         ExecutionMode.Once,
                         TargetingMode.Coroutine,
@@ -293,6 +283,16 @@ namespace facingfate
                                 return null;
                             var pushPath = MovementUtility.GetFurtherPosition(caster.transform.position, 1f, target);
                             return target.EntityOnMap.StartMoveRoutine(pushPath.End);
+                        }
+                    ),                    
+                    new CardAction(
+                        ExecutionMode.Once,
+                        TargetingMode.Entities,
+                        delayBefore: 0f,
+                        delayBetween: 0.0f,
+                        action: (caster, target, cardData) =>
+                        {
+                            CombatUtility.ApplyDamage(cardData, target, new VFXData("Impact"), cardData.Damage);
                         }
                     ),
                 }
@@ -337,7 +337,7 @@ namespace facingfate
                     new CardAction(
                         ExecutionMode.AllAtOnce,
                         TargetingMode.Entities,
-                        delayBefore: 0.2f,
+                        delayBefore: 0.1f,
                         delayBetween: 0f,
                         action: (caster, target, cardData) =>
                         {
@@ -347,7 +347,7 @@ namespace facingfate
                     new CardAction(
                         ExecutionMode.Once,
                         TargetingMode.Coroutine,
-                        delayBefore: 0.1f,
+                        delayBefore: 0f,
                         delayBetween: 0f,
                         coroutine: (caster, targetingData, cardData) =>
                         {

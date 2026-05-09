@@ -172,47 +172,17 @@ namespace facingfate
 
         private void ShowRangeIndicator(CardData cardData)
         {
-            // Hide any existing range indicator
-            HideRangeIndicator();
-
-            // Get the player entity
-            PlayerScript player = Object.FindObjectOfType<PlayerScript>();
-            if (player == null) return;
-
-            // Get the range indicator prefab from AssetManager
-            AssetManager assetManager = AssetManager.Instance;
-            if (assetManager == null || assetManager.rangeIndicator == null) return;
-
-            // Clone the range indicator
-            rangeIndicatorVFX = Instantiate(assetManager.rangeIndicator.gameObject);
-            rangeIndicatorEffect = rangeIndicatorVFX.GetComponent<VisualEffect>();
-
-            if (rangeIndicatorEffect == null) return;
-
-            // Set the position to the player's position
-            rangeIndicatorVFX.transform.position = player.transform.position;
-
-            // Set the Radius property to the card's range
-            if (rangeIndicatorEffect.HasFloat("Radius"))
+            // Use AssetManager's shared range indicator
+            if (cardData != null)
             {
-                rangeIndicatorEffect.SetFloat("Radius", cardData.Range);
-            }
-
-            // Set the Start property to the player's position
-            if (rangeIndicatorEffect.HasVector3("Start"))
-            {
-                rangeIndicatorEffect.SetVector3("Start", player.transform.position);
+                AssetManager.Instance?.ShowRangeIndicator(cardData);
             }
         }
 
         private void HideRangeIndicator()
         {
-            if (rangeIndicatorVFX != null)
-            {
-                Destroy(rangeIndicatorVFX);
-                rangeIndicatorVFX = null;
-                rangeIndicatorEffect = null;
-            }
+            // Use AssetManager's shared range indicator
+            AssetManager.Instance?.HideRangeIndicator();
         }
     }
 }
