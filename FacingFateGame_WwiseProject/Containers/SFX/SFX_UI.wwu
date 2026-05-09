@@ -84,7 +84,6 @@
 						</Sound>
 						<Sound Name="SFX_UI_button_hover" ID="{27404531-18C7-4B89-A816-35EAB8E71A33}" ShortID="168318462">
 							<PropertyList>
-								<Property Name="BelowThresholdBehavior" Type="int16" Value="2"/>
 								<Property Name="MaxSoundPerInstance" Type="int16">
 									<ValueList>
 										<Value>20</Value>

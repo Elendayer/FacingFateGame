@@ -12,6 +12,7 @@
 								<Switch Name="Buff" ID="{D0D4782D-D5AC-4527-8A31-22F3DD086B3F}"/>
 								<Switch Name="Defense" ID="{B436EB36-E8D9-4AF6-802F-2A8EDE0FF328}"/>
 								<Switch Name="Magic" ID="{08CFCF75-541C-4D4D-AF59-43779F1F4259}"/>
+								<Switch Name="NoActionType" ID="{413E6FF3-AAED-4BC5-BCB2-A2F677CCFEF2}"/>
 							</ChildrenList>
 						</SwitchGroup>
 						<SwitchGroup Name="ElementType" ID="{C667C8E7-EDAD-437F-974B-64F2D7A6A882}">
@@ -19,7 +20,9 @@
 								<Switch Name="Fire" ID="{E013E47E-D849-4F65-B66D-24A128DF2761}"/>
 								<Switch Name="Posion" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
 								<Switch Name="Blood" ID="{AC8B01B7-D3DB-4E11-86ED-1E8C2385FF15}"/>
-								<Switch Name="NoElement" ID="{72402775-E51A-4416-9A69-6E9AFCFFCA47}"/>
+								<Switch Name="Air" ID="{72402775-E51A-4416-9A69-6E9AFCFFCA47}"/>
+								<Switch Name="Earth" ID="{AD91D7C9-E0C3-4AFC-BF81-F63303C817B3}"/>
+								<Switch Name="NoElementType" ID="{618051BC-CACC-4831-BD53-AC664005504B}"/>
 							</ChildrenList>
 						</SwitchGroup>
 						<SwitchGroup Name="WeaponType" ID="{537684AE-9779-4936-8877-854C9778EEAB}">
@@ -30,6 +33,7 @@
 								<Switch Name="Dagger" ID="{950386A8-51C1-45E1-AB69-37E19BB76B2C}"/>
 								<Switch Name="Potion" ID="{90B26820-D1E2-4E60-A51A-D61B37AF4E2F}"/>
 								<Switch Name="Claw" ID="{293CEB25-FBFA-4ADD-A16D-E7443F1C46D1}"/>
+								<Switch Name="NoWeaponType" ID="{FC62F1E8-6089-4F1F-851C-F490794C54C3}"/>
 							</ChildrenList>
 						</SwitchGroup>
 					</ChildrenList>

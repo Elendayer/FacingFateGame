@@ -5,8 +5,28 @@
 			<ChildrenList>
 				<Folder Name="SFX_Events_Charakter" ID="{3326923A-C7D5-47C9-A362-52B9B92FD1B6}" ShortID="673450964">
 					<ChildrenList>
-						<Event Name="Play_death" ID="{DC8B108F-01E4-4255-9E19-0439EE5876FF}"/>
-						<Event Name="Play_dmg" ID="{5AA3C06E-9B08-4C44-8C25-50079669C8A8}"/>
+						<Event Name="Play_death" ID="{DC8B108F-01E4-4255-9E19-0439EE5876FF}">
+							<ChildrenList>
+								<Action Name="" ID="{DE825B26-814B-4D30-B5DD-A29BD7E88CD1}" ShortID="184224046">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Dead" ID="{7D18A5A4-185B-4427-B6DE-CAD0B80211CD}" WorkUnitID="{1B0A0FF3-20CA-4252-9EFE-1DA3FC217F57}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_dmg" ID="{5AA3C06E-9B08-4C44-8C25-50079669C8A8}">
+							<ChildrenList>
+								<Action Name="" ID="{1EBF02C7-502E-48B8-981B-3241D13EFCF3}" ShortID="396397974">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Damage" ID="{DE194E9B-491D-4F55-A7E2-2A90A70A6D0E}" WorkUnitID="{1B0A0FF3-20CA-4252-9EFE-1DA3FC217F57}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 						<Event Name="Play_footstep" ID="{D0FFB213-69AF-47BB-A03A-A17AAE5B2E63}">
 							<ChildrenList>
 								<Action Name="" ID="{E2518761-4A47-4CF6-97B3-FB2D39C48E18}" ShortID="374859957">
@@ -18,7 +38,28 @@
 								</Action>
 							</ChildrenList>
 						</Event>
-						<Event Name="Play_heal" ID="{7D6470C7-DD4B-4BB7-A36F-0C247273BE62}"/>
+						<Event Name="Play_heal" ID="{7D6470C7-DD4B-4BB7-A36F-0C247273BE62}">
+							<ChildrenList>
+								<Action Name="" ID="{C054933F-A255-42DD-8DDE-13FA03A1BB5A}" ShortID="685396292">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Heal" ID="{9E5A202D-32CC-45CE-B30E-A033C5FF7A32}" WorkUnitID="{1B0A0FF3-20CA-4252-9EFE-1DA3FC217F57}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_jump" ID="{FCD0C2AA-8374-4ABF-B3B2-94833D009EDC}">
+							<ChildrenList>
+								<Action Name="" ID="{7E9EBC2D-7858-4B22-B900-07D521B0FD58}" ShortID="667317605">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Jump" ID="{B29674DC-486D-452C-89DB-4A558F3F72D7}" WorkUnitID="{1B0A0FF3-20CA-4252-9EFE-1DA3FC217F57}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 					</ChildrenList>
 				</Folder>
 				<Folder Name="SFX_UI_Basic" ID="{D727BA6D-A0AE-436B-B40D-BECEB5818A88}" ShortID="208067816">
@@ -147,11 +188,6 @@
 						</Event>
 						<Event Name="Play_SFX_UI_button_hover" ID="{4B56BC21-111C-4626-92C1-E4C4948790CE}">
 							<PropertyList>
-								<Property Name="CooldownTime" Type="Real32">
-									<ValueList>
-										<Value>0.5</Value>
-									</ValueList>
-								</Property>
 								<Property Name="InstanceLimit" Type="int16">
 									<ValueList>
 										<Value>1</Value>
