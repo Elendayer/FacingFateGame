@@ -57,8 +57,9 @@ namespace facingfate
 
                 var ui = Instantiate(iconPrefab, iconContainer);
 
-                // Resolve icon + display text
-                EffectDatabase.TryGetUIInfo(modName, out string desc, out Sprite icon);
+                // Resolve icon + display text; description always comes from the instance
+                EffectDatabase.TryGetUIInfo(modName, out _, out Sprite icon);
+                string desc = mod.Description;
 
                 ui.SetIcon(icon);
                 ui.SetCounters(duration, baseValue, maxDuration);

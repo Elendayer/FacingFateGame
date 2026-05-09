@@ -59,6 +59,7 @@ namespace facingfate
                             var regen = new EntityModifier(
                                 modifierName: "Regeneration",
                                 owner: target,
+                                description: "Restores health at the start of each turn.",
                                 baseValue: cardData.Healing,
                                 toTriggerRefs: new() { GameplayRef.onHealRecieved },
                                 duration: cardData.Duration,
@@ -335,6 +336,7 @@ namespace facingfate
                             barbs = new EntityModifier(
                                 modifierName: "PoisonBarbs",
                                 owner: target,
+                                description: "Applies Poison to attackers on hit.",
                                 baseValue: cardData.Power,
                                 duration: 9999,
                                 charges: 9999,
@@ -661,6 +663,7 @@ namespace facingfate
                             CombatUtility.ApplyEntityModifier(cardData, target, new EntityModifier(
                                 modifierName: "Rooted",
                                 owner: target,
+                                description: "Cannot move.",
                                 baseValue: cardData.Power,
                                 duration: cardData.Duration,
                                 modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,

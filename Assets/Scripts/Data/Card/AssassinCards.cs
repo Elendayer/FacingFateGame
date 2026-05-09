@@ -784,6 +784,7 @@ namespace facingfate
                                 new EntityModifier(
                                     modifierName: "Scorching Blood Venom",
                                     owner: caster,
+                                    description: "Next attacks apply Burn on hit.",
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
                                     modifierMergeStrategy: ModifierMergeStrategy.Override,
@@ -844,6 +845,7 @@ namespace facingfate
                                 new EntityModifier(
                                     modifierName: "Black Lotus Venom",
                                     owner: caster,
+                                    description: "Next attacks apply Poison on hit.",
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
                                     modifierMergeStrategy: ModifierMergeStrategy.Override,
@@ -899,6 +901,7 @@ namespace facingfate
                                 new EntityModifier(
                                     modifierName: "StunVenom",
                                     owner: caster,
+                                    description: "Next attacks apply Stun on hit.",
                                     toTriggerRefs: new() { },
                                     charges: cardData.Charges,
                                     modifierMergeStrategy: ModifierMergeStrategy.Override,

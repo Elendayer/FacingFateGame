@@ -493,6 +493,7 @@ namespace facingfate
                                 (
                                     modifierName: "Rooted",
                                     owner: target,
+                                    description: "Cannot move.",
                                     baseValue: cardData.Power,
                                     duration: cardData.Duration,
                                     modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
@@ -771,6 +772,7 @@ namespace facingfate
                             (
                                 modifierName: "Taunt",
                                 owner: caster,
+                                description: "Forces enemies to target the caster.",
                                 duration: cardData.Duration,
                                 modifierMergeStrategy: ModifierMergeStrategy.Override,
                                 onApply_Action: (targetEntity, cd, value) =>

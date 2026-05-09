@@ -89,7 +89,7 @@ icon: null,
 			RegisterEffect(new EntityModifier
 				(
 				modifierName: "Poison",
-                description: "Deals damage at the end of turn. Stacks increase damage dealt.",
+                description: "Deals damage at the start of turn. Stacks increase damage dealt.",
 icon: null,
                 owner: null,
 				duration: 3,
@@ -108,7 +108,7 @@ icon: null,
 			RegisterEffect(new EntityModifier
 				(
 				modifierName: "Burn",
-                description: "Deals damage at the start of turn. Does stack but and can be refreshed to prolong the duration.",
+                description: "Deals damage at the start of turn. Does not stack but can be refreshed to prolong the duration.",
 icon: null,
                 owner: null,
 				duration: 2,
