@@ -78,11 +78,10 @@ namespace facingfate
             {
                 float flat = entityStats.MovementCostModifier_Flat.Value();
                 float increase = entityStats.MovementCostModifier_Increase.Value();
-                float multiplierProduct = CalculateMultiplierProduct(entityStats.MovementCostModifier_Multiplier);
-                movementCostModifier = flat * (1f + (increase / 100f)) * multiplierProduct;
+                movementCostModifier = flat * (1f + (increase / 100f));
             }
 
-            float costRate = 4f + movementCostModifier;
+            float costRate = (4f + movementCostModifier) * CalculateMultiplierProduct(entityStats?.MovementCostModifier_Multiplier);
             int pathCost = Mathf.Max(1, Mathf.RoundToInt(totalDistance * costRate));
 
             return new NavMeshPathData

@@ -352,6 +352,7 @@ namespace facingfate
                                     var poison = EffectDatabase.GetEffectByName("Poison", cd, ThroughputSource.Damage, attacker);
                                     if (poison != null)
                                     {
+                                        poison.BaseValue = value; // use Poison Barbs power, not attacker's card damage
                                         poison.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                                         CombatUtility.ApplyEntityModifier(cd, attacker, poison);
                                     }

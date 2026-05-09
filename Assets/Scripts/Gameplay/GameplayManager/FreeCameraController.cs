@@ -47,7 +47,7 @@ namespace facingfate
         // ── Scroll Zoom ────────────────────────────────────────────────────────
         [Header("Scroll Zoom")]
         [Tooltip("World-units of zoom per scroll notch.")]
-        [SerializeField] private float scrollZoomSpeed = 3f;
+        [SerializeField] private float scrollZoomSpeed = 50f;
         [Tooltip("Minimum camera distance — prevents clipping into mesh.")]
         [SerializeField] private float minCameraDistance = 8f;
         [Tooltip("Maximum camera distance.")]

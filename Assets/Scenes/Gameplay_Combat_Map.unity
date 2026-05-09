@@ -1677,7 +1677,7 @@ MonoBehaviour:
   edgeScrollEnabled: 1
   edgeScrollMargin: 30
   edgeScrollSpeed: 12
-  scrollZoomSpeed: 3
+  scrollZoomSpeed: 50
   minCameraDistance: 8
   maxCameraDistance: 40
   dragSensitivity: 1

@@ -1602,26 +1602,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8838467494662396084, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
-      propertyPath: loadAsynchronous
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8838467494662396084, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
-      propertyPath: overrideLoadSetting
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8838467494662396084, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
-      propertyPath: triggerList.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8838467494662396084, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
-      propertyPath: 'triggerList.Array.data[0]'
-      value: 1151176110
-      objectReference: {fileID: 0}
-    - target: {fileID: 8838467494662396084, guid: a1a94bd26738aa845a41820d3c7a3d9c, type: 3}
-      propertyPath: 'triggerList.Array.data[1]'
-      value: 1281810935
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

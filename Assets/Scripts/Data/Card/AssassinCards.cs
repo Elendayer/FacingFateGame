@@ -775,19 +775,12 @@ namespace facingfate
                 {
                     new CardAction(
                         ExecutionMode.Once,
-                        TargetingMode.Entities,
+                        TargetingMode.Caster,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, EntityScript, CardData>)((caster, target, cardData) =>
+                        action: (caster, cardData) =>
                         {
-                            new CardAction(
-                                ExecutionMode.Once,
-                                TargetingMode.Caster,
-                                delayBefore: 0f,
-                                delayBetween: 0f,
-                                action: (caster, cardData) =>
-                                {
-                                   CombatUtility.ApplyEntityModifier(cardData, caster,
+                            CombatUtility.ApplyEntityModifier(cardData, caster,
                                 new EntityModifier(
                                     modifierName: "Scorching Blood Venom",
                                     owner: caster,
@@ -807,8 +800,7 @@ namespace facingfate
                                         burnEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
                                         CombatUtility.ApplyEntityModifier(d, t, burnEffect);
                                     }));
-                                });
-                        })
+                        }
                     )
                 }
             });

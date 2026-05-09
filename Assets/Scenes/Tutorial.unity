@@ -2845,6 +2845,9 @@ MonoBehaviour:
   edgeScrollEnabled: 1
   edgeScrollMargin: 30
   edgeScrollSpeed: 12
+  scrollZoomSpeed: 50
+  minCameraDistance: 8
+  maxCameraDistance: 40
   dragSensitivity: 1
   navMeshClampRadius: 50
 --- !u!1 &832472088
@@ -8291,7 +8294,7 @@ PrefabInstance:
       objectReference: {fileID: 1310427311}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: enemyWaves.Array.data[0].entries.Array.data[0].healthOverride
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4131927950231290151, guid: 35b872073c7a6534492d93b00a295a0d, type: 3}
       propertyPath: steps.Array.data[3].highlights.Array.data[1].visibilityDrivenBy

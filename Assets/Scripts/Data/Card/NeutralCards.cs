@@ -65,7 +65,7 @@ namespace facingfate
                 },
 
                 cost_u = 10,
-                range_u = 2f,
+                range_u = 1f,
 
                 damageFunc = card =>
                 {
@@ -105,7 +105,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 20,
-                range_u = 2f,
+                range_u = 1f,
 
                 duration_u = 2,
 
@@ -220,7 +220,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
                 cost_u = 30,
-                range_u = 2f,
+                range_u = 1f,
                 damage_u = 50,
                 repeats_u = 2,
 
@@ -330,7 +330,8 @@ namespace facingfate
                         coroutine: (caster, targetingData, cardData) =>
                         {
                             var target = targetingData.targetedEntities[0];
-                            return caster.EntityOnMap.StartMoveRoutine(target.transform.position);
+                            var dashPath = MovementUtility.GetPathDataToCloserPosition(target.transform.position, cardData.Range, caster);
+                            return caster.EntityOnMap.StartMoveRoutine(dashPath.End);
                         }
                     ),
                     new CardAction(
@@ -389,7 +390,28 @@ namespace facingfate
                         {
                             var disengage = EffectDatabase.GetEffectByName("Disengaged", cardData, ThroughputSource.None, caster);
                             CombatUtility.ApplyEntityModifier(cardData, caster, disengage);
-                            return caster.EntityOnMap.StartMoveRoutine(targetingData.targetedPositions[0]);
+
+                            Vector3 moveTarget = targetingData.targetedPositions != null && targetingData.targetedPositions.Count > 0
+                                ? targetingData.targetedPositions[0]
+                                : caster.transform.position;
+
+                            // AI path: targeting resolves to own position — compute retreat from nearest enemy instead
+                            if (Vector3.Distance(moveTarget, caster.transform.position) < 0.1f)
+                            {
+                                EntityScript nearestEnemy = null;
+                                float minDist = float.MaxValue;
+                                foreach (var entity in TurnManager.Instance.TurnOrder)
+                                {
+                                    if (!TargetingUtility.isEnemyOf(caster, entity)) continue;
+                                    float dist = Vector3.Distance(caster.transform.position, entity.transform.position);
+                                    if (dist < minDist) { minDist = dist; nearestEnemy = entity; }
+                                }
+                                var refPos = nearestEnemy != null ? nearestEnemy.transform.position : caster.transform.position;
+                                var retreatPath = MovementUtility.GetFurtherPosition(refPos, cardData.Range, caster);
+                                moveTarget = retreatPath.End;
+                            }
+
+                            return caster.EntityOnMap.StartMoveRoutine(moveTarget);
                         }
                     )
                 }
