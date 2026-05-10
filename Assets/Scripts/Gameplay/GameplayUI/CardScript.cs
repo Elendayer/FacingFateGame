@@ -59,20 +59,16 @@ namespace facingfate
 
                 range.text = GetRangeText(cardData);
 
-                switch (cardData.cardType)
+                if (RoofImage != null && Roofs != null && Roofs.Length > 0)
                 {
-                    case CardType.Technique:
-                        RoofImage.sprite = Roofs[0];
-                        break;
-                        case CardType.Ability:
-                        RoofImage.sprite = Roofs[1];
-                        break;
-                        case CardType.Item:
-                        RoofImage.sprite = Roofs[2];
-                        break;
-                        default:
-                        RoofImage.sprite = Roofs[0];
-                        break;
+                    int roofIndex = cardData.cardType switch
+                    {
+                        CardType.Technique => 0,
+                        CardType.Ability   => 1,
+                        CardType.Item      => 2,
+                        _                  => 0
+                    };
+                    RoofImage.sprite = roofIndex < Roofs.Length ? Roofs[roofIndex] : Roofs[0];
                 }
             }
 
@@ -97,9 +93,9 @@ namespace facingfate
                 if (cardData == null || cardData.Owner == null)
                     yield break;
 
-                descriptionText.text = FormatCardDescription(cardData);
-                identityText.text = GetIdentityText(cardData);
-                range.text = GetRangeText(cardData);
+                if (descriptionText != null) descriptionText.text = FormatCardDescription(cardData);
+                if (identityText    != null) identityText.text    = GetIdentityText(cardData);
+                if (range           != null) range.text           = GetRangeText(cardData);
 
                 yield return new WaitForSeconds(0.2f);
             }

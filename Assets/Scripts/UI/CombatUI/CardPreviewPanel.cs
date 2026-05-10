@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.VFX;
 using DG.Tweening;
 
@@ -24,6 +25,8 @@ namespace facingfate
         private CanvasGroup canvasGroup;
         private bool        isPreviewEnabled = true;
 
+        public bool IsVisible => canvasGroup != null && canvasGroup.alpha > 0.01f;
+
         private GameObject rangeIndicatorVFX;
         private VisualEffect rangeIndicatorEffect;
 
@@ -38,7 +41,21 @@ namespace facingfate
                 canvasGroup = previewRoot.AddComponent<CanvasGroup>();
 
             canvasGroup.blocksRaycasts = false;
-            previewRoot.SetActive(false);
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            // previewRoot stays active so the toggle button (child) is always visible.
+            // Visibility is controlled via CanvasGroup alpha only.
+
+            if (toggleButtonText != null)
+            {
+                Transform btn = toggleButtonText.transform.parent != null
+                    ? toggleButtonText.transform.parent
+                    : toggleButtonText.transform;
+                var btnCg = btn.GetComponent<CanvasGroup>();
+                if (btnCg == null) btnCg = btn.gameObject.AddComponent<CanvasGroup>();
+                btnCg.ignoreParentGroups = true;
+                btnCg.alpha = 1f;
+            }
         }
 
         // ── Toggle ─────────────────────────────────────────────────────────────
@@ -49,7 +66,19 @@ namespace facingfate
             isPreviewEnabled = !isPreviewEnabled;
 
             if (!isPreviewEnabled)
+            {
                 ForceHide();
+            }
+            else
+            {
+                GameObject card = HandManager.Instance?.GetSelectedCard()
+                               ?? HandManager.Instance?.GetHoveredCard();
+                if (card != null)
+                {
+                    CardScript cs = card.GetComponent<CardScript>();
+                    if (cs?.cardData != null) Show(cs);
+                }
+            }
 
             if (toggleButtonText != null)
             {
@@ -65,16 +94,15 @@ namespace facingfate
 
         public void Show(CardScript source)
         {
-            // Honour the toggle — don't show while preview is disabled
             if (!isPreviewEnabled) return;
             if (source?.cardData == null) return;
 
             // Only reset alpha/scale when the panel was actually hidden.
             // Skipping the reset when already visible prevents the flicker
             // caused by jumping back to alpha 0 on every card hover.
-            bool wasHidden = !previewRoot.activeSelf || canvasGroup.alpha < 0.01f;
+            bool wasHidden = canvasGroup.alpha < 0.01f;
 
-            previewRoot.SetActive(true);
+            canvasGroup.interactable = true;
             previewCardScript.cardData = source.cardData;
             previewCardScript.ApplyCardDataVisuals();
 
@@ -132,9 +160,9 @@ namespace facingfate
             previewRoot.transform.DOKill();
             canvasGroup.DOFade(0f, fadeDuration)
                 .SetUpdate(true)
-                .OnComplete(() => previewRoot.SetActive(false));
+                .OnComplete(() => canvasGroup.interactable = false);
+            // previewRoot stays active so the toggle button remains visible
 
-            // Hide range indicator
             HideRangeIndicator();
         }
 

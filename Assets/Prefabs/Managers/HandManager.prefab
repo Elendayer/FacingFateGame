@@ -46,8 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handAnchor: {fileID: 0}
   cardPrefab: {fileID: 6460608915492105488, guid: 2202288eaec2efc47953e567cc136fa3, type: 3}
-  cardSpacing: 2
-  cardFanAngle: 4
+  cardSpacing: 4
+  cardFanAngle: 5
   hoverOffsetY: 30
   selectedOffsetY: 60
   fanRadius: -2000

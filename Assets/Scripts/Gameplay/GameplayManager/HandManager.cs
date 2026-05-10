@@ -43,6 +43,10 @@ namespace facingfate
                 Instance = this;
             }
 
+            selectedCard = null;
+            hoveredCard = null;
+            lastPreviewedCard = null;
+
             AddListeners();
         }
         public void AddListeners()
@@ -274,10 +278,10 @@ namespace facingfate
             hoveredCard = card;
             if (hoveredCard == null)
             {
-                lastPreviewedCard = null;
-                CardPreviewPanel.Instance?.Hide();
                 if (selectedCard == null)
                 {
+                    lastPreviewedCard = null;
+                    CardPreviewPanel.Instance?.Hide();
                     AssetManager.Instance?.HideRangeIndicator();
                 }
             }
@@ -287,6 +291,15 @@ namespace facingfate
                 if (cardScript != null && cardScript.cardData != null)
                 {
                     AssetManager.Instance?.ShowRangeIndicator(cardScript.cardData);
+                }
+
+                // Show immediately — don't wait for Update() tick.
+                // Layout animation fires OnPointerExit before Update() runs,
+                // leaving the panel hidden if we rely solely on Update.
+                if (selectedCard == null)
+                {
+                    lastPreviewedCard = card;
+                    CardPreviewPanel.Instance?.Show(cardScript);
                 }
             }
             UpdateHandLayout(hoveredCard);
