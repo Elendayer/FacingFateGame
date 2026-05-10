@@ -269,6 +269,7 @@ namespace facingfate
         private void HandleEdgeScroll()
         {
             if (!edgeScrollEnabled) return;
+            if (!Application.isFocused) return;  // Don't scroll when app lost focus (e.g. mouse on second monitor)
             Mouse mouse = Mouse.current;
             if (mouse == null) return;
 
@@ -313,16 +314,29 @@ namespace facingfate
 
         private void HandleScrollZoom()
         {
+            if (PlayerDetailedStatsPanel.Instance != null && PlayerDetailedStatsPanel.Instance.IsOpen) return;
+
             Mouse mouse = Mouse.current;
             if (mouse == null) return;
 
             float scroll = mouse.scroll.ReadValue().y;
             if (Mathf.Approximately(scroll, 0f)) return;
 
+            float oldDistance = cameraDistance;
             cameraDistance = Mathf.Clamp(
                 cameraDistance - scroll * scrollZoomSpeed * Time.deltaTime,
                 minCameraDistance,
                 maxCameraDistance);
+
+            // Shift focus toward the world point under the mouse so zoom follows cursor
+            float zoomRatio = cameraDistance / oldDistance;
+            if (!Mathf.Approximately(zoomRatio, 1f))
+            {
+                Vector3 mouseWorld = MouseOnPlane(focusPoint.y);
+                // Move focus point: ratio < 1 → toward mouse (zoom in), > 1 → away (zoom out)
+                targetFocusPoint = ClampFocusPoint(
+                    mouseWorld + (targetFocusPoint - mouseWorld) * zoomRatio);
+            }
         }
 
         private void HandleSpacebarSnap()

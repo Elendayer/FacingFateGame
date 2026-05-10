@@ -203,7 +203,7 @@ namespace facingfate
         }
         public virtual void EndTurn()
         {
-            EntityVisual.ClearHighlight();
+            EntityVisual.ClearTurnHighlight();
 
             ActionQueueUtility.EnqueueAction(() =>
             {

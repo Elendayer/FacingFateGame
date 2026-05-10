@@ -96,6 +96,10 @@ MonoBehaviour:
       im Hauptmen\xFC ausw\xE4hlen."
     m_Metadata:
       m_Items: []
+  - m_Id: 6579644276453376
+    m_Localized: Weiter
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

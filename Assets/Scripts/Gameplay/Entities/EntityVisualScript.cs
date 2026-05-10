@@ -17,6 +17,8 @@ public class EntityVisualScript : MonoBehaviour
 
     public EntityScript EntityScript;
 
+    private bool _isActiveTurn = false;
+
     private void Awake()
     {
         DrawCircle();
@@ -57,6 +59,7 @@ public class EntityVisualScript : MonoBehaviour
 
     public void HighlightTurn()
     {
+        _isActiveTurn = true;
         if (lineRenderer == null)
             return;
 
@@ -105,6 +108,22 @@ public class EntityVisualScript : MonoBehaviour
         if (lineRenderer == null)
             return;
 
+        // Don't clear the circle if it's this entity's active turn — restore turn color instead
+        if (_isActiveTurn)
+        {
+            HighlightTurn();
+            return;
+        }
+
+        lineRenderer.startColor = Color.clear;
+        lineRenderer.endColor = Color.clear;
+    }
+
+    /// <summary>Called by EndTurn to fully clear the circle including the turn flag.</summary>
+    public void ClearTurnHighlight()
+    {
+        _isActiveTurn = false;
+        if (lineRenderer == null) return;
         lineRenderer.startColor = Color.clear;
         lineRenderer.endColor = Color.clear;
     }

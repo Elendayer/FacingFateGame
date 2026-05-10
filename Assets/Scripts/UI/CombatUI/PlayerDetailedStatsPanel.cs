@@ -55,6 +55,8 @@ namespace facingfate
         private bool showingEnemies;
         private int  selectedIndex;
 
+        public bool IsOpen => panelRoot != null && panelRoot.activeSelf;
+
         private List<EntityScript> ActiveList => showingEnemies ? enemyList : partyList;
         private EntityScript SelectedEntity =>
             ActiveList.Count > 0 && selectedIndex >= 0 && selectedIndex < ActiveList.Count

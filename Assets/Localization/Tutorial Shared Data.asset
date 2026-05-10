@@ -71,6 +71,10 @@ MonoBehaviour:
     m_Key: Tutorial_End
     m_Metadata:
       m_Items: []
+  - m_Id: 6579644276453376
+    m_Key: Button_NextStep
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

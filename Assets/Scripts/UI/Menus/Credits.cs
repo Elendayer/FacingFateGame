@@ -11,7 +11,7 @@ namespace facingfate
         [SerializeField] private RectTransform maskRect;
         [SerializeField] private float scrollDuration = 20f;
         [SerializeField] private float edgePadding = 150f;
-        [SerializeField] private bool looping = true;
+        [SerializeField] private bool looping = false;
 
         private Tween _scrollTween;
 
@@ -34,6 +34,9 @@ namespace facingfate
 
         private void StartScroll()
         {
+            // Kill any leftover tween on this target before starting fresh
+            DOTween.Kill(creditsContent);
+
             float contentHeight = creditsContent.rect.height;
             float maskHeight = maskRect != null ? maskRect.rect.height : 600f;
 

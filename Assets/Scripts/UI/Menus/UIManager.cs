@@ -1,6 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace facingfate
 {
@@ -16,6 +17,16 @@ namespace facingfate
         public CanvasGroup fadeCanvas;
 
         public float fadeDuration = 0.5f;
+
+        private void Update()
+        {
+            // ESC closes options in main menu (PauseMenuManager handles this in-game)
+            if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+            {
+                if (optionsMenu?.scrollAnimator?.IsOpen == true)
+                    optionsMenu.CloseOptionsRoll();
+            }
+        }
 
         private void Start()
         {
@@ -51,6 +62,11 @@ namespace facingfate
         public void OpenLevelSelect()
         {
             if (levelSelectPanel == null) return;
+
+            // Close options first so they don't overlap the level-select panel
+            if (optionsMenu?.scrollAnimator?.IsOpen == true)
+                optionsMenu.CloseOptionsRoll();
+
             if (levelSelectPanel.IsShown) levelSelectPanel.Hide();
             else levelSelectPanel.Show();
         }

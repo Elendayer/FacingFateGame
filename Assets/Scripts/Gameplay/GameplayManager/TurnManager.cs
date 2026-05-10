@@ -41,11 +41,19 @@ namespace facingfate
         public void StartUp()
         {
             combatEnded = false;
-            SetTurnOrder();
             CurrentTurnIndex = 0;
             CurrentRoundIndex = 1;
 
             AddListeners();
+        }
+
+        /// <summary>
+        /// Builds the turn order sorted by Dexterity descending.
+        /// Must be called AFTER all entities have had StartUp() called so stats are initialized.
+        /// </summary>
+        public void BuildTurnOrder()
+        {
+            SetTurnOrder();
         }
 
         public void AddListeners()
@@ -78,7 +86,8 @@ namespace facingfate
 
         private void OnCombatStart()
         {
-            GameEvents.TriggerTurnStart();
+            // 1-second pause before first turn — gives the turn-order UI time to settle.
+            ActionQueueUtility.EnqueueAction(GameEvents.TriggerTurnStart, 1f);
         }
 
         public bool CombatEnded => combatEnded;

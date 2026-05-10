@@ -76,10 +76,10 @@ namespace facingfate
             TurnManager.Instance.StartUp();
             yield return null;
 
-            EncounterManager.Instance.StartUp();
+            EncounterManager.Instance?.StartUp();
             yield return null;
 
-            // Spawn entities
+            // Spawn entities (configure only — StartUp deferred to entity init loop below)
             if (RandomEncounterManager.Instance != null)
             {
                 RandomEncounterManager.Instance.SpawnEntities();
@@ -98,10 +98,21 @@ namespace facingfate
                 yield return null;
             }
 
-            // Initialize all entities
+            // Initialize all entities — happens AFTER spawn so stats are ready for turn-order sorting
             foreach (var entity in GameObject.FindObjectsByType<EntityScript>(0))
             {
                 entity.StartUp();
+                yield return null;
+            }
+
+            // Build turn order NOW that all entities have initialized stats (dex-based sort)
+            TurnManager.Instance.BuildTurnOrder();
+            yield return null;
+
+            // Post-init pass (e.g. material assignment for randomly spawned enemies)
+            if (RandomEncounterManager.Instance != null)
+            {
+                RandomEncounterManager.Instance.PostInit();
                 yield return null;
             }
         }

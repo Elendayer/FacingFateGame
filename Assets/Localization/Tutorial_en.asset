@@ -19,8 +19,8 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 8310534144
-    m_Localized: Welcome to Facing Fate! This tutorial walks you through the basics
-      of combat. Click "Continue".
+    m_Localized: "Welcome to Facing Fate! This tutorial walks you through the basics
+      of combat. \nClick \"Continue\"."
     m_Metadata:
       m_Items: []
   - m_Id: 53353164800
@@ -53,8 +53,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62958120960
-    m_Localized: "Play Heavens Spear! This card can target multiple Eniemies with
-      right click. \nClick on up to three Enemies in Range to play the card"
+    m_Localized: "Play Heavens Spear! This card can target multiple Eniemies. \nHover
+      over an enemy with left click and right click on up to three Enemies in Range."
     m_Metadata:
       m_Items: []
   - m_Id: 64614871040
@@ -73,14 +73,12 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 14214657257472
     m_Localized: "Well done! The enemy took damage so their HP decreased. \nWhen
-      alll enemies are dead, you win."
+      all enemies are dead, you win."
     m_Metadata:
       m_Items: []
   - m_Id: 16562616053760
-    m_Localized: 'You have other cards in your Hand, but you have no Stamina left
+    m_Localized: You have other cards in your Hand, but you have no Stamina left
       to play them.
-
-'
     m_Metadata:
       m_Items: []
   - m_Id: 17840951832576
@@ -91,6 +89,10 @@ MonoBehaviour:
   - m_Id: 1120323220582400
     m_Localized: "You finished the Tutorial. \nYou can choose real combat in the
       Main Menu."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6579644276453376
+    m_Localized: Continue
     m_Metadata:
       m_Items: []
   references:

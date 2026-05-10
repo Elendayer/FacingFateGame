@@ -31,19 +31,17 @@ namespace facingfate
         private float SlotWidth        => entryWidth + entrySpacing;
         private float GetTargetX(int i) => i * SlotWidth;
 
-        [Header("Panel Toggle Animation")]
-        [SerializeField] private float toggleDuration       = 0.45f;
-        [SerializeField] private float contentsFadeDuration = 0.2f;
-
         // ── Pool ──────────────────────────────────────────────────────────────
         // Entries are never destroyed — they are recycled. Entry[0] animates out,
         // moves to the back of the list, gets new data, then animates back in.
         private readonly List<TurnOrderEntryUI> pool = new();
 
+        [Header("Panel Toggle Animation")]
+        [SerializeField] private float toggleDuration       = 0.45f;
+        [SerializeField] private float contentsFadeDuration = 0.2f;
+
         private bool isOpen = true;
         private float panelOpenY;
-        private float buttonOpenY;
-        private RectTransform toggleButtonRect;
         private CanvasGroup panelCanvasGroup;
         private bool panelAnimating = false;
         private bool turnEndAnimating = false;
@@ -51,10 +49,7 @@ namespace facingfate
         private void Awake()
         {
             if (toggleButton != null)
-            {
                 toggleButton.onClick.AddListener(Toggle);
-                toggleButtonRect = toggleButton.GetComponent<RectTransform>();
-            }
 
             if (panelRoot != null)
             {
@@ -63,9 +58,6 @@ namespace facingfate
                 if (panelCanvasGroup != null)
                     panelCanvasGroup.blocksRaycasts = false; // never block underlying card clicks
             }
-
-            if (toggleButtonRect != null)
-                buttonOpenY = toggleButtonRect.anchoredPosition.y;
 
             InitPool();
         }
@@ -215,25 +207,29 @@ namespace facingfate
 
             isOpen = !isOpen;
 
-            float slideAmount  = panelRoot.rect.height;
-            float panelTarget  = isOpen ? panelOpenY  : panelOpenY  + slideAmount;
-            float buttonTarget = isOpen ? buttonOpenY : buttonOpenY + slideAmount;
-            Ease  ease         = isOpen ? Ease.OutBack : Ease.InBack;
+            float slideAmount = panelRoot.rect.height;
+            float panelTarget = isOpen ? panelOpenY : panelOpenY + slideAmount;
+            Ease  ease        = isOpen ? Ease.OutBack : Ease.InBack;
 
             panelAnimating = true;
 
             panelRoot.DOAnchorPosY(panelTarget, toggleDuration)
                 .SetEase(ease).SetUpdate(true)
-                .OnComplete(() => panelAnimating = false);
-
-            toggleButtonRect?.DOAnchorPosY(buttonTarget, toggleDuration)
-                .SetEase(ease).SetUpdate(true);
+                .OnComplete(() =>
+                {
+                    panelAnimating = false;
+                    // Reset alpha after slide finishes — panel is off-screen at this point,
+                    // so the instant reset is invisible. Needed so next open starts from alpha 0.
+                    if (!isOpen && panelCanvasGroup != null)
+                        panelCanvasGroup.alpha = 0f;
+                });
 
             if (panelCanvasGroup != null)
             {
                 panelCanvasGroup.DOKill();
                 if (isOpen)
                 {
+                    // Fade in after slide brings the panel into view
                     panelCanvasGroup.alpha = 0f;
                     panelCanvasGroup.DOFade(1f, contentsFadeDuration)
                         .SetDelay(toggleDuration * 0.55f)
@@ -241,20 +237,15 @@ namespace facingfate
                 }
                 else
                 {
-                    panelCanvasGroup.DOFade(0f, contentsFadeDuration)
-                        .SetEase(Ease.InCubic).SetUpdate(true);
+                    // Stay fully visible during slide — panel disappears off-screen naturally.
+                    // Alpha reset happens in OnComplete above, after slide is done.
+                    panelCanvasGroup.alpha = 1f;
                 }
             }
 
             if (toggleButtonText != null)
-            {
                 toggleButtonText.text = isOpen ? "▲" : "▼";
-                toggleButtonText.transform.DOKill();
-                toggleButtonText.transform.localScale = Vector3.one;
-                toggleButtonText.transform
-                    .DOPunchScale(Vector3.one * 0.35f, 0.3f, vibrato: 1, elasticity: 0.5f)
-                    .SetUpdate(true);
-            }
+                // DOPunchScale removed — button text stays still
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────

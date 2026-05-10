@@ -38,6 +38,9 @@ namespace facingfate
         [Tooltip("At least 6 empty GameObjects marking spawn positions.")]
         [SerializeField] private List<Transform> enemySpawnPoints = new();
 
+        // Tracks enemies spawned this encounter for post-init pass (material assignment etc.)
+        private readonly List<NonPlayerScript> spawnedEnemies = new();
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -49,10 +52,14 @@ namespace facingfate
         }
 
         /// <summary>
-        /// Called by StartupManager before the entity StartUp loop.
+        /// Called by StartupManager BEFORE the entity StartUp loop.
+        /// Only instantiates and configures entities — does NOT call StartUp or AddTurn.
+        /// StartUp is deferred to the entity init loop so all managers are ready.
         /// </summary>
         public void SpawnEntities()
         {
+            spawnedEnemies.Clear();
+
             if (npcPool.Count == 0)
             {
                 Debug.LogError("[RandomEncounterManager] npcPool is empty — assign NPC entries in Inspector.");
@@ -65,6 +72,20 @@ namespace facingfate
             }
 
             SpawnEnemies();
+        }
+
+        /// <summary>
+        /// Called by StartupManager AFTER the entity init loop.
+        /// Applies anything that requires EntityVisual (set in StartUp) to be ready.
+        /// </summary>
+        public void PostInit()
+        {
+            foreach (var npc in spawnedEnemies)
+            {
+                if (npc != null && npc.EntityVisual != null)
+                    npc.EntityVisual.meshRenderer.material = AssetManager.Instance.EnemyMaterial;
+            }
+            spawnedEnemies.Clear();
         }
 
         private void SpawnEnemies()
@@ -100,9 +121,27 @@ namespace facingfate
 
         private void SpawnEnemy(string npcId, Vector3 position)
         {
-           NonPlayerScript npc =  CombatUtility.SpawnEntity(position, npcId, EntityAffiliation.Enemy, hasTurn: true);
+            // Fetch NPC template BEFORE instantiation so we can use usePresetConfig.
+            // This is the same pattern as TrainingEncounterManager — defers entity.StartUp()
+            // to the entity init loop in StartupManager, ensuring all managers are ready.
+            NpcData npcData = NpcDatabase.GetNpcById(npcId, null);
+            if (npcData == null)
+            {
+                Debug.LogError($"[RandomEncounterManager] NpcDatabase has no entry for '{npcId}'. Check npcPool IDs.");
+                return;
+            }
 
-            npc.EntityVisual.meshRenderer.material = AssetManager.Instance.EnemyMaterial;
+            GameObject obj = Instantiate(AssetManager.Instance.entityPrefab, position, Quaternion.identity);
+            obj.GetComponent<EntityOnMap>()?.TeleportTo(position);
+            obj.name = $"Enemy_{npcData.name}";
+
+            NonPlayerScript npc = obj.GetComponent<NonPlayerScript>();
+            npc.entityAffiliation = EntityAffiliation.Enemy;
+            npc.usePresetConfig    = true;
+            npc.npcData            = npcData;
+            npc.deckCardIDs        = new List<string>(npcData.cardIds);
+
+            spawnedEnemies.Add(npc);
         }
     }
 }

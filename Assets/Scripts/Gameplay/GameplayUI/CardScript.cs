@@ -141,6 +141,10 @@ namespace facingfate
                 parts.Add("Self, ");
             }
 
+            // RingSelf is always caster-centered — showing range is meaningless
+            if (t.cardTargetingMode != CardTargetingMode.RingSelf)
+                parts.Add($"{cardData.Range}m,");
+
             switch (t.cardTargetingMode)
             {
                 case CardTargetingMode.Single:
@@ -151,7 +155,7 @@ namespace facingfate
                     parts.Add($"Ring, {cardData.Radius}m by {cardData.Area}m");
                     break;
                 case CardTargetingMode.RingSelf:
-                    parts.Add($"Ring, {cardData.Radius}m by {cardData.Area}m");
+                    parts.Add($"Ring, {cardData.Radius}m");
                     break;
                 case CardTargetingMode.Sphere:
                     parts.Add($"Radius, {cardData.Radius}m");
@@ -192,7 +196,7 @@ namespace facingfate
             }
 
             // Final join
-            string rangeText = string.Join("", parts);
+            string rangeText = string.Join(" ", parts).TrimEnd(' ').TrimEnd(',').TrimEnd(' ');
             string scalingStat = GetScalingStatLabel(cardData);
             if (!string.IsNullOrEmpty(scalingStat))
                 rangeText += $"\n{scalingStat}";

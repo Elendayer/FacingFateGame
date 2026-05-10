@@ -82,25 +82,14 @@ namespace facingfate
 
             GameObject currentCardToPreview = selectedCard ?? hoveredCard;
 
-            // Only update preview if the card changed
             if (currentCardToPreview != lastPreviewedCard)
             {
                 lastPreviewedCard = currentCardToPreview;
 
                 if (currentCardToPreview != null)
-                {
                     CardPreviewPanel.Instance?.Show(currentCardToPreview.GetComponent<CardScript>());
-                }
                 else
-                {
                     CardPreviewPanel.Instance?.Hide();
-                }
-            }
-
-            // Update layout when hovering
-            if (hoveredCard != null)
-            {
-                UpdateHandLayout(hoveredCard);
             }
         }
 
@@ -112,7 +101,7 @@ namespace facingfate
             return Vector2.Distance(Mouse.current.position.ReadValue(), handScreenPos) < handHoverRadius;
         }
 
-        private GameObject GetHoveredCard()
+        public GameObject GetHoveredCard()
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
 

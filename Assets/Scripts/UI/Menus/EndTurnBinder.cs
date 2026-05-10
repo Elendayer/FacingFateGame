@@ -4,15 +4,33 @@ using UnityEngine.UI;
 
 public class EndTurnBinder : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private bool _pending = false;
+
     void Start()
     {
-        GetComponent<Button>().onClick.AddListener(() =>
+        GetComponent<Button>().onClick.AddListener(OnEndTurnClicked);
+        GameEvents.OnTurnStart += OnTurnStart;
+    }
+
+    void OnDestroy()
+    {
+        GameEvents.OnTurnStart -= OnTurnStart;
+    }
+
+    private void OnEndTurnClicked()
+    {
+        if (_pending) return;
+        if (TurnManager.Instance.CurrentTurnEntity is PlayerScript)
         {
-            if (TurnManager.Instance.CurrentTurnEntity is PlayerScript) 
-            {
-                ActionQueueUtility.EnqueueAction(() => GameEvents.TriggerTurnEnd());
-            }
-        });
+            _pending = true;
+            ActionQueueUtility.EnqueueAction(() => GameEvents.TriggerTurnEnd());
+        }
+    }
+
+    private void OnTurnStart()
+    {
+        // Reset only when it's the player's turn again
+        if (TurnManager.Instance.CurrentTurnEntity is PlayerScript)
+            _pending = false;
     }
 }
