@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace facingfate
 {
@@ -16,10 +17,14 @@ namespace facingfate
         public UnityEngine.UI.Image artworkRenderer;
         public GameObject cardBack;
         public GameObject cardFront;
-        public TextMeshProUGUI nameText; // Optional: if you're using UI elements
+        public TextMeshProUGUI nameText;
+        public TextMeshProUGUI identityText;
         public TextMeshProUGUI descriptionText;
         public TextMeshProUGUI range;
         public TextMeshProUGUI cost;
+
+        public Image RoofImage;
+        public Sprite[] Roofs;
 
         public bool isLocked;
         public bool inPlay;
@@ -53,9 +58,35 @@ namespace facingfate
                 descriptionText.text = cardData.cardDescription;
 
                 range.text = GetRangeText(cardData);
+
+                switch (cardData.cardType)
+                {
+                    case CardType.Technique:
+                        RoofImage.sprite = Roofs[0];
+                        break;
+                        case CardType.Ability:
+                        RoofImage.sprite = Roofs[1];
+                        break;
+                        case CardType.Item:
+                        RoofImage.sprite = Roofs[2];
+                        break;
+                        default:
+                        RoofImage.sprite = Roofs[0];
+                        break;
+                }
             }
 
             StartCoroutine("DescriptionUpdate");
+        }
+        private static string ColorizeValue(int value, int baseValue)
+        {
+            if (value > baseValue)
+                return $"<color=#00FF00>{value}</color>"; // Green
+
+            if (value < baseValue)
+                return $"<color=#FF0000>{value}</color>"; // Red
+
+            return $"<color=#000000>{value}</color>"; // Black
         }
 
         private IEnumerator DescriptionUpdate()
@@ -67,11 +98,13 @@ namespace facingfate
                     yield break;
 
                 descriptionText.text = FormatCardDescription(cardData);
-                range.text = FormatCardRange(cardData);
+                identityText.text = GetIdentityText(cardData);
+                range.text = GetRangeText(cardData);
 
                 yield return new WaitForSeconds(0.2f);
             }
         }
+
         private string FormatCardDescription(CardData d)
         {
             EnsureResolvers();
@@ -91,21 +124,28 @@ namespace facingfate
                 return ColorizeValue(currentValue, baseValue);
             });
         }
-
-
-        private static string ColorizeValue(int value, int baseValue)
+        public string GetIdentityText(CardData d)
         {
-            if (value > baseValue)
-                return $"<color=#00FF00>{value}</color>"; // Green
+            if (d.cardIdentities == null || d.cardIdentities.Count == 0 )
+                return string.Empty;
 
-            if (value < baseValue)
-                return $"<color=#FF0000>{value}</color>"; // Red
+            string primaryIdentity = string.Empty;
+            string secondaryIdentity = string.Empty;
 
-            return $"<color=#000000>{value}</color>"; // Black
-        }
-        private string FormatCardRange(CardData d)
-        {
-            return GetRangeText(cardData);
+            foreach (var identity in d.cardIdentities)
+            {
+                if (identity == CardIdentity.Melee || identity == CardIdentity.Ranged)
+                {
+                    primaryIdentity += $"{identity} - ";
+                }
+                else
+                {
+                    secondaryIdentity += $"{identity} ";
+                }
+            }
+
+
+            return primaryIdentity + secondaryIdentity;
         }
 
         public static string GetRangeText(CardData cardData)
@@ -196,33 +236,11 @@ namespace facingfate
             }
 
             // Final join
-            string rangeText = string.Join(" ", parts).TrimEnd(' ').TrimEnd(',').TrimEnd(' ');
-            string scalingStat = GetScalingStatLabel(cardData);
-            if (!string.IsNullOrEmpty(scalingStat))
-                rangeText += $"\n{scalingStat}";
+            string rangeText = string.Join("", parts);
+
             return rangeText;
         }
-       
-        public static string GetScalingStatLabel(CardData cardData)
-        {
-            if (cardData.cardIdentities == null || cardData.cardIdentities.Count == 0) return null;
-
-            var ids = cardData.cardIdentities;
-
-            if (ids.Contains(CardIdentity.Melee) || ids.Contains(CardIdentity.Physical))
-                return "Strength";
-            if (ids.Contains(CardIdentity.Ranged) || ids.Contains(CardIdentity.Poison) || ids.Contains(CardIdentity.Shadow))
-                return "Dexterity";
-            if (ids.Contains(CardIdentity.Healing))
-                return "Wisdom";
-            if (ids.Contains(CardIdentity.Magic) || ids.Contains(CardIdentity.Fire) ||
-                ids.Contains(CardIdentity.Ice)   || ids.Contains(CardIdentity.Air)  ||
-                ids.Contains(CardIdentity.Earth) || ids.Contains(CardIdentity.Arcane))
-                return "Foresight";
-
-            return null;
-        }
-
+      
         public interface IStatResolver
         {
             int GetBaseValue(CardData d);

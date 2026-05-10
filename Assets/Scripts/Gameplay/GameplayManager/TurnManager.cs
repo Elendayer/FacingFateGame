@@ -174,6 +174,9 @@ namespace facingfate
             //Trigger Reference Event
             GameEvents.TriggerRefEvent(new ToSendTriggerReference(new() { GameplayRef.onTurnEnd }, TurnOrder[CurrentTurnIndex], new() { TurnOrder[CurrentTurnIndex] }));
 
+
+            TurnOrder[CurrentTurnIndex].EntityVisual.ClearHighlightEndTurn();
+
             // End the Turn for the current Entity
             var endTurnCoroutine = DeckManager.Instance.EndTurn(TurnOrder[CurrentTurnIndex]);
             if (endTurnCoroutine != null)

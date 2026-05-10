@@ -1,5 +1,6 @@
 using facingfate;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EntityVisualScript : MonoBehaviour
@@ -103,7 +104,7 @@ public class EntityVisualScript : MonoBehaviour
         lineRenderer.endColor = new Color(0f, 1f, 1f);
     }
 
-    public void ClearHighlight()
+    public void ClearHighlightEndTurn()
     {
         if (lineRenderer == null)
             return;
@@ -126,5 +127,19 @@ public class EntityVisualScript : MonoBehaviour
         if (lineRenderer == null) return;
         lineRenderer.startColor = Color.clear;
         lineRenderer.endColor = Color.clear;
+    }
+
+    public void ClearHighlight()
+    {
+        if (lineRenderer == null)
+            return;
+
+        lineRenderer.startColor = Color.clear;
+        lineRenderer.endColor = Color.clear;
+
+        if (TurnManager.Instance.CurrentTurnEntity == EntityScript)
+        {
+            HighlightTurn();
+        }
     }
 }
