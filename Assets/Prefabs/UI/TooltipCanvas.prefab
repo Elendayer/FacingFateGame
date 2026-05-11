@@ -553,4 +553,4 @@ MonoBehaviour:
   root: {fileID: 7408759663012804175}
   headerText: {fileID: 9096214586658774396}
   bodyText: {fileID: 4835328936762588726}
-  fadeDuration: 0.5
+  fadeDuration: 0.3

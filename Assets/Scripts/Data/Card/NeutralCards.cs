@@ -493,8 +493,8 @@ namespace facingfate
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
                 },
 
-                cost_u = 10,
-                damage_u = 50,
+                cost_u = 15,
+                damage_u = 40,
 
                 targetingData = new()
                 {
@@ -535,7 +535,7 @@ namespace facingfate
                 },
 
                 cost_u = 5,
-                damage_u = 20,
+                damage_u = 10,
 
                 targetingData = new()
                 {
@@ -578,9 +578,9 @@ namespace facingfate
                 },
 
                 cost_u = 50,
-                damage_u = 50,
+                damage_u = 30,
                 repeats_u = 2,
-                duration_u = 6,
+                duration_u = 5,
 
                 targetingData = new()
                 {

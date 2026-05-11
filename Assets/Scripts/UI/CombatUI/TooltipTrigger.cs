@@ -30,5 +30,12 @@ namespace facingfate
             if (TooltipSystem.Instance == null) return;
             TooltipSystem.Instance.Hide();
         }
+
+        private void OnDisable()
+        {
+            // Hide tooltip if this trigger is destroyed/disabled while hovered.
+            // Unity does not fire OnPointerExit when a GameObject is destroyed mid-hover.
+            TooltipSystem.Instance?.Hide();
+        }
     }
 }

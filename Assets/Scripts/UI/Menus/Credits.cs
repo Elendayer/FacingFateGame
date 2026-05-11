@@ -23,6 +23,15 @@ namespace facingfate
         private void OnDisable()
         {
             _scrollTween?.Kill();
+
+            // Reset to start position so next open begins from the top.
+            if (creditsContent != null)
+            {
+                float contentHeight = creditsContent.rect.height;
+                float maskHeight = maskRect != null ? maskRect.rect.height : 600f;
+                float startY = -(contentHeight * 0.5f + maskHeight * 0.5f + edgePadding);
+                creditsContent.anchoredPosition = new Vector2(0f, startY);
+            }
         }
 
         private IEnumerator StartScrollNextFrame()

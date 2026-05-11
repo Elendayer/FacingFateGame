@@ -155,21 +155,21 @@ namespace facingfate
             {
                 if (t.CardTargetAffiliation == CardTargetAffiliation.Ally)
                 {
-                    parts.Add($"Allies, {cardData.Range}m,");
+                    parts.Add($"Allies, {cardData.Range}m, ");
                 }
                 else if (t.CardTargetAffiliation == CardTargetAffiliation.Enemy)
                 {
-                    parts.Add($"Enemies, {cardData.Range}m,");
+                    parts.Add($"Enemies, {cardData.Range}m, ");
                 }
                 else
                 {
-                    parts.Add("All");
+                    parts.Add("All ");
                 }
 
                 // if targeting uses Vision
                 if (t.TargetingUsesVision)
                 {
-                    parts.Add("in Sight,");
+                    parts.Add("in Sight, ");
                 }
             }
             else
@@ -179,7 +179,7 @@ namespace facingfate
 
             // RingSelf is always caster-centered — showing range is meaningless
             if (t.cardTargetingMode != CardTargetingMode.RingSelf)
-                parts.Add($"{cardData.Range}m,");
+                parts.Add($"{cardData.Range}m, ");
 
             switch (t.cardTargetingMode)
             {

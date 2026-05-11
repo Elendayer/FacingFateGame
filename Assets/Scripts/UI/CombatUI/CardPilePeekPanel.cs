@@ -30,6 +30,11 @@ namespace facingfate
         [SerializeField] private GameObject deckTabHighlight;
         [SerializeField] private GameObject discardTabHighlight;
 
+        // ── Popup title labels ─────────────────────────────────────────────────
+        [Header("Popup Title Labels")]
+        [SerializeField] private TMP_Text deckPopupLabel;
+        [SerializeField] private TMP_Text discardPopupLabel;
+
         // ── Player navigation ──────────────────────────────────────────────────
         // Wire these to UI elements inside the popup header.
         // Navigation is hidden automatically when only one player exists.
@@ -191,6 +196,8 @@ namespace facingfate
         {
             if (deckTabHighlight    != null) deckTabHighlight.SetActive(isDeckActive);
             if (discardTabHighlight != null) discardTabHighlight.SetActive(!isDeckActive);
+            if (deckPopupLabel      != null) deckPopupLabel.gameObject.SetActive(isDeckActive);
+            if (discardPopupLabel   != null) discardPopupLabel.gameObject.SetActive(!isDeckActive);
         }
 
         private void SwitchListContent()

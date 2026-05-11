@@ -47,7 +47,7 @@ namespace facingfate
                     CardTargetAffiliation = CardTargetAffiliation.Enemy,
                     cardTargetingMode = CardTargetingMode.Single,
                 },
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} psychic damage.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage.",
                 cardActionSequence = new()
                 {
                     new CardAction(
@@ -661,7 +661,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
 
                 },
-                cardDescriptionAction = (User, d) => d.cardDescription = "Burn target for {Damage}/turn over {Duration} turns.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Burn target for {Damage}.",
                 cardActionSequence = new()
                 {
                     new CardAction(
