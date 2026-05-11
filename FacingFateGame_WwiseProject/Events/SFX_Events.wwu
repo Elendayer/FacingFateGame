@@ -60,6 +60,7 @@
 								</Action>
 							</ChildrenList>
 						</Event>
+						<Event Name="Play_howl" ID="{0E5A5816-1B06-439C-A132-C662715FA73B}"/>
 					</ChildrenList>
 				</Folder>
 				<Folder Name="SFX_UI_Basic" ID="{D727BA6D-A0AE-436B-B40D-BECEB5818A88}" ShortID="208067816">

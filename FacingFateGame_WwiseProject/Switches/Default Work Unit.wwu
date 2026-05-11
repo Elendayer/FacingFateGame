@@ -34,6 +34,7 @@
 								<Switch Name="Potion" ID="{90B26820-D1E2-4E60-A51A-D61B37AF4E2F}"/>
 								<Switch Name="Claw" ID="{293CEB25-FBFA-4ADD-A16D-E7443F1C46D1}"/>
 								<Switch Name="NoWeaponType" ID="{FC62F1E8-6089-4F1F-851C-F490794C54C3}"/>
+								<Switch Name="Gong" ID="{621682B4-09AC-40A4-AC2D-372FF4586A99}"/>
 							</ChildrenList>
 						</SwitchGroup>
 					</ChildrenList>

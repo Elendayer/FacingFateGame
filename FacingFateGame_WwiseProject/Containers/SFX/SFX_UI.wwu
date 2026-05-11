@@ -6,6 +6,13 @@
 				<Folder Name="Basic UI" ID="{021DE1DB-6F91-4C54-9FF4-E7D4E24B0E6E}" ShortID="349272500">
 					<ChildrenList>
 						<Sound Name="SFX_UI_back-to-title-screen" ID="{67FDD09C-A8CF-4C9F-BD47-DE67A9C2CE7B}" ShortID="127833331">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-7</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -32,6 +39,13 @@
 							</ActiveSourceList>
 						</Sound>
 						<Sound Name="SFX_UI_button_click" ID="{9A3C7FD5-628A-4778-8143-A901B1879753}" ShortID="1008631826">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-6</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -61,6 +75,13 @@
 							</ActiveSourceList>
 						</Sound>
 						<Sound Name="SFX_UI_button_drop-down" ID="{DC0B7BF8-0687-472F-84EE-A88E81D6BDF3}" ShortID="317517579">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-3</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -90,6 +111,11 @@
 									</ValueList>
 								</Property>
 								<Property Name="OverLimitBehavior" Type="int16" Value="1"/>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-2</Value>
+									</ValueList>
+								</Property>
 							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
@@ -113,6 +139,13 @@
 							</ActiveSourceList>
 						</Sound>
 						<Sound Name="SFX_UI_credits_close" ID="{B3A05C71-CD21-4E25-8A25-9473146A88EC}" ShortID="605179352">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-11</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -157,6 +190,13 @@
 							</ActiveSourceList>
 						</Sound>
 						<Sound Name="SFX_UI_options-menu_close" ID="{03B6077B-8740-4F09-BB99-8958E6F99F6F}" ShortID="311290029">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-3</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -179,6 +219,13 @@
 							</ActiveSourceList>
 						</Sound>
 						<Sound Name="SFX_UI_options-menu_open" ID="{F17109F2-F51A-4582-B257-070E229AFA74}" ShortID="185081947">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-1</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -201,6 +248,13 @@
 							</ActiveSourceList>
 						</Sound>
 						<Sound Name="SFX_UI_pause-menu_close" ID="{2BE9D1A2-4462-4D76-8BE7-A2892BD87FA6}" ShortID="755325743">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-5</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -223,6 +277,18 @@
 							</ActiveSourceList>
 						</Sound>
 						<Sound Name="SFX_UI_pause-menu_open" ID="{A0178EEF-DED9-4ADF-B034-698A42CCBD22}" ShortID="965585616">
+							<PropertyList>
+								<Property Name="Lowpass" Type="int16">
+									<ValueList>
+										<Value>30</Value>
+									</ValueList>
+								</Property>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-4</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -258,6 +324,11 @@
 										<Value>True</Value>
 									</ValueList>
 								</Property>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-4</Value>
+									</ValueList>
+								</Property>
 							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
@@ -285,6 +356,13 @@
 							</ActiveSourceList>
 						</Sound>
 						<Sound Name="SFX_UI_start-game" ID="{CF4EBA03-BFB5-4C07-806E-8309DDDB5D8D}" ShortID="398404468">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-2</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -311,6 +389,13 @@
 				<Folder Name="Card UI" ID="{C02B13F9-0CC0-4323-80D2-E0468C6C2267}" ShortID="654730192">
 					<ChildrenList>
 						<RandomSequenceContainer Name="ShuffelCards" ID="{3634B998-A7CC-45AB-A866-5C0F6CF8C7B0}" ShortID="490259726">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-7</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -321,6 +406,13 @@
 							</ReferenceList>
 							<ChildrenList>
 								<Sound Name="Player_shuffel-cards 1" ID="{A80044CC-415D-4CB4-9824-21C13CEE5246}" ShortID="931577004">
+									<PropertyList>
+										<Property Name="Volume" Type="Real64">
+											<ValueList>
+												<Value>2</Value>
+											</ValueList>
+										</Property>
+									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -331,6 +423,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="Player_shuffel-cards 1" ID="{A1BAD0F3-F693-42C8-AEB0-834875B0D063}">
+											<PropertyList>
+												<Property Name="FadeOutDuration" Type="Real64" Value="0.0310520510057787"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimEnd" Type="Real64" Value="0.133911991737984"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>Player_shuffel-cards 1.wav</AudioFile>
 											<MediaIDList>
@@ -353,6 +450,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="Player_shuffel-cards 2" ID="{C3FA9D78-964F-4445-AF9A-903962BAB665}">
+											<PropertyList>
+												<Property Name="FadeOutDuration" Type="Real64" Value="0.0412410052420499"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimEnd" Type="Real64" Value="0.157201029992318"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>Player_shuffel-cards 2.wav</AudioFile>
 											<MediaIDList>
@@ -375,6 +477,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="Player_shuffel-cards 3" ID="{E833013E-60AE-4735-B7A4-B4FEE03AAAEC}">
+											<PropertyList>
+												<Property Name="FadeOutDuration" Type="Real64" Value="0.0388150637572234"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimEnd" Type="Real64" Value="0.15089358213177"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>Player_shuffel-cards 3.wav</AudioFile>
 											<MediaIDList>
@@ -387,6 +494,13 @@
 									</ActiveSourceList>
 								</Sound>
 								<Sound Name="Player_shuffel-cards 4" ID="{0DDA966A-DEE4-4382-905D-C95AFBDCA8D0}" ShortID="381126402">
+									<PropertyList>
+										<Property Name="Volume" Type="Real64">
+											<ValueList>
+												<Value>12</Value>
+											</ValueList>
+										</Property>
+									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -397,6 +511,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="Player_shuffel-cards 4" ID="{44D17309-E8AF-4555-9877-19F9890F0EFD}">
+											<PropertyList>
+												<Property Name="FadeOutDuration" Type="Real64" Value="0.0218334733634382"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimEnd" Type="Real64" Value="0.143130569380325"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>Player_shuffel-cards 4.wav</AudioFile>
 											<MediaIDList>
