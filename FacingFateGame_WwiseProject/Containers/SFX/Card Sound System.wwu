@@ -1393,6 +1393,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="WeaponType_Bow_1" ID="{53C24B6F-F70F-4474-A272-6AEE4E37EDAB}">
+											<PropertyList>
+												<Property Name="LoopBegin" Type="Real64" Value="0.627260975920044"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="0.618251841615986"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>WeaponType_Bow_1.wav</AudioFile>
 											<MediaIDList>
@@ -1415,6 +1420,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="WeaponType_Bow_2" ID="{4B4F937F-FC27-419F-9FC6-1364BFDAF712}">
+											<PropertyList>
+												<Property Name="LoopBegin" Type="Real64" Value="0.592350580491819"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="0.592350580491819"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>WeaponType_Bow_2.wav</AudioFile>
 											<MediaIDList>
@@ -1437,6 +1447,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="WeaponType_Bow_3" ID="{A0E6B3EB-F445-45DC-8AD4-245D45B2ADE4}">
+											<PropertyList>
+												<Property Name="LoopBegin" Type="Real64" Value="0.57545845367171"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="0.57545845367171"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>WeaponType_Bow_3.wav</AudioFile>
 											<MediaIDList>
@@ -1459,6 +1474,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="WeaponType_Bow_4" ID="{5726D303-E465-4E22-94F7-23B33F1A7E64}">
+											<PropertyList>
+												<Property Name="LoopBegin" Type="Real64" Value="0.605864281947906"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="0.605864281947906"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>WeaponType_Bow_4.wav</AudioFile>
 											<MediaIDList>
@@ -1481,6 +1501,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="WeaponType_Bow_5" ID="{C9BBF179-B812-4B97-8C0F-511A2F74C690}">
+											<PropertyList>
+												<Property Name="LoopBegin" Type="Real64" Value="0.614873416251964"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="0.614873416251964"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>WeaponType_Bow_5.wav</AudioFile>
 											<MediaIDList>
@@ -1503,6 +1528,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="WeaponType_Bow_6" ID="{8B5825B4-F9D4-495D-AEB6-E5BECF8D6DD4}">
+											<PropertyList>
+												<Property Name="LoopBegin" Type="Real64" Value="0.608116565523921"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="0.608116565523921"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>WeaponType_Bow_6.wav</AudioFile>
 											<MediaIDList>
@@ -1525,6 +1555,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="WeaponType_Bow_7" ID="{1ACD4D86-80F4-432C-B583-46670E831C41}">
+											<PropertyList>
+												<Property Name="LoopBegin" Type="Real64" Value="0.577710737247725"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="0.577710737247725"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>WeaponType_Bow_7.wav</AudioFile>
 											<MediaIDList>
@@ -1547,6 +1582,11 @@
 									</ReferenceList>
 									<ChildrenList>
 										<AudioFileSource Name="WeaponType_Bow_8" ID="{2FC1ADFD-56F8-4793-A392-EFBFC765682A}">
+											<PropertyList>
+												<Property Name="LoopBegin" Type="Real64" Value="0.599107431219863"/>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="0.599107431219863"/>
+											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>WeaponType_Bow_8.wav</AudioFile>
 											<MediaIDList>
@@ -2474,7 +2514,7 @@
 							<PropertyList>
 								<Property Name="Volume" Type="Real64">
 									<ValueList>
-										<Value>1</Value>
+										<Value>4</Value>
 									</ValueList>
 								</Property>
 							</PropertyList>
@@ -2512,13 +2552,6 @@
 							</ChildrenList>
 						</RandomSequenceContainer>
 						<RandomSequenceContainer Name="Jump" ID="{23C499B1-64D4-45BA-B592-5380D3EA86D7}" ShortID="396912573">
-							<PropertyList>
-								<Property Name="Volume" Type="Real64">
-									<ValueList>
-										<Value>-1</Value>
-									</ValueList>
-								</Property>
-							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
