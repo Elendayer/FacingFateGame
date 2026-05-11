@@ -23,22 +23,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1177212727296
-    m_Localized: 'Dennis - Projekt Manager
-
-
-      Niklas - Lead Programmer
-
-
-      Rapha
-      - UI
-
-
-      Fabian -  Kartendesign
-
-
-      Paul - Sounddesigner & Composer
-
-'
+    m_Localized: "Dennis Schaffner - Projekt Manager\n\nNiklas H\xF6hnk - Lead Programmer\n\nRaphaela
+      Staaden- UI\n\nFabian J\xF6dden-  Kartendesign\n\nPaul Schiewe- Sounddesigner
+      & Composer\n"
     m_Metadata:
       m_Items: []
   - m_Id: 2050189996032

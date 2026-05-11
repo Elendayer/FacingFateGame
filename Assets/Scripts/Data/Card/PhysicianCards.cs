@@ -404,7 +404,7 @@ namespace facingfate
                 soundSwitches = new()
                 {
                     new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
-                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Footstep"},
                     new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },

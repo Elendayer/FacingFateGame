@@ -53,8 +53,7 @@ namespace facingfate
                 // Random priority prevents two agents deadlocking at the same spot
                 navMeshAgent.avoidancePriority = Random.Range(30, 70);
 
-                if (navMeshAgent.stoppingDistance < 0.05f)
-                    navMeshAgent.stoppingDistance = navMeshAgent.radius * 0.5f;
+                navMeshAgent.stoppingDistance = navMeshAgent.radius * 0.5f;
             }
 
             SetIdleState();
@@ -241,9 +240,6 @@ namespace facingfate
                     break;
                 }
                 frameCount++;
-
-                if (frameCount % 10 == 0) // Log every 10 frames to avoid spam
-                    //Debug.Log($"[EntityOnMap] {name}: Frame {frameCount} - pos: {navMeshAgent.transform.position}, remaining: {navMeshAgent.remainingDistance}");
 
                 yield return null;
             }

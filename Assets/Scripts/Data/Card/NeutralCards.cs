@@ -293,7 +293,7 @@ namespace facingfate
                 soundSwitches = new()
                 {
                     new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
-                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Footstep"},
                     new WwiseSwitchEntry { group = "ElementType",        value = "Air"},
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },
@@ -422,7 +422,7 @@ namespace facingfate
                 soundSwitches = new()
                 {
                     new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
-                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Footstep"},
                     new WwiseSwitchEntry { group = "ElementType",        value = "Air"},
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },
@@ -640,6 +640,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Jump"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Air"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 range_u = 3f,
@@ -962,7 +970,7 @@ namespace facingfate
                 soundSwitches = new()
                 {
                     new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
-                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Howl"},
                     new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
                 },
@@ -1022,7 +1030,7 @@ namespace facingfate
                 soundSwitches = new()
                 {
                     new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
-                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Howl"},
                     new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
                 },
@@ -1075,7 +1083,7 @@ namespace facingfate
                 soundSwitches = new()
                 {
                     new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
-                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Warcry"},
                     new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },

@@ -823,6 +823,14 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Shadow },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Magic"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Footstep"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 30,
 
                 range_u = 5f,
