@@ -18,6 +18,8 @@ namespace AK
         static const AkUniqueID PLAY_DMG = 3025804934U;
         static const AkUniqueID PLAY_FOOTSTEP = 1602358412U;
         static const AkUniqueID PLAY_HEAL = 2639148008U;
+        static const AkUniqueID PLAY_HOWL = 2872357316U;
+        static const AkUniqueID PLAY_JUMP = 3689126666U;
         static const AkUniqueID PLAY_SFX_UI_BACK_TO_TITLE_SCREEN = 3206396784U;
         static const AkUniqueID PLAY_SFX_UI_BUTTON_CLICK = 15941370U;
         static const AkUniqueID PLAY_SFX_UI_BUTTON_DROP_DOWN = 1765053760U;
@@ -117,6 +119,7 @@ namespace AK
                 static const AkUniqueID DEFENSE = 2564315215U;
                 static const AkUniqueID HEAL = 3448274447U;
                 static const AkUniqueID MAGIC = 1880439950U;
+                static const AkUniqueID NOACTIONTYPE = 2638894098U;
             } // namespace SWITCH
         } // namespace ACTIONTYPE
 
@@ -126,9 +129,11 @@ namespace AK
 
             namespace SWITCH
             {
+                static const AkUniqueID AIR = 1050421051U;
                 static const AkUniqueID BLOOD = 3934470635U;
+                static const AkUniqueID EARTH = 3747705955U;
                 static const AkUniqueID FIRE = 2678880713U;
-                static const AkUniqueID NOELEMENT = 4009967300U;
+                static const AkUniqueID NOELEMENTTYPE = 1138055084U;
                 static const AkUniqueID POSION = 613188569U;
             } // namespace SWITCH
         } // namespace ELEMENTTYPE
@@ -182,6 +187,8 @@ namespace AK
                 static const AkUniqueID CLAW = 3737052860U;
                 static const AkUniqueID DAGGER = 3732162827U;
                 static const AkUniqueID FIST = 2695658315U;
+                static const AkUniqueID GONG = 685410454U;
+                static const AkUniqueID NOWEAPONTYPE = 1610122752U;
                 static const AkUniqueID POTION = 4272075576U;
                 static const AkUniqueID SPEAR = 573839388U;
             } // namespace SWITCH
