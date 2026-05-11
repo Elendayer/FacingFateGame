@@ -48,6 +48,9 @@ namespace facingfate
                     yield return new WaitForSeconds(repeatDelay);
                 }
 
+                // Reset per-execution sound flag so utility cards get their sound below
+                cardData.SoundFiredThisExecution = false;
+
                 // Use CardActionSequence if available, otherwise fall back to legacy actions
                 if (cardData.cardActionSequence != null && cardData.cardActionSequence.Count > 0)
                 {
@@ -55,6 +58,10 @@ namespace facingfate
                     sequence.actions = new List<CardAction>(cardData.cardActionSequence);
                     yield return sequence.Execute();
                 }
+
+                // Fallback: cards that skip CombatUtility (e.g. draw/discard cards) still need sound
+                if (!cardData.SoundFiredThisExecution)
+                    CardSoundHelper.PlayCardEffect(cardData, source.gameObject);
 
                 yield return null; // wait a frame after applying effects
             }

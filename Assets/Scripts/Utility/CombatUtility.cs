@@ -90,6 +90,7 @@ public static class CombatUtility
         {
             // 5) Card SFX — plays on hit so sound lands with the impact
             CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
+            cardData.SoundFiredThisExecution = true;
 
             // 6) Lifesteal
             if (damage > 0 && cardData.Owner.entityStats.Lifesteal.Value() > 0)
@@ -128,6 +129,7 @@ public static class CombatUtility
         if (cardData != null)
         {
             CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
+            cardData.SoundFiredThisExecution = true;
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, (int)effHeal);
         }
         else
@@ -147,7 +149,7 @@ public static class CombatUtility
         #if UNITY_EDITOR
         if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Buff {mod.ModifierName} to {target.name}");
         #endif
-        if (cardData != null) CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
+        if (cardData != null) { CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject); cardData.SoundFiredThisExecution = true; }
         HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, (int)mod.BaseValue);
     }
 
@@ -160,7 +162,7 @@ public static class CombatUtility
         #if UNITY_EDITOR
         if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
         #endif
-        if (cardData != null) CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
+        if (cardData != null) { CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject); cardData.SoundFiredThisExecution = true; }
         HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);
     }
 
@@ -199,7 +201,7 @@ public static class CombatUtility
         #if UNITY_EDITOR
         if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
         #endif
-        if (cardData != null) CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
+        if (cardData != null) { CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject); cardData.SoundFiredThisExecution = true; }
         HandlePostCombatTrigger(refs, cardData.Owner, EffectOwner, cardData);
     }
 

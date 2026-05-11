@@ -25,6 +25,13 @@ namespace facingfate
         // Leave list empty to post without any switch changes.
         public List<WwiseSwitchEntry> soundSwitches = new();
 
+        /// <summary>
+        /// Set to true by CombatUtility when PlayCardEffect fires during this execution.
+        /// ActionQueueUtility uses this to play a fallback sound for cards that skip CombatUtility.
+        /// Reset at the start of each CardExecutionCoroutine.
+        /// </summary>
+        [System.NonSerialized] public bool SoundFiredThisExecution;
+
         [Header("Visuals")]
         public Sprite cardArtwork;
         public string cardDescription;
