@@ -971,13 +971,6 @@
 							</ChildrenList>
 						</RandomSequenceContainer>
 						<RandomSequenceContainer Name="Buff" ID="{DD6D1B0E-AED0-4398-89D1-F8861C9ED9D5}" ShortID="270936938">
-							<PropertyList>
-								<Property Name="Volume" Type="Real64">
-									<ValueList>
-										<Value>7</Value>
-									</ValueList>
-								</Property>
-							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -1404,7 +1397,7 @@
 							<PropertyList>
 								<Property Name="InitialDelay" Type="Real64">
 									<ValueList>
-										<Value>0.5</Value>
+										<Value>0.3</Value>
 									</ValueList>
 								</Property>
 								<Property Name="Volume" Type="Real64">
@@ -2496,6 +2489,235 @@
 								</Sound>
 							</ChildrenList>
 						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Footstep" ID="{1C0B75C2-CC5D-4129-899C-FD50706DE754}" ShortID="485413681">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<Sound Name="WeaponType_Step_1" ID="{4E8B553F-B8C2-4A49-895F-6400C36ED70C}" ShortID="1042808146">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Step_1" ID="{5C9FA9DD-4430-4A4E-B5F3-ED7F0A34E447}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Step_1.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="908392682"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Step_1" ID="{5C9FA9DD-4430-4A4E-B5F3-ED7F0A34E447}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+							</ChildrenList>
+						</RandomSequenceContainer>
+						<RandomSequenceContainer Name="Jump" ID="{23C499B1-64D4-45BA-B592-5380D3EA86D7}" ShortID="396912573">
+							<PropertyList>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-2</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<Sound Name="WeaponType_Jump_1" ID="{0A168D5F-3D81-4011-BBA9-F0B9A21BE515}" ShortID="20384331">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Jump_1" ID="{A09156F5-034B-4CD0-95E1-48015C412A77}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Jump_1.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="757347146"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Jump_1" ID="{A09156F5-034B-4CD0-95E1-48015C412A77}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="WeaponType_Jump_2" ID="{927AC9D1-4FB2-4B47-B53C-7062136EA6EC}" ShortID="461232381">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Jump_2" ID="{4A805ABB-492E-497B-A089-841B6C21A896}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Jump_2.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="624094989"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Jump_2" ID="{4A805ABB-492E-497B-A089-841B6C21A896}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="WeaponType_Jump_3" ID="{706E7D3E-B130-4B0F-AB3D-C09A91BB56D4}" ShortID="66525199">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Jump_3" ID="{526B8595-F72B-45CB-991C-BE52016F0D84}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Jump_3.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="974406731"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Jump_3" ID="{526B8595-F72B-45CB-991C-BE52016F0D84}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="WeaponType_Jump_4" ID="{EC921DEE-2631-49C6-9A72-D39C741B43CD}" ShortID="811063008">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Jump_4" ID="{7D9D6B05-9C27-4F79-AACF-803087318F19}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Jump_4.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="253953309"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Jump_4" ID="{7D9D6B05-9C27-4F79-AACF-803087318F19}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="WeaponType_Jump_5" ID="{BEB0F55C-9C20-4149-9ECC-56AF49B0BB79}" ShortID="867560961">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Jump_5" ID="{8588BC23-B22E-4744-A2AA-DD9F0319D0E9}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Jump_5.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="803199774"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Jump_5" ID="{8588BC23-B22E-4744-A2AA-DD9F0319D0E9}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="WeaponType_Jump_6" ID="{FA505BCF-CE09-4B65-AB36-BD6FE56EC0B4}" ShortID="237321399">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Jump_6" ID="{514FECF5-DE21-410F-8923-0ACA4C2C7429}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Jump_6.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="818319935"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Jump_6" ID="{514FECF5-DE21-410F-8923-0ACA4C2C7429}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="WeaponType_Jump_7" ID="{6475F442-F00C-4238-AA5D-F63EF9AFBF99}" ShortID="494152633">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Jump_7" ID="{2277A92D-1E2A-4A3F-990A-910626794731}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Jump_7.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="105680168"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Jump_7" ID="{2277A92D-1E2A-4A3F-990A-910626794731}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="WeaponType_Jump_8" ID="{DD410E66-D58D-4614-8920-6BD652BA9A7E}" ShortID="215414165">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{981BC858-F3D8-4324-A15C-1B7CB8CDBD1D}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="WeaponType_Jump_8" ID="{BF571A89-97EA-4578-BD35-39EAED810006}">
+											<Language>SFX</Language>
+											<AudioFile>WeaponType_Jump_8.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="125138092"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="WeaponType_Jump_8" ID="{BF571A89-97EA-4578-BD35-39EAED810006}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+							</ChildrenList>
+						</RandomSequenceContainer>
 					</ChildrenList>
 					<GroupingInfo>
 						<GroupingBehaviorList>
@@ -2521,10 +2743,22 @@
 								<ItemRef Name="Potion" ID="{CCE2986D-AF2B-4793-A44B-31BF2957F35A}"/>
 							</GroupingBehavior>
 							<GroupingBehavior>
+								<ItemRef Name="Jump" ID="{23C499B1-64D4-45BA-B592-5380D3EA86D7}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
+								<ItemRef Name="Footstep" ID="{1C0B75C2-CC5D-4129-899C-FD50706DE754}"/>
+							</GroupingBehavior>
+							<GroupingBehavior>
 								<ItemRef Name="Fist" ID="{FAF6FCE4-7227-4ED1-AD74-DAE40CDE16F8}"/>
 							</GroupingBehavior>
 						</GroupingBehaviorList>
 						<GroupingList>
+							<Grouping>
+								<SwitchRef Name="Footstep" ID="{51BBE91F-DCE4-48E3-B010-720AA10957E0}"/>
+								<ItemList>
+									<ItemRef Name="Footstep" ID="{1C0B75C2-CC5D-4129-899C-FD50706DE754}"/>
+								</ItemList>
+							</Grouping>
 							<Grouping>
 								<SwitchRef Name="Potion" ID="{90B26820-D1E2-4E60-A51A-D61B37AF4E2F}"/>
 								<ItemList>
@@ -2535,6 +2769,12 @@
 								<SwitchRef Name="Claw" ID="{293CEB25-FBFA-4ADD-A16D-E7443F1C46D1}"/>
 								<ItemList>
 									<ItemRef Name="Claw" ID="{0943F436-4DCE-48C2-A8A2-B47F67C81DFA}"/>
+								</ItemList>
+							</Grouping>
+							<Grouping>
+								<SwitchRef Name="Jump" ID="{85F75F2F-928F-4110-9155-71E552D559D4}"/>
+								<ItemList>
+									<ItemRef Name="Jump" ID="{23C499B1-64D4-45BA-B592-5380D3EA86D7}"/>
 								</ItemList>
 							</Grouping>
 							<Grouping>

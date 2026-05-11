@@ -35,6 +35,8 @@
 								<Switch Name="Claw" ID="{293CEB25-FBFA-4ADD-A16D-E7443F1C46D1}"/>
 								<Switch Name="NoWeaponType" ID="{FC62F1E8-6089-4F1F-851C-F490794C54C3}"/>
 								<Switch Name="Gong" ID="{621682B4-09AC-40A4-AC2D-372FF4586A99}"/>
+								<Switch Name="Footstep" ID="{51BBE91F-DCE4-48E3-B010-720AA10957E0}"/>
+								<Switch Name="Jump" ID="{85F75F2F-928F-4110-9155-71E552D559D4}"/>
 							</ChildrenList>
 						</SwitchGroup>
 					</ChildrenList>
