@@ -37,6 +37,8 @@
 								<Switch Name="Gong" ID="{621682B4-09AC-40A4-AC2D-372FF4586A99}"/>
 								<Switch Name="Footstep" ID="{51BBE91F-DCE4-48E3-B010-720AA10957E0}"/>
 								<Switch Name="Jump" ID="{85F75F2F-928F-4110-9155-71E552D559D4}"/>
+								<Switch Name="Howl" ID="{5599398F-6457-4B13-A970-6EC4AECEB420}"/>
+								<Switch Name="Warcry" ID="{55E342E8-A75A-49F9-9E42-1B7B515EE8EA}"/>
 							</ChildrenList>
 						</SwitchGroup>
 					</ChildrenList>
