@@ -315,6 +315,7 @@ namespace facingfate
         private void HandleScrollZoom()
         {
             if (PlayerDetailedStatsPanel.Instance != null && PlayerDetailedStatsPanel.Instance.IsOpen) return;
+            if (CardPilePeekPanel.Instance != null && CardPilePeekPanel.Instance.IsOpen) return;
 
             Mouse mouse = Mouse.current;
             if (mouse == null) return;

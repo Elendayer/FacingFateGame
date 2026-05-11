@@ -632,7 +632,7 @@ namespace facingfate
                 {
                     if (card != null)
                     {
-                        card.transform.SetParent(discardParent);
+                        card.transform.SetParent(discardParent, false);
                         TransformUtility.ZeroLocalRectTransform(card.transform as RectTransform);
                     }
                 }

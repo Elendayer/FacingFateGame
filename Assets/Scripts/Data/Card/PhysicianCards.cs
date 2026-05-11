@@ -28,6 +28,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Heal"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Air"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 20,
                 healing_u = 15,
                 duration_u = 3,
@@ -310,6 +318,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.Poison },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Poison"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 8,
                 power_u = 5,
                 duration_u = 2,
@@ -385,6 +401,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 5,
                 duration_u = 1,
 
@@ -428,6 +452,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 range_u = 2f,
@@ -576,6 +608,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Heal"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 30,
                 healing_u = 25,
                 range_u = 3f,
@@ -625,6 +665,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.Alchemical, CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 25,
                 damage_u = 12,
@@ -683,6 +731,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.Fire },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Fire"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 30,
                 damage_u = 20,
                 secondaryDamage_u = 6,
@@ -732,7 +788,7 @@ namespace facingfate
                                 },
                                 onRef_Action: (targetEntity, cd, value) =>
                                 {
-                                    CombatUtility.ApplyDamage(null, targetEntity, new VFXData("BurnEffect", true), value);
+                                    CombatUtility.ApplyEffectDamage(value, targetEntity, GameplayRef.onBurn, new VFXData("BurnEffect", true));
                                 });
                             CombatUtility.ApplyEntityModifier(cardData, target, burn);
                         }
@@ -748,6 +804,14 @@ namespace facingfate
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Heal"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 15,
                 healing_u = 40,
@@ -785,6 +849,14 @@ namespace facingfate
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 duration_u = 3,
@@ -831,6 +903,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 25,
                 duration_u = 0,
                 power_u = 50,
@@ -875,6 +955,14 @@ namespace facingfate
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 5,
                 power_u = 30,
@@ -934,6 +1022,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 20,
                 duration_u = 3,
                 power_u = 25,
@@ -978,6 +1074,14 @@ namespace facingfate
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 duration_u = 1,
@@ -1024,6 +1128,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Defense"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 10,
                 duration_u = 1,
                 power_u = 50,
@@ -1068,6 +1180,14 @@ namespace facingfate
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Defense"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 18,
                 duration_u = 3,
@@ -1114,6 +1234,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Defense"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 22,
                 duration_u = 0,
                 power_u = 35,
@@ -1158,6 +1286,14 @@ namespace facingfate
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 10,
                 duration_u = 1,
@@ -1204,6 +1340,14 @@ namespace facingfate
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 18,
                 duration_u = 3,
                 power_u = 30,
@@ -1248,6 +1392,14 @@ namespace facingfate
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 22,
                 duration_u = 0,
@@ -1329,6 +1481,14 @@ namespace facingfate
                 cardType = CardType.Item,
                 cardClass = CardClass.Physician,
                 cardIdentities = new() { CardIdentity.Poison },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Potion"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Poison"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 30,
                 damage_u = 5,

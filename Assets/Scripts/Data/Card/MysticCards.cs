@@ -29,8 +29,16 @@ namespace facingfate
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Soul },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Gong"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 40,
-                damage_u = 130,
+                damage_u = 100,
                 range_u = 5f,
 
                 targetingData = new()
@@ -63,6 +71,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 damage_u = 50,
@@ -306,6 +322,14 @@ namespace facingfate
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Melee },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Gong"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 8,
                 power_u = 2,
                 range_u = 5f,
@@ -374,6 +398,14 @@ namespace facingfate
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Melee },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Magic"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 40,
                 range_u = 5f,
 
@@ -407,6 +439,14 @@ namespace facingfate
                 cardType = CardType.Spell,
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Blood },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Magic"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Blood"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 25,
                 range_u = 6f,
@@ -444,6 +484,14 @@ namespace facingfate
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Poison },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Magic"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Poison"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 25,
                 range_u = 6f,
 
@@ -479,6 +527,14 @@ namespace facingfate
                 cardType = CardType.Spell,
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Fire },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Magic"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Fire"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 25,
                 range_u = 6f,
@@ -584,6 +640,14 @@ namespace facingfate
                 cardType = CardType.Spell,
                 cardClass = CardClass.Mystic,
                 cardIdentities = new() { CardIdentity.Fire },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Magic"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Fire"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 45,
                 damage_u = 17,

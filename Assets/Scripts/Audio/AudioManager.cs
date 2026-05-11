@@ -53,6 +53,9 @@ namespace facingfate
         [Tooltip("Status/modifier applied sound")] public AK.Wwise.Event statusAppliedSfx;
         [Tooltip("Modifier expired sound")] public AK.Wwise.Event modifierExpiredSfx;
 
+        [Header("DoT Tick Events")]
+        [Tooltip("DoT damage tick sound — uses Wwise switches (ElementType) per type")] public AK.Wwise.Event dotTickSfx;
+
         [Header("UI Audio Events")]
         [Tooltip("UI panel open sound")] public AK.Wwise.Event uiOpenSfx;
         [Tooltip("UI panel close sound")] public AK.Wwise.Event uiCloseSfx;
@@ -102,6 +105,9 @@ namespace facingfate
             RegisterEvent("DeathSfx", deathSfx);
             RegisterEvent("StatusAppliedSfx", statusAppliedSfx);
             RegisterEvent("ModifierExpiredSfx", modifierExpiredSfx);
+
+            // Register DoT tick event
+            RegisterEvent("DotTickSfx", dotTickSfx);
 
             // Register UI audio events
             RegisterEvent("UiOpenSfx", uiOpenSfx);

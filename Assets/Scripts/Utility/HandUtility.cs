@@ -24,7 +24,7 @@ public class HandUtility : MonoBehaviour
         }
 
         // Move to discard pile
-        cardGO.transform.SetParent(DeckManager.Instance.discardParent);
+        cardGO.transform.SetParent(DeckManager.Instance.discardParent, false);
 
         // Reset card state
         cardScript.SetHidden();

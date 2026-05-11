@@ -8,7 +8,7 @@ using DG.Tweening;
 namespace facingfate
 {
     public class CardPreviewPanel : MonoBehaviour,
-        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerEnterHandler
     {
         public static CardPreviewPanel Instance { get; private set; }
 
@@ -166,7 +166,14 @@ namespace facingfate
             HideRangeIndicator();
         }
 
-        // ── Pointer: cancel targeting on click ────────────────────────────────
+        // ── Pointer: cancel targeting on click / re-show range on enter ──────
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (!IsVisible) return;
+            if (previewCardScript?.cardData != null)
+                AssetManager.Instance?.ShowRangeIndicator(previewCardScript.cardData);
+        }
 
         public void OnPointerClick(PointerEventData eventData)
         {

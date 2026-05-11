@@ -25,6 +25,14 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 25,
                 damage_u = 12,
                 repeats_u = 2,
@@ -67,6 +75,14 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Melee },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 25,
                 damage_u = 40,
 
@@ -105,6 +121,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Earth"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 30,
                 damage_u = 70,
@@ -157,6 +181,14 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Blood"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 10,
                 damage_u = 4,
 
@@ -202,7 +234,15 @@ namespace facingfate
                 cardName = "Salamander Tail Sweep",
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
-                cardIdentities = new() { CardIdentity.Physical },
+                cardIdentities = new() { CardIdentity.Physical, CardIdentity.Fire },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Fire"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 damage_u = 12,
@@ -261,6 +301,14 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 22,
                 damage_u = 14,
 
@@ -314,6 +362,14 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 30,
                 damage_u = 22,
 
@@ -352,6 +408,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Earth"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 damage_u = 12,
@@ -401,6 +465,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
+                },
 
                 cost_u = 10,
                 power_u = 20,
@@ -461,6 +533,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Earth"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 36,
                 damage_u = 20,
@@ -535,6 +615,14 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 20,
                 power_u = 2,
                 duration_u = 1,
@@ -590,6 +678,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Defense"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 damage_u = 60,
@@ -680,6 +776,14 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Defense"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 12,
                 duration_u = 1,
 
@@ -741,6 +845,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 range_u = 2f,
 
@@ -823,6 +935,14 @@ namespace facingfate
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Defense"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 12,
                 damage_u = 30,
 
@@ -901,6 +1021,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Spearman,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Defense"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 40,
                 power_u = 15,

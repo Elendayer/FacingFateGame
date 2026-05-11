@@ -10,6 +10,7 @@ namespace facingfate
     public class CardPilePeekPanel : MonoBehaviour
     {
         public static CardPilePeekPanel Instance { get; private set; }
+        public bool IsOpen => popupRoot != null && popupRoot.activeSelf;
 
         // ── HUD count texts (always show active-player counts) ─────────────────
         [Header("HUD Count Texts")]

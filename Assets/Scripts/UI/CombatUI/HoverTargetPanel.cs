@@ -28,6 +28,12 @@ namespace facingfate
             canvasGroup.alpha = 0f;
         }
 
+        private void Update()
+        {
+            if (boundEntity != null)
+                Refresh();
+        }
+
         private void OnDisable()
         {
             // Clear highlight when panel is disabled

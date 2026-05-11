@@ -28,6 +28,7 @@ public static class CombatUtility
         target.entityStats.UpdateStats();
 
         HandleOnDamageVFX(vfxData, target);
+        CardSoundHelper.PlayDoTTick(dotType, target.gameObject);
 
         HandlePostCombatTrigger(refs, target, target, null, (int)rawDamage);
     }
@@ -126,8 +127,8 @@ public static class CombatUtility
         }
         if (cardData != null)
         {
+            CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
             HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, (int)effHeal);
-
         }
         else
         {
@@ -146,6 +147,7 @@ public static class CombatUtility
         #if UNITY_EDITOR
         if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Buff {mod.ModifierName} to {target.name}");
         #endif
+        if (cardData != null) CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
         HandlePostCombatTrigger(refs, cardData.Owner, target, cardData, (int)mod.BaseValue);
     }
 
@@ -158,6 +160,7 @@ public static class CombatUtility
         #if UNITY_EDITOR
         if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Debuff {mod.ModifierName} to {target.name}");
         #endif
+        if (cardData != null) CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
         HandlePostCombatTrigger(refs, cardData.Owner, target, cardData);
     }
 
@@ -196,6 +199,7 @@ public static class CombatUtility
         #if UNITY_EDITOR
         if (ENABLE_COMBAT_LOGGING) Debug.Log($"Applied Modifier {mod.ModifierName} to {EffectOwner.name}");
         #endif
+        if (cardData != null) CardSoundHelper.PlayCardEffect(cardData, cardData.Owner.gameObject);
         HandlePostCombatTrigger(refs, cardData.Owner, EffectOwner, cardData);
     }
 
