@@ -18,7 +18,7 @@
 						<SwitchGroup Name="ElementType" ID="{C667C8E7-EDAD-437F-974B-64F2D7A6A882}">
 							<ChildrenList>
 								<Switch Name="Fire" ID="{E013E47E-D849-4F65-B66D-24A128DF2761}"/>
-								<Switch Name="Posion" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
+								<Switch Name="Poison" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
 								<Switch Name="Blood" ID="{AC8B01B7-D3DB-4E11-86ED-1E8C2385FF15}"/>
 								<Switch Name="Air" ID="{72402775-E51A-4416-9A69-6E9AFCFFCA47}"/>
 								<Switch Name="Earth" ID="{AD91D7C9-E0C3-4AFC-BF81-F63303C817B3}"/>

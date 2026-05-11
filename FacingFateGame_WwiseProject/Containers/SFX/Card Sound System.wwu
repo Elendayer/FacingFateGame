@@ -640,7 +640,7 @@
 								</ItemList>
 							</Grouping>
 							<Grouping>
-								<SwitchRef Name="Posion" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
+								<SwitchRef Name="Poison" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
 								<ItemList>
 									<ItemRef Name="Poison" ID="{31C61BEB-6C7F-4C15-B6E1-437C2A3C12FA}"/>
 								</ItemList>
@@ -1402,6 +1402,11 @@
 					<ChildrenList>
 						<RandomSequenceContainer Name="Bow" ID="{53B4FE54-DDC7-48F5-9935-CF232EF89A6A}" ShortID="750176987">
 							<PropertyList>
+								<Property Name="InitialDelay" Type="Real64">
+									<ValueList>
+										<Value>0.5</Value>
+									</ValueList>
+								</Property>
 								<Property Name="Volume" Type="Real64">
 									<ValueList>
 										<Value>-1</Value>
@@ -3399,7 +3404,7 @@
 						</GroupingBehaviorList>
 						<GroupingList>
 							<Grouping>
-								<SwitchRef Name="Posion" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
+								<SwitchRef Name="Poison" ID="{8A118C7D-BF2A-461D-8231-D4C3E441157F}"/>
 								<ItemList>
 									<ItemRef Name="PosionTick" ID="{C80515C4-C675-4A23-94D7-135763FA8B8A}"/>
 								</ItemList>

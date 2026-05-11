@@ -134,7 +134,7 @@ namespace AK
                 static const AkUniqueID EARTH = 3747705955U;
                 static const AkUniqueID FIRE = 2678880713U;
                 static const AkUniqueID NOELEMENTTYPE = 1138055084U;
-                static const AkUniqueID POSION = 613188569U;
+                static const AkUniqueID POISON = 1413156513U;
             } // namespace SWITCH
         } // namespace ELEMENTTYPE
 
