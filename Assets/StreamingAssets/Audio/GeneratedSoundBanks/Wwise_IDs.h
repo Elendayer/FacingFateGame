@@ -189,10 +189,12 @@ namespace AK
                 static const AkUniqueID FIST = 2695658315U;
                 static const AkUniqueID FOOTSTEP = 1866025847U;
                 static const AkUniqueID GONG = 685410454U;
+                static const AkUniqueID HOWL = 3550514391U;
                 static const AkUniqueID JUMP = 3833651337U;
                 static const AkUniqueID NOWEAPONTYPE = 1610122752U;
                 static const AkUniqueID POTION = 4272075576U;
                 static const AkUniqueID SPEAR = 573839388U;
+                static const AkUniqueID WARCRY = 2228377287U;
             } // namespace SWITCH
         } // namespace WEAPONTYPE
 
