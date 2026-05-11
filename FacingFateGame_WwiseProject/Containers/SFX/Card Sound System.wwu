@@ -234,7 +234,7 @@
 							<PropertyList>
 								<Property Name="Volume" Type="Real64">
 									<ValueList>
-										<Value>-9</Value>
+										<Value>-7</Value>
 									</ValueList>
 								</Property>
 							</PropertyList>
@@ -247,7 +247,7 @@
 								</Reference>
 							</ReferenceList>
 							<ChildrenList>
-								<Sound Name="Element_Poison_1" ID="{52DBB8D4-6054-4994-B316-2D2B77D821DA}" ShortID="286876959">
+								<Sound Name="ElementType_Poison_V03_1" ID="{4E120785-D6DC-4CD5-8888-57BC9D6C0C39}" ShortID="40601479">
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -257,26 +257,19 @@
 										</Reference>
 									</ReferenceList>
 									<ChildrenList>
-										<AudioFileSource Name="Element_Poison_1" ID="{75C34183-0104-41ED-BECD-FD6880346E16}">
+										<AudioFileSource Name="ElementType_Poison_V03_1" ID="{B6592B9C-A76E-44EF-96AD-11D288184170}">
 											<Language>SFX</Language>
-											<AudioFile>Element_Poison_1.wav</AudioFile>
+											<AudioFile>ElementType_Poison_V03_1.wav</AudioFile>
 											<MediaIDList>
-												<MediaID ID="764941108"/>
-											</MediaIDList>
-										</AudioFileSource>
-										<AudioFileSource Name="Element_Poison_01" ID="{898340E4-E9B5-4ABE-B04B-EA8D6ADF8AF0}">
-											<Language>SFX</Language>
-											<AudioFile>Element_Poison_1.wav</AudioFile>
-											<MediaIDList>
-												<MediaID ID="764941108"/>
+												<MediaID ID="109293219"/>
 											</MediaIDList>
 										</AudioFileSource>
 									</ChildrenList>
 									<ActiveSourceList>
-										<ActiveSource Name="Element_Poison_01" ID="{898340E4-E9B5-4ABE-B04B-EA8D6ADF8AF0}" Platform="Linked"/>
+										<ActiveSource Name="ElementType_Poison_V03_1" ID="{B6592B9C-A76E-44EF-96AD-11D288184170}" Platform="Linked"/>
 									</ActiveSourceList>
 								</Sound>
-								<Sound Name="Element_Poison_2" ID="{FD92FD9D-01D2-4375-8521-3E35AD7032CD}" ShortID="319511255">
+								<Sound Name="ElementType_Poison_V03_2" ID="{D5DDC583-0E5A-49C1-AA2B-A434230828AF}" ShortID="271824028">
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -286,26 +279,19 @@
 										</Reference>
 									</ReferenceList>
 									<ChildrenList>
-										<AudioFileSource Name="Element_Poison_2" ID="{1B8B53C2-D62D-40C8-BFC6-91563305059A}">
+										<AudioFileSource Name="ElementType_Poison_V03_2" ID="{BE881EBF-EBCF-4E22-8815-B770B4A12AE2}">
 											<Language>SFX</Language>
-											<AudioFile>Element_Poison_2.wav</AudioFile>
+											<AudioFile>ElementType_Poison_V03_2.wav</AudioFile>
 											<MediaIDList>
-												<MediaID ID="958267014"/>
-											</MediaIDList>
-										</AudioFileSource>
-										<AudioFileSource Name="Element_Poison_01" ID="{A5EFE090-89CF-4A91-A84C-6D0C3F2E3384}">
-											<Language>SFX</Language>
-											<AudioFile>Element_Poison_2.wav</AudioFile>
-											<MediaIDList>
-												<MediaID ID="958267014"/>
+												<MediaID ID="298065662"/>
 											</MediaIDList>
 										</AudioFileSource>
 									</ChildrenList>
 									<ActiveSourceList>
-										<ActiveSource Name="Element_Poison_01" ID="{A5EFE090-89CF-4A91-A84C-6D0C3F2E3384}" Platform="Linked"/>
+										<ActiveSource Name="ElementType_Poison_V03_2" ID="{BE881EBF-EBCF-4E22-8815-B770B4A12AE2}" Platform="Linked"/>
 									</ActiveSourceList>
 								</Sound>
-								<Sound Name="Element_Poison_3" ID="{78B495F3-82EA-473C-B6DE-FBE4B8767FE0}" ShortID="101459080">
+								<Sound Name="ElementType_Poison_V03_3" ID="{8AB48459-72C5-481D-A149-C6E5DC2E7D5B}" ShortID="55363268">
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -315,26 +301,19 @@
 										</Reference>
 									</ReferenceList>
 									<ChildrenList>
-										<AudioFileSource Name="Element_Poison_3" ID="{79C2F036-2C38-491F-9977-E2B7587A79EE}">
+										<AudioFileSource Name="ElementType_Poison_V03_3" ID="{C80B9016-7355-4181-AAFA-940BCC320847}">
 											<Language>SFX</Language>
-											<AudioFile>Element_Poison_3.wav</AudioFile>
+											<AudioFile>ElementType_Poison_V03_3.wav</AudioFile>
 											<MediaIDList>
-												<MediaID ID="720595378"/>
-											</MediaIDList>
-										</AudioFileSource>
-										<AudioFileSource Name="Element_Poison_01" ID="{B6F7E5B0-1C6D-4A69-8D0F-76D326FEA93C}">
-											<Language>SFX</Language>
-											<AudioFile>Element_Poison_3.wav</AudioFile>
-											<MediaIDList>
-												<MediaID ID="720595378"/>
+												<MediaID ID="719169745"/>
 											</MediaIDList>
 										</AudioFileSource>
 									</ChildrenList>
 									<ActiveSourceList>
-										<ActiveSource Name="Element_Poison_01" ID="{B6F7E5B0-1C6D-4A69-8D0F-76D326FEA93C}" Platform="Linked"/>
+										<ActiveSource Name="ElementType_Poison_V03_3" ID="{C80B9016-7355-4181-AAFA-940BCC320847}" Platform="Linked"/>
 									</ActiveSourceList>
 								</Sound>
-								<Sound Name="Element_Poison_4" ID="{14234769-1018-4320-ACBE-67B8BDAD06AD}" ShortID="886451121">
+								<Sound Name="ElementType_Poison_V03_4" ID="{13F7A05D-40B1-44F3-AF75-750E75FAAE92}" ShortID="93090907">
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B226353A-A3A9-4596-A9E6-ACF468C19D69}"/>
@@ -344,23 +323,16 @@
 										</Reference>
 									</ReferenceList>
 									<ChildrenList>
-										<AudioFileSource Name="Element_Poison_4" ID="{F00628FA-6FFE-43B8-B00E-486FB303FE78}">
+										<AudioFileSource Name="ElementType_Poison_V03_4" ID="{5CCCB095-1034-4E12-B6AD-C93E50253DD3}">
 											<Language>SFX</Language>
-											<AudioFile>Element_Poison_4.wav</AudioFile>
+											<AudioFile>ElementType_Poison_V03_4.wav</AudioFile>
 											<MediaIDList>
-												<MediaID ID="759256407"/>
-											</MediaIDList>
-										</AudioFileSource>
-										<AudioFileSource Name="Element_Poison_01" ID="{91380566-388A-426F-ADE7-CE6ACE41E3B1}">
-											<Language>SFX</Language>
-											<AudioFile>Element_Poison_4.wav</AudioFile>
-											<MediaIDList>
-												<MediaID ID="759256407"/>
+												<MediaID ID="872464928"/>
 											</MediaIDList>
 										</AudioFileSource>
 									</ChildrenList>
 									<ActiveSourceList>
-										<ActiveSource Name="Element_Poison_01" ID="{91380566-388A-426F-ADE7-CE6ACE41E3B1}" Platform="Linked"/>
+										<ActiveSource Name="ElementType_Poison_V03_4" ID="{5CCCB095-1034-4E12-B6AD-C93E50253DD3}" Platform="Linked"/>
 									</ActiveSourceList>
 								</Sound>
 							</ChildrenList>
@@ -374,7 +346,7 @@
 								</Property>
 								<Property Name="Volume" Type="Real64">
 									<ValueList>
-										<Value>-4</Value>
+										<Value>-2</Value>
 									</ValueList>
 								</Property>
 							</PropertyList>
