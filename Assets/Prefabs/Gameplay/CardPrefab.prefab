@@ -590,8 +590,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Reduce Armour by 50%. Deal 30 Damage.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3eb9d4a40d75b37428b89e716638d736, type: 2}
-  m_sharedMaterial: {fileID: 575644227078918131, guid: 3eb9d4a40d75b37428b89e716638d736, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1ab0fe6695ac00942be2f255841429f8, type: 2}
+  m_sharedMaterial: {fileID: 1052336684814013850, guid: 1ab0fe6695ac00942be2f255841429f8, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -615,7 +615,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17.2
+  m_fontSize: 17.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -820,8 +820,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ae8047c6bca1ccb45ad861e7692e56d8, type: 2}
-  m_sharedMaterial: {fileID: 4297727645629399379, guid: ae8047c6bca1ccb45ad861e7692e56d8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1ab0fe6695ac00942be2f255841429f8, type: 2}
+  m_sharedMaterial: {fileID: 1052336684814013850, guid: 1ab0fe6695ac00942be2f255841429f8, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1762,8 +1762,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Enemy, 5.1m Range, 2.5m Sphere
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3eb9d4a40d75b37428b89e716638d736, type: 2}
-  m_sharedMaterial: {fileID: 575644227078918131, guid: 3eb9d4a40d75b37428b89e716638d736, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1ab0fe6695ac00942be2f255841429f8, type: 2}
+  m_sharedMaterial: {fileID: 1052336684814013850, guid: 1ab0fe6695ac00942be2f255841429f8, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

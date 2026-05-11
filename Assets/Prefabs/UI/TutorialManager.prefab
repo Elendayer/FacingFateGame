@@ -58,6 +58,9 @@ MonoBehaviour:
     allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights: []
   - localizedText:
       m_TableReference:
@@ -72,9 +75,15 @@ MonoBehaviour:
     allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights:
     - target: {fileID: 0}
-      direction: 2
+      worldTarget: {fileID: 0}
+      direction: 1
+      worldTargetOffset: {x: 0, y: 0}
+      visibilityDrivenBy: {fileID: 0}
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -88,9 +97,15 @@ MonoBehaviour:
     allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights:
     - target: {fileID: 0}
-      direction: 3
+      worldTarget: {fileID: 0}
+      direction: 2
+      worldTargetOffset: {x: 0, y: 0}
+      visibilityDrivenBy: {fileID: 0}
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -100,16 +115,24 @@ MonoBehaviour:
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    condition: 1
-    allowedCardIds:
-    - Neutral_Tech_Strike
+    condition: 0
+    allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights:
     - target: {fileID: 0}
-      direction: 3
-    - target: {fileID: 0}
+      worldTarget: {fileID: 0}
       direction: 1
+      worldTargetOffset: {x: 50, y: 0}
+      visibilityDrivenBy: {fileID: 0}
+    - target: {fileID: 0}
+      worldTarget: {fileID: 0}
+      direction: 3
+      worldTargetOffset: {x: 0, y: 0}
+      visibilityDrivenBy: {fileID: 0}
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -119,13 +142,15 @@ MonoBehaviour:
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    condition: 0
-    allowedCardIds: []
+    condition: 1
+    allowedCardIds:
+    - Neutral_Tech_Strike
     lockEndTurn: 1
     unlockAll: 0
-    highlights:
-    - target: {fileID: 0}
-      direction: 3
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
+    highlights: []
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -139,6 +164,9 @@ MonoBehaviour:
     allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights: []
   - localizedText:
       m_TableReference:
@@ -149,15 +177,24 @@ MonoBehaviour:
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    condition: 0
+    condition: 5
     allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 0
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights:
     - target: {fileID: 0}
-      direction: 3
+      worldTarget: {fileID: 0}
+      direction: 2
+      worldTargetOffset: {x: 0, y: 50}
+      visibilityDrivenBy: {fileID: 0}
     - target: {fileID: 0}
-      direction: 3
+      worldTarget: {fileID: 0}
+      direction: 2
+      worldTargetOffset: {x: 0, y: 50}
+      visibilityDrivenBy: {fileID: 0}
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -167,13 +204,15 @@ MonoBehaviour:
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    condition: 0
-    allowedCardIds: []
+    condition: 1
+    allowedCardIds:
+    - Spear_Tech_Heavens_Spear
     lockEndTurn: 1
     unlockAll: 0
-    highlights:
-    - target: {fileID: 0}
-      direction: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
+    highlights: []
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -187,9 +226,15 @@ MonoBehaviour:
     allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights:
     - target: {fileID: 0}
+      worldTarget: {fileID: 0}
       direction: 0
+      worldTargetOffset: {x: 0, y: 0}
+      visibilityDrivenBy: {fileID: 0}
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -203,9 +248,15 @@ MonoBehaviour:
     allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights:
     - target: {fileID: 0}
-      direction: 0
+      worldTarget: {fileID: 0}
+      direction: 1
+      worldTargetOffset: {x: 0, y: 0}
+      visibilityDrivenBy: {fileID: 0}
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -215,13 +266,19 @@ MonoBehaviour:
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    condition: 0
+    condition: 3
     allowedCardIds: []
     lockEndTurn: 0
-    unlockAll: 1
+    unlockAll: 0
+    lockMovement: 1
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights:
     - target: {fileID: 0}
-      direction: 3
+      worldTarget: {fileID: 0}
+      direction: 2
+      worldTargetOffset: {x: 0, y: 0}
+      visibilityDrivenBy: {fileID: 0}
   - localizedText:
       m_TableReference:
         m_TableCollectionName: GUID:81577f562cf5c1f4a92e57e7d8b77d62
@@ -235,6 +292,9 @@ MonoBehaviour:
     allowedCardIds: []
     lockEndTurn: 1
     unlockAll: 0
+    lockMovement: 0
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
     highlights: []
   - localizedText:
       m_TableReference:
@@ -245,21 +305,32 @@ MonoBehaviour:
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    condition: 0
+    condition: 4
     allowedCardIds: []
     lockEndTurn: 0
     unlockAll: 1
-    highlights:
-    - target: {fileID: 0}
-      direction: 3
+    lockMovement: 0
+    movementTarget: {fileID: 0}
+    movementThreshold: 1.5
+    highlights: []
   overlayUI: {fileID: 0}
   highlightArrow: {fileID: 0}
   endTurnButton: {fileID: 0}
+  playerTransform: {fileID: 0}
+  entitySpawnParent: {fileID: 0}
   enemyWaves:
   - stepIndex: 0
-    enemies:
-    - {fileID: 0}
-  mainMenuSceneName: Titlescreen
+    affiliation: 2
+    entries:
+    - npcId: Npc_Tutorial_Dummy
+      spawnPoint: {fileID: 0}
+      healthOverride: 5
+  - stepIndex: 7
+    affiliation: 2
+    entries:
+    - npcId: Npc_Tutorial_Dummy
+      spawnPoint: {fileID: 0}
+      healthOverride: 0
   references:
     version: 2
     RefIds: []

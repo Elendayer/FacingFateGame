@@ -35,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 116, y: -23.46997}
+  m_AnchoredPosition: {x: 116, y: -23.469727}
   m_SizeDelta: {x: 200, y: 30.939999}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3443746292176680731
@@ -68,7 +68,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f9528e9e22df6e04c9a23fe845d00f84, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1ab0fe6695ac00942be2f255841429f8, type: 2}
   m_sharedMaterial: {fileID: 575644227078918131, guid: f9528e9e22df6e04c9a23fe845d00f84, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -135,7 +135,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: -0.75024414}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &796343191846959215
@@ -193,7 +193,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 116, y: -77.61499}
+  m_AnchoredPosition: {x: 116, y: -77.615234}
   m_SizeDelta: {x: 200, y: 77.34998}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4546051787819150303
@@ -226,7 +226,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Tooltip Description Text Very boring stuff to be honest.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f9528e9e22df6e04c9a23fe845d00f84, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1ab0fe6695ac00942be2f255841429f8, type: 2}
   m_sharedMaterial: {fileID: 575644227078918131, guid: f9528e9e22df6e04c9a23fe845d00f84, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -293,7 +293,7 @@ MonoBehaviour:
   m_margin: {x: 1, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &6215307072505713603
