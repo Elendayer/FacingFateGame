@@ -260,7 +260,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.RingSelf,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to enemies in a ring. Inflict 5 Burn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} damage to enemies in a ring. Inflict {SecondaryDamage} Burn.",
 
                 cardActionSequence = new()
                 {

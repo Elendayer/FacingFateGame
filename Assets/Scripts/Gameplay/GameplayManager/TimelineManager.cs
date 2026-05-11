@@ -41,9 +41,10 @@ namespace facingfate
             if (triggerRef.OnTriggerReference.Contains(GameplayRef.onTurnStart))
             {
                 string roundIndex = TurnManager.Instance.CurrentRoundIndex.ToString();
+                string entityId = triggerRef.UserEntity.GetInstanceID().ToString();
                 string entityName = triggerRef.UserEntity.name;
 
-                string key = string.Concat(roundIndex, "_", entityName);
+                string key = string.Concat(roundIndex, "_", entityName, "_", entityId);
 
                 Timeline.TryAdd(key, new() { triggerRef });
             }
@@ -65,7 +66,7 @@ namespace facingfate
                 .Select(kvp => new { Key = kvp.Key, Triggers = kvp.Value })
                 .SelectMany(t =>
                 {
-                    // Extract turn index from key
+                    // Extract turn index from key (format: "roundIndex_entityName_entityId")
                     var split = t.Key.Split('_');
                     int turnIndex = int.Parse(split.First());
                     return t.Triggers.Select(tr => new { Trigger = tr, Turn = turnIndex });

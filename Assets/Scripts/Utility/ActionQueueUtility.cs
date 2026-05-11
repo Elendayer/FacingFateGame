@@ -91,14 +91,42 @@ namespace facingfate
             Action onComplete)
         {
             Vector3 startPos = entityOnMap.transform.position;
+            Vector3 endPos = entityOnMap.transform.position;
 
+            // Execute movement and capture actual end position
             yield return entityOnMap.StartMoveRoutineWithPath(pathData);
 
-            // Update entity stats after movement completes
+            // Get the actual position the entity ended up at
+            endPos = entityOnMap.transform.position;
+
+            // Calculate the actual distance traveled
+            float distanceTraveled = Vector3.Distance(startPos, endPos);
+
+            // For partial paths, measure expected distance to the last reachable corner, not the unreachable goal
+            Vector3 expectedEndPos = pathData.End;
+            if (pathData.CachedNavMeshPath.status == UnityEngine.AI.NavMeshPathStatus.PathPartial && 
+                pathData.CachedNavMeshPath.corners.Length > 0)
+            {
+                expectedEndPos = pathData.CachedNavMeshPath.corners[pathData.CachedNavMeshPath.corners.Length - 1];
+            }
+
+            float expectedDistance = Vector3.Distance(startPos, expectedEndPos);
+
+            // CRITICAL FIX: Only update stats and fire events if movement actually occurred
+            // If distanceTraveled is very small and expected distance was significant, movement failed
+            const float MOVEMENT_THRESHOLD = 0.1f;
+            bool movementSucceeded = distanceTraveled > MOVEMENT_THRESHOLD || expectedDistance < MOVEMENT_THRESHOLD;
+
+            if (!movementSucceeded)
+            {
+                Debug.LogWarning($"[ActionQueueUtility] Movement for {entityOnMap.name} failed silently! Expected to travel {expectedDistance:F2}m to {expectedEndPos}, actually traveled {distanceTraveled:F2}m to {endPos}. Path may have been blocked.");
+            }
+
+            // Update entity stats after movement (only if movement occurred)
             EntityScript entityScript = entityOnMap.GetComponent<EntityScript>();
             if (entityScript != null)
             {
-                OpportunityAttackSystem.CheckAndFireOA(entityScript, startPos, entityOnMap.transform.position);
+                OpportunityAttackSystem.CheckAndFireOA(entityScript, startPos, endPos);
                 entityScript.entityStats.UpdateStats();
             }
 
@@ -108,6 +136,7 @@ namespace facingfate
                 CombatUIController.Instance.RefreshAll();
             }
 
+            // Signal completion
             onComplete?.Invoke();
         }
 

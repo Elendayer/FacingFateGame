@@ -10,11 +10,11 @@ namespace facingfate
     public class NpcAIController
     {
         // Set to false in Release builds to eliminate 49ms+ frame time from Debug.Log overhead
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
+        private const bool ENABLE_AI_LOGGING = false;
+#else
                 private const bool ENABLE_AI_LOGGING = false;
-        #else
-                private const bool ENABLE_AI_LOGGING = false;
-        #endif
+#endif
 
         private readonly NonPlayerScript npcScript;
         private readonly NpcAiBias npcAIBias;
@@ -593,10 +593,26 @@ namespace facingfate
             List<PlannedAction> plan = new();
             var playedCards = new HashSet<CardScript>();
 
+            // Clear hand at start of turn to prevent card reuse from previous turns
+            hand.Clear();
+
             DrawCard();
 
+            // CRITICAL: Switch to MOVING state for the entire turn duration
+            // This ensures the NavMesh is consistent during both planning and execution
+            NavMeshObstacle npcObstacle = npcScript.GetComponent<EntityOnMap>()?.GetComponent<NavMeshObstacle>();
+            if (npcObstacle != null && npcObstacle.enabled)
+            {
+                npcObstacle.enabled = false;
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Switched to MOVING state for turn planning and execution");
+
+                // Give NavMesh time to rebuild after disabling the obstacle
+                yield return null;
+                yield return null;
+            }
+
             // Execute the turn planning
-            yield return ExecuteTurnPlanning(plan, playedCards);
+            yield return ExecuteTurnPlanning(plan, playedCards, npcObstacle);
 
             onComplete?.Invoke(plan);
         }
@@ -629,6 +645,19 @@ namespace facingfate
 
             if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: ExecutePlannedActionsCoroutine starting with {plan.Count} actions");
 
+            // Calculate total stamina cost for the entire plan and deduct it once
+            int totalPlanCost = 0;
+            foreach (var action in plan)
+            {
+                totalPlanCost += action.Cost;
+            }
+
+            if (totalPlanCost > 0)
+            {
+                npcScript.entityStats.CurrentStamina -= totalPlanCost;
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Deducted {totalPlanCost} stamina for planned actions. Remaining: {npcScript.entityStats.CurrentStamina}");
+            }
+
             int actionsCompleted = 0;
 
             // Execute actions in the order they were planned (Move → Card → Move → Card, etc.)
@@ -648,8 +677,19 @@ namespace facingfate
                         // This transitions the entity from IDLE → MOVING state and uses the cached NavMeshPath
                         if (action.PathData != null && action.PathData.CachedNavMeshPath != null && action.PathData.CachedNavMeshPath.corners.Length > 0)
                         {
-                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: About to enqueue movement action");
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: About to enqueue movement action to position {action.PathData.End}");
+
+                            // Fire gameplay event for AI movement actions (repositioning, fleeing, chasing)
+                            var movementEventRefs = DetermineMovementEventRefs(action.Name);
+                            if (movementEventRefs != null && movementEventRefs.Count > 0)
+                            {
+                                GameEvents.TriggerRefEvent(new ToSendTriggerReference(movementEventRefs, npcScript, new List<EntityScript>(), throughput: action.PathCost));
+                                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Fired movement event for action '{action.Name}' with refs: {string.Join(", ", movementEventRefs)}");
+                            }
+
                             ActionQueueUtility.EnqueueMovement(mover, action.PathData, actionCallback);
+
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Movement enqueued. Path has {action.PathData.CachedNavMeshPath.corners.Length} corners, total cost: {action.PathData.PathCost}");
                         }
                         else
                         {
@@ -663,7 +703,20 @@ namespace facingfate
                         // The card effect may include additional movement as part of its sequence
                         if (action.Card != null && action.Card.cardData != null)
                         {
-                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: About to enqueue card execution");
+                            // Get NPC's actual current position after movement
+                            Vector3 actualPosition = mover.transform.position;
+                            action.TargetingModeData.castingPosition = actualPosition;
+
+                            // DIAGNOSTIC: Verify we're actually in range of all targets
+                            // With the planning fix, this should always pass; if not, log a diagnostic warning
+                            bool inRangeOfAllTargets = VerifyCardRange(action.Card, action.TargetingModeData, actualPosition);
+
+                            if (!inRangeOfAllTargets)
+                            {
+                                if (ENABLE_AI_LOGGING) Debug.LogWarning($"[NpcAI] {npcScript.name}: DIAGNOSTIC: Card '{action.Card.cardData.cardName}' still out of range at execution (this should not happen with corrected planning). Position: {actualPosition}");
+                            }
+
+                            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: About to enqueue card execution from position {actualPosition}");
                             ActionQueueUtility.EnqueueCardExecution(
                                 npcScript,
                                 action.Card.cardData,
@@ -695,6 +748,32 @@ namespace facingfate
                     yield return null;
                 }
 
+                // After a Move action completes, verify the NPC is at or very close to the target position
+                // This prevents card casting from an incorrect position if movement was interrupted
+                if (action.Type == PlannedAction.ActionType.Move && action.PathData != null)
+                {
+                    // For partial paths, verify against the last reachable corner, not the unreachable goal
+                    Vector3 targetPos = action.PathData.End;
+                    if (action.PathData.CachedNavMeshPath.status == NavMeshPathStatus.PathPartial && 
+                        action.PathData.CachedNavMeshPath.corners.Length > 0)
+                    {
+                        targetPos = action.PathData.CachedNavMeshPath.corners[action.PathData.CachedNavMeshPath.corners.Length - 1];
+                    }
+
+                    float verifyDistance = Vector3.Distance(mover.transform.position, targetPos);
+                    const float POSITION_TOLERANCE = 0.5f; // Allow small tolerance for NavMesh snapping
+
+                    // If NPC didn't reach close enough to the target, log a warning
+                    if (verifyDistance > POSITION_TOLERANCE)
+                    {
+                        if (ENABLE_AI_LOGGING) Debug.LogWarning($"[NpcAI] {npcScript.name}: Movement verification failed! Expected position {targetPos}, actual {mover.transform.position}, distance: {verifyDistance:F2}");
+                    }
+                    else if (ENABLE_AI_LOGGING)
+                    {
+                        Debug.Log($"[NpcAI] {npcScript.name}: Movement verified - NPC at target position {mover.transform.position}");
+                    }
+                }
+
                 actionsCompleted++;
                 if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Action {actionsCompleted}/{plan.Count} completed: {action.Name}");
             }
@@ -703,7 +782,7 @@ namespace facingfate
             onComplete?.Invoke();
         }
 
-        private IEnumerator ExecuteTurnPlanning(List<PlannedAction> plan, HashSet<CardScript> playedCards)
+        private IEnumerator ExecuteTurnPlanning(List<PlannedAction> plan, HashSet<CardScript> playedCards, NavMeshObstacle npcObstacle)
         {
             float startTime = Time.realtimeSinceStartup;
             Vector3 virtualPosition = mover.transform.position;
@@ -726,12 +805,12 @@ namespace facingfate
                     cachedEnemies.Add(entity);
             }
 
-            if (ENABLE_AI_LOGGING) 
+            if (ENABLE_AI_LOGGING)
             {
                 Debug.Log($"[NpcAI][ExecuteTurnPlanning] Starting turn planning for {npcScript.name}");
                 Debug.Log($"[NpcAI][ExecuteTurnPlanning] Initial stamina: {virtualStamina}, Position: {virtualPosition}, Hand: {hand.Count} cards");
                 Debug.Log($"[NpcAI][ExecuteTurnPlanning] Cached entities - Enemies: {cachedEnemies.Count}, Allies: {cachedAllies.Count}");
-       
+
                 if (hand.Count > 0)
                 {
                     Debug.Log($"[NpcAI][ExecuteTurnPlanning] Cards in hand: {string.Join(", ", hand.Select(c => c?.cardData?.cardName ?? "NULL"))}");
@@ -904,7 +983,6 @@ namespace facingfate
                     // For movement-only actions (chase/reposition), record the full action with cost
                     // For card actions with movement, record the movement separately BEFORE the card
                     // This ensures: MOVE TO RANGE → THEN CAST CARD
-                    bool isCardAction = bestAction.executionOption == CardExecutionOption.PlayCard && bestAction.card != null;
 
                     plan.Add(new PlannedAction
                     {
@@ -918,8 +996,45 @@ namespace facingfate
 
                     if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] Recorded movement: cost={bestAction.pathData.PathCost}, position={bestAction.pathData.End}");
 
+                    // VISUALIZATION: Visualize the planned movement at plan-time
+                    // Show this is the movement that will position the NPC for the card cast
+                    // For partial paths, show the actual reachable endpoint (last corner), not the intended goal
+                    Vector3 visualTarget = bestAction.pathData.End;
+                    if (bestAction.pathData.CachedNavMeshPath.status == NavMeshPathStatus.PathPartial && 
+                        bestAction.pathData.CachedNavMeshPath.corners.Length > 0)
+                    {
+                        visualTarget = bestAction.pathData.CachedNavMeshPath.corners[bestAction.pathData.CachedNavMeshPath.corners.Length - 1];
+                    }
+
+                    if (bestAction.executionOption == CardExecutionOption.PlayCard && bestAction.card != null)
+                    {
+                        // Visualize showing where NPC will END UP (last reachable corner for partial paths)
+                        DebugVisualizeExecutedPath(bestAction.pathData, visualTarget, bestAction.card.cardData.Range);
+                    }
+                    else
+                    {
+                        // For movement-only actions, visualize with the actual reachable endpoint
+                        DebugVisualizeExecutedPath(bestAction.pathData, visualTarget, 0f);
+                    }
+
                     // Update virtual position immediately (predictive)
-                    virtualPosition = bestAction.pathData.End;
+                    // CRITICAL: Only update if the path is complete (reachable)
+                    // For partial paths (chase scenarios), keep the virtual position at current location
+                    // so next card evaluation isn't based on unreachable positions
+                    if (bestAction.pathData.CachedNavMeshPath.status == NavMeshPathStatus.PathComplete)
+                    {
+                        virtualPosition = bestAction.pathData.End;
+                    }
+                    else
+                    {
+                        // Partial path: NPC will reach the last corner but not the full destination
+                        // Update virtual position to the last reachable corner instead
+                        Vector3 lastCorner = bestAction.pathData.CachedNavMeshPath.corners.Length > 0 
+                            ? bestAction.pathData.CachedNavMeshPath.corners[bestAction.pathData.CachedNavMeshPath.corners.Length - 1]
+                            : virtualPosition;
+                        virtualPosition = lastCorner;
+                        if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] Using partial path endpoint: {lastCorner} (target unreachable)");
+                    }
                 }
 
                 // Record card action if chosen
@@ -932,6 +1047,30 @@ namespace facingfate
 
                     // Remove card from hand immediately to avoid re-selection
                     hand.Remove(bestAction.card);
+
+                    // CRITICAL: Ensure the card's castingPosition matches where the NPC will actually be
+                    // For complete paths: use pathData.End
+                    // For partial paths: use the last reachable corner (already stored in virtualPosition)
+                    // If no movement: use current virtualPosition
+                    Vector3 cardCastingPos = virtualPosition; // Safe default: current virtual position
+
+                    if (bestAction.pathData != null && bestAction.pathData.PathCost > 0 && 
+                        bestAction.pathData.CachedNavMeshPath.status == NavMeshPathStatus.PathComplete)
+                    {
+                        // Complete path: use the endpoint
+                        cardCastingPos = bestAction.pathData.End;
+                    }
+                    else if (bestAction.pathData != null && bestAction.pathData.PathCost > 0 && 
+                             bestAction.pathData.CachedNavMeshPath.status == NavMeshPathStatus.PathPartial)
+                    {
+                        // Partial path: use the last reachable corner
+                        cardCastingPos = bestAction.pathData.CachedNavMeshPath.corners.Length > 0
+                            ? bestAction.pathData.CachedNavMeshPath.corners[bestAction.pathData.CachedNavMeshPath.corners.Length - 1]
+                            : virtualPosition;
+                    }
+                    // else: no movement, cardCastingPos stays as virtualPosition
+
+                    bestAction.targetingModeData.castingPosition = cardCastingPos;
 
                     plan.Add(new PlannedAction
                     {
@@ -964,6 +1103,14 @@ namespace facingfate
                 }
             }
 
+            // CRITICAL: Re-enable the NPC's NavMeshObstacle after turn execution completes
+            // This restores the carving behavior and returns the NPC to IDLE state
+            if (npcObstacle != null && !npcObstacle.enabled)
+            {
+                npcObstacle.enabled = true;
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI] {npcScript.name}: Switched back to IDLE state after turn completion");
+            }
+
             yield break;
         }
 
@@ -971,6 +1118,8 @@ namespace facingfate
         {
             int cardsToDraw = Mathf.RoundToInt(npcScript.entityStats.CurrentWisdom / 2);
             if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][DrawCard] NPC: {npcScript.name}, Current Wisdom: {npcScript.entityStats.CurrentWisdom}, Cards to draw: {cardsToDraw}");
+
+            System.Random rng = new System.Random();
 
             for (int i = 0; i < cardsToDraw; i++)
             {
@@ -985,7 +1134,6 @@ namespace facingfate
                         discardCards.Add(discard.GetChild(j));
                     }
                     // Shuffle discard cards
-                    System.Random rng = new();
                     discardCards = discardCards.OrderBy(a => rng.Next()).ToList();
 
                     foreach (var card in discardCards)
@@ -996,7 +1144,9 @@ namespace facingfate
 
                 if (deck.childCount > 0)
                 {
-                    Transform cardObj = deck.GetChild(0);
+                    // Draw random card from deck instead of always taking the first
+                    int randomIndex = rng.Next(deck.childCount);
+                    Transform cardObj = deck.GetChild(randomIndex);
                     CardScript cardScript = cardObj.GetComponent<CardScript>();
 
                     hand.Add(cardScript);
@@ -1083,6 +1233,8 @@ namespace facingfate
                         .ToList();
 
                     best.targetingModeData = move.Item2;
+                    // CRITICAL: Ensure castingPosition matches the actual path endpoint (not the intermediate snapped position)
+                    best.targetingModeData.castingPosition = move.Item1.End;
                     best.pathData = move.Item1;
                     best.executionOption = CardExecutionOption.PlayCard;
                 }
@@ -1179,6 +1331,111 @@ namespace facingfate
         #endregion
 
         #region Helpers
+
+        /// <summary>
+        /// Determines which GameplayRef events should be triggered based on the movement action type.
+        /// Translates action names (Chase, Flee, Reposition) into corresponding GameplayRef events.
+        /// Returns null if the action is not a recognized movement-only action.
+        /// </summary>
+        private List<GameplayRef> DetermineMovementEventRefs(string actionName)
+        {
+            if (string.IsNullOrEmpty(actionName))
+                return null;
+
+            var eventRefs = new List<GameplayRef>();
+
+            // Fire onMove for all movement actions
+            eventRefs.Add(GameplayRef.onMove);
+
+            // Add specific events based on movement type
+            if (actionName.Contains("Chase"))
+            {
+                eventRefs.Add(GameplayRef.onChase);
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][MovementEvents] Detected CHASE action: {actionName}");
+            }
+            else if (actionName.Contains("Flee") || actionName.Contains("Low Health Flee"))
+            {
+                eventRefs.Add(GameplayRef.onFlee);
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][MovementEvents] Detected FLEE action: {actionName}");
+            }
+            else if (actionName.Contains("Reposition"))
+            {
+                eventRefs.Add(GameplayRef.onReposition);
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][MovementEvents] Detected REPOSITION action: {actionName}");
+            }
+            else if (actionName.Contains("Move_for_"))
+            {
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][MovementEvents] Detected MOVEMENT action: {actionName}");
+                // General movement before card cast - onMove is sufficient
+            }
+
+            return eventRefs.Count > 0 ? eventRefs : null;
+        }
+
+        /// <summary>
+        /// Verifies that the card can be cast from the given position against all intended targets.
+        /// Checks if all target entities are within the card's range from the casting position.
+        /// Returns true if in range, false if any target is unreachable.
+        /// </summary>
+        private bool VerifyCardRange(CardScript card, TargetingModeData targetingData, Vector3 castingPosition)
+        {
+            if (card?.cardData == null || targetingData?.targetedEntities == null)
+                return false;
+
+            float cardRange = card.cardData.Range;
+            const float RANGE_TOLERANCE = 0.1f;
+
+            foreach (var target in targetingData.targetedEntities)
+            {
+                if (target == null)
+                    continue;
+
+                float distToTarget = Vector3.Distance(castingPosition, target.transform.position);
+                if (distToTarget > cardRange + RANGE_TOLERANCE)
+                {
+                    if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][VerifyCardRange] Target '{target.name}' out of range: {distToTarget:F2} > {cardRange + RANGE_TOLERANCE:F2}");
+                    return false;
+                }
+            }
+
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][VerifyCardRange] All targets verified in range of {cardRange}");
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to find a closer position to get all targets in range.
+        /// Uses the new TargetingUtility methods for optimized position searching.
+        /// First tries the directed approach (efficient for most cases),
+        /// then falls back to spiral search if directed doesn't find a position.
+        /// Returns a NavMeshPathData to a position in range, or null if no closer position found.
+        /// </summary>
+        private NavMeshPathData FindCloserPosition(Vector3 currentPos, CardScript card, TargetingModeData targetingData)
+        {
+            if (card?.cardData == null || targetingData?.targetedEntities == null || targetingData.targetedEntities.Count == 0)
+                return null;
+
+            float cardRange = card.cardData.Range;
+
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][FindCloserPosition] Attempting to find closer position for {targetingData.targetedEntities.Count} targets");
+
+            // For single target or directed scenarios, use the directed approach first (more efficient)
+            if (targetingData.targetedEntities.Count <= 2)
+            {
+                if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][FindCloserPosition] Using directed approach for {targetingData.targetedEntities.Count} target(s)");
+                var directedPath = TargetingUtility.FindCloserPositionDirected(currentPos, targetingData.targetedEntities, cardRange, npcScript.entityStats);
+                if (directedPath != null)
+                    return directedPath;
+            }
+
+            // Fall back to spiral search for multi-target or when directed didn't find anything
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][FindCloserPosition] Using spiral search for {targetingData.targetedEntities.Count} target(s)");
+            var spiralPath = TargetingUtility.FindCloserPositionSpiral(currentPos, targetingData.targetedEntities, cardRange, npcScript.entityStats);
+            if (spiralPath != null)
+                return spiralPath;
+
+            if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][FindCloserPosition] No closer in-range position found");
+            return null;
+        }
 
         private ScoredCard SelectBestActionCandidate(List<ScoredCard> candidates, float stamina)
         {
@@ -1689,6 +1946,135 @@ namespace facingfate
             if (ENABLE_AI_LOGGING) Debug.Log($"[NpcAI][Flee] Evaluated {positionsEvaluated} flee positions (max: {MAX_FLEE_POSITIONS}), best score: {bestScore:F0}");
             return bestTarget;
         }
+
+        #endregion
+
+        #region Debug Visualization
+
+        /// <summary>
+        /// Visualizes the actual path that will be executed for movement into range.
+        /// Shows the full path with horizontal segments (white) and vertical markers at corners (green).
+        /// Start (cyan), End (yellow), Target centroid (red), and range circle (magenta).
+        /// </summary>
+        private void DebugVisualizeExecutedPath(NavMeshPathData pathData, Vector3 targetCentroid, float cardRange)
+        {
+            if (pathData?.CachedNavMeshPath == null)
+                return;
+
+            const float LINE_HEIGHT = 3.5f; // Height above ground for markers
+            const float LINE_DURATION = 10f; // Duration to see the executed movement
+            const float MARKER_HEIGHT = 2.0f; // Height of vertical marker lines
+
+            // ===== DRAW PATH SEGMENTS =====
+            Vector3[] corners = pathData.CachedNavMeshPath.corners;
+
+            if (corners.Length > 0)
+            {
+                // Draw path segments connecting corners (horizontal lines at ground level)
+                for (int i = 0; i < corners.Length - 1; i++)
+                {
+                    Vector3 from = corners[i];
+                    Vector3 to = corners[i + 1];
+
+                    // Draw the ground-level path segment (white)
+                    Debug.DrawLine(from, to, Color.white, LINE_DURATION, false);
+
+                    // Draw vertical marker at start of segment
+                    Vector3 markerTop = from + Vector3.up * MARKER_HEIGHT;
+                    Debug.DrawLine(from, markerTop, Color.green, LINE_DURATION, false);
+                }
+
+                // Draw vertical marker at final corner
+                Vector3 lastCorner = corners[corners.Length - 1];
+                Vector3 lastMarkerTop = lastCorner + Vector3.up * MARKER_HEIGHT;
+                Debug.DrawLine(lastCorner, lastMarkerTop, Color.green, LINE_DURATION, false);
+            }
+
+            // ===== DRAW START POSITION =====
+            Vector3 startMarkerTop = pathData.Start + Vector3.up * MARKER_HEIGHT;
+            Debug.DrawLine(pathData.Start, startMarkerTop, Color.cyan, LINE_DURATION, false);
+
+            // Draw horizontal circle around start (small, cyan)
+            DrawDebugCircleAtHeight(pathData.Start, 0.5f, Color.cyan, LINE_DURATION, groundHeight: 0f);
+
+            // ===== DRAW END POSITION =====
+            Vector3 endMarkerTop = pathData.End + Vector3.up * MARKER_HEIGHT;
+            Debug.DrawLine(pathData.End, endMarkerTop, Color.yellow, LINE_DURATION, false);
+            Debug.DrawLine(pathData.End, pathData.End + Vector3.up * 0.3f, Color.yellow, LINE_DURATION, false); // Extra thick marker
+
+            // Draw horizontal circle around end (medium, yellow)
+            DrawDebugCircleAtHeight(pathData.End, 1.0f, Color.yellow, LINE_DURATION, groundHeight: 0f);
+
+            // ===== DRAW TARGET POSITION =====
+            Vector3 targetMarkerTop = targetCentroid + Vector3.up * MARKER_HEIGHT;
+            Debug.DrawLine(targetCentroid, targetMarkerTop, Color.red, LINE_DURATION, false);
+
+            // Draw horizontal circle around target (small, red)
+            DrawDebugCircleAtHeight(targetCentroid, 0.5f, Color.red, LINE_DURATION, groundHeight: 0f);
+
+            // ===== DRAW CONNECTION FROM END TO TARGET =====
+            // Orange line showing if we're in range or how far off we are
+            Debug.DrawLine(pathData.End, targetCentroid, new Color(1f, 0.5f, 0f, 0.7f), LINE_DURATION, false);
+
+            // ===== DRAW RANGE CIRCLE AT TARGET =====
+            DrawDebugRangeCircle(targetCentroid, cardRange, Color.magenta, LINE_DURATION);
+
+            // ===== LOG THE EXECUTION =====
+            if (ENABLE_AI_LOGGING)
+            {
+                float distToTarget = Vector3.Distance(pathData.End, targetCentroid);
+                float pathLength = 0f;
+                for (int i = 0; i < corners.Length - 1; i++)
+                {
+                    pathLength += Vector3.Distance(corners[i], corners[i + 1]);
+                }
+
+                Debug.Log($"[DebugVisualize] PATH: Start (Cyan): {pathData.Start} → End (Yellow): {pathData.End}");
+                Debug.Log($"[DebugVisualize] Path length: {pathLength:F2}m, Cost: {pathData.PathCost}, Distance to Target: {distToTarget:F2}m, Range: {cardRange}m, In Range: {distToTarget <= cardRange + 0.1f}");
+                Debug.Log($"[DebugVisualize] Path corners: {corners.Length}");
+            }
+        }
+
+        /// <summary>
+        /// Draws a circle at the given position to represent the card's range.
+        /// </summary>
+        private void DrawDebugRangeCircle(Vector3 center, float radius, Color color, float duration)
+        {
+            const int segments = 16;
+            const float groundHeight = 0.1f;
+
+            for (int i = 0; i < segments; i++)
+            {
+                float angle1 = (i / (float)segments) * 360f * Mathf.Deg2Rad;
+                float angle2 = ((i + 1) / (float)segments) * 360f * Mathf.Deg2Rad;
+
+                Vector3 pos1 = center + new Vector3(Mathf.Cos(angle1) * radius, groundHeight, Mathf.Sin(angle1) * radius);
+                Vector3 pos2 = center + new Vector3(Mathf.Cos(angle2) * radius, groundHeight, Mathf.Sin(angle2) * radius);
+
+                Debug.DrawLine(pos1, pos2, color, duration, false);
+            }
+        }
+
+        /// <summary>
+        /// Draws a horizontal circle at the given position and height.
+        /// Useful for marking positions (start, end, target).
+        /// </summary>
+        private void DrawDebugCircleAtHeight(Vector3 center, float radius, Color color, float duration, float groundHeight = 0.1f)
+        {
+            const int segments = 12;
+
+            for (int i = 0; i < segments; i++)
+            {
+                float angle1 = (i / (float)segments) * 360f * Mathf.Deg2Rad;
+                float angle2 = ((i + 1) / (float)segments) * 360f * Mathf.Deg2Rad;
+
+                Vector3 pos1 = center + new Vector3(Mathf.Cos(angle1) * radius, groundHeight, Mathf.Sin(angle1) * radius);
+                Vector3 pos2 = center + new Vector3(Mathf.Cos(angle2) * radius, groundHeight, Mathf.Sin(angle2) * radius);
+
+                Debug.DrawLine(pos1, pos2, color, duration, false);
+            }
+        }
+
         #endregion
     }
 
@@ -1727,6 +2113,7 @@ namespace facingfate
         public int CardCost;
         public int Cost => PathCost + CardCost;
     }
+
 
     #endregion
 }

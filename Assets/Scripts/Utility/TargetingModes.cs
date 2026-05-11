@@ -13,7 +13,10 @@ namespace facingfate
     }
     public class TargetingModeData
     {
+        // Where the Player should be
         public Vector3 castingPosition { get; set; }
+
+        //Where the Effect should be
         public Vector3 aimPosition { get; set; }
 
         public List<EntityScript> targetedEntities { get; set; } = new();

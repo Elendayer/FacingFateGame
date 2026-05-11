@@ -84,10 +84,14 @@ namespace facingfate
             float costRate = (4f + movementCostModifier) * CalculateMultiplierProduct(entityStats?.MovementCostModifier_Multiplier);
             int pathCost = Mathf.Max(1, Mathf.RoundToInt(totalDistance * costRate));
 
+            // CRITICAL: Use the actual last corner of the path as the endpoint, not the re-snapped goalPos
+            // This is where the NavMeshAgent will actually stop, accounting for path recalculations
+            Vector3 actualEnd = path.corners.Length > 0 ? path.corners[path.corners.Length - 1] : goalPos;
+
             return new NavMeshPathData
             {
                 Start = startPos,
-                End = goalPos,
+                End = actualEnd,
                 PathCost = pathCost,
                 CachedNavMeshPath = path
             };
@@ -153,11 +157,16 @@ namespace facingfate
                 NavMeshPath truncatedNavMeshPath = new NavMeshPath();
                 NavMesh.CalculatePath(start, truncatedEnd, NavMesh.AllAreas, truncatedNavMeshPath);
 
+                // Use the actual last corner of the truncated path as the endpoint
+                Vector3 actualTruncatedEnd = truncatedNavMeshPath.corners.Length > 0 
+                    ? truncatedNavMeshPath.corners[truncatedNavMeshPath.corners.Length - 1] 
+                    : truncatedEnd;
+
                 // Return truncated path with the recalculated NavMeshPath
                 return new NavMeshPathData
                 {
                     Start = start,
-                    End = truncatedEnd,
+                    End = actualTruncatedEnd,
                     PathCost = truncatedCost,
                     CachedNavMeshPath = truncatedNavMeshPath
                 };

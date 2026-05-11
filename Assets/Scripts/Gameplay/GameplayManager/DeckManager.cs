@@ -370,14 +370,14 @@ namespace facingfate
                 cardStack.Push(card);
 
             deckParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
-            Debug.Log("[DeckManager] Deck shuffled.");
+            //Debug.Log("[DeckManager] Deck shuffled.");
         }
 
         public void Player_ShuffleDiscard()
         {
             if (discardStack.Count == 0)
             {
-                Debug.Log("[DeckManager] Discard pile is empty. Cannot reshuffle.");
+                //Debug.Log("[DeckManager] Discard pile is empty. Cannot reshuffle.");
                 return;
             }
 
@@ -404,7 +404,7 @@ namespace facingfate
             }
             discardParent?.GetComponent<DiscardPileVisualizer>()?.Refresh();
 
-            Debug.Log($"[DeckManager] Shuffled {cards.Count} discarded cards back into the deck.");
+            //Debug.Log($"[DeckManager] Shuffled {cards.Count} discarded cards back into the deck.");
         }
 
         private IEnumerator Player_MoveOutDeck_Coroutine(EntityScript entity)
@@ -484,7 +484,7 @@ namespace facingfate
                 discardOrder.Push(card);
 
             DeckOrderManagement[entity] = new DeckOrderData(deckOrder, discardOrder);
-            Debug.Log($"[DeckManager] Saved deck order for {entity.name}: {deckOrder.Count} deck cards, {discardOrder.Count} discard cards");
+            //Debug.Log($"[DeckManager] Saved deck order for {entity.name}: {deckOrder.Count} deck cards, {discardOrder.Count} discard cards");
         }
 
         /// <summary>
@@ -532,7 +532,7 @@ namespace facingfate
                 }
             }
 
-            Debug.Log($"[DeckManager] Restored deck order for {entity.name}: {cardStack.Count} deck cards, {discardStack.Count} discard cards");
+            //Debug.Log($"[DeckManager] Restored deck order for {entity.name}: {cardStack.Count} deck cards, {discardStack.Count} discard cards");
         }
 
         /// <summary>
@@ -605,7 +605,7 @@ namespace facingfate
             if (dockDeck == null || dockDiscard == null)
                 yield break;
 
-            Debug.Log($"[DeckManager] Moving cards into deck of {entity.name}");
+            //Debug.Log($"[DeckManager] Moving cards into deck of {entity.name}");
 
             // Restore deck and discard order from saved data
             RestoreDeckOrder(entity, dockDeck, dockDiscard);

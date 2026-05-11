@@ -309,7 +309,6 @@ namespace facingfate
             protected override float GetBaseFloat(CardData d) => d.damage_u;
             protected override float GetCurrentFloat(CardData d) => d.Damage;
         }
-
         private class SecondaryDamageResolver : SimpleStatResolver
         {
             protected override int GetBase(CardData d) => d.secondaryDamage_u;

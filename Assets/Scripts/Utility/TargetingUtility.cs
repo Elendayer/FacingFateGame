@@ -8,11 +8,11 @@ using UnityEngine.AI;
 public static class TargetingUtility
 {
     // Set to false in Release builds to eliminate debug log overhead
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     private const bool ENABLE_TARGETING_LOGGING = false;
-    #else
+#else
     private const bool ENABLE_TARGETING_LOGGING = false;
-    #endif
+#endif
 
     #region Entity Validation
     public static List<EntityScript> GetValidTargets(CardData card, EntityScript overrideOwner = null)
@@ -142,9 +142,9 @@ public static class TargetingUtility
 
             float dist = Vector3.Distance(worldPos, entity.transform.position);
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (ENABLE_TARGETING_LOGGING) Debug.Log($"Entity {entity.name} at distance {dist:F2} from center. InnerRadius: {innerRadius}, OuterRadius: {outerRadius}");
-            #endif
+#endif
 
             // Include targets within the ring (between inner and outer radius)
             if (dist < innerRadius || dist > outerRadius)
@@ -154,17 +154,17 @@ public static class TargetingUtility
             if (cardData != null && !IsTargetValid(cardData, entity))
                 continue;
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (ENABLE_TARGETING_LOGGING) Debug.Log("Valid target in ring!");
-            #endif
+#endif
 
             results.Add(entity);
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (ENABLE_TARGETING_LOGGING) Debug.Log(results.Count);
-        #endif
-            return results;
+#endif
+        return results;
     }
 
     /// <summary>
@@ -315,8 +315,8 @@ public static class TargetingUtility
                     }
                 }
                 break;
-        
-                case CardTargetingMode.SelectionUnique:
+
+            case CardTargetingMode.SelectionUnique:
                 {
                     if (selectedPositions != null)
                     {
@@ -477,16 +477,16 @@ public static class TargetingUtility
     {
         float currentDist = Vector3.Distance(ownerPos, targetPos);
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] FindRangeAwarePositionForTarget called - OwnerPos: {ownerPos}, TargetPos: {targetPos}, CardRange: {cardRange}, CurrentDist: {currentDist:F2}");
-        #endif
+#endif
 
         // Already in range, return the target position
         if (currentDist <= cardRange)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] Target already in range! Current distance {currentDist:F2} <= card range {cardRange}");
-            #endif
+#endif
             return targetPos;
         }
 
@@ -532,15 +532,15 @@ public static class TargetingUtility
             {
                 float distToTarget = Vector3.Distance(hit.position, targetPos);
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
-                #endif
+#endif
 
                 if (distToTarget <= cardRange + TOLERANCE)
                 {
-                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
-                    #endif
+#endif
                     return hit.position;
                 }
             }
@@ -556,24 +556,24 @@ public static class TargetingUtility
                 {
                     float distToTarget = Vector3.Distance(hit.position, targetPos);
 
-                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✓ Valid navmesh position found at iteration {positionsTestedCount}: {hit.position}, dist to target: {distToTarget:F2}");
-                    #endif
+#endif
 
                     if (distToTarget <= cardRange + TOLERANCE)
                     {
-                        #if UNITY_EDITOR
+#if UNITY_EDITOR
                         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✓✓ ACCEPTED - Position is within tolerance (dist: {distToTarget:F2} <= range+tolerance: {cardRange + TOLERANCE:F2})");
-                        #endif
+#endif
                         return hit.position;
                     }
                 }
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] ✗ FAILED - Tested {positionsTestedCount} positions but none were valid navmesh positions within {cardRange}m (+ {TOLERANCE}m tolerance) of target");
-        #endif
+#endif
         return null;
     }
 
@@ -589,52 +589,371 @@ public static class TargetingUtility
         EntityStats entityStats,
         float movementBudget)
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] Attempting to find path into range. From: {fromPosition}, Target: {targetPosition}, CardRange: {cardRange}, Budget: {movementBudget}");
-        #endif
+#endif
 
         // Try to find a position within range
         var rangePosition = FindRangeAwarePositionForTarget(targetPosition, fromPosition, cardRange);
 
         if (!rangePosition.HasValue)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] FAILED - FindRangeAwarePositionForTarget returned null. No valid navmesh position found within {cardRange}m of target");
-            #endif
+#endif
             return null;
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] Found valid position on navmesh: {rangePosition.Value}, distance from target: {Vector3.Distance(rangePosition.Value, targetPosition):F2}");
-        #endif
+#endif
 
         // Find path to that position
         var pathData = MovementUtility.FindPath(fromPosition, rangePosition.Value, entityStats);
 
         if (pathData == null)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] FAILED - FindPath returned null. Unable to calculate path from {fromPosition} to {rangePosition.Value}");
-            #endif
+#endif
             return null;
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] Path found! Cost: {pathData.PathCost:F1}, Budget: {movementBudget}");
-        #endif
+#endif
 
         if (pathData.PathCost > movementBudget)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] REJECTED - Path cost {pathData.PathCost:F1} exceeds movement budget {movementBudget}");
-            #endif
+#endif
             return null;
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindPathIntoRange] SUCCESS - Path to casting position found with cost {pathData.PathCost:F1}");
-        #endif
+#endif
         return (pathData, rangePosition.Value);
+    }
+
+         /// <summary>
+         /// Finds a closer position to get targets in range using a spiral search pattern.
+         /// Searches in expanding circles, prioritizing positions toward the target centroid.
+         /// Prefers the outermost valid position to encourage ranged units to maintain distance.
+         /// Best for multi-target scenarios where broad positional search is beneficial.
+         /// CRITICAL: Validates that the final path destination (pathData.End) is still in range,
+         /// not just the candidate position, to account for NavMesh snapping.
+         /// Returns NavMeshPathData to a closer position, or null if not found.
+         /// </summary>
+         public static NavMeshPathData FindCloserPositionSpiral(Vector3 currentPos, List<EntityScript> targets, float cardRange, EntityStats entityStats = null)
+         {
+             if (targets == null || targets.Count == 0)
+                 return null;
+
+             float RANGE_TOLERANCE = 0.1f;
+             const int anglesPerRing = 8;
+             const int maxPositionsToTry = 12;
+
+             // Find the centroid of all targets
+             Vector3 targetCentroid = Vector3.zero;
+             foreach (var target in targets)
+             {
+                 if (target != null)
+                     targetCentroid += target.transform.position;
+             }
+             targetCentroid /= Mathf.Max(1, targets.Count);
+
+             // Direction from current position toward targets
+             Vector3 directionToTargets = (targetCentroid - currentPos).normalized;
+
+             // Try positions in an expanding spiral toward the targets
+             // Start from further distances and expand outward to prefer outermost valid positions
+             int positionsTested = 0;
+             NavMeshPathData bestPathData = null;
+             float bestDistance = float.MaxValue;
+
+             for (float distance = 1f; distance <= cardRange + 2f && positionsTested < maxPositionsToTry; distance += 1f)
+             {
+                 // Test angles, prioritizing direction toward targets
+                 for (int angleIndex = 0; angleIndex < anglesPerRing; angleIndex++)
+                 {
+                     if (positionsTested >= maxPositionsToTry)
+                         break;
+
+                     float angle = (angleIndex * 360f / anglesPerRing) * Mathf.Deg2Rad;
+                     Vector3 candidate = currentPos + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * distance;
+
+                     // Bias toward the direction of targets
+                     float dotProduct = Vector3.Dot((candidate - currentPos).normalized, directionToTargets);
+                     if (dotProduct < 0.3f) // Skip directions away from targets
+                         continue;
+
+                     // Snap to navmesh
+                     NavMeshHit hit;
+                     if (NavMesh.SamplePosition(candidate, out hit, 1f, NavMesh.AllAreas))
+                     {
+                         candidate = hit.position;
+
+                         // Check if this position gets all targets in range
+                         bool allInRange = true;
+                         foreach (var target in targets)
+                         {
+                             if (target == null)
+                                 continue;
+
+                             float distToTarget = Vector3.Distance(candidate, target.transform.position);
+                             if (distToTarget > cardRange + RANGE_TOLERANCE)
+                             {
+                                 allInRange = false;
+                                 break;
+                             }
+                         }
+
+                         if (allInRange)
+                         {
+                             // Try to find path to this position
+                             var pathData = MovementUtility.FindPath(currentPos, candidate, entityStats: entityStats);
+                             if (pathData != null && pathData.CachedNavMeshPath != null && pathData.CachedNavMeshPath.corners.Length > 0)
+                             {
+                                 // CRITICAL: Re-validate that the final destination (pathData.End after NavMesh snapping) is still in range
+                                 // The path destination might snap to a different NavMesh position, so we must verify it's still valid
+                                 bool finalDestinationInRange = true;
+                                 foreach (var target in targets)
+                                 {
+                                     if (target == null)
+                                         continue;
+
+                                     float distToTarget = Vector3.Distance(pathData.End, target.transform.position);
+                                     if (distToTarget > cardRange + RANGE_TOLERANCE)
+                                     {
+                                         finalDestinationInRange = false;
+    #if UNITY_EDITOR
+                                         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindCloserPositionSpiral] ✗ Final destination {pathData.End} out of range: target at {target.transform.position}, dist {distToTarget:F2} > {cardRange + RANGE_TOLERANCE:F2}");
+    #endif
+                                         break;
+                                     }
+                                 }
+
+                                 if (finalDestinationInRange)
+                                 {
+                                     // Prefer the cheapest (closest) path among all valid positions
+                                     if (pathData.PathCost < bestDistance)
+                                     {
+                                         bestPathData = pathData;
+                                         bestDistance = pathData.PathCost;
+    #if UNITY_EDITOR
+                                         if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindCloserPositionSpiral] ✓ Found valid position at cost {pathData.PathCost}, candidate {candidate}, final destination {pathData.End}");
+
+                                         // Draw debug visualization for the path
+                                         DrawPathDebugVisualization(pathData, targetCentroid, cardRange);
+    #endif
+                                     }
+                                 }
+                             }
+                         }
+                     }
+
+                     positionsTested++;
+                 }
+             }
+
+    #if UNITY_EDITOR
+             if (ENABLE_TARGETING_LOGGING && bestPathData == null) Debug.Log($"[FindCloserPositionSpiral] No closer in-range position found after {positionsTested} tests");
+    #endif
+             return bestPathData;
+    }
+
+         /// <summary>
+         /// Finds a closer position to get targets in range using a directed approach along the caster-to-target line.
+         /// Searches positions along the line between caster and target centroid, preferring the outermost valid position
+         /// (furthest from target but still in range) to encourage ranged units to maintain distance.
+         /// Most efficient for single-target or clustered multi-target scenarios.
+         /// CRITICAL: Validates that the final path destination (pathData.End) is still in range,
+         /// not just the candidate position, to account for NavMesh snapping.
+         /// Returns NavMeshPathData to a closer position, or null if not found.
+         /// </summary>
+         public static NavMeshPathData FindCloserPositionDirected(Vector3 currentPos, List<EntityScript> targets, float cardRange, EntityStats entityStats = null)
+         {
+             if (targets == null || targets.Count == 0)
+                 return null;
+
+             float RANGE_TOLERANCE = 0.1f;
+             const float SEARCH_STEP = 0.2f;
+
+             // Find the centroid of all targets
+             Vector3 targetCentroid = Vector3.zero;
+             foreach (var target in targets)
+             {
+                 if (target != null)
+                     targetCentroid += target.transform.position;
+             }
+             targetCentroid /= Mathf.Max(1, targets.Count);
+
+             // Direction from current position toward targets
+             Vector3 directionToTargets = (targetCentroid - currentPos).normalized;
+             float distToTargetCentroid = Vector3.Distance(currentPos, targetCentroid);
+
+             // Search along the line from current to target
+             // Start from far positions (away from target) and move closer, preferring the outermost valid position
+             // This encourages ranged units to maintain distance at the edge of their range
+             NavMeshPathData bestPathData = null;
+             float bestDistance = float.MaxValue;
+
+             for (float offsetFromTarget = distToTargetCentroid; offsetFromTarget >= 0f; offsetFromTarget -= SEARCH_STEP)
+             {
+                 // Position along the line, offset backward from the target
+                 Vector3 candidate = targetCentroid - (directionToTargets * offsetFromTarget);
+
+                 // Snap to navmesh
+                 NavMeshHit hit;
+                 if (NavMesh.SamplePosition(candidate, out hit, 1f, NavMesh.AllAreas))
+                 {
+                     candidate = hit.position;
+
+                     // Check if this position gets all targets in range
+                     bool allInRange = true;
+                     foreach (var target in targets)
+                     {
+                         if (target == null)
+                             continue;
+
+                         float distToTarget = Vector3.Distance(candidate, target.transform.position);
+                         if (distToTarget > cardRange + RANGE_TOLERANCE)
+                         {
+                             allInRange = false;
+                             break;
+                         }
+                     }
+
+                     if (allInRange)
+                     {
+                         // Try to find path to this position
+                         var pathData = MovementUtility.FindPath(currentPos, candidate, entityStats: entityStats);
+                         if (pathData != null && pathData.CachedNavMeshPath != null && pathData.CachedNavMeshPath.corners.Length > 0)
+                         {
+                             // CRITICAL: Re-validate that the final destination (pathData.End after NavMesh snapping) is still in range
+                             // The path destination might snap to a different NavMesh position, so we must verify it's still valid
+                             bool finalDestinationInRange = true;
+                             foreach (var target in targets)
+                             {
+                                 if (target == null)
+                                     continue;
+
+                                 float distToTarget = Vector3.Distance(pathData.End, target.transform.position);
+                                 if (distToTarget > cardRange + RANGE_TOLERANCE)
+                                 {
+                                     finalDestinationInRange = false;
+    #if UNITY_EDITOR
+                                     if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindCloserPositionDirected] ✗ Final destination {pathData.End} out of range: target at {target.transform.position}, dist {distToTarget:F2} > {cardRange + RANGE_TOLERANCE:F2}");
+    #endif
+                                     break;
+                                 }
+                             }
+
+                             if (finalDestinationInRange)
+                             {
+                                 // Prefer the outermost valid position (furthest from target but still in range)
+                                 if (pathData.PathCost < bestDistance)
+                                 {
+                                     bestPathData = pathData;
+                                     bestDistance = pathData.PathCost;
+    #if UNITY_EDITOR
+                                     if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindCloserPositionDirected] ✓ Found valid position at cost {pathData.PathCost}, candidate {candidate}, final destination {pathData.End}");
+
+                                     // Draw debug visualization for the path
+                                     DrawPathDebugVisualization(pathData, targetCentroid, cardRange);
+    #endif
+                                 }
+                             }
+                         }
+                     }
+            }
+                 }
+
+        #if UNITY_EDITOR
+                 if (ENABLE_TARGETING_LOGGING) Debug.Log($"[FindCloserPositionDirected] No closer in-range position found along the directed line");
+        #endif
+                 return bestPathData;
+    }
+
+    #endregion
+
+    #region Debug Visualization
+
+    /// <summary>
+    /// Draws temporary debug lines to visualize path positions including Start, corners, End, and aim (target centroid).
+    /// Helps diagnose pathfinding and range issues.
+    /// </summary>
+    private static void DrawPathDebugVisualization(NavMeshPathData pathData, Vector3 aimPosition, float cardRange)
+    {
+        if (pathData?.CachedNavMeshPath == null)
+            return;
+
+        const float LINE_HEIGHT = 3f; // Height of vertical debug lines
+        const float LINE_DURATION = 5f; // How long the lines persist
+
+        // Draw Start position as a cyan vertical line
+        Vector3 startLineTop = pathData.Start + Vector3.up * LINE_HEIGHT;
+        Debug.DrawLine(pathData.Start, startLineTop, Color.cyan, LINE_DURATION, false);
+        Debug.DrawLine(pathData.Start, pathData.Start + Vector3.up * 0.3f, Color.cyan, LINE_DURATION, false);
+
+        // Draw Path corners as green vertical lines
+        if (pathData.CachedNavMeshPath.corners.Length > 0)
+        {
+            for (int i = 0; i < pathData.CachedNavMeshPath.corners.Length; i++)
+            {
+                Vector3 corner = pathData.CachedNavMeshPath.corners[i];
+                Vector3 cornerLineTop = corner + Vector3.up * LINE_HEIGHT;
+                Debug.DrawLine(corner, cornerLineTop, Color.green, LINE_DURATION, false);
+            }
+        }
+
+        // Draw End position as a yellow vertical line
+        Vector3 endLineTop = pathData.End + Vector3.up * LINE_HEIGHT;
+        Debug.DrawLine(pathData.End, endLineTop, Color.yellow, LINE_DURATION, false);
+        Debug.DrawLine(pathData.End, pathData.End + Vector3.up * 0.5f, Color.yellow, LINE_DURATION, false);
+
+        // Draw Aim (target centroid) position as a red vertical line
+        Vector3 aimLineTop = aimPosition + Vector3.up * LINE_HEIGHT;
+        Debug.DrawLine(aimPosition, aimLineTop, Color.red, LINE_DURATION, false);
+
+        // Draw a line from End to Aim to show the gap (if any)
+        Debug.DrawLine(pathData.End, aimPosition, new Color(1f, 1f, 0f, 0.5f), LINE_DURATION, false); // Yellow-ish
+
+        // Draw a circle at the range distance from aim (for reference)
+        DrawRangeCircle(aimPosition, cardRange, Color.magenta, LINE_DURATION);
+
+#if UNITY_EDITOR
+        if (ENABLE_TARGETING_LOGGING)
+        {
+            Debug.Log($"[DebugVisualization] Path visualization drawn:");
+            Debug.Log($"  Start (Cyan): {pathData.Start}");
+            Debug.Log($"  End (Yellow): {pathData.End}, Distance to Aim: {Vector3.Distance(pathData.End, aimPosition):F2}");
+            Debug.Log($"  Aim/Target Centroid (Red): {aimPosition}");
+            Debug.Log($"  Card Range Circle (Magenta): radius {cardRange}m from aim");
+        }
+#endif
+    }
+
+    /// <summary>
+    /// Draws a circle at the given position to represent the card's range.
+    /// </summary>
+    private static void DrawRangeCircle(Vector3 center, float radius, Color color, float duration)
+    {
+        const int segments = 16;
+        const float groundHeight = 0.1f;
+
+        for (int i = 0; i < segments; i++)
+        {
+            float angle1 = (i / (float)segments) * 360f * Mathf.Deg2Rad;
+            float angle2 = ((i + 1) / (float)segments) * 360f * Mathf.Deg2Rad;
+
+            Vector3 pos1 = center + new Vector3(Mathf.Cos(angle1) * radius, groundHeight, Mathf.Sin(angle1) * radius);
+            Vector3 pos2 = center + new Vector3(Mathf.Cos(angle2) * radius, groundHeight, Mathf.Sin(angle2) * radius);
+
+            Debug.DrawLine(pos1, pos2, color, duration, false);
+        }
     }
 
     #endregion

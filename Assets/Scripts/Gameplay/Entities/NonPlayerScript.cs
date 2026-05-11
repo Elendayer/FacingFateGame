@@ -171,19 +171,9 @@ namespace facingfate
         {
             Debug.Log($"[NpcAI] {name}: EnqueueMoveAction called");
 
-            // Deduct movement cost from stamina before executing movement
-            if (action.PathData != null && action.PathData.PathCost > 0)
-            {
-                if (entityStats.CurrentStamina < action.PathData.PathCost)
-                {
-                    Debug.LogWarning($"[NpcAI] {name}: Not enough stamina for movement. Required: {action.PathData.PathCost}, Available: {entityStats.CurrentStamina}");
-                    onActionComplete?.Invoke();
-                    return;
-                }
-
-                entityStats.CurrentStamina -= action.PathData.PathCost;
-                Debug.Log($"[NpcAI] {name}: Stamina deducted for movement. Remaining: {entityStats.CurrentStamina}");
-            }
+            // NOTE: Stamina cost is already deducted during the planning phase (NpcAIController.ExecuteTurnPlanning line 951)
+            // Do NOT deduct here as it would result in double-charging the NPC's stamina pool.
+            // The planning phase already verified affordability, so we can proceed directly to execution.
 
             Vector3 startPos = EntityOnMap.transform.position;
             Debug.Log($"[NpcAI] {name}: Enqueueing movement from {startPos} to {action.PathData?.End}");
@@ -209,20 +199,9 @@ namespace facingfate
         {
             Debug.Log($"[NpcAI] {name}: EnqueueCardAction called for card: {action.Card?.cardData?.cardName}");
 
-            // Deduct card cost from stamina before executing the card
-            if (action.Card?.cardData != null)
-            {
-                int cardCost = action.Card.cardData.Cost;
-                if (entityStats.CurrentStamina < cardCost)
-                {
-                    Debug.LogWarning($"[NpcAI] {name}: Not enough stamina for card. Required: {cardCost}, Available: {entityStats.CurrentStamina}");
-                    onActionComplete?.Invoke();
-                    return;
-                }
-
-                entityStats.CurrentStamina -= cardCost;
-                Debug.Log($"[NpcAI] {name}: Stamina deducted for card. Remaining: {entityStats.CurrentStamina}");
-            }
+            // NOTE: Stamina cost is already deducted during the planning phase (NpcAIController.ExecuteTurnPlanning line 951)
+            // Do NOT deduct here as it would result in double-charging the NPC's stamina pool.
+            // The planning phase already verified affordability, so we can proceed directly to execution.
 
             Debug.Log($"[NpcAI] {name}: Enqueueing card execution");
 

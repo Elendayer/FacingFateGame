@@ -190,6 +190,9 @@ namespace facingfate
 
         //Misc
         onMove,
+        onChase,
+        onFlee,
+        onReposition,
 
         //Card Types
         Skill,
