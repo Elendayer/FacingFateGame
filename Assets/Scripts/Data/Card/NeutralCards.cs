@@ -24,6 +24,14 @@ namespace facingfate
                  cardClass = CardClass.Neutral,
                  cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
+                 soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Fist"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                  cost_u = 5,
                  damage_u = 8,
 
@@ -62,7 +70,7 @@ namespace facingfate
                 {
                     new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
                     new WwiseSwitchEntry { group = "WeaponType",         value = "Fist"},
-                    new WwiseSwitchEntry { group = "ElementType",        value = "Blood"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },
 
@@ -105,6 +113,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Spear"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 range_u = 1f,
@@ -181,6 +197,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Dagger"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 10,
                 damageFunc = card =>
                 {
@@ -221,6 +245,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Dagger"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 30,
                 range_u = 1f,
                 damage_u = 50,
@@ -257,6 +289,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Air"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 damage_u = 10,
@@ -308,6 +348,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Air"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 40,
                 damage_u = 60,
@@ -371,6 +419,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Air"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 2,
                 range_u = 3f,
 
@@ -429,6 +485,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Blood"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
+                },
+
                 cost_u = 10,
                 damage_u = 50,
 
@@ -461,6 +525,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Claw"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Blood"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
+                },
 
                 cost_u = 5,
                 damage_u = 20,
@@ -496,6 +568,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Melee, CardIdentity.Blood, CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Claw"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Blood"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
+                },
 
                 cost_u = 50,
                 damage_u = 50,
@@ -594,6 +674,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Earth"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 40,
                 damage_u = 100,
@@ -726,6 +814,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Soul },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Gong"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 10,
                 targetingData = new()
                 {
@@ -757,6 +853,15 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.Soul },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Gong"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 20,
                 targetingData = new()
                 {
@@ -802,6 +907,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 30,
                 power_u = 30,
                 duration_u = 3,
@@ -845,6 +958,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
+                },
 
                 cost_u = 20,
                 power_u = 5,
@@ -898,6 +1019,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Animal"},
+                },
+
                 cost_u = 20,
                 power_u = 5,
                 duration_u = 2,
@@ -942,6 +1071,14 @@ namespace facingfate
                 cardClass = CardClass.Neutral,
 
                 cardIdentities = new() { },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 25,
 
@@ -997,6 +1134,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Neutral,
                 cardIdentities = new() { CardIdentity.None },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Defense"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 15,
                 powerFunc = card =>

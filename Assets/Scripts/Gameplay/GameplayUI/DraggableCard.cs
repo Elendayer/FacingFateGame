@@ -76,8 +76,8 @@ namespace facingfate
             lastHighlightedEntities.Clear();
             HandManager.Instance?.HoverCard(null);
 
-            // Hide range indicator when not dragging
-            if (!isDragging)
+            // Hide range indicator when not dragging and no card remains selected
+            if (!isDragging && HandManager.Instance?.GetSelectedCard() == null)
             {
                 AssetManager.Instance?.HideRangeIndicator();
             }

@@ -31,6 +31,14 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Dagger"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 15,
                 damage_u = 20,
                 range_u = 4f,
@@ -68,6 +76,14 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Attack"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Dagger"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 20,
                 damage_u = 4,
                 repeats_u = 4,
@@ -103,6 +119,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Dagger"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 1,
                 radius_u = 2f,
@@ -234,6 +258,14 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Bow"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 30,
                 damage_u = 30,
                 range_u = 8f,
@@ -281,6 +313,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Ranged },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Bow"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 25,
                 damage_u = 15,
@@ -330,6 +370,14 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Bow"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 30,
                 damage_u = 40,
                 range_u = 5f,
@@ -366,6 +414,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Ranged, CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Bow"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 35,
 
@@ -407,6 +463,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Bow"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 18,
                 damage_u = 10,
@@ -455,6 +519,14 @@ namespace facingfate
                 cardType = CardType.Technique,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "Bow"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 20,
                 damage_u = 25,
@@ -663,6 +735,14 @@ namespace facingfate
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Physical, CardIdentity.Blood },
 
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "NoActionType"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Blood"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
+
                 cost_u = 40,
                 damage_u = 8,
                 duration_u = 3,
@@ -677,7 +757,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Ring,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Deal {Damage} Damage at the start of your turn to targets in the effect.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Create a field of crimson thorns lasting {Duration} turns. Enemies who enter or remain are inflicted with Bleeding dealing {Damage} per turn for 3 turns.",
 
                 cardActionSequence = new()
                 {
@@ -686,10 +766,29 @@ namespace facingfate
                         TargetingMode.Ground,
                         delayBefore: 0f,
                         delayBetween: 0f,
-                        action: (System.Action<EntityScript, Vector3, CardData>)((caster, position, cardData) =>
+                        action: (Action<EntityScript, Vector3, CardData>)((caster, position, cardData) =>
                         {
-                            CombatUtility.SpawnGroundEffect(cardData, position, new GroundEffectData        
-                                (
+                            // Per-entity bleed factory — same pattern as Mandrake Poison Cloud.
+                            Func<EntityScript, EntityModifier> bleedFactory = (entity) => new EntityModifier(
+                                modifierName: "Bleed",
+                                owner: entity,
+                                baseValue: cardData.Damage,
+                                toTriggerRefs: new() { GameplayRef.onBleed },
+                                duration: 3,
+                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                onRef_Trigger: new RelevantTriggerCheck
+                                {
+                                    OnTriggerReference = new() { GameplayRef.onTurnStart },
+                                    CheckType = CheckEntityType.User,
+                                    CheckEntity = entity,
+                                },
+                                onRef_Action: (bleedingEntity, cd, value) =>
+                                {
+                                    CombatUtility.ApplyEffectDamage(value, bleedingEntity, GameplayRef.onBleed, new VFXData("BleedEffect", true));
+                                }
+                            );
+
+                            var groundEffect = new GroundEffectData(
                                 cardData: cardData,
                                 relevantTrigger: new RelevantTriggerCheck
                                 {
@@ -698,10 +797,15 @@ namespace facingfate
                                     CheckEntity = caster,
                                 },
                                 duration: cardData.Duration,
-                                onEnter: (target) => CombatUtility.ApplyDamage(null, target, new VFXData("Impact"), cardData.Damage)
-                                ),
-                                vfxData: null
-                                );
+                                targetingMode: CardTargetingMode.Ring,
+                                removeOnExit: false,
+                                removeOnEnd: false,
+                                // Apply fresh Bleed when entity enters the zone
+                                modifierFactory: bleedFactory,
+                                // Refresh Bleed for entities already in zone each caster turn
+                                onRef: (entity) => entity.AddModifier(bleedFactory(entity))
+                            );
+                            CombatUtility.SpawnGroundEffect(cardData, position, groundEffect, vfxData: null);
                         })
                     )
                 }
@@ -755,6 +859,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Fire, CardIdentity.Poison, CardIdentity.Venom },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Fire"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 5,
                 charges_u = 3,
@@ -814,6 +926,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Venom },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "Poison"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 8,
                 duration_u = 3,
@@ -989,6 +1109,14 @@ namespace facingfate
                 cardType = CardType.Ability,
                 cardClass = CardClass.Assassin,
                 cardIdentities = new() { CardIdentity.Shadow },
+
+                soundSwitches = new()
+                {
+                    new WwiseSwitchEntry { group = "ActionType",         value = "Buff"},
+                    new WwiseSwitchEntry { group = "WeaponType",         value = "NoWeaponType"},
+                    new WwiseSwitchEntry { group = "ElementType",        value = "NoElementType"},
+                    new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
+                },
 
                 cost_u = 12,
 

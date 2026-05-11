@@ -220,6 +220,7 @@ namespace facingfate
 
         //Alchemy
         Venom,
+        Alchemical,
 
         //Classes
         Spearman,

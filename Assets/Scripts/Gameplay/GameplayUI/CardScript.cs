@@ -281,7 +281,9 @@ namespace facingfate
         {
             { "Power", new PowerResolver() },
             { "Damage", new DamageResolver() },
+            { "SecondaryDamage", new SecondaryDamageResolver() },
             { "Healing", new HealingResolver() },
+            { "SecondaryHealing", new SecondaryHealingResolver() },
             { "Duration", new DurationResolver() },
             { "Charges", new ChargesResolver() },
             { "Repeats", new RepeatsResolver() },
@@ -306,6 +308,22 @@ namespace facingfate
             protected override int GetCurrent(CardData d) => d.Damage;
             protected override float GetBaseFloat(CardData d) => d.damage_u;
             protected override float GetCurrentFloat(CardData d) => d.Damage;
+        }
+
+        private class SecondaryDamageResolver : SimpleStatResolver
+        {
+            protected override int GetBase(CardData d) => d.secondaryDamage_u;
+            protected override int GetCurrent(CardData d) => d.SecondaryDamage;
+            protected override float GetBaseFloat(CardData d) => d.secondaryDamage_u;
+            protected override float GetCurrentFloat(CardData d) => d.SecondaryDamage;
+        }
+
+        private class SecondaryHealingResolver : SimpleStatResolver
+        {
+            protected override int GetBase(CardData d) => d.secondaryHealing_u;
+            protected override int GetCurrent(CardData d) => d.SecondaryHealing;
+            protected override float GetBaseFloat(CardData d) => d.secondaryHealing_u;
+            protected override float GetCurrentFloat(CardData d) => d.SecondaryHealing;
         }
 
         private class HealingResolver : SimpleStatResolver

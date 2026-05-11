@@ -6,6 +6,7 @@ namespace facingfate
     public static class CardSoundHelper
     {
         private const string DefaultEventName = "PlayCardSFX";
+        private const string DotTickEventName = "DotTickSfx";
 
         private static readonly List<WwiseSwitchEntry> DefaultSwitches = new()
         {
@@ -13,6 +14,14 @@ namespace facingfate
             new WwiseSwitchEntry { group = "WeaponType",         value = "Fist"   },
             new WwiseSwitchEntry { group = "ElementType",        value = "Blood"  },
             new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"  },
+        };
+
+        // Switch overrides per DoT type — only the groups that differ from defaults need to be listed
+        private static readonly Dictionary<GameplayRef, List<WwiseSwitchEntry>> DotSwitches = new()
+        {
+            [GameplayRef.onBleed]  = new() { new WwiseSwitchEntry { group = "ActionType", value = "DoT" }, new WwiseSwitchEntry { group = "ElementType", value = "Blood"  } },
+            [GameplayRef.onPoison] = new() { new WwiseSwitchEntry { group = "ActionType", value = "DoT" }, new WwiseSwitchEntry { group = "ElementType", value = "Poison" } },
+            [GameplayRef.onBurn]   = new() { new WwiseSwitchEntry { group = "ActionType", value = "DoT" }, new WwiseSwitchEntry { group = "ElementType", value = "Fire"   } },
         };
 
         /// <summary>
@@ -77,6 +86,38 @@ namespace facingfate
             {
                 Debug.LogWarning($"Default Wwise event '{DefaultEventName}' not found in AudioManager registry.");
             }
+        }
+
+        /// <summary>
+        /// Plays a DoT tick sound using Wwise switches to differentiate Bleed, Poison, and Burn.
+        /// Sets defaults first, then overrides with the DoT-specific switches.
+        /// </summary>
+        public static void PlayDoTTick(GameplayRef dotType, GameObject emitter)
+        {
+            if (emitter == null) return;
+            if (AudioManager.Instance == null)
+            {
+                Debug.LogError("AudioManager not found in scene.");
+                return;
+            }
+
+            // 1) Set defaults
+            foreach (var sw in DefaultSwitches)
+                AkUnitySoundEngine.SetSwitch(sw.group, sw.value, emitter);
+
+            // 2) Override with DoT-specific switches
+            if (DotSwitches.TryGetValue(dotType, out var overrides))
+            {
+                foreach (var sw in overrides)
+                    AkUnitySoundEngine.SetSwitch(sw.group, sw.value, emitter);
+            }
+
+            // 3) Post the DoT tick event
+            var eventRef = AudioManager.Instance.GetEvent(DotTickEventName);
+            if (eventRef != null && eventRef.IsValid())
+                eventRef.Post(emitter);
+            else
+                Debug.LogWarning($"DoT tick event '{DotTickEventName}' not found in AudioManager.");
         }
     }
 }

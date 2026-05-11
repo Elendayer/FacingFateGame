@@ -284,6 +284,13 @@ namespace facingfate
                     CardPreviewPanel.Instance?.Hide();
                     AssetManager.Instance?.HideRangeIndicator();
                 }
+                else
+                {
+                    // Hover may have shown a different card's range — restore selected card's range
+                    CardScript selCs = selectedCard.GetComponent<CardScript>();
+                    if (selCs?.cardData != null)
+                        AssetManager.Instance?.ShowRangeIndicator(selCs.cardData);
+                }
             }
             else
             {
