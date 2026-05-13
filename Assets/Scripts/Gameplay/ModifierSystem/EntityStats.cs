@@ -268,6 +268,10 @@ namespace facingfate
 
         private void HandleEntityDeath()
         {
+            // Capture synchronously — TurnManager state still accurate at death-detection time
+            bool wasCurrentTurnEntity = TurnManager.Instance != null
+                && TurnManager.Instance.CurrentTurnEntity == Owner;
+
             ActionQueueUtility.EnqueueAction(() =>
             {
                 try
@@ -337,8 +341,30 @@ namespace facingfate
                 {
                     Debug.LogError($"Error creating corpse for {Owner?.name}: {ex.Message}", Owner);
                 }
-            }, 
-            0.3f);       
+            },
+            0.3f);
+
+            // 7. If this entity held the active turn, its EndTurn action was cleared in step 2.
+            // Resume turn order manually so the game doesn't freeze.
+            if (wasCurrentTurnEntity)
+            {
+                ActionQueueUtility.EnqueueAction(() =>
+                {
+                    try
+                    {
+                        if (TurnManager.Instance != null
+                            && !TurnManager.Instance.CombatEnded
+                            && TurnManager.Instance.TurnOrder.Count > 0)
+                        {
+                            GameEvents.TriggerTurnStart();
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogError($"Error resuming turn order after death of {Owner?.name}: {ex.Message}");
+                    }
+                }, 0.4f);
+            }
         }
     }
 }

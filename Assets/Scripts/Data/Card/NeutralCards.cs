@@ -780,7 +780,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 30,
-                healing_u = 50,
+                healing_u = 60,
 
                 targetingData = new()
                 {
@@ -830,7 +830,7 @@ namespace facingfate
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },
 
-                cost_u = 10,
+                cost_u = 5,
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Entity,
@@ -870,7 +870,7 @@ namespace facingfate
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },
 
-                cost_u = 20,
+                cost_u = 10,
                 targetingData = new()
                 {
                     CardTargetType = CardTargetType.Entity,
@@ -1049,7 +1049,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Sphere,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage {Power}.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Bolster allies damage by +{Power}%.",
                 cardActionSequence = new()
                 {
                     new CardAction(
@@ -1062,7 +1062,7 @@ namespace facingfate
                             CombatUtility.ApplyStatBuff(cardData, target,
                                 new StatModifier(
                                     name: "Damage",
-                                    stat: target.entityStats.DamageOutModifier_Flat,
+                                    stat: target.entityStats.DamageOutModifier_Increase,
                                     value: cardData.Power,
                                     duration: cardData.Duration,
                                     modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge

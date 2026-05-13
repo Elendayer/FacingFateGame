@@ -406,7 +406,7 @@ namespace facingfate
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },
 
-                cost_u = 40,
+                cost_u = 25,
                 range_u = 5f,
 
                 targetingData = new()
@@ -649,8 +649,8 @@ namespace facingfate
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },
 
-                cost_u = 45,
-                damage_u = 17,
+                cost_u = 30,
+                damage_u = 20,
                 duration_u = 6,
                 range_u = 4f,
 

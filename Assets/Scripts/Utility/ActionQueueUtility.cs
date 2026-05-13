@@ -39,6 +39,12 @@ namespace facingfate
             CombatUtility.HandlePreCombatTrigger(targetingData.targetedEntities, cardData);
             yield return null; // wait a frame
 
+            // Signal that the played card will be discarded after effects — allows draw cards
+            // to fill the slot even while the played card is still in cardsInHand
+            bool willDiscardAfterEffects = cardObj != null && source is PlayerScript;
+            if (willDiscardAfterEffects)
+                HandUtility.SlotsBeingFreedByPlayedCard = 1;
+
             // 2️ Card effect repeats
             int repeats = Mathf.Max(cardData.repeats_u, 1);
             for (int i = 0; i < repeats; i++)
@@ -67,8 +73,9 @@ namespace facingfate
             }
 
             // 3️ Discard card after effects (only for player)
-            if (cardObj != null && source is PlayerScript)
+            if (willDiscardAfterEffects)
             {
+                HandUtility.SlotsBeingFreedByPlayedCard = 0;
                 HandManager.Instance.DiscardCard(cardObj);
                 yield return null; // wait a frame
             }

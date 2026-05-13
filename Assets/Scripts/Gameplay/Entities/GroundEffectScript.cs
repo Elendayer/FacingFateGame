@@ -167,7 +167,7 @@ namespace facingfate
                     return TargetingUtility.GetEntitiesInPhysicsSphere(pos, cd.Radius, cd);
 
                 case CardTargetingMode.Ring:
-                    return TargetingUtility.GetEntitiesInPhysicsRing(pos, cd.Radius, cd.Area, cd);
+                    return TargetingUtility.GetEntitiesInPhysicsRing(pos, cd.Radius, cd.Radius + cd.Area, cd);
 
                 case CardTargetingMode.RingSelf:
                     return TargetingUtility.GetEntitiesInPhysicsRing(owner.transform.position, cd.Radius, cd.Area, cd);

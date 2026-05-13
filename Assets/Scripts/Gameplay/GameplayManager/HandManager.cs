@@ -180,6 +180,13 @@ namespace facingfate
             if (cardObject == null) return;
             if (!cardsInHand.Contains(cardObject)) return;
 
+            // Clear selection before removing so Hide() doesn't re-show the discarded card
+            if (selectedCard == cardObject)
+            {
+                selectedCard.GetComponent<CardOutline>()?.SetSelected(false);
+                selectedCard = null;
+            }
+
             cardsInHand.Remove(cardObject);
             UpdateHandLayout();
 

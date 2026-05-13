@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem;
 
 namespace facingfate
 {
@@ -41,7 +42,22 @@ namespace facingfate
 
             if (!isDragging) return;
 
+            // Right-click during drag cancels movement without cost
+            if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame)
+            {
+                OnRightClickCancel();
+                return;
+            }
+
             OnDragUpdate();
+        }
+
+        protected virtual void OnRightClickCancel()
+        {
+            isDragging = false;
+
+            if (lineRenderer != null)
+                lineRenderer.enabled = false;
         }
 
         public virtual void OnMouseDown()

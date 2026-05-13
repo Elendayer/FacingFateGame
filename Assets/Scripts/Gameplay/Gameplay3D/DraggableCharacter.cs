@@ -213,6 +213,28 @@ namespace facingfate
             lineRenderer.material.color = lineColor;
         }
 
+        // ── Right-click cancel ────────────────────────────────────────────
+
+        protected override void OnRightClickCancel()
+        {
+            base.OnRightClickCancel();
+
+            // Clear movement state so OnMouseUp does nothing
+            _hasDragTarget      = false;
+            _destinationBlocked = false;
+            _lastPathData       = null;
+
+            if (staminaPreviewText != null)
+                staminaPreviewText.enabled = false;
+
+            // Re-enable obstacle if the turn isn't managing it
+            if (!_isObstacleDisabledForTurn && characterOnMap != null)
+                characterOnMap.EnableObstacleAfterDrag();
+
+            // Deselect the hand card so the card preview closes
+            HandManager.Instance?.SelectCard(null);
+        }
+
         // ── Movement execution ────────────────────────────────────────────
 
         private void MoveToPosition(NavMeshPathData pathData)

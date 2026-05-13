@@ -37,7 +37,7 @@ namespace facingfate
                 },
 
                 cost_u = 20,
-                healing_u = 15,
+                healing_u = 25,
                 duration_u = 3,
                 range_u = 3f,
 
@@ -135,7 +135,7 @@ namespace facingfate
                 cardIdentities = new() { CardIdentity.None },
 
                 cost_u = 45,
-                healing_u = 40,
+                healing_u = 50,
                 range_u = 2f,
 
                 targetingData = new()
@@ -617,7 +617,7 @@ namespace facingfate
                 },
 
                 cost_u = 30,
-                healing_u = 25,
+                healing_u = 35,
                 range_u = 3f,
                 area_u = 2f,
 
@@ -814,7 +814,7 @@ namespace facingfate
                 },
 
                 cost_u = 15,
-                healing_u = 40,
+                healing_u = 50,
                 range_u = 2f,
 
                 targetingData = new()
@@ -1307,7 +1307,7 @@ namespace facingfate
                     cardTargetingMode = CardTargetingMode.Single,
                 },
 
-                cardDescriptionAction = (User, d) => d.cardDescription = "Ally gains +{Power} damage for this turn.",
+                cardDescriptionAction = (User, d) => d.cardDescription = "Ally gains +{Power}% damage for this turn.",
 
                 cardActionSequence = new()
                 {
@@ -1321,7 +1321,7 @@ namespace facingfate
                             CombatUtility.ApplyStatBuff(cardData, target,
                                 new StatModifier(
                                     name: "SoaringDragon",
-                                    stat: target.entityStats.DamageOutModifier_Flat,
+                                    stat: target.entityStats.DamageOutModifier_Increase,
                                     value: cardData.Power,
                                     duration: cardData.Duration,
                                     modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge

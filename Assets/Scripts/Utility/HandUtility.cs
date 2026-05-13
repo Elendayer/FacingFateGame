@@ -54,6 +54,13 @@ public class HandUtility : MonoBehaviour
     }
 
     /// <summary>
+    /// Set to 1 before a player card's effects execute so that Draw allows one
+    /// extra slot (the played card will be discarded after effects finish).
+    /// Reset to 0 just before the card is discarded in step 3.
+    /// </summary>
+    public static int SlotsBeingFreedByPlayedCard = 0;
+
+    /// <summary>
     /// Draw a card from the deck and add it to the hand.
     /// Handles deck exhaustion by reshuffling discard pile if needed.
     /// </summary>
@@ -85,8 +92,8 @@ public class HandUtility : MonoBehaviour
             }
         }
 
-        // Check if hand is full
-        if (handManager.cardsInHand.Count >= handManager.maxHandsize)
+        // Check if hand is full (subtract slots being freed by a card currently being played)
+        if (handManager.cardsInHand.Count - SlotsBeingFreedByPlayedCard >= handManager.maxHandsize)
         {
             Debug.Log("[HandUtility] Hand is full. Cannot draw card.");
             return false;

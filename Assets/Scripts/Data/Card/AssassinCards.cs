@@ -805,7 +805,7 @@ namespace facingfate
                                 // Refresh Bleed for entities already in zone each caster turn
                                 onRef: (entity) => entity.AddModifier(bleedFactory(entity))
                             );
-                            CombatUtility.SpawnGroundEffect(cardData, position, groundEffect, vfxData: null);
+                            CombatUtility.SpawnGroundEffect(cardData, position, groundEffect, new VFXData("Firestorm_Ring") { radius = cardData.Radius, area = cardData.Area });
                         })
                     )
                 }
@@ -831,7 +831,7 @@ namespace facingfate
                     new WwiseSwitchEntry { group = "SwitchGrp_CharType", value = "Human"},
                 },
 
-                cost_u = 30,
+                cost_u = 15,
 
                 range_u = 5f,
 
@@ -975,6 +975,7 @@ namespace facingfate
                                     owner: caster,
                                     description: "Next attacks apply Poison on hit.",
                                     toTriggerRefs: new() { },
+                                    baseValue: cardData.Damage,
                                     charges: cardData.Charges,
                                     modifierMergeStrategy: ModifierMergeStrategy.Override,
                                     onRef_Trigger: new RelevantTriggerCheck
@@ -986,9 +987,25 @@ namespace facingfate
                                     actionTargetType: EntityModifier.ActionTargetType.Affected,
                                     onRef_Action: (t, d, value) =>
                                     {
-                                        var poisonEffect = EffectDatabase.GetEffectByName("Poison", d, ThroughputSource.Damage, t);
-                                        poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
-                                        CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
+                                        if (t == null || t.isDead) return;
+                                        CombatUtility.ApplyEntityModifier(d, t,
+                                            new EntityModifier(
+                                                modifierName: "Poison",
+                                                owner: t,
+                                                baseValue: value,
+                                                duration: 3,
+                                                toTriggerRefs: new() { GameplayRef.onPoison },
+                                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
+                                                onRef_Trigger: new RelevantTriggerCheck
+                                                {
+                                                    OnTriggerReference = new() { GameplayRef.onTurnStart },
+                                                    CheckType = CheckEntityType.User,
+                                                    CheckEntity = t,
+                                                },
+                                                onRef_Action: (target, cd, poisonValue) =>
+                                                {
+                                                    CombatUtility.ApplyEffectDamage(poisonValue, target, GameplayRef.onPoison, new VFXData("PoisonEffect", true));
+                                                }));
                                     }));
                         }
                     )

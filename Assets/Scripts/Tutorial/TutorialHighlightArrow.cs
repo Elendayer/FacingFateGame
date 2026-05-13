@@ -93,7 +93,8 @@ namespace facingfate
             private readonly float _visThreshold;
 
             private CanvasGroup _visibilityBinding;
-            private bool _wantsActive;   // true = would be shown if no binding blocks it
+            private bool _wantsActive;          // true = would be shown if no binding blocks it
+            private ArrowDirection _lastDir;    // stored so UpdateVisibilityBinding can replay pulse
 
             public ArrowInstance(GameObject root, float visThreshold)
             {
@@ -119,13 +120,12 @@ namespace facingfate
                     _arrow.localRotation = Quaternion.Euler(0f, 0f, GetRotation(dir));
                 }
 
+                _lastDir = dir;
+
                 bool shouldShow = binding == null || binding.alpha > _visThreshold;
                 _root.SetActive(shouldShow);
                 if (shouldShow && _arrow != null)
-                {
-                    _arrow.DOKill();
-                    _arrow.DOScale(1.2f, 0.55f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
-                }
+                    PlayPulse(_arrow, dir);
             }
 
             /// <summary>Show arrow tracking a world-space Transform every frame.</summary>
@@ -133,6 +133,7 @@ namespace facingfate
             {
                 _visibilityBinding = binding;
                 _wantsActive       = true;
+                _lastDir           = dir;
 
                 bool shouldShow = binding == null || binding.alpha > _visThreshold;
                 _root.SetActive(shouldShow);
@@ -143,10 +144,7 @@ namespace facingfate
 
                 _arrow.localRotation = Quaternion.Euler(0f, 0f, GetRotation(dir));
                 if (shouldShow)
-                {
-                    _arrow.DOKill();
-                    _arrow.DOScale(1.2f, 0.55f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
-                }
+                    PlayPulse(_arrow, dir);
             }
 
             /// <summary>Called every frame by TutorialHighlightArrow.Update() to sync binding visibility.</summary>
@@ -161,13 +159,12 @@ namespace facingfate
                 {
                     _root.SetActive(true);
                     if (_tracker != null) _tracker.enabled = true;
-                    _arrow?.DOKill();
-                    _arrow?.DOScale(1.2f, 0.55f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                    if (_arrow != null) PlayPulse(_arrow, _lastDir);
                 }
                 else
                 {
                     if (_tracker != null) _tracker.enabled = false;
-                    _arrow?.DOKill();
+                    StopPulse(_arrow);
                     _root.SetActive(false);
                 }
             }
@@ -177,9 +174,52 @@ namespace facingfate
                 _wantsActive       = active;
                 _visibilityBinding = null;
                 if (_tracker != null) _tracker.enabled = false;
-                _arrow?.DOKill();
+                StopPulse(_arrow);
                 _root.SetActive(active);
             }
+
+            // ── Pulse helpers ──────────────────────────────────────────────────
+
+            private static readonly string TweenId = "ArrowPulse";
+
+            private static void PlayPulse(RectTransform arrow, ArrowDirection dir)
+            {
+                // Kill previous tweens and reset to clean state
+                arrow.DOKill();
+                arrow.localScale    = Vector3.one;
+                arrow.localPosition = Vector3.zero;
+
+                // Scale pulse: 1.0 → 1.18 → 1.0, looping
+                arrow.DOScale(1.18f, 0.55f)
+                    .SetLoops(-1, LoopType.Yoyo)
+                    .SetEase(Ease.InOutSine)
+                    .SetUpdate(true);
+
+                // Position bob: arrow nudges 10px in its pointing direction
+                Vector3 bobOffset = GetBobOffset(dir, 10f);
+                arrow.DOLocalMove(bobOffset, 0.55f)
+                    .SetLoops(-1, LoopType.Yoyo)
+                    .SetEase(Ease.InOutSine)
+                    .SetUpdate(true);
+            }
+
+            private static void StopPulse(RectTransform arrow)
+            {
+                if (arrow == null) return;
+                arrow.DOKill();
+                arrow.localScale    = Vector3.one;
+                arrow.localPosition = Vector3.zero;
+            }
+
+            /// <summary>Returns a local-space offset in the direction the arrow points.</summary>
+            private static Vector3 GetBobOffset(ArrowDirection dir, float amount) => dir switch
+            {
+                ArrowDirection.Left  => new Vector3(-amount,  0f, 0f),
+                ArrowDirection.Right => new Vector3( amount,  0f, 0f),
+                ArrowDirection.Up    => new Vector3(0f,  amount,  0f),
+                ArrowDirection.Down  => new Vector3(0f, -amount,  0f),
+                _                    => new Vector3(-amount,  0f, 0f),
+            };
         }
 
         // ── Direction helpers ──────────────────────────────────────────────────
