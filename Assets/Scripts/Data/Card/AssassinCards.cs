@@ -988,24 +988,9 @@ namespace facingfate
                                     onRef_Action: (t, d, value) =>
                                     {
                                         if (t == null || t.isDead) return;
-                                        CombatUtility.ApplyEntityModifier(d, t,
-                                            new EntityModifier(
-                                                modifierName: "Poison",
-                                                owner: t,
-                                                baseValue: value,
-                                                duration: 3,
-                                                toTriggerRefs: new() { GameplayRef.onPoison },
-                                                modifierMergeStrategy: ModifierMergeStrategy.RefreshDurationAndMerge,
-                                                onRef_Trigger: new RelevantTriggerCheck
-                                                {
-                                                    OnTriggerReference = new() { GameplayRef.onTurnStart },
-                                                    CheckType = CheckEntityType.User,
-                                                    CheckEntity = t,
-                                                },
-                                                onRef_Action: (target, cd, poisonValue) =>
-                                                {
-                                                    CombatUtility.ApplyEffectDamage(poisonValue, target, GameplayRef.onPoison, new VFXData("PoisonEffect", true));
-                                                }));
+                                        var poisonEffect = EffectDatabase.GetEffectByName("Poison", cardData, ThroughputSource.Damage, t);
+                                        poisonEffect.ModifierMergeStrategy = ModifierMergeStrategy.RefreshDurationAndMerge;
+                                        CombatUtility.ApplyEntityModifier(d, t, poisonEffect);
                                     }));
                         }
                     )
@@ -1106,20 +1091,24 @@ namespace facingfate
                                 isUser: true
                             ).FirstOrDefault();
 
-                            // Safety check
                             if (lastVenomCard.CardData == null)
                             {
-                                Debug.LogWarning($"No Venom card found for user {caster.name}");
+                                Debug.LogWarning($"Reapply Venom: no prior Venom card found for {caster.name}");
                                 return;
                             }
 
-                            // Re-apply the venom by copying the modifier pattern
-                            // This is a simplified approach: just reapply the modifier from the last venom card
-                            // In practice, the CardActionSequence of the last card should be re-executed
-                            if (lastVenomCard.CardData.cardActionSequence != null && lastVenomCard.CardData.cardActionSequence.Count > 0)
+                            // Ensure owner is correct before re-executing
+                            lastVenomCard.CardData.Owner = caster;
+
+                            // Re-execute each Caster action from the venom card's sequence (mirrors CardActionSequence.ExecuteAction Caster path)
+                            foreach (var ca in lastVenomCard.CardData.cardActionSequence)
                             {
-                                // Execute the card action sequence through the standard system
-                                Debug.Log($"Reapplying venom from: {lastVenomCard.CardData.cardName}");
+                                if (ca?.actionDelegate == null) continue;
+
+                                if (ca.actionDelegate is System.Action<EntityScript, CardData> casterAct)
+                                    ActionQueueUtility.EnqueueAction(() => casterAct(caster, lastVenomCard.CardData));
+                                else if (ca.actionDelegate is System.Action<EntityScript, EntityScript, CardData> legacyAct)
+                                    ActionQueueUtility.EnqueueAction(() => legacyAct(caster, caster, lastVenomCard.CardData));
                             }
                         })
                     )
