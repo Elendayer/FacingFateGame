@@ -24,10 +24,24 @@ namespace facingfate
 
         public void Bind(EntityScript entity)
         {
+            // Unsubscribe from old entity
+            if (boundEntity != null && boundEntity.entityStats != null)
+                boundEntity.entityStats.OnStatsChanged -= Refresh;
+
             boundEntity = entity;
-            //Debug.Log($"[PlayerStatPanel] Bind – entity={entity?.gameObject.name ?? "NULL"}");
+
+            // Subscribe to new entity for immediate refresh on any stat change
+            if (boundEntity != null && boundEntity.entityStats != null)
+                boundEntity.entityStats.OnStatsChanged += Refresh;
+
             if (statusBar != null) statusBar.Bind(entity);
             else Debug.Log("[PlayerStatPanel] statusBar ist NULL!");
+        }
+
+        private void OnDisable()
+        {
+            if (boundEntity != null && boundEntity.entityStats != null)
+                boundEntity.entityStats.OnStatsChanged -= Refresh;
         }
 
         public void Refresh()

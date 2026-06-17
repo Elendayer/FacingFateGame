@@ -188,6 +188,14 @@ namespace facingfate
             }
 
             cardsInHand.Remove(cardObject);
+
+            // Update() skips when hand is empty — hide preview manually so it doesn't linger
+            if (cardsInHand.Count == 0)
+            {
+                lastPreviewedCard = null;
+                CardPreviewPanel.Instance?.Hide();
+            }
+
             UpdateHandLayout();
 
             DeckManager.Instance.Player_DiscardCardFromHand(cardObject);

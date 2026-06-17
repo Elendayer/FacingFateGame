@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -9,37 +8,26 @@ namespace facingfate
         public TextMeshProUGUI textMeshPro;
         public EntityScript eM;
 
-        float maxHealth => eM.entityStats.MaxHealth;
-        float currentHealth => eM.entityStats.CurrentHealth;
-
-        float maxStamina => eM.entityStats.MaxStamina;
-        float currentStamina => eM.entityStats.CurrentStamina;
-
         public MeshRenderer healthRenderer;
         public MeshRenderer staminaRenderer;
-
 
         private void Start()
         {
             eM = GetComponentInParent<EntityScript>();
-
-            MeshRenderer renderer = GetComponent<MeshRenderer>();
-
-            StartCoroutine(SlowUpdate());
         }
-            
-        // Update is called once per frame
-        IEnumerator SlowUpdate()
+
+        private void Update()
         {
-            while (true)
-            {
+            if (eM == null) return;
 
-                healthRenderer.material.SetFloat("_ratio", currentHealth / maxHealth);
-                staminaRenderer.material.SetFloat("_ratio", currentStamina / maxStamina);
-                //textMeshPro.text = $"{current} / {max}"; 
+            float maxHp = eM.entityStats.MaxHealth;
+            float maxSt = eM.entityStats.MaxStamina;
 
-                yield return new WaitForSeconds(0.5f);
-            }
+            if (healthRenderer != null)
+                healthRenderer.material.SetFloat("_ratio", maxHp > 0f ? eM.entityStats.CurrentHealth / maxHp : 0f);
+
+            if (staminaRenderer != null)
+                staminaRenderer.material.SetFloat("_ratio", maxSt > 0f ? eM.entityStats.CurrentStamina / maxSt : 0f);
         }
     }
 }

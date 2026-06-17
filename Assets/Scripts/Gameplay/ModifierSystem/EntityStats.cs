@@ -11,6 +11,9 @@ namespace facingfate
         private bool deathProcessed = false;
         private bool isInitialized = false;
 
+        /// <summary>Fired at the end of UpdateStats() — subscribe to react immediately to any stat change.</summary>
+        [System.NonSerialized] public System.Action OnStatsChanged;
+
         [Header("Base Stats")]
         [SerializeField]
         public float CurrentHealth;
@@ -256,6 +259,9 @@ namespace facingfate
             {
                 CombatUIController.Instance.RefreshAll();
             }
+
+            // Notify any direct subscribers (e.g. PlayerStatsPanel) for immediate update
+            OnStatsChanged?.Invoke();
 
             // Handle death condition - only process once per entity
             if (CurrentHealth <= 0 && !deathProcessed && Owner != null && isInitialized)
